@@ -1,4 +1,4 @@
-package com.readingshare.readingshare_system;
+package com.readingshare;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
