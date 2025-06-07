@@ -1,10 +1,10 @@
-package com.readingshare.readingshare_system.service;
+package com.readingshare.survey.service.dto;
 
-public class CreateSurveyRequest {
+public class CreateSurveyService {
     private String title;
     private String description;
 
-    public CreateSurveyRequest(String title, String description) {
+    public CreateSurveyService(String title, String description) {
         this.title = title;
         this.description = description;
     }
@@ -16,4 +16,5 @@ public class CreateSurveyRequest {
     public String getDescription() {
         return description;
     }
+
 }

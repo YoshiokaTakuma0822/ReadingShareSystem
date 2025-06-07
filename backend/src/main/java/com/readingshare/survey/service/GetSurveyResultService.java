@@ -1,6 +1,6 @@
-package com.readingshare.readingshare_system.service;
+package com.readingshare.survey.service;
 
-public  class GetSurveyResultService {
+public class GetSurveyResultService {
 
     // This service will handle the logic for retrieving survey results.
     // It will likely interact with a repository or database to fetch the results
@@ -15,5 +15,5 @@ public  class GetSurveyResultService {
         // Logic to retrieve survey results from the database
         // For example, querying a repository or service layer
     }
-    
+
 }

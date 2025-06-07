@@ -1,18 +1,12 @@
-package com.readingshare.readingshare_system.domain.model;
+package com.readingshare.survey.service;
 
-public class Survey {
-    private String id;
+public class CreateSurveyRequest {
     private String title;
     private String description;
 
-    public Survey(String id, String title, String description) {
-        this.id = id;
+    public CreateSurveyRequest(String title, String description) {
         this.title = title;
         this.description = description;
-    }
-
-    public String getId() {
-        return id;
     }
 
     public String getTitle() {

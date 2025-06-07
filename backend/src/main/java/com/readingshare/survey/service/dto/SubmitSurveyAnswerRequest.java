@@ -1,4 +1,4 @@
-package com.readingshare.readingshare_system.service.dto;
+package com.readingshare.survey.service.dto;
 
 public class SubmitSurveyAnswerRequest {
     private String surveyId;

@@ -1,4 +1,4 @@
-package com.readingshare.readingshare_system.domain.model;
+package com.readingshare.survey.domain.model;
 
 public class SurveyId {
     private String id;
@@ -10,10 +10,14 @@ public class SurveyId {
     public String getId() {
         return id;
     }
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof SurveyId)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof SurveyId))
+            return false;
         SurveyId surveyId = (SurveyId) o;
         return id.equals(surveyId.id);
     }
+}

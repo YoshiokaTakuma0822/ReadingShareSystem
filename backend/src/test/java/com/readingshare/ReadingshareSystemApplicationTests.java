@@ -1,4 +1,4 @@
-package com.readingshare.readingshare_system;
+package com.readingshare;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
