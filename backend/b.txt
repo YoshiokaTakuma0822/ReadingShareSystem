@@ -1,0 +1,29 @@
+# Curl commands for testing the chat API
+
+# 1. Register a new user account
+curl -v \
+  -X POST http://localhost:8080/api/accounts/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"testuser@example.com","password":"Password123"}'
+
+# 2. Login to get authentication cookies
+curl -v -c cookies.txt \
+  -X POST http://localhost:8080/api/accounts/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"testuser@example.com","password":"Password123"}'
+
+# 3. Join room as a member (Room join curl command)
+curl -v -b cookies.txt \
+  -X POST http://localhost:8080/api/rooms/1/members \
+  -H "Content-Type: application/json" \
+  -d '{"name":"testuser"}'
+
+# 4. Send a message to the room (FIXED - no more NullPointerException!)
+curl -v -b cookies.txt \
+  -X POST http://localhost:8080/api/rooms/1/messages \
+  -H "Content-Type: application/json" \
+  -d '{"content":"こんにちは","type":"CHAT"}'
+
+# 5. Retrieve messages from the room
+curl -v -b cookies.txt \
+  http://localhost:8080/api/rooms/1/messages

@@ -1,0 +1,13 @@
+.env.local
+NEXT_PUBLIC_API_HOST=http://192.168.0.5:8080
+NEXT_PUBLIC_WEB_SOCKET_URL=ws://192.168.0.5:8080/ws
+
+node --trace-deprecation node_modules/.bin/next dev
+
+npm run dev
+npm run build && npx serve out
+
+curl -X POST http://localhost:3000/api/accounts/register \
+    -H "Content-Type: application/json" \
+    -d '{"email":"test2@example.com","password":"testpassword"}' \
+    -v

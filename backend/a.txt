@@ -1,0 +1,37 @@
+curl http://localhost:8080/api/users/add-default | jq
+curl http://localhost:8080/api/users | jq
+curl http://localhost:8080/hello
+
+curl -X http://localhost:8080/api/messages send \
+  -H "Content-Type: application/json" \
+  -d '{"message":"Hello, world!"}' | jq
+curl http://localhost:8080/api/messages/recent | jq
+curl http://localhost:8080/api/users/active | jq
+
+psql "postgresql://postgres:postgres@localhost:5432/demo" -c "\d"
+psql "postgresql://postgres:postgres@localhost:5432/demo" -c "SELECT * FROM users;"
+psql "postgresql://postgres:postgres@localhost:5432/demo" -c "SELECT * FROM chat_messages;"
+psql "postgresql://postgres:postgres@localhost:5432/demo" -c "INSERT INTO chat_messages (user_id, content, created_at, type) SELECT 1, 'テストメッセージ ' || gs, now(), 'CHAT' FROM generate_series(1,10000) AS gs;"
+
+rm src/main/resources/db/migration/V{2,3,4,5,6}*.sql
+sed -i '' 's|/api/users|/api/members|g' src/test/java/com/example/demo/controller/UserControllerTest.java
+
+docker compose down -v && docker compose up -d
+docker compose up -d --build
+
+./mvnw dependency:resolve
+./mvnw dependency:tree
+./mvnw dependency:go-offline -Dmaven.repo.local=./.m2/repository
+./mvnw dependency:go-offline -DincludeScope=compile -DincludeScope=provided -DincludeScope=runtime
+
+./mvnw spring-boot:run -Dspring-boot.run.arguments="--logging.level.root=DEBUG"
+./mvnw spring-boot:run -Dspring-boot.run.arguments="--logging.level.com.example.demo=INFO"
+./mvnw spring-boot:run -Dspring-boot.run.arguments="--logging.level.org.springframework.web=DEBUG"
+
+./mvnw spring-boot:run -Dspring-boot.run.arguments="--server.port=8081"
+SERVER_PORT=8081 ./mvnw spring-boot:run
+
+http://localhost:8080/actuator/health
+http://localhost:8080/swagger-ui/index.html
+
+./mvnw spring-boot:run
