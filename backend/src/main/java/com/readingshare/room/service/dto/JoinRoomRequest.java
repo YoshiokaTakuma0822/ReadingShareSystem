@@ -33,6 +33,14 @@ public class JoinRoomRequest {
         this.userId = userId;
     }
 
+    public String getRoomPassword() {
+        return roomPassword;
+    }
+
+    public void setRoomPassword(String roomPassword) {
+        this.roomPassword = roomPassword;
+    }
+
     @Override
     public String toString() {
         return "JoinRoomRequest{" +

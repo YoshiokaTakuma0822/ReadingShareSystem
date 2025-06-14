@@ -1,13 +1,19 @@
 package com.readingshare.chat.controller;
 
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.readingshare.chat.domain.model.ChatMessage;
+import com.readingshare.chat.dto.SendMessageRequest;
 import com.readingshare.chat.service.GetChatHistoryService;
 import com.readingshare.chat.service.SendChatMessageService;
-import com.readingshare.chat.service.dto.SendMessageRequest;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * グループチャットに関するAPIを処理するコントローラー。
@@ -27,7 +33,8 @@ public class ChatController {
 
     /**
      * チャットメッセージを送信する。
-     * @param roomId メッセージを送信する部屋のID
+     * 
+     * @param roomId  メッセージを送信する部屋のID
      * @param request 送信メッセージリクエスト
      * @return 送信成功時はHTTP 200 OK
      */
@@ -41,6 +48,7 @@ public class ChatController {
 
     /**
      * 特定の部屋のチャット履歴を取得する。
+     * 
      * @param roomId 履歴を取得する部屋のID
      * @return チャットメッセージのリスト
      */

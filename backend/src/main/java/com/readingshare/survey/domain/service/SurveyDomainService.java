@@ -1,6 +1,7 @@
 package com.readingshare.survey.domain.service;
 
-import java.time.Instant;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -9,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.readingshare.common.exception.DifferentQuestionnaireComponentException; // 仕様書より
 import com.readingshare.common.exception.DomainException;
+import com.readingshare.survey.domain.model.Question;
 import com.readingshare.survey.domain.model.Survey;
 import com.readingshare.survey.domain.model.SurveyAnswer;
 import com.readingshare.survey.domain.model.SurveyId;
@@ -79,29 +81,67 @@ public class SurveyDomainService {
      */
     @Transactional
     public void submitSurveyAnswer(Long surveyId, Long userId, Map<String, String> answers) {
-        Optional<Survey> surveyOptional = surveyRepository.findById(new SurveyId(surveyId));
+        Optional<Survey> surveyOptional = surveyRepository.findById(new SurveyId(surveyId.toString()));
         if (surveyOptional.isEmpty()) {
             throw new DomainException("Survey not found with ID: " + surveyId);
         }
-        // Survey survey = surveyOptional.get(); // 使われていないためコメントアウト
+        Survey survey = surveyOptional.get();
 
         // 回答が既に存在するかチェック
         if (surveyAnswerRepository.findBySurveyIdAndResponderUserId(surveyId, userId).isPresent()) {
             throw new DomainException("User " + userId + " has already submitted an answer for survey " + surveyId);
         }
 
-        // 回答内容のバリデーション（例: 必須質問の有無、選択肢の有効性など）
-        // 内部設計書の「いずれかの変数の欠損又は誤りのときDifferntQuestionnaireComponentException」に対応
+        // 回答内容のバリデーション
         if (answers == null || answers.isEmpty()) {
             throw new DifferentQuestionnaireComponentException("Answers cannot be null or empty.");
         }
 
-        // 実際には、Surveyのquestionsとanswersのキーを照合し、整合性を確認するロジックが必要
-        // 例: for (Question q : survey.getQuestions()) { if
-        // (!answers.containsKey(q.getId().toString())) throw new
-        // DifferentQuestionnaireComponentException(...) }
+        // 回答フォーマットの変換とバリデーション
+        Map<Integer, Integer> convertedAnswers = new HashMap<>();
+        List<Question> questions = survey.getQuestions();
 
-        SurveyAnswer newAnswer = new SurveyAnswer(null, surveyId, userId, answers, Instant.now());
-        surveyAnswerRepository.save(newAnswer);
+        for (Map.Entry<String, String> entry : answers.entrySet()) {
+            try {
+                int questionIndex = Integer.parseInt(entry.getKey());
+                int answerIndex = Integer.parseInt(entry.getValue());
+
+                // 質問のインデックスが有効か確認
+                if (questionIndex < 0 || questionIndex >= questions.size()) {
+                    throw new DifferentQuestionnaireComponentException(
+                            "Invalid question index: " + questionIndex);
+                }
+
+                Question question = questions.get(questionIndex);
+                // 回答のインデックスが有効か確認（選択肢の範囲内か）
+                if (answerIndex < 0 || answerIndex >= question.getOptions().size()) {
+                    throw new DifferentQuestionnaireComponentException(
+                            "Invalid answer index for question " + questionIndex + ": " + answerIndex);
+                }
+
+                convertedAnswers.put(questionIndex, answerIndex);
+            } catch (NumberFormatException e) {
+                throw new DifferentQuestionnaireComponentException(
+                        "Invalid format for question or answer index");
+            }
+        }
+
+        // すべての質問に回答があることを確認
+        if (convertedAnswers.size() != questions.size()) {
+            throw new DifferentQuestionnaireComponentException(
+                    "Not all questions have been answered");
+        }
+
+        // 回答を保存
+        SurveyAnswer surveyAnswer = new SurveyAnswer(
+                new SurveyId(surveyId.toString()),
+                userId.toString(),
+                convertedAnswers);
+
+        try {
+            surveyAnswerRepository.save(surveyAnswer);
+        } catch (Exception e) {
+            throw new DomainException("Failed to save survey answer", e);
+        }
     }
 }

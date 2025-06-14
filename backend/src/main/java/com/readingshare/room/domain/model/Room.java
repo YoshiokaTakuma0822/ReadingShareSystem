@@ -1,6 +1,6 @@
 package com.readingshare.room.domain.model;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Objects;
 
 import jakarta.persistence.Column;
@@ -21,31 +21,43 @@ public class Room {
     @Column(nullable = false, length = 100)
     private String roomName;
 
+    @Column(nullable = false, length = 200)
+    private String bookTitle;
+
     @Column(nullable = false)
     private Long hostUserId;
 
     @Column(nullable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
+
+    @Column(nullable = true)
+    private String roomPasswordHash;
 
     // --- コンストラクタ ---
     public Room() {
         // JPA用
     }
 
-    public Room(String roomName, Long hostUserId) {
+    public Room(String roomName, String bookTitle, Long hostUserId) {
         this.roomName = roomName;
+        this.bookTitle = bookTitle;
         this.hostUserId = hostUserId;
-        this.createdAt = LocalDateTime.now();
+        this.createdAt = Instant.now();
     }
 
-    public Room(Long roomId, String roomName, Long hostUserId, LocalDateTime createdAt) {
+    public Room(Long roomId, String roomName, String bookTitle, Long hostUserId, Instant createdAt) {
         this.roomId = roomId;
         this.roomName = roomName;
+        this.bookTitle = bookTitle;
         this.hostUserId = hostUserId;
         this.createdAt = createdAt;
     }
 
     // --- Getter / Setter ---
+    public Long getId() {
+        return roomId;
+    }
+
     public Long getRoomId() {
         return roomId;
     }
@@ -62,6 +74,14 @@ public class Room {
         this.roomName = roomName;
     }
 
+    public String getBookTitle() {
+        return bookTitle;
+    }
+
+    public void setBookTitle(String bookTitle) {
+        this.bookTitle = bookTitle;
+    }
+
     public Long getHostUserId() {
         return hostUserId;
     }
@@ -70,12 +90,24 @@ public class Room {
         this.hostUserId = hostUserId;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getRoomPasswordHash() {
+        return roomPasswordHash;
+    }
+
+    public void setRoomPasswordHash(String roomPasswordHash) {
+        this.roomPasswordHash = roomPasswordHash;
+    }
+
+    public boolean hasPassword() {
+        return roomPasswordHash != null && !roomPasswordHash.isEmpty();
     }
 
     // --- equals / hashCode / toString ---
@@ -99,6 +131,7 @@ public class Room {
         return "Room{" +
                 "roomId=" + roomId +
                 ", roomName='" + roomName + '\'' +
+                ", bookTitle='" + bookTitle + '\'' +
                 ", hostUserId=" + hostUserId +
                 ", createdAt=" + createdAt +
                 '}';

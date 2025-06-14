@@ -1,6 +1,6 @@
 package com.readingshare.room.domain.model;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Objects;
 
 import jakarta.persistence.Column;
@@ -25,21 +25,14 @@ public class RoomMember {
     private Long userId;
 
     @Column(nullable = false)
-    private LocalDateTime joinedAt;
+    private Instant joinedAt;
 
     // --- コンストラクタ ---
     public RoomMember() {
-        // JPA用のデフォルトコンストラクタ
+        // JPA用
     }
 
-    public RoomMember(Long roomId, Long userId) {
-        this.roomId = roomId;
-        this.userId = userId;
-        this.joinedAt = LocalDateTime.now();
-    }
-
-    public RoomMember(Long roomMemberId, Long roomId, Long userId, LocalDateTime joinedAt) {
-        this.roomMemberId = roomMemberId;
+    public RoomMember(Long roomId, Long userId, Instant joinedAt) {
         this.roomId = roomId;
         this.userId = userId;
         this.joinedAt = joinedAt;
@@ -70,11 +63,11 @@ public class RoomMember {
         this.userId = userId;
     }
 
-    public LocalDateTime getJoinedAt() {
+    public Instant getJoinedAt() {
         return joinedAt;
     }
 
-    public void setJoinedAt(LocalDateTime joinedAt) {
+    public void setJoinedAt(Instant joinedAt) {
         this.joinedAt = joinedAt;
     }
 

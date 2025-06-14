@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class PasswordHasherImpl implements IPasswordHasher {
-
     private final BCryptPasswordEncoder passwordEncoder;
 
     public PasswordHasherImpl() {

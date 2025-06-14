@@ -2,7 +2,6 @@ package com.readingshare.room.controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,7 +29,6 @@ public class RoomController {
     private final JoinRoomService joinRoomService;
     private final SearchRoomService searchRoomService;
 
-    @Autowired
     public RoomController(
             CreateRoomService createRoomService,
             JoinRoomService joinRoomService,
@@ -46,7 +44,10 @@ public class RoomController {
      */
     @PostMapping
     public ResponseEntity<Room> createRoom(@RequestBody CreateRoomRequest request) {
-        Room createdRoom = createRoomService.createRoom(request);
+        Room createdRoom = request.getPassword() != null
+                ? createRoomService.createRoomWithPassword(request.getRoomName(), request.getBookTitle(),
+                        request.getHostUserId(), request.getPassword())
+                : createRoomService.createRoom(request.getRoomName(), request.getBookTitle(), request.getHostUserId());
         return ResponseEntity.ok(createdRoom);
     }
 
@@ -56,8 +57,8 @@ public class RoomController {
      */
     @PostMapping("/join")
     public ResponseEntity<RoomMember> joinRoom(@RequestBody JoinRoomRequest request) {
-        RoomMember joinedMember = joinRoomService.joinRoom(request);
-        return ResponseEntity.ok(joinedMember);
+        joinRoomService.joinRoom(request.getRoomId(), request.getUserId(), request.getRoomPassword());
+        return ResponseEntity.ok(new RoomMember());
     }
 
     /**
