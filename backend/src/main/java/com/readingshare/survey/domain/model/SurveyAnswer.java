@@ -1,6 +1,5 @@
 package com.readingshare.survey.domain.model;
 
-import lombok.Getter;
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -8,7 +7,6 @@ import java.util.Map;
  * アンケートへの回答を表すエンティティ。
  * 要求仕様書「(4)アンケートに回答する」に対応。
  */
-@Getter
 public class SurveyAnswer {
 
     private final SurveyId surveyId;
@@ -25,5 +23,21 @@ public class SurveyAnswer {
         this.userId = userId;
         this.answers = answers;
         this.answeredAt = LocalDateTime.now();
+    }
+
+    public SurveyId getSurveyId() {
+        return surveyId;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public Map<Integer, Integer> getAnswers() {
+        return answers;
+    }
+
+    public LocalDateTime getAnsweredAt() {
+        return answeredAt;
     }
 }

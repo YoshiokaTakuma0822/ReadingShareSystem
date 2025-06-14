@@ -1,4 +1,4 @@
-package com.readingshare.survey.service.dto;
+package com.readingshare.survey.dto;
 
 import java.util.Map;
 

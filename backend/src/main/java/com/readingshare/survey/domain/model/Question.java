@@ -1,12 +1,10 @@
 package com.readingshare.survey.domain.model;
 
-import lombok.Getter;
 import java.util.List;
 
 /**
  * 質問エンティティ。
  */
-@Getter
 public class Question {
     private final String questionText;
     private final List<String> options; // 選択肢のリスト
@@ -21,5 +19,13 @@ public class Question {
         }
         this.questionText = questionText;
         this.options = options;
+    }
+
+    public String getQuestionText() {
+        return questionText;
+    }
+
+    public List<String> getOptions() {
+        return options;
     }
 }

@@ -6,19 +6,25 @@ import com.readingshare.survey.service.SubmitSurveyAnswerService;
 import com.readingshare.survey.service.dto.CreateSurveyRequest;
 import com.readingshare.survey.service.dto.SubmitSurveyAnswerRequest;
 import com.readingshare.survey.service.dto.SurveyResultDto;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/surveys")
-@RequiredArgsConstructor
 public class SurveyController {
 
     private final CreateSurveyService createSurveyService;
     private final SubmitSurveyAnswerService submitSurveyAnswerService;
     private final GetSurveyResultService getSurveyResultService;
+
+    public SurveyController(CreateSurveyService createSurveyService,
+                            SubmitSurveyAnswerService submitSurveyAnswerService,
+                            GetSurveyResultService getSurveyResultService) {
+        this.createSurveyService = createSurveyService;
+        this.submitSurveyAnswerService = submitSurveyAnswerService;
+        this.getSurveyResultService = getSurveyResultService;
+    }
 
     /**
      * W7 アンケート作成画面からのリクエストを処理

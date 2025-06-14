@@ -1,6 +1,5 @@
 package com.readingshare.survey.domain.model;
 
-import lombok.Getter;
 import java.util.List;
 import java.util.UUID;
 
@@ -8,7 +7,6 @@ import java.util.UUID;
  * アンケート集約のルートエンティティ。
  * 要求仕様書「(3)アンケートを作成する」に対応。
  */
-@Getter
 public class Survey {
 
     private final SurveyId id;
@@ -30,5 +28,21 @@ public class Survey {
         this.roomId = roomId;
         this.title = title;
         this.questions = questions;
+    }
+
+    public SurveyId getId() {
+        return id;
+    }
+
+    public String getRoomId() {
+        return roomId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public List<Question> getQuestions() {
+        return questions;
     }
 }
