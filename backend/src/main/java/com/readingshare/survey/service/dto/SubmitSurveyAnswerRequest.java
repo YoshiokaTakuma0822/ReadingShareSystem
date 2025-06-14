@@ -1,7 +1,9 @@
 package com.readingshare.survey.service.dto;
 
+import java.util.Map;
+
+// W8 アンケート回答画面からのリクエストデータ
 public record SubmitSurveyAnswerRequest(
-        String surveyId,
-        String userId,
-        String answer) {
-}
+    String userId,
+    Map<Integer, Integer> answers // Map<questionIndex, selectedOptionIndex>
+) {}
