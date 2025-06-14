@@ -1,6 +1,5 @@
 package com.readingshare.chat.controller;
 
-<<<<<<< Updated upstream
 import com.readingshare.chat.domain.model.ChatMessage;
 import com.readingshare.chat.service.GetChatHistoryService;
 import com.readingshare.chat.service.SendChatMessageService;
@@ -51,8 +50,3 @@ public class ChatController {
         return ResponseEntity.ok(messages);
     }
 }
-=======
-public class ChatController {
-    
-}
->>>>>>> Stashed changes
