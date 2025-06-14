@@ -1,6 +1,5 @@
 package com.readingshare.chat.domain.model;
 
-<<<<<<< Updated upstream
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;

@@ -1,6 +1,5 @@
 package com.readingshare.chat.service;
 
-<<<<<<< Updated upstream
 import com.readingshare.chat.domain.model.UserProgress;
 import com.readingshare.chat.domain.repository.IProgressRepository;
 import com.readingshare.common.exception.DatabaseAccessException;
@@ -33,8 +32,3 @@ public class GetRoomProgressService {
         return progressRepository.findByRoomId(roomId);
     }
 }
-=======
-public class GetRoomProgressService {
-    
-}
->>>>>>> Stashed changes

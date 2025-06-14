@@ -1,6 +1,5 @@
 package com.readingshare.chat.service;
 
-<<<<<<< Updated upstream
 import com.readingshare.chat.domain.model.ChatMessage;
 import com.readingshare.chat.domain.repository.IChatMessageRepository;
 import com.readingshare.common.exception.DatabaseAccessException;
