@@ -23,8 +23,10 @@ public class RoomId {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof RoomId)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof RoomId))
+            return false;
         RoomId roomId = (RoomId) o;
         return Objects.equals(value, roomId.value);
     }

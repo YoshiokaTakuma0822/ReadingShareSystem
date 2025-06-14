@@ -1,33 +1,33 @@
 package com.readingshare.room.service;
 
-import com.readingshare.room.domain.model.RoomMember;
-import com.readingshare.room.domain.repository.IRoomMemberRepository;
-import com.readingshare.room.service.dto.JoinRoomRequest;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import com.readingshare.common.exception.ApplicationException;
+import com.readingshare.room.domain.model.RoomId;
+import com.readingshare.room.domain.service.RoomDomainService;
+
+/**
+ * 部屋参加のアプリケーションサービス。
+ * 担当: 芳岡
+ */
 @Service
 public class JoinRoomService {
 
-    private final IRoomMemberRepository roomMemberRepository;
+    private final RoomDomainService roomDomainService;
 
-    @Autowired
-    public JoinRoomService(IRoomMemberRepository roomMemberRepository) {
-        this.roomMemberRepository = roomMemberRepository;
+    public JoinRoomService(RoomDomainService roomDomainService) {
+        this.roomDomainService = roomDomainService;
     }
 
-    @Transactional
-    public RoomMember joinRoom(JoinRoomRequest request) {
-        // 既に参加済みか確認
-        roomMemberRepository.findByRoomIdAndUserId(request.getRoomId(), request.getUserId())
-            .ifPresent(existing -> {
-                throw new IllegalStateException("User already joined the room.");
-            });
-
-        // 参加処理
-        RoomMember member = new RoomMember(request.getRoomId(), request.getUserId());
-        return roomMemberRepository.save(member);
+    /**
+     * ユーザーを部屋に参加させる。
+     * 
+     * @param roomId       参加する部屋のID
+     * @param userId       参加するユーザーのID
+     * @param roomPassword 部屋のパスワード（パスワード保護された部屋の場合）
+     * @throws ApplicationException 部屋が見つからない、パスワードが間違っている、既に部屋に参加している場合など
+     */
+    public void joinRoom(Long roomId, Long userId, String roomPassword) {
+        roomDomainService.addRoomMember(new RoomId(roomId), userId, roomPassword);
     }
 }

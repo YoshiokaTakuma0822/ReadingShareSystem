@@ -1,31 +1,73 @@
 package com.readingshare.room.infrastructure.persistence;
 
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.readingshare.common.exception.DatabaseAccessException;
 import com.readingshare.room.domain.model.Room;
-import com.readingshare.room.domain.repository.IRoomRepositoryCustom;
+import com.readingshare.room.domain.model.RoomId;
+import com.readingshare.room.domain.repository.IRoomRepository;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
-import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 /**
- * RoomRepository のカスタム実装
+ * IRoomRepository の JPA/Hibernate 実装。
+ * 担当: 芳岡
  */
 @Repository
-public class RoomRepositoryImpl implements IRoomRepositoryCustom {
+public class RoomRepositoryImpl implements IRoomRepository {
 
     @PersistenceContext
     private EntityManager entityManager;
 
-    /**
-     * 最近作成された部屋を新しい順に取得（例としてのカスタムクエリ）
-     */
     @Override
-    public List<Room> findRecentRooms(int limit) {
-        String jpql = "SELECT r FROM Room r ORDER BY r.createdAt DESC";
-        TypedQuery<Room> query = entityManager.createQuery(jpql, Room.class);
-        query.setMaxResults(limit);
-        return query.getResultList();
+    @Transactional
+    public Room save(Room room) {
+        try {
+            if (room.getId() == null) {
+                entityManager.persist(room);
+                return room;
+            } else {
+                return entityManager.merge(room);
+            }
+        } catch (Exception e) {
+            throw new DatabaseAccessException("Failed to save room.", e);
+        }
+    }
+
+    @Override
+    public Optional<Room> findById(RoomId id) {
+        try {
+            return Optional.ofNullable(entityManager.find(Room.class, id.getValue()));
+        } catch (Exception e) {
+            throw new DatabaseAccessException("Failed to find room by ID: " + id.getValue(), e);
+        }
+    }
+
+    @Override
+    public List<Room> findByKeyword(String keyword) {
+        try {
+            TypedQuery<Room> query = entityManager.createQuery(
+                    "SELECT r FROM Room r WHERE r.roomName LIKE :keyword OR r.bookTitle LIKE :keyword", Room.class);
+            query.setParameter("keyword", "%" + keyword + "%");
+            return query.getResultList();
+        } catch (Exception e) {
+            throw new DatabaseAccessException("Failed to search rooms by keyword: " + keyword, e);
+        }
+    }
+
+    @Override
+    public List<Room> findAll() {
+        try {
+            TypedQuery<Room> query = entityManager.createQuery("SELECT r FROM Room r", Room.class);
+            return query.getResultList();
+        } catch (Exception e) {
+            throw new DatabaseAccessException("Failed to retrieve all rooms.", e);
+        }
     }
 }

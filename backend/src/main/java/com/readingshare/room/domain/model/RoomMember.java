@@ -1,9 +1,14 @@
 package com.readingshare.room.domain.model;
 
-import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 import java.util.Objects;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "room_members")
@@ -76,8 +81,10 @@ public class RoomMember {
     // --- equals / hashCode / toString ---
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof RoomMember)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof RoomMember))
+            return false;
         RoomMember that = (RoomMember) o;
         return Objects.equals(roomMemberId, that.roomMemberId);
     }

@@ -1,47 +1,63 @@
 package com.readingshare.survey.infrastructure.persistance;
 
-import com.readingshare.survey.domain.model.Survey;
-import com.readingshare.survey.domain.model.SurveyAnswer;
-import com.readingshare.survey.domain.model.SurveyId;
-import com.readingshare.survey.domain.repository.ISurveyRepository;
-import org.springframework.stereotype.Repository;
-
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
+
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.readingshare.common.exception.DatabaseAccessException;
+import com.readingshare.survey.domain.model.Survey;
+import com.readingshare.survey.domain.model.SurveyId;
+import com.readingshare.survey.domain.repository.ISurveyRepository;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 
 /**
- * アンケートリポジトリのインメモリ実装例。
- * 本番環境ではJPAやJDBCを利用した実装に置き換える。
+ * ISurveyRepository の JPA/Hibernate 実装。
+ * 担当: 成田
  */
 @Repository
 public class SurveyRepositoryImpl implements ISurveyRepository {
 
-    // 永続化の代わりにインメモリのMapを使用
-    private final ConcurrentHashMap<SurveyId, Survey> surveyStore = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<SurveyId, List<SurveyAnswer>> answerStore = new ConcurrentHashMap<>();
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Override
-    public void save(Survey survey) {
-        surveyStore.put(survey.getId(), survey);
-        System.out.println("Saved survey: " + survey.getId().getValue());
-    }
-
-    @Override
-    public void saveAnswer(SurveyAnswer surveyAnswer) {
-        answerStore.computeIfAbsent(surveyAnswer.getSurveyId(), k -> new CopyOnWriteArrayList<>())
-                   .add(surveyAnswer);
-        System.out.println("Saved answer for survey: " + surveyAnswer.getSurveyId().getValue());
+    @Transactional
+    public Survey save(Survey survey) {
+        try {
+            if (survey.getId() == null) {
+                entityManager.persist(survey);
+                return survey;
+            } else {
+                return entityManager.merge(survey);
+            }
+        } catch (Exception e) {
+            throw new DatabaseAccessException("Failed to save survey.", e);
+        }
     }
 
     @Override
     public Optional<Survey> findById(SurveyId id) {
-        return Optional.ofNullable(surveyStore.get(id));
+        try {
+            return Optional.ofNullable(entityManager.find(Survey.class, id.getValue()));
+        } catch (Exception e) {
+            throw new DatabaseAccessException("Failed to find survey by ID: " + id.getValue(), e);
+        }
     }
 
     @Override
-    public List<SurveyAnswer> findAnswersBySurveyId(SurveyId surveyId) {
-        return answerStore.getOrDefault(surveyId, List.of());
+    public List<Survey> findByRoomId(Long roomId) {
+        try {
+            TypedQuery<Survey> query = entityManager.createQuery(
+                    "SELECT s FROM Survey s WHERE s.roomId = :roomId ORDER BY s.createdAt DESC", Survey.class);
+            query.setParameter("roomId", roomId);
+            return query.getResultList();
+        } catch (Exception e) {
+            throw new DatabaseAccessException("Failed to find surveys by room ID: " + roomId, e);
+        }
     }
 }

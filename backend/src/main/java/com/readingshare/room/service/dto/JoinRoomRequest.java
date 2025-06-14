@@ -1,6 +1,10 @@
 package com.readingshare.room.service.dto;
 
+/**
+ * 部屋参加リクエストのDTO。
+ */
 public class JoinRoomRequest {
+    private String roomPassword; // パスワード保護された部屋の場合に必要
 
     private Long roomId;
     private Long userId;

@@ -1,13 +1,46 @@
 package com.readingshare.room.domain.repository;
 
-import com.readingshare.room.domain.model.Room;
-import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.Optional;
 import java.util.List;
+import java.util.Optional;
 
-public interface IRoomRepository extends JpaRepository<Room, Long> {
-    Optional<Room> findByRoomName(String roomName);
-    List<Room> findByRoomNameContaining(String keyword);
-    List<Room> findRecentRooms(int limit);
+import com.readingshare.room.domain.model.Room;
+import com.readingshare.room.domain.model.RoomId;
+
+/**
+ * 部屋情報の永続化を担当するリポジトリインターフェース。
+ * 担当: 芳岡
+ */
+public interface IRoomRepository {
+
+    /**
+     * 部屋を保存する。
+     * 
+     * @param room 保存する部屋エンティティ
+     * @return 保存された部屋エンティティ
+     */
+    Room save(Room room);
+
+    /**
+     * 部屋IDで部屋を検索する。
+     * 
+     * @param id 部屋ID
+     * @return 部屋が見つかった場合はOptionalにRoom、見つからない場合はOptional.empty()
+     */
+    Optional<Room> findById(RoomId id);
+
+    /**
+     * 指定されたキーワードに一致する部屋を検索する。
+     * 部屋名または本タイトルにキーワードが含まれる部屋を返す。
+     * 
+     * @param keyword 検索キーワード
+     * @return 検索結果の部屋リスト
+     */
+    List<Room> findByKeyword(String keyword);
+
+    /**
+     * 全ての部屋を取得する。
+     * 
+     * @return 全ての部屋のリスト
+     */
+    List<Room> findAll();
 }
