@@ -1,11 +1,9 @@
 package com.readingshare.survey.controller;
 
-import com.readingshare.survey.service.CreateSurveyService;
-import com.readingshare.survey.service.GetSurveyResultService;
-import com.readingshare.survey.service.SubmitSurveyAnswerService;
-import com.readingshare.survey.service.dto.CreateSurveyRequest;
-import com.readingshare.survey.service.dto.SubmitSurveyAnswerRequest;
-import com.readingshare.survey.service.dto.SurveyResultDto;
+import com.readingshare.survey.service.SurveyServiceAllInOne;
+import com.readingshare.survey.dto.CreateSurveyRequest;
+import com.readingshare.survey.dto.SubmitSurveyAnswerRequest;
+import com.readingshare.survey.dto.SurveyResultDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,16 +12,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/surveys")
 public class SurveyController {
 
-    private final CreateSurveyService createSurveyService;
-    private final SubmitSurveyAnswerService submitSurveyAnswerService;
-    private final GetSurveyResultService getSurveyResultService;
+    private final SurveyServiceAllInOne surveyServiceAllInOne;
 
-    public SurveyController(CreateSurveyService createSurveyService,
-                            SubmitSurveyAnswerService submitSurveyAnswerService,
-                            GetSurveyResultService getSurveyResultService) {
-        this.createSurveyService = createSurveyService;
-        this.submitSurveyAnswerService = submitSurveyAnswerService;
-        this.getSurveyResultService = getSurveyResultService;
+    public SurveyController(SurveyServiceAllInOne surveyServiceAllInOne) {
+        this.surveyServiceAllInOne = surveyServiceAllInOne;
     }
 
     /**
@@ -31,7 +23,7 @@ public class SurveyController {
      */
     @PostMapping
     public ResponseEntity<Void> createSurvey(@RequestBody CreateSurveyRequest request) {
-        createSurveyService.execute(request);
+        surveyServiceAllInOne.createSurvey(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -42,7 +34,7 @@ public class SurveyController {
     public ResponseEntity<Void> submitAnswer(
             @PathVariable String surveyId,
             @RequestBody SubmitSurveyAnswerRequest request) {
-        submitSurveyAnswerService.execute(surveyId, request);
+        surveyServiceAllInOne.submitSurveyAnswer(surveyId, request);
         return ResponseEntity.ok().build();
     }
 
@@ -51,7 +43,7 @@ public class SurveyController {
      */
     @GetMapping("/{surveyId}/results")
     public ResponseEntity<SurveyResultDto> getSurveyResult(@PathVariable String surveyId) {
-        SurveyResultDto result = getSurveyResultService.execute(surveyId);
+        SurveyResultDto result = surveyServiceAllInOne.getSurveyResult(surveyId);
         return ResponseEntity.ok(result);
     }
 }

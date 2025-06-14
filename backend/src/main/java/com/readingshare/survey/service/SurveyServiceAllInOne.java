@@ -1,9 +1,8 @@
-package main.java.com.readingshare.survey.service;
+package com.readingshare.survey.service;
 
 import com.readingshare.survey.domain.model.*;
 import com.readingshare.survey.domain.repository.ISurveyRepository;
-import com.readingshare.survey.service.dto.*;
-import com.readingshare.survey.service.exceptions.InvalidSurveyComponentException;
+import com.readingshare.survey.dto.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,7 +31,7 @@ public class SurveyServiceAllInOne {
             Survey survey = new Survey(request.roomId(), request.title(), questions);
             surveyRepository.save(survey);
         } catch (IllegalArgumentException e) {
-            throw new InvalidSurveyComponentException(e.getMessage(), e);
+            throw new IllegalArgumentException(e.getMessage(), e);
         }
     }
 
