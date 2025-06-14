@@ -1,11 +1,9 @@
 package com.readingshare.chat.service;
 
-import com.readingshare.chat.domain.model.UserProgress;
 import com.readingshare.chat.domain.service.ChatDomainService;
 import com.readingshare.common.exception.ApplicationException;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 
 /**
  * 読書進捗記録のアプリケーションサービス。

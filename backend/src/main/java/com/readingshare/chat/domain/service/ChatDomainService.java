@@ -1,5 +1,6 @@
 package com.readingshare.chat.domain.service;
 
+<<<<<<< Updated upstream
 import com.readingshare.chat.domain.model.ChatMessage;
 import com.readingshare.chat.domain.model.UserProgress;
 import com.readingshare.chat.domain.repository.IChatMessageRepository;

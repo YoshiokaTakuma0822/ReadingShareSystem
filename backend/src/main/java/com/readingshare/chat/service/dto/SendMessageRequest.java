@@ -1,5 +1,6 @@
 package com.readingshare.chat.service.dto;
 
+<<<<<<< Updated upstream
 /**
  * メッセージ送信リクエストのDTO。
  */

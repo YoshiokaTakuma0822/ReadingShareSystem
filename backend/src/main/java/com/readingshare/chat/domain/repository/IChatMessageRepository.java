@@ -1,5 +1,6 @@
 package com.readingshare.chat.domain.repository;
 
+<<<<<<< Updated upstream
 import com.readingshare.chat.domain.model.ChatMessage;
 
 import java.util.List;

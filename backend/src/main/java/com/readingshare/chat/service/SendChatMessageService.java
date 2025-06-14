@@ -1,5 +1,6 @@
 package com.readingshare.chat.service;
 
+<<<<<<< Updated upstream
 import com.readingshare.chat.domain.model.ChatMessage;
 import com.readingshare.chat.domain.model.MessageContent;
 import com.readingshare.chat.domain.service.ChatDomainService;

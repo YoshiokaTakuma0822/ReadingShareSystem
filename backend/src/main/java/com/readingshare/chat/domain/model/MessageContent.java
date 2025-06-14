@@ -1,5 +1,6 @@
 package com.readingshare.chat.domain.model;
 
+<<<<<<< Updated upstream
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.NotNull;

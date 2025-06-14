@@ -1,5 +1,6 @@
 package com.readingshare.chat.controller;
 
+<<<<<<< Updated upstream
 import com.readingshare.chat.domain.model.UserProgress;
 import com.readingshare.chat.service.GetRoomProgressService;
 import com.readingshare.chat.service.RecordProgressService;
