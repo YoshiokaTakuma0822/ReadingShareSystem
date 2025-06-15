@@ -14,11 +14,11 @@ import com.readingshare.survey.domain.model.SurveyId;
  * 担当: 成田
  */
 @Repository
-public interface SurveyRepository extends JpaRepository<Survey, Long> {
+public interface SurveyRepository extends JpaRepository<Survey, String> {
 
     /**
      * アンケートIDでアンケートを検索する。
-     * 
+     *
      * @param id アンケートID
      * @return アンケートが見つかった場合はOptionalにSurvey、見つからない場合はOptional.empty()
      */
@@ -26,7 +26,7 @@ public interface SurveyRepository extends JpaRepository<Survey, Long> {
 
     /**
      * 特定の部屋のアンケートを取得する。
-     * 
+     *
      * @param roomId 部屋ID
      * @return 取得されたアンケートリスト
      */
