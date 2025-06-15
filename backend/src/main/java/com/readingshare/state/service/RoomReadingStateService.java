@@ -1,14 +1,14 @@
 package com.readingshare.state.service;
 
-import org.springframework.stereotype.Service;
-
 import com.readingshare.state.domain.model.RoomReadingState;
 import com.readingshare.state.domain.model.UserReadingState;
 import com.readingshare.state.domain.repository.RoomReadingStateRepository;
+import org.springframework.stereotype.Service;
 
 @Service
 public class RoomReadingStateService {
     private final RoomReadingStateRepository repository;
+    private static final int DEFAULT_INTERVAL = 60;
     private static final int INTERVAL_STEP = 3;
     private static final int MIN_INTERVAL = 10;
     private static final int MAX_INTERVAL = 300;
@@ -33,11 +33,9 @@ public class RoomReadingStateService {
     // ページを進める/戻す + インターバル調整
     public UserReadingState turnPage(String roomId, String userId, String direction) {
         RoomReadingState roomState = repository.findByRoomId(roomId);
-        if (roomState == null)
-            return null;
+        if (roomState == null) return null;
         UserReadingState user = roomState.getUserState(userId);
-        if (user == null)
-            return null;
+        if (user == null) return null;
         int page = user.getCurrentPage();
         int interval = user.getAutoTurnIntervalSec();
         if ("next".equals(direction)) {
@@ -48,7 +46,7 @@ public class RoomReadingStateService {
             interval = Math.min(MAX_INTERVAL, interval + INTERVAL_STEP);
         }
         UserReadingState updated = new UserReadingState(
-                user.getUserId(), user.getUserName(), user.getIconUrl(), page, user.getComment(), interval);
+            user.getUserId(), user.getUserName(), user.getIconUrl(), page, user.getComment(), interval);
         roomState.updateUserState(updated);
         repository.save(roomState);
         return updated;
@@ -57,15 +55,12 @@ public class RoomReadingStateService {
     // 自動でページを進める
     public UserReadingState autoTurnPage(String roomId, String userId) {
         RoomReadingState roomState = repository.findByRoomId(roomId);
-        if (roomState == null)
-            return null;
+        if (roomState == null) return null;
         UserReadingState user = roomState.getUserState(userId);
-        if (user == null)
-            return null;
+        if (user == null) return null;
         int page = user.getCurrentPage() + 1;
         UserReadingState updated = new UserReadingState(
-                user.getUserId(), user.getUserName(), user.getIconUrl(), page, user.getComment(),
-                user.getAutoTurnIntervalSec());
+            user.getUserId(), user.getUserName(), user.getIconUrl(), page, user.getComment(), user.getAutoTurnIntervalSec());
         roomState.updateUserState(updated);
         repository.save(roomState);
         return updated;
