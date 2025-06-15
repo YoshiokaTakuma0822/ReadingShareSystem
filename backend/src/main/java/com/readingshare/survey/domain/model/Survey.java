@@ -1,15 +1,20 @@
 package com.readingshare.survey.domain.model;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.JoinColumn;
-import java.util.List;
-import java.util.UUID;
-import java.time.LocalDateTime;
 
 /**
  * アンケート集約のルートエンティティ。
@@ -18,28 +23,31 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "surveys")
 public class Survey {
+    private static final Logger logger = LoggerFactory.getLogger(Survey.class);
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
     @Id
     @Column(name = "id")
-    private String id;
+    private UUID id;
 
     @Column(name = "room_id")
-    private String roomId; // アンケートが実施される部屋のID
+    private UUID roomId; // アンケートが実施される部屋のID
 
     @Column(name = "title")
     private String title; // アンケートのタイトル
 
-    @ElementCollection
-    @CollectionTable(name = "survey_questions", joinColumns = @JoinColumn(name = "survey_id"))
-    private List<Question> questions; // 質問のリスト
+    @Column(name = "questions", columnDefinition = "jsonb")
+    private String questionsJson; // 質問のリスト（JSONB形式）
 
     @Column(name = "created_at")
     private LocalDateTime createdAt; // アンケート作成日時
 
-    public Survey() {}
+    public Survey() {
+    }
 
-    public Survey(String roomId, String title, List<Question> questions) {
-        if (roomId == null || roomId.isBlank()) {
-            throw new IllegalArgumentException("Room ID cannot be null or empty.");
+    public Survey(UUID roomId, String title, List<Question> questions) {
+        if (roomId == null) {
+            throw new IllegalArgumentException("Room ID cannot be null.");
         }
         if (title == null || title.isBlank()) {
             throw new IllegalArgumentException("Title cannot be null or empty.");
@@ -47,27 +55,42 @@ public class Survey {
         if (questions == null || questions.isEmpty()) {
             throw new IllegalArgumentException("Questions cannot be null or empty.");
         }
-        this.id = UUID.randomUUID().toString();
+        this.id = UUID.randomUUID();
         this.roomId = roomId;
         this.title = title;
-        this.questions = questions;
+        setQuestions(questions);
         this.createdAt = LocalDateTime.now();
     }
 
-    public String getId() {
+    public void setQuestions(List<Question> questions) {
+        try {
+            this.questionsJson = objectMapper.writeValueAsString(questions);
+        } catch (JsonProcessingException e) {
+            logger.error("Failed to serialize questions to JSON", e);
+            throw new IllegalArgumentException("Failed to save questions", e);
+        }
+    }
+
+    public List<Question> getQuestions() {
+        try {
+            return objectMapper.readValue(questionsJson, new TypeReference<List<Question>>() {
+            });
+        } catch (JsonProcessingException e) {
+            logger.error("Failed to deserialize questions from JSON", e);
+            throw new IllegalStateException("Failed to read questions", e);
+        }
+    }
+
+    public UUID getId() {
         return id;
     }
 
-    public String getRoomId() {
+    public UUID getRoomId() {
         return roomId;
     }
 
     public String getTitle() {
         return title;
-    }
-
-    public List<Question> getQuestions() {
-        return questions;
     }
 
     public LocalDateTime getCreatedAt() {

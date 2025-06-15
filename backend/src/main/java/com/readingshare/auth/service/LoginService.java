@@ -1,8 +1,9 @@
 package com.readingshare.auth.service;
 
+import org.springframework.stereotype.Service;
+
 import com.readingshare.auth.domain.service.AuthenticationDomainService;
 import com.readingshare.common.exception.ApplicationException;
-import org.springframework.stereotype.Service;
 
 /**
  * ユーザーログインのアプリケーションサービス。
@@ -19,6 +20,7 @@ public class LoginService {
 
     /**
      * ユーザー認証を行う。
+     * 
      * @param username ユーザー名
      * @param password パスワード
      * @throws ApplicationException 認証失敗時

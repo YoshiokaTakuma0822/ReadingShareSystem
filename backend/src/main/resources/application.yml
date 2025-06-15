@@ -3,9 +3,9 @@ spring:
         name: readingshare-system
 
     datasource:
-        url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/demo
-        username: ${DB_USER:postgres}
-        password: ${DB_PASS:postgres}
+        url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/readingshare_db
+        username: ${DB_USER:readingshare}
+        password: ${DB_PASS:readingshare}
 
     jpa:
         hibernate:

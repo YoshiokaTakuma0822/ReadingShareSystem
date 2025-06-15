@@ -1,9 +1,14 @@
 package com.readingshare.chat.domain.model;
 
-import jakarta.persistence.*;
+import java.time.Instant;
+import java.util.UUID;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import java.time.Instant;
 
 /**
  * ユーザーの読書進捗エンティティ。
@@ -13,16 +18,16 @@ import java.time.Instant;
 public class UserProgress {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // 進捗情報ID (主キー)
+    @Column(columnDefinition = "UUID")
+    private UUID id; // 進捗情報ID (主キー)
 
     @NotNull
-    @Column(name = "room_id", nullable = false)
-    private Long roomId; // 関連する部屋ID
+    @Column(name = "room_id", nullable = false, columnDefinition = "UUID")
+    private UUID roomId; // 関連する部屋ID
 
     @NotNull
-    @Column(name = "user_id", nullable = false)
-    private Long userId; // 進捗を記録するユーザーID
+    @Column(name = "user_id", nullable = false, columnDefinition = "UUID")
+    private UUID userId; // 進捗を記録するユーザーID
 
     @NotNull
     @Min(0)
@@ -34,10 +39,11 @@ public class UserProgress {
     private Instant updatedAt; // 進捗更新日時
 
     // デフォルトコンストラクタ
-    public UserProgress() {}
+    public UserProgress() {
+    }
 
-    public UserProgress(Long id, Long roomId, Long userId, int currentPage, Instant updatedAt) {
-        this.id = id;
+    public UserProgress(UUID roomId, UUID userId, int currentPage, Instant updatedAt) {
+        this.id = UUID.randomUUID();
         this.roomId = roomId;
         this.userId = userId;
         this.currentPage = currentPage;
@@ -45,16 +51,55 @@ public class UserProgress {
     }
 
     // Getters
-    public Long getId() { return id; }
-    public Long getRoomId() { return roomId; }
-    public Long getUserId() { return userId; }
-    public int getCurrentPage() { return currentPage; }
-    public Instant getUpdatedAt() { return updatedAt; }
+    public UUID getId() {
+        return id;
+    }
 
-    // Setters (JPAのためにidは必要)
-    public void setId(Long id) { this.id = id; }
-    public void setRoomId(Long roomId) { this.roomId = roomId; }
-    public void setUserId(Long userId) { this.userId = userId; }
-    public void setCurrentPage(int currentPage) { this.currentPage = currentPage; }
-    public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
+    public UUID getRoomId() {
+        return roomId;
+    }
+
+    public UUID getUserId() {
+        return userId;
+    }
+
+    public int getCurrentPage() {
+        return currentPage;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    // Setters
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public void setRoomId(UUID roomId) {
+        this.roomId = roomId;
+    }
+
+    public void setUserId(UUID userId) {
+        this.userId = userId;
+    }
+
+    public void setCurrentPage(int currentPage) {
+        this.currentPage = currentPage;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    @Override
+    public String toString() {
+        return "UserProgress{" +
+                "id=" + id +
+                ", roomId=" + roomId +
+                ", userId=" + userId +
+                ", currentPage=" + currentPage +
+                ", updatedAt=" + updatedAt +
+                '}';
+    }
 }

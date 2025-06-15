@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.readingshare.room.domain.model.Room;
 import com.readingshare.room.domain.model.RoomMember;
+import com.readingshare.room.dto.CreateRoomRequest;
+import com.readingshare.room.dto.JoinRoomRequest;
 import com.readingshare.room.service.CreateRoomService;
 import com.readingshare.room.service.JoinRoomService;
 import com.readingshare.room.service.SearchRoomService;
-import com.readingshare.room.service.dto.CreateRoomRequest;
-import com.readingshare.room.service.dto.JoinRoomRequest;
 
 /**
  * REST API コントローラー - 部屋作成 / 参加 / 検索
@@ -44,10 +44,10 @@ public class RoomController {
      */
     @PostMapping
     public ResponseEntity<Room> createRoom(@RequestBody CreateRoomRequest request) {
-        Room createdRoom = request.getPassword() != null
-                ? createRoomService.createRoomWithPassword(request.getRoomName(), request.getBookTitle(),
-                        request.getHostUserId(), request.getPassword())
-                : createRoomService.createRoom(request.getRoomName(), request.getBookTitle(), request.getHostUserId());
+        Room createdRoom = request.password() != null
+                ? createRoomService.createRoomWithPassword(request.roomName(), request.bookTitle(),
+                        request.hostUserId(), request.password())
+                : createRoomService.createRoom(request.roomName(), request.bookTitle(), request.hostUserId());
         return ResponseEntity.ok(createdRoom);
     }
 
@@ -57,7 +57,7 @@ public class RoomController {
      */
     @PostMapping("/join")
     public ResponseEntity<RoomMember> joinRoom(@RequestBody JoinRoomRequest request) {
-        joinRoomService.joinRoom(request.getRoomId(), request.getUserId(), request.getRoomPassword());
+        joinRoomService.joinRoom(request.roomId(), request.userId(), request.roomPassword());
         return ResponseEntity.ok(new RoomMember());
     }
 

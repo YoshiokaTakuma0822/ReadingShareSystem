@@ -1,9 +1,9 @@
 package com.readingshare.auth.domain.repository;
 
-import com.readingshare.auth.domain.model.User;
-import com.readingshare.auth.domain.model.UserId;
-
 import java.util.Optional;
+import java.util.UUID;
+
+import com.readingshare.auth.domain.model.User;
 
 /**
  * ユーザー情報の永続化を担当するリポジトリインターフェース。
@@ -13,6 +13,7 @@ public interface IUserRepository {
 
     /**
      * ユーザーを保存する。
+     *
      * @param user 保存するユーザーエンティティ
      * @return 保存されたユーザーエンティティ
      */
@@ -20,13 +21,15 @@ public interface IUserRepository {
 
     /**
      * ユーザーIDでユーザーを検索する。
-     * @param id ユーザーID
+     *
+     * @param id ユーザーID（UUID）
      * @return ユーザーが見つかった場合はOptionalにUser、見つからない場合はOptional.empty()
      */
-    Optional<User> findById(UserId id);
+    Optional<User> findById(UUID id);
 
     /**
      * ユーザー名でユーザーを検索する。
+     *
      * @param username ユーザー名
      * @return ユーザーが見つかった場合はOptionalにUser、見つからない場合はOptional.empty()
      */

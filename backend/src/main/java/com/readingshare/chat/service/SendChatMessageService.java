@@ -1,12 +1,14 @@
 package com.readingshare.chat.service;
 
+import java.time.Instant;
+import java.util.UUID;
+
+import org.springframework.stereotype.Service;
+
 import com.readingshare.chat.domain.model.ChatMessage;
 import com.readingshare.chat.domain.model.MessageContent;
 import com.readingshare.chat.domain.service.ChatDomainService;
 import com.readingshare.common.exception.ApplicationException;
-import org.springframework.stereotype.Service;
-
-import java.time.Instant;
 
 /**
  * チャットメッセージ送信のアプリケーションサービス。
@@ -23,13 +25,14 @@ public class SendChatMessageService {
 
     /**
      * チャットメッセージを送信する。
-     * @param roomId 送信する部屋のID
-     * @param userId 送信するユーザーのID
+     *
+     * @param roomId  送信する部屋のID
+     * @param userId  送信するユーザーのID
      * @param content メッセージ内容
      * @throws ApplicationException メッセージ送信に失敗した場合
      */
-    public void sendMessage(Long roomId, Long userId, String content) {
-        ChatMessage chatMessage = new ChatMessage(null, roomId, userId, new MessageContent(content), Instant.now());
+    public void sendMessage(UUID roomId, UUID userId, String content) {
+        ChatMessage chatMessage = new ChatMessage(roomId, userId, new MessageContent(content), Instant.now());
         chatDomainService.sendChatMessage(chatMessage);
     }
 }

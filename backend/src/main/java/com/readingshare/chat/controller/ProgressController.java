@@ -1,6 +1,7 @@
 package com.readingshare.chat.controller;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,29 +35,29 @@ public class ProgressController {
 
     /**
      * ユーザーの読書進捗を記録する。
-     * 
+     *
      * @param roomId  進捗を記録する部屋のID
      * @param request 進捗記録リクエスト
      * @return 記録成功時はHTTP 200 OK
      */
     @PostMapping("/{roomId}/record")
-    public ResponseEntity<String> recordProgress(@PathVariable Long roomId,
+    public ResponseEntity<String> recordProgress(@PathVariable UUID roomId,
             @RequestBody RecordProgressRequest request) {
         // TODO: userIdは認証情報から取得する
-        Long currentUserId = 1L; // 仮のユーザーID
-        recordProgressService.recordProgress(roomId, currentUserId, request.getCurrentPage());
+        UUID currentUserId = UUID.fromString("00000000-0000-0000-0000-000000000000"); // 仮のユーザーID
+        recordProgressService.recordProgress(roomId, currentUserId, request.currentPage());
         return ResponseEntity.ok("Progress recorded successfully.");
     }
 
     /**
-     * 特定の部屋の全ユーザーの読書進捗を取得する。
-     * 
-     * @param roomId 進捗を取得する部屋のID
+     * 部屋の読書進捗を取得する。
+     *
+     * @param roomId 部屋のID
      * @return ユーザー進捗のリスト
      */
     @GetMapping("/{roomId}")
-    public ResponseEntity<List<UserProgress>> getRoomProgress(@PathVariable Long roomId) {
-        List<UserProgress> userProgressList = getRoomProgressService.getRoomProgress(roomId);
-        return ResponseEntity.ok(userProgressList);
+    public ResponseEntity<List<UserProgress>> getRoomProgress(@PathVariable UUID roomId) {
+        List<UserProgress> progress = getRoomProgressService.getRoomProgress(roomId);
+        return ResponseEntity.ok(progress);
     }
 }

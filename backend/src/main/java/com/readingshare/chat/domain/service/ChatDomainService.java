@@ -1,15 +1,17 @@
 package com.readingshare.chat.domain.service;
 
+import java.time.Instant;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.readingshare.chat.domain.model.ChatMessage;
 import com.readingshare.chat.domain.model.UserProgress;
 import com.readingshare.chat.domain.repository.IChatMessageRepository;
 import com.readingshare.chat.domain.repository.IProgressRepository;
 import com.readingshare.common.exception.DomainException;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Instant;
-import java.util.Optional;
 
 /**
  * チャットと読書進捗に関するドメインロジックを扱うサービス。
@@ -28,6 +30,7 @@ public class ChatDomainService {
 
     /**
      * チャットメッセージを保存する。
+     * 
      * @param chatMessage 保存するチャットメッセージエンティティ
      * @return 保存されたチャットメッセージエンティティ
      * @throws DomainException メッセージの保存に失敗した場合
@@ -39,26 +42,27 @@ public class ChatDomainService {
 
     /**
      * ユーザーの読書進捗を記録または更新する。
-     * @param roomId 部屋ID
-     * @param userId ユーザーID
+     * 
+     * @param roomId      部屋ID
+     * @param userId      ユーザーID
      * @param currentPage 現在のページ数
      * @return 保存または更新されたUserProgressエンティティ
      * @throws DomainException 進捗の記録に失敗した場合
      */
     @Transactional
-    public UserProgress recordUserProgress(Long roomId, Long userId, int currentPage) {
+    public UserProgress recordUserProgress(UUID roomId, UUID userId, int currentPage) {
         Optional<UserProgress> existingProgress = progressRepository.findByRoomIdAndUserId(roomId, userId);
 
-        UserProgress userProgress;
         if (existingProgress.isPresent()) {
-            // 既存の進捗を更新
-            userProgress = existingProgress.get();
-            userProgress.setCurrentPage(currentPage);
-            userProgress.setUpdatedAt(Instant.now());
+            // 既存の進捗情報を更新
+            UserProgress progress = existingProgress.get();
+            progress.setCurrentPage(currentPage);
+            progress.setUpdatedAt(Instant.now());
+            return progressRepository.save(progress);
         } else {
-            // 新しい進捗を作成
-            userProgress = new UserProgress(null, roomId, userId, currentPage, Instant.now());
+            // 新しい進捗情報を作成
+            UserProgress progress = new UserProgress(roomId, userId, currentPage, Instant.now());
+            return progressRepository.save(progress);
         }
-        return progressRepository.save(userProgress);
     }
 }

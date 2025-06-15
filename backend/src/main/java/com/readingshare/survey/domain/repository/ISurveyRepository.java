@@ -2,10 +2,10 @@ package com.readingshare.survey.domain.repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import com.readingshare.survey.domain.model.Survey;
 import com.readingshare.survey.domain.model.SurveyAnswer;
-import com.readingshare.survey.domain.model.SurveyId;
 
 /**
  * アンケート情報の永続化を担当するリポジトリインターフェース。
@@ -25,15 +25,15 @@ public interface ISurveyRepository {
     /**
      * アンケートを検索する
      */
-    Optional<Survey> findById(SurveyId id);
+    Optional<Survey> findById(UUID id);
 
     /**
      * 特定の部屋のアンケート一覧を取得する
      */
-    List<Survey> findByRoomId(String roomId);
+    List<Survey> findByRoomId(UUID roomId);
 
     /**
      * アンケートの回答一覧を取得する
      */
-    List<SurveyAnswer> findAnswersBySurveyId(SurveyId surveyId);
+    List<SurveyAnswer> findAnswersBySurveyId(UUID surveyId);
 }

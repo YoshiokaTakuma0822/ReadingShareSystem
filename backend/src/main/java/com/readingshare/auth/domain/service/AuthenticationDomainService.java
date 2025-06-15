@@ -1,14 +1,15 @@
 package com.readingshare.auth.domain.service;
 
+import java.time.Instant;
+import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.readingshare.auth.domain.model.User;
 import com.readingshare.auth.domain.repository.IUserRepository;
 import com.readingshare.auth.infrastructure.security.IPasswordHasher;
 import com.readingshare.common.exception.DomainException;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Instant;
-import java.util.Optional;
 
 /**
  * 認証とユーザー管理に関するドメインロジックを扱うサービス。
@@ -27,6 +28,7 @@ public class AuthenticationDomainService {
 
     /**
      * ユーザーを認証する。
+     *
      * @param username ユーザー名
      * @param password 平文のパスワード
      * @return 認証成功ならtrue、失敗ならfalse
@@ -43,7 +45,8 @@ public class AuthenticationDomainService {
 
     /**
      * 新規ユーザーを登録する。
-     * @param user 登録するユーザーエンティティ（ID、パスワードハッシュは含まない）
+     *
+     * @param user        登録するユーザーエンティティ（ID、パスワードハッシュは含まない）
      * @param rawPassword 平文のパスワード
      * @return 登録されたユーザーエンティティ
      * @throws DomainException ユーザー名が既に存在する場合

@@ -1,6 +1,7 @@
 package com.readingshare.chat.controller;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,28 +34,28 @@ public class ChatController {
 
     /**
      * チャットメッセージを送信する。
-     * 
+     *
      * @param roomId  メッセージを送信する部屋のID
      * @param request 送信メッセージリクエスト
      * @return 送信成功時はHTTP 200 OK
      */
     @PostMapping("/{roomId}/message")
-    public ResponseEntity<String> sendMessage(@PathVariable Long roomId, @RequestBody SendMessageRequest request) {
+    public ResponseEntity<String> sendMessage(@PathVariable UUID roomId, @RequestBody SendMessageRequest request) {
         // TODO: userIdは認証情報から取得する
-        Long currentUserId = 1L; // 仮のユーザーID
-        sendChatMessageService.sendMessage(roomId, currentUserId, request.getMessageContent());
+        UUID currentUserId = UUID.fromString("00000000-0000-0000-0000-000000000000"); // 仮のユーザーID
+        sendChatMessageService.sendMessage(roomId, currentUserId, request.messageContent());
         return ResponseEntity.ok("Message sent successfully.");
     }
 
     /**
-     * 特定の部屋のチャット履歴を取得する。
-     * 
-     * @param roomId 履歴を取得する部屋のID
+     * チャット履歴を取得する。
+     *
+     * @param roomId 部屋のID
      * @return チャットメッセージのリスト
      */
     @GetMapping("/{roomId}/history")
-    public ResponseEntity<List<ChatMessage>> getChatHistory(@PathVariable Long roomId) {
-        List<ChatMessage> messages = getChatHistoryService.getChatHistory(roomId);
-        return ResponseEntity.ok(messages);
+    public ResponseEntity<List<ChatMessage>> getChatHistory(@PathVariable UUID roomId) {
+        List<ChatMessage> chatHistory = getChatHistoryService.getChatHistory(roomId);
+        return ResponseEntity.ok(chatHistory);
     }
 }

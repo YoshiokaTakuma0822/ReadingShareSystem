@@ -1,13 +1,14 @@
 package com.readingshare.auth.infrastructure.persistence;
 
-import com.readingshare.auth.domain.model.User;
-import com.readingshare.auth.domain.model.UserId;
-import com.readingshare.auth.domain.repository.IUserRepository;
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import com.readingshare.auth.domain.model.User;
+import com.readingshare.auth.domain.repository.IUserRepository;
 
 @Repository
 public class UserRepositoryImpl implements IUserRepository {
@@ -21,7 +22,7 @@ public class UserRepositoryImpl implements IUserRepository {
     }
 
     @Override
-    public Optional<User> findById(UserId id) {
+    public Optional<User> findById(UUID id) {
         return userRepository.findById(id);
     }
 

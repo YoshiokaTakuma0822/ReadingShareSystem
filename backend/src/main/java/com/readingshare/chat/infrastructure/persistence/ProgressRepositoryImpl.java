@@ -1,13 +1,15 @@
 package com.readingshare.chat.infrastructure.persistence;
 
-import com.readingshare.chat.domain.model.UserProgress;
-import com.readingshare.chat.domain.repository.IProgressRepository;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Optional;
+import com.readingshare.chat.domain.model.UserProgress;
+import com.readingshare.chat.domain.repository.IProgressRepository;
 
 @Repository
 public class ProgressRepositoryImpl implements IProgressRepository {
@@ -21,12 +23,12 @@ public class ProgressRepositoryImpl implements IProgressRepository {
     }
 
     @Override
-    public List<UserProgress> findByRoomId(Long roomId) {
+    public List<UserProgress> findByRoomId(UUID roomId) {
         return progressRepository.findByRoomIdOrderByUserIdAsc(roomId);
     }
 
     @Override
-    public Optional<UserProgress> findByRoomIdAndUserId(Long roomId, Long userId) {
+    public Optional<UserProgress> findByRoomIdAndUserId(UUID roomId, UUID userId) {
         return progressRepository.findByRoomIdAndUserId(roomId, userId);
     }
 }

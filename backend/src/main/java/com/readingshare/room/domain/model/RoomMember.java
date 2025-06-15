@@ -2,11 +2,10 @@ package com.readingshare.room.domain.model;
 
 import java.time.Instant;
 import java.util.Objects;
+import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
@@ -15,14 +14,14 @@ import jakarta.persistence.Table;
 public class RoomMember {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long roomMemberId;
+    @Column(columnDefinition = "UUID")
+    private UUID id;
 
-    @Column(nullable = false)
-    private Long roomId;
+    @Column(nullable = false, columnDefinition = "UUID")
+    private UUID roomId;
 
-    @Column(nullable = false)
-    private Long userId;
+    @Column(nullable = false, columnDefinition = "UUID")
+    private UUID userId;
 
     @Column(nullable = false)
     private Instant joinedAt;
@@ -32,34 +31,35 @@ public class RoomMember {
         // JPA用
     }
 
-    public RoomMember(Long roomId, Long userId, Instant joinedAt) {
+    public RoomMember(UUID roomId, UUID userId, Instant joinedAt) {
+        this.id = UUID.randomUUID();
         this.roomId = roomId;
         this.userId = userId;
         this.joinedAt = joinedAt;
     }
 
     // --- Getter / Setter ---
-    public Long getRoomMemberId() {
-        return roomMemberId;
+    public UUID getId() {
+        return id;
     }
 
-    public void setRoomMemberId(Long roomMemberId) {
-        this.roomMemberId = roomMemberId;
+    public void setId(UUID id) {
+        this.id = id;
     }
 
-    public Long getRoomId() {
+    public UUID getRoomId() {
         return roomId;
     }
 
-    public void setRoomId(Long roomId) {
+    public void setRoomId(UUID roomId) {
         this.roomId = roomId;
     }
 
-    public Long getUserId() {
+    public UUID getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(UUID userId) {
         this.userId = userId;
     }
 
@@ -71,26 +71,26 @@ public class RoomMember {
         this.joinedAt = joinedAt;
     }
 
-    // --- equals / hashCode / toString ---
+    // --- その他のメソッド ---
     @Override
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (!(o instanceof RoomMember))
+        if (o == null || getClass() != o.getClass())
             return false;
         RoomMember that = (RoomMember) o;
-        return Objects.equals(roomMemberId, that.roomMemberId);
+        return Objects.equals(id, that.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(roomMemberId);
+        return Objects.hash(id);
     }
 
     @Override
     public String toString() {
         return "RoomMember{" +
-                "roomMemberId=" + roomMemberId +
+                "id=" + id +
                 ", roomId=" + roomId +
                 ", userId=" + userId +
                 ", joinedAt=" + joinedAt +

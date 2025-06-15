@@ -2,11 +2,10 @@ package com.readingshare.room.domain.model;
 
 import java.time.Instant;
 import java.util.Objects;
+import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
@@ -15,8 +14,8 @@ import jakarta.persistence.Table;
 public class Room {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long roomId;
+    @Column(columnDefinition = "UUID")
+    private UUID id;
 
     @Column(nullable = false, length = 100)
     private String roomName;
@@ -24,8 +23,8 @@ public class Room {
     @Column(nullable = false, length = 200)
     private String bookTitle;
 
-    @Column(nullable = false)
-    private Long hostUserId;
+    @Column(nullable = false, columnDefinition = "UUID")
+    private UUID hostUserId;
 
     @Column(nullable = false)
     private Instant createdAt;
@@ -38,98 +37,72 @@ public class Room {
         // JPA用
     }
 
-    public Room(String roomName, String bookTitle, Long hostUserId) {
+    public Room(String roomName, String bookTitle, UUID hostUserId) {
+        this.id = UUID.randomUUID();
         this.roomName = roomName;
         this.bookTitle = bookTitle;
         this.hostUserId = hostUserId;
         this.createdAt = Instant.now();
     }
 
-    public Room(Long roomId, String roomName, String bookTitle, Long hostUserId, Instant createdAt) {
-        this.roomId = roomId;
+    public Room(UUID id, String roomName, String bookTitle, UUID hostUserId, Instant createdAt) {
+        this.id = id;
         this.roomName = roomName;
         this.bookTitle = bookTitle;
         this.hostUserId = hostUserId;
         this.createdAt = createdAt;
     }
 
-    // --- Getter / Setter ---
-    public Long getId() {
-        return roomId;
-    }
-
-    public Long getRoomId() {
-        return roomId;
-    }
-
-    public void setRoomId(Long roomId) {
-        this.roomId = roomId;
+    // --- ゲッター ---
+    public UUID getId() {
+        return id;
     }
 
     public String getRoomName() {
         return roomName;
     }
 
-    public void setRoomName(String roomName) {
-        this.roomName = roomName;
-    }
-
     public String getBookTitle() {
         return bookTitle;
     }
 
-    public void setBookTitle(String bookTitle) {
-        this.bookTitle = bookTitle;
-    }
-
-    public Long getHostUserId() {
+    public UUID getHostUserId() {
         return hostUserId;
-    }
-
-    public void setHostUserId(Long hostUserId) {
-        this.hostUserId = hostUserId;
     }
 
     public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
     public String getRoomPasswordHash() {
         return roomPasswordHash;
     }
 
+    // --- セッター ---
     public void setRoomPasswordHash(String roomPasswordHash) {
         this.roomPasswordHash = roomPasswordHash;
     }
 
-    public boolean hasPassword() {
-        return roomPasswordHash != null && !roomPasswordHash.isEmpty();
-    }
-
-    // --- equals / hashCode / toString ---
+    // --- その他のメソッド ---
     @Override
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (!(o instanceof Room))
+        if (o == null || getClass() != o.getClass())
             return false;
         Room room = (Room) o;
-        return Objects.equals(roomId, room.roomId);
+        return Objects.equals(id, room.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(roomId);
+        return Objects.hash(id);
     }
 
     @Override
     public String toString() {
         return "Room{" +
-                "roomId=" + roomId +
+                "id=" + id +
                 ", roomName='" + roomName + '\'' +
                 ", bookTitle='" + bookTitle + '\'' +
                 ", hostUserId=" + hostUserId +

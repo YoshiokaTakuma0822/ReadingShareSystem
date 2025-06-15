@@ -1,8 +1,14 @@
 package com.readingshare.chat.domain.model;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
+import java.util.UUID;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * チャットメッセージエンティティ。
@@ -12,16 +18,16 @@ import java.time.Instant;
 public class ChatMessage {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // メッセージID (主キー)
+    @Column(columnDefinition = "UUID")
+    private UUID id; // メッセージID (主キー)
 
     @NotNull
-    @Column(name = "room_id", nullable = false)
-    private Long roomId; // 関連する部屋ID
+    @Column(name = "room_id", nullable = false, columnDefinition = "UUID")
+    private UUID roomId; // 関連する部屋ID
 
     @NotNull
-    @Column(name = "sender_user_id", nullable = false)
-    private Long senderUserId; // 送信ユーザーID
+    @Column(name = "sender_user_id", nullable = false, columnDefinition = "UUID")
+    private UUID senderUserId; // 送信ユーザーID
 
     @Embedded // MessageContentを埋め込み可能オブジェクトとして扱う
     private MessageContent content; // メッセージ内容
@@ -31,27 +37,66 @@ public class ChatMessage {
     private Instant sentAt; // 送信日時
 
     // デフォルトコンストラクタ
-    public ChatMessage() {}
+    public ChatMessage() {
+    }
 
-    public ChatMessage(Long id, Long roomId, Long senderUserId, MessageContent content, Instant sentAt) {
-        this.id = id;
+    public ChatMessage(UUID roomId, UUID senderUserId, MessageContent content, Instant sentAt) {
+        this.id = UUID.randomUUID();
         this.roomId = roomId;
         this.senderUserId = senderUserId;
         this.content = content;
         this.sentAt = sentAt;
     }
 
-    // Getters
-    public Long getId() { return id; }
-    public Long getRoomId() { return roomId; }
-    public Long getSenderUserId() { return senderUserId; }
-    public MessageContent getContent() { return content; }
-    public Instant getSentAt() { return sentAt; }
+    // --- Getter / Setter ---
+    public UUID getId() {
+        return id;
+    }
 
-    // Setters (JPAのためにidは必要)
-    public void setId(Long id) { this.id = id; }
-    public void setRoomId(Long roomId) { this.roomId = roomId; }
-    public void setSenderUserId(Long senderUserId) { this.senderUserId = senderUserId; }
-    public void setContent(MessageContent content) { this.content = content; }
-    public void setSentAt(Instant sentAt) { this.sentAt = sentAt; }
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public UUID getRoomId() {
+        return roomId;
+    }
+
+    public void setRoomId(UUID roomId) {
+        this.roomId = roomId;
+    }
+
+    public UUID getSenderUserId() {
+        return senderUserId;
+    }
+
+    public void setSenderUserId(UUID senderUserId) {
+        this.senderUserId = senderUserId;
+    }
+
+    public MessageContent getContent() {
+        return content;
+    }
+
+    public void setContent(MessageContent content) {
+        this.content = content;
+    }
+
+    public Instant getSentAt() {
+        return sentAt;
+    }
+
+    public void setSentAt(Instant sentAt) {
+        this.sentAt = sentAt;
+    }
+
+    @Override
+    public String toString() {
+        return "ChatMessage{" +
+                "id=" + id +
+                ", roomId=" + roomId +
+                ", senderUserId=" + senderUserId +
+                ", content=" + content +
+                ", sentAt=" + sentAt +
+                '}';
+    }
 }

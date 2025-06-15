@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -13,11 +14,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.readingshare.survey.domain.model.Question;
 import com.readingshare.survey.domain.model.Survey;
 import com.readingshare.survey.domain.model.SurveyAnswer;
-import com.readingshare.survey.domain.model.SurveyId;
 import com.readingshare.survey.domain.repository.ISurveyRepository;
 import com.readingshare.survey.dto.CreateSurveyRequest;
 import com.readingshare.survey.dto.SubmitSurveyAnswerRequest;
-import com.readingshare.survey.dto.SurveyResultDto;
+import com.readingshare.survey.dto.SurveyResultResponse;
 
 /**
  * アンケート関連サービスを1ファイルに統合
@@ -46,31 +46,28 @@ public class SurveyService {
 
     // --- アンケート回答 ---
     @Transactional
-    public void submitAnswer(String surveyIdValue, SubmitSurveyAnswerRequest request) {
-        SurveyId surveyId = new SurveyId(surveyIdValue);
+    public void submitAnswer(UUID surveyId, SubmitSurveyAnswerRequest request) {
         surveyRepository.findById(surveyId)
-                .orElseThrow(() -> new RuntimeException("Survey not found with id: " + surveyIdValue));
+                .orElseThrow(() -> new RuntimeException("Survey not found with id: " + surveyId));
         SurveyAnswer answer = new SurveyAnswer(surveyId, request.userId(), request.answers());
         surveyRepository.saveAnswer(answer);
     }
 
     // --- アンケート結果取得 ---
     @Transactional(readOnly = true)
-    public SurveyResultDto getSurveyResult(String surveyIdValue) {
-        SurveyId surveyId = new SurveyId(surveyIdValue);
+    public SurveyResultResponse getSurveyResult(UUID surveyId) {
         Survey survey = surveyRepository.findById(surveyId)
-                .orElseThrow(() -> new RuntimeException("Survey not found with id: " + surveyIdValue));
+                .orElseThrow(() -> new RuntimeException("Survey not found with id: " + surveyId));
         List<SurveyAnswer> answers = surveyRepository.findAnswersBySurveyId(surveyId);
         return buildResultDto(survey, answers);
     }
 
-    public Optional<Survey> getSurveyFormat(String surveyId) {
-        SurveyId id = new SurveyId(surveyId);
-        return surveyRepository.findById(id);
+    public Optional<Survey> getSurveyFormat(UUID surveyId) {
+        return surveyRepository.findById(surveyId);
     }
 
-    private SurveyResultDto buildResultDto(Survey survey, List<SurveyAnswer> answers) {
-        List<SurveyResultDto.QuestionResultDto> questionResults = new ArrayList<>();
+    private SurveyResultResponse buildResultDto(Survey survey, List<SurveyAnswer> answers) {
+        List<SurveyResultResponse.QuestionResultResponse> questionResults = new ArrayList<>();
         for (int i = 0; i < survey.getQuestions().size(); i++) {
             Question question = survey.getQuestions().get(i);
             final int questionIndex = i;
@@ -83,9 +80,9 @@ public class SurveyService {
                     votes.computeIfPresent(selectedOption, (key, value) -> value + 1);
                 }
             }
-            questionResults.add(new SurveyResultDto.QuestionResultDto(question.getQuestionText(), votes));
+            questionResults.add(new SurveyResultResponse.QuestionResultResponse(question.getQuestionText(), votes));
         }
         int totalRespondents = (int) answers.stream().map(SurveyAnswer::getUserId).distinct().count();
-        return new SurveyResultDto(survey.getId(), survey.getTitle(), totalRespondents, questionResults);
+        return new SurveyResultResponse(survey.getId(), survey.getTitle(), totalRespondents, questionResults);
     }
 }

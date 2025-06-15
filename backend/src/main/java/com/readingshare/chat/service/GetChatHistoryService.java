@@ -1,12 +1,14 @@
 package com.readingshare.chat.service;
 
-import com.readingshare.chat.domain.model.ChatMessage;
-import com.readingshare.chat.domain.repository.IChatMessageRepository;
-import com.readingshare.common.exception.DatabaseAccessException;
+import java.util.List;
+import java.util.UUID;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import com.readingshare.chat.domain.model.ChatMessage;
+import com.readingshare.chat.domain.repository.IChatMessageRepository;
+import com.readingshare.common.exception.DatabaseAccessException;
 
 /**
  * チャット履歴取得のアプリケーションサービス。
@@ -23,12 +25,13 @@ public class GetChatHistoryService {
 
     /**
      * 特定の部屋のチャット履歴を取得する。
+     * 
      * @param roomId 履歴を取得する部屋のID
      * @return チャットメッセージのリスト
      * @throws DatabaseAccessException データベースアクセスエラー時
      */
     @Transactional(readOnly = true)
-    public List<ChatMessage> getChatHistory(Long roomId) {
+    public List<ChatMessage> getChatHistory(UUID roomId) {
         return chatMessageRepository.findByRoomId(roomId);
     }
 }

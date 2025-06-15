@@ -2,9 +2,9 @@ package com.readingshare.room.domain.repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import com.readingshare.room.domain.model.Room;
-import com.readingshare.room.domain.model.RoomId;
 
 /**
  * 部屋情報の永続化を担当するリポジトリインターフェース。
@@ -14,7 +14,7 @@ public interface IRoomRepository {
 
     /**
      * 部屋を保存する。
-     * 
+     *
      * @param room 保存する部屋エンティティ
      * @return 保存された部屋エンティティ
      */
@@ -22,16 +22,16 @@ public interface IRoomRepository {
 
     /**
      * 部屋IDで部屋を検索する。
-     * 
+     *
      * @param id 部屋ID
      * @return 部屋が見つかった場合はOptionalにRoom、見つからない場合はOptional.empty()
      */
-    Optional<Room> findById(RoomId id);
+    Optional<Room> findById(UUID id);
 
     /**
      * 指定されたキーワードに一致する部屋を検索する。
      * 部屋名または本タイトルにキーワードが含まれる部屋を返す。
-     * 
+     *
      * @param keyword 検索キーワード
      * @return 検索結果の部屋リスト
      */
@@ -39,7 +39,7 @@ public interface IRoomRepository {
 
     /**
      * 全ての部屋を取得する。
-     * 
+     *
      * @return 全ての部屋のリスト
      */
     List<Room> findAll();

@@ -1,38 +1,73 @@
--- Enable pgcrypto extension for gen_random_uuid()
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
-
--- Accounts table for authentication
-CREATE TABLE accounts (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    email VARCHAR(255) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    refresh_token TEXT
+-- ユーザーテーブル
+CREATE TABLE users (
+    id UUID PRIMARY KEY,
+    username VARCHAR(255) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    contents JSON,
+    joined_at TIMESTAMP NOT NULL
 );
 
--- Rooms table for chat organization
+-- 読書部屋テーブル
 CREATE TABLE rooms (
-    id BIGSERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    description TEXT,
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-    created_by UUID REFERENCES accounts(id) ON DELETE SET NULL
+    id UUID PRIMARY KEY,
+    room_name VARCHAR(100) NOT NULL,
+    book_title VARCHAR(200) NOT NULL,
+    host_user_id UUID NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    room_password_hash VARCHAR(255)
 );
-CREATE INDEX idx_rooms_name ON rooms(name);
 
--- Members table for chat participation
-CREATE TABLE members (
-    id BIGSERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    account_id UUID NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
-    room_id BIGINT NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
-    CONSTRAINT uk_members_account_room UNIQUE (account_id, room_id)
+-- 部屋メンバーテーブル
+CREATE TABLE room_members (
+    id UUID PRIMARY KEY,
+    room_id UUID NOT NULL REFERENCES rooms(id),
+    user_id UUID NOT NULL,
+    joined_at TIMESTAMP NOT NULL,
+    CONSTRAINT unique_room_member UNIQUE (room_id, user_id)
 );
-CREATE INDEX idx_members_name ON members(name);
 
--- Create a system account for default rooms
-INSERT INTO accounts (id, email, password) VALUES
-    ('00000000-0000-0000-0000-000000000000', 'system@example.com', '$2a$10$dummy.password.hash');
+-- チャットメッセージテーブル
+CREATE TABLE chat_messages (
+    id UUID PRIMARY KEY,
+    room_id UUID NOT NULL REFERENCES rooms(id),
+    sender_user_id UUID NOT NULL,
+    message_content TEXT NOT NULL,
+    sent_at TIMESTAMP NOT NULL
+);
 
--- Insert default general room with system account as creator
-INSERT INTO rooms (name, description, created_by) VALUES
-    ('general', 'General chat room', '00000000-0000-0000-0000-000000000000');
+-- ユーザー読書進捗テーブル
+CREATE TABLE user_progress (
+    id UUID PRIMARY KEY,
+    room_id UUID NOT NULL REFERENCES rooms(id),
+    user_id UUID NOT NULL,
+    current_page INTEGER NOT NULL CHECK (current_page >= 0),
+    updated_at TIMESTAMP NOT NULL,
+    CONSTRAINT unique_user_progress UNIQUE (room_id, user_id)
+);
+
+-- アンケートテーブル
+CREATE TABLE surveys (
+    id UUID PRIMARY KEY,
+    room_id UUID NOT NULL REFERENCES rooms(id),
+    title VARCHAR(255) NOT NULL,
+    questions JSONB NOT NULL,
+    created_at TIMESTAMP NOT NULL
+);
+
+-- アンケート回答テーブル
+CREATE TABLE survey_answers (
+    id UUID PRIMARY KEY,
+    survey_id UUID NOT NULL REFERENCES surveys(id),
+    user_id UUID NOT NULL,
+    answers JSONB NOT NULL,
+    answered_at TIMESTAMP NOT NULL,
+    CONSTRAINT unique_survey_answer UNIQUE (survey_id, user_id)
+);
+
+-- インデックスの作成
+CREATE INDEX idx_rooms_host_user_id ON rooms(host_user_id);
+CREATE INDEX idx_chat_messages_room_id ON chat_messages(room_id);
+CREATE INDEX idx_chat_messages_sent_at ON chat_messages(sent_at);
+CREATE INDEX idx_user_progress_room_id ON user_progress(room_id);
+CREATE INDEX idx_surveys_room_id ON surveys(room_id);
+CREATE INDEX idx_survey_answers_survey_id ON survey_answers(survey_id);

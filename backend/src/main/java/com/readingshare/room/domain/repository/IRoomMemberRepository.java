@@ -2,6 +2,7 @@ package com.readingshare.room.domain.repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import com.readingshare.room.domain.model.RoomMember;
 
@@ -25,7 +26,7 @@ public interface IRoomMemberRepository {
      * @param roomId 部屋ID
      * @return 部屋のメンバーリスト
      */
-    List<RoomMember> findByRoomId(Long roomId);
+    List<RoomMember> findByRoomId(UUID roomId);
 
     /**
      * 特定の部屋とユーザーの組み合わせでメンバーを検索する。
@@ -34,5 +35,5 @@ public interface IRoomMemberRepository {
      * @param userId ユーザーID
      * @return メンバーが見つかった場合はOptionalにRoomMember、見つからない場合はOptional.empty()
      */
-    Optional<RoomMember> findByRoomIdAndUserId(Long roomId, Long userId);
+    Optional<RoomMember> findByRoomIdAndUserId(UUID roomId, UUID userId);
 }

@@ -1,12 +1,14 @@
 package com.readingshare.chat.service;
 
-import com.readingshare.chat.domain.model.UserProgress;
-import com.readingshare.chat.domain.repository.IProgressRepository;
-import com.readingshare.common.exception.DatabaseAccessException;
+import java.util.List;
+import java.util.UUID;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import com.readingshare.chat.domain.model.UserProgress;
+import com.readingshare.chat.domain.repository.IProgressRepository;
+import com.readingshare.common.exception.DatabaseAccessException;
 
 /**
  * 部屋の読書進捗取得のアプリケーションサービス。
@@ -23,12 +25,13 @@ public class GetRoomProgressService {
 
     /**
      * 特定の部屋の全ユーザーの進捗情報を取得する。
+     * 
      * @param roomId 進捗を取得する部屋ID
      * @return 取得されたユーザー進捗リスト
      * @throws DatabaseAccessException データベースアクセスエラー時
      */
     @Transactional(readOnly = true)
-    public List<UserProgress> getRoomProgress(Long roomId) {
+    public List<UserProgress> getRoomProgress(UUID roomId) {
         return progressRepository.findByRoomId(roomId);
     }
 }

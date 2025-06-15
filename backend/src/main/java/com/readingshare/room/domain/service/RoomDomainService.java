@@ -2,6 +2,7 @@ package com.readingshare.room.domain.service;
 
 import java.time.Instant;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.readingshare.auth.infrastructure.security.IPasswordHasher; // パスワードハッシュ化のために利用
 import com.readingshare.common.exception.DomainException;
 import com.readingshare.room.domain.model.Room;
-import com.readingshare.room.domain.model.RoomId;
 import com.readingshare.room.domain.model.RoomMember;
 import com.readingshare.room.domain.repository.IRoomMemberRepository;
 import com.readingshare.room.domain.repository.IRoomRepository;
@@ -35,7 +35,7 @@ public class RoomDomainService {
     /**
      * 新しい部屋を作成し、ホストをそのメンバーとして追加する。
      *
-     * @param room        作成する部屋エンティティ（ID、パスワードハッシュは含まない）
+     * @param room        作成する部屋エンティティ（パスワードハッシュは含まない）
      * @param rawPassword 平文の部屋パスワード（オプション）
      * @return 作成された部屋エンティティ
      * @throws DomainException 部屋の作成に失敗した場合（例: 同じ部屋名が存在する場合など）
@@ -51,55 +51,52 @@ public class RoomDomainService {
         Room savedRoom = roomRepository.save(room);
 
         // ホストを部屋のメンバーとして追加
-        RoomMember hostMember = new RoomMember(savedRoom.getId(), savedRoom.getHostUserId(), Instant.now());
+        RoomMember hostMember = new RoomMember(savedRoom.getId(), room.getHostUserId(), Instant.now());
         roomMemberRepository.save(hostMember);
 
         return savedRoom;
     }
 
     /**
-     * ユーザーを部屋のメンバーとして追加する。
+     * 部屋にメンバーを追加する。
+     * パスワードが設定されている場合は検証を行う。
      *
-     * @param roomId       参加する部屋のID
-     * @param userId       参加するユーザーのID
-     * @param roomPassword 部屋のパスワード（パスワード保護された部屋の場合に必要）
-     * @throws DomainException 部屋が見つからない、パスワードが間違っている、既に部屋に参加している場合など
+     * @param roomId       部屋ID
+     * @param userId       ユーザーID
+     * @param roomPassword 部屋のパスワード（オプション）
+     * @throws DomainException メンバー追加に失敗した場合
      */
     @Transactional
-    public void addRoomMember(RoomId roomId, Long userId, String roomPassword) {
-        Optional<Room> roomOptional = roomRepository.findById(roomId);
-        if (roomOptional.isEmpty()) {
-            throw new DomainException("Room not found with ID: " + roomId.getValue());
-        }
-        Room room = roomOptional.get();
+    public void addRoomMember(UUID roomId, UUID userId, String roomPassword) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new DomainException("指定された部屋が見つかりません。"));
 
-        // パスワード保護された部屋の場合、パスワード検証
-        if (room.hasPassword()) {
+        // パスワードが設定されている場合は検証
+        if (room.getRoomPasswordHash() != null) {
             if (roomPassword == null || !passwordHasher.verifyPassword(roomPassword, room.getRoomPasswordHash())) {
-                throw new DomainException("Incorrect room password.");
+                throw new DomainException("部屋のパスワードが正しくありません。");
             }
         }
 
-        // 既にメンバーであるかチェック
-        if (roomMemberRepository.findByRoomIdAndUserId(roomId.getValue(), userId).isPresent()) {
-            throw new DomainException("User is already a member of room: " + roomId.getValue());
+        // ユーザーが既にメンバーでないか確認
+        if (roomMemberRepository.findByRoomIdAndUserId(roomId, userId).isPresent()) {
+            throw new DomainException("既に部屋のメンバーです。");
         }
 
         // メンバーとして追加
-        RoomMember newMember = new RoomMember(roomId.getValue(), userId, Instant.now());
+        RoomMember newMember = new RoomMember(roomId, userId, Instant.now());
         roomMemberRepository.save(newMember);
-        // room.addMember(newMember); // Roomエンティティのコレクションに追加する場合（RoomMemberは単独で管理も可能）
-        // roomRepository.save(room); // Roomエンティティの変更を保存する場合
     }
 
     /**
-     * 特定の部屋のメンバーを検索する。
+     * 指定された部屋とユーザーの組み合わせでメンバー情報を取得する。
      *
      * @param roomId 部屋ID
-     * @return 部屋のメンバーリスト
+     * @param userId ユーザーID
+     * @return メンバー情報が見つかった場合はOptionalにRoomMember、見つからない場合はOptional.empty()
      */
     @Transactional(readOnly = true)
-    public Optional<RoomMember> getRoomMember(Long roomId, Long userId) {
+    public Optional<RoomMember> getRoomMember(UUID roomId, UUID userId) {
         return roomMemberRepository.findByRoomIdAndUserId(roomId, userId);
     }
 }

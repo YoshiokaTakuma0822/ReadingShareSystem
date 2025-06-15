@@ -1,15 +1,20 @@
 package com.readingshare.survey.domain.model;
 
+import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.MapKeyColumn;
-import jakarta.persistence.JoinColumn;
-import java.time.LocalDateTime;
-import java.util.Map;
 
 /**
  * アンケートへの回答を表すエンティティ。
@@ -18,58 +23,72 @@ import java.util.Map;
 @Entity
 @Table(name = "survey_answers")
 public class SurveyAnswer {
+    private static final Logger logger = LoggerFactory.getLogger(SurveyAnswer.class);
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
     @Id
-    @Column(name = "id")
-    private Long id;
+    @Column(name = "id", columnDefinition = "UUID")
+    private UUID id;
 
-    @Column(name = "survey_id")
-    private String surveyId;
+    @Column(name = "survey_id", columnDefinition = "UUID")
+    private UUID surveyId;
 
-    @Column(name = "user_id")
-    private String userId; // 回答者のユーザーID
+    @Column(name = "user_id", columnDefinition = "UUID")
+    private UUID userId;
 
-    @ElementCollection
-    @CollectionTable(name = "survey_answer_details", joinColumns = @JoinColumn(name = "answer_id"))
-    @MapKeyColumn(name = "question_index")
-    @Column(name = "selected_option_index")
-    private Map<Integer, Integer> answers;
+    @Column(name = "answers", columnDefinition = "jsonb")
+    private String answersJson;
 
     @Column(name = "answered_at")
     private LocalDateTime answeredAt;
 
-    public SurveyAnswer() {}
+    public SurveyAnswer() {
+    }
 
-    public SurveyAnswer(SurveyId surveyId, String userId, Map<Integer, Integer> answers) {
+    public SurveyAnswer(UUID surveyId, UUID userId, Map<Integer, Integer> answers) {
         if (surveyId == null || userId == null || answers == null || answers.isEmpty()) {
             throw new IllegalArgumentException("Survey ID, User ID, and answers cannot be null or empty.");
         }
-        this.surveyId = surveyId.getValue();
+        this.id = UUID.randomUUID();
+        this.surveyId = surveyId;
         this.userId = userId;
-        this.answers = answers;
+        setAnswers(answers);
         this.answeredAt = LocalDateTime.now();
     }
 
-    public String getSurveyId() {
-        return surveyId;
-    }
-
-    public String getUserId() {
-        return userId;
+    public void setAnswers(Map<Integer, Integer> answers) {
+        try {
+            this.answersJson = objectMapper.writeValueAsString(answers);
+        } catch (JsonProcessingException e) {
+            logger.error("Failed to serialize answers to JSON", e);
+            throw new IllegalArgumentException("Failed to save answers", e);
+        }
     }
 
     public Map<Integer, Integer> getAnswers() {
-        return answers;
+        try {
+            return objectMapper.readValue(answersJson, new TypeReference<Map<Integer, Integer>>() {
+            });
+        } catch (JsonProcessingException e) {
+            logger.error("Failed to deserialize answers from JSON", e);
+            throw new IllegalStateException("Failed to read answers", e);
+        }
+    }
+
+    // Getters
+    public UUID getId() {
+        return id;
+    }
+
+    public UUID getSurveyId() {
+        return surveyId;
+    }
+
+    public UUID getUserId() {
+        return userId;
     }
 
     public LocalDateTime getAnsweredAt() {
         return answeredAt;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 }

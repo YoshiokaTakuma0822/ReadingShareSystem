@@ -1,15 +1,16 @@
 package com.readingshare.survey.infrastructure.persistence;
 
-import com.readingshare.survey.domain.model.Survey;
-import com.readingshare.survey.domain.model.SurveyAnswer;
-import com.readingshare.survey.domain.model.SurveyId;
-import com.readingshare.survey.domain.repository.ISurveyRepository;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Optional;
+import com.readingshare.survey.domain.model.Survey;
+import com.readingshare.survey.domain.model.SurveyAnswer;
+import com.readingshare.survey.domain.repository.ISurveyRepository;
 
 @Repository
 public class SurveyRepositoryImpl implements ISurveyRepository {
@@ -31,17 +32,17 @@ public class SurveyRepositoryImpl implements ISurveyRepository {
     }
 
     @Override
-    public Optional<Survey> findById(SurveyId id) {
+    public Optional<Survey> findById(UUID id) {
         return surveyRepository.findById(id);
     }
 
     @Override
-    public List<Survey> findByRoomId(String roomId) {
-        return surveyRepository.findByRoomIdOrderByCreatedAtDesc(Long.valueOf(roomId));
+    public List<Survey> findByRoomId(UUID roomId) {
+        return surveyRepository.findByRoomIdOrderByCreatedAtDesc(roomId);
     }
 
     @Override
-    public List<SurveyAnswer> findAnswersBySurveyId(SurveyId surveyId) {
-        return surveyAnswerRepository.findBySurveyId(Long.valueOf(surveyId.getValue()));
+    public List<SurveyAnswer> findAnswersBySurveyId(UUID surveyId) {
+        return surveyAnswerRepository.findBySurveyId(surveyId);
     }
 }

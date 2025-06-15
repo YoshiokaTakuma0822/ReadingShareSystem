@@ -1,13 +1,15 @@
 package com.readingshare.room.infrastructure.persistence;
 
-import com.readingshare.room.domain.model.RoomMember;
-import com.readingshare.room.domain.repository.IRoomMemberRepository;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Optional;
+import com.readingshare.room.domain.model.RoomMember;
+import com.readingshare.room.domain.repository.IRoomMemberRepository;
 
 @Repository
 public class RoomMemberRepositoryImpl implements IRoomMemberRepository {
@@ -21,12 +23,12 @@ public class RoomMemberRepositoryImpl implements IRoomMemberRepository {
     }
 
     @Override
-    public List<RoomMember> findByRoomId(Long roomId) {
+    public List<RoomMember> findByRoomId(UUID roomId) {
         return roomMemberRepository.findByRoomId(roomId);
     }
 
     @Override
-    public Optional<RoomMember> findByRoomIdAndUserId(Long roomId, Long userId) {
+    public Optional<RoomMember> findByRoomIdAndUserId(UUID roomId, UUID userId) {
         return roomMemberRepository.findByRoomIdAndUserId(roomId, userId);
     }
 }
