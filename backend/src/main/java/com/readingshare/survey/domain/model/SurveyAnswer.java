@@ -1,5 +1,13 @@
 package com.readingshare.survey.domain.model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.MapKeyColumn;
+import jakarta.persistence.JoinColumn;
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -7,25 +15,41 @@ import java.util.Map;
  * アンケートへの回答を表すエンティティ。
  * 要求仕様書「(4)アンケートに回答する」に対応。
  */
+@Entity
+@Table(name = "survey_answers")
 public class SurveyAnswer {
+    @Id
+    @Column(name = "id")
+    private Long id;
 
-    private final SurveyId surveyId;
-    private final String userId; // 回答者のユーザーID
-    // キー: 質問のインデックス(0-origin), 値: 選択された選択肢のインデックス(0-origin)
-    private final Map<Integer, Integer> answers;
-    private final LocalDateTime answeredAt;
+    @Column(name = "survey_id")
+    private String surveyId;
+
+    @Column(name = "user_id")
+    private String userId; // 回答者のユーザーID
+
+    @ElementCollection
+    @CollectionTable(name = "survey_answer_details", joinColumns = @JoinColumn(name = "answer_id"))
+    @MapKeyColumn(name = "question_index")
+    @Column(name = "selected_option_index")
+    private Map<Integer, Integer> answers;
+
+    @Column(name = "answered_at")
+    private LocalDateTime answeredAt;
+
+    public SurveyAnswer() {}
 
     public SurveyAnswer(SurveyId surveyId, String userId, Map<Integer, Integer> answers) {
         if (surveyId == null || userId == null || answers == null || answers.isEmpty()) {
             throw new IllegalArgumentException("Survey ID, User ID, and answers cannot be null or empty.");
         }
-        this.surveyId = surveyId;
+        this.surveyId = surveyId.getValue();
         this.userId = userId;
         this.answers = answers;
         this.answeredAt = LocalDateTime.now();
     }
 
-    public SurveyId getSurveyId() {
+    public String getSurveyId() {
         return surveyId;
     }
 
@@ -39,5 +63,13 @@ public class SurveyAnswer {
 
     public LocalDateTime getAnsweredAt() {
         return answeredAt;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

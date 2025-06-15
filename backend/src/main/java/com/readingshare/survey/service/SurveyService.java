@@ -86,6 +86,6 @@ public class SurveyService {
             questionResults.add(new SurveyResultDto.QuestionResultDto(question.getQuestionText(), votes));
         }
         int totalRespondents = (int) answers.stream().map(SurveyAnswer::getUserId).distinct().count();
-        return new SurveyResultDto(survey.getId().getValue(), survey.getTitle(), totalRespondents, questionResults);
+        return new SurveyResultDto(survey.getId(), survey.getTitle(), totalRespondents, questionResults);
     }
 }

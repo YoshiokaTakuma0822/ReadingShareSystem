@@ -69,7 +69,8 @@ public class SurveyServiceImpl implements SurveyService {
     @Override
     @Transactional(readOnly = true)
     public Optional<Survey> getSurveyFormat(String surveyId) {
-        return surveyRepository.findById(new SurveyId(surveyId));
+        SurveyId id = new SurveyId(surveyId);
+        return surveyRepository.findById(id);
     }
 
     private SurveyResultDto buildResultDto(Survey survey, List<SurveyAnswer> answers) {
@@ -91,6 +92,7 @@ public class SurveyServiceImpl implements SurveyService {
         }
 
         int totalRespondents = (int) answers.stream().map(SurveyAnswer::getUserId).distinct().count();
-        return new SurveyResultDto(survey.getId().getValue(), survey.getTitle(), totalRespondents, questionResults);
+        // getId()はString型なので.getValue()は不要
+        return new SurveyResultDto(survey.getId(), survey.getTitle(), totalRespondents, questionResults);
     }
 }

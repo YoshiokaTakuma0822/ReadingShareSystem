@@ -4,7 +4,7 @@
 		{
 			"type": "shell",
 			"label": "Run Spring Boot backend",
-			"command": "./mvnw spring-boot:run",
+			"command": "mvnw.cmd spring-boot:run",
 			"group": "build",
 			"isBackground": false,
 			"problemMatcher": [
