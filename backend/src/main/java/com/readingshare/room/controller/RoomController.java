@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.readingshare.room.domain.model.Room;
 import com.readingshare.room.dto.RoomResponse;
 import com.readingshare.room.service.RoomService;
 import com.readingshare.security.JwtPayload;
@@ -88,5 +89,15 @@ public class RoomController {
                 createRoomRequest.name(),
                 createRoomRequest.description(),
                 accountId);
+    }
+
+    /**
+     * 部屋検索エンドポイント
+     * GET /api/rooms/search?keyword=xxx
+     */
+    @GetMapping("/search")
+    public ResponseEntity<List<Room>> searchRooms(@RequestParam String keyword) {
+        List<Room> rooms = searchRoomService.searchRooms(keyword);
+        return ResponseEntity.ok(rooms);
     }
 }

@@ -1,5 +1,6 @@
 package com.readingshare.room.domain.model;
 
+import java.time.Instant;
 import java.util.UUID;
 
 import com.readingshare.chat.domain.model.Message;
@@ -13,6 +14,11 @@ public class Room {
     private String name;
     private String description;
     private final UUID createdBy;
+    private String roomName;
+    private String bookTitle;
+    private Long hostUserId;
+    private Instant createdAt;
+    private String roomPasswordHash;
 
     private Room(Long id, String name, String description, UUID createdBy) {
         this.id = id;
@@ -100,5 +106,49 @@ public class Room {
 
     public UUID getCreatedBy() {
         return createdBy;
+    }
+
+    public String getRoomName() {
+        return roomName;
+    }
+
+    public void setRoomName(String roomName) {
+        this.roomName = roomName;
+    }
+
+    public String getBookTitle() {
+        return bookTitle;
+    }
+
+    public void setBookTitle(String bookTitle) {
+        this.bookTitle = bookTitle;
+    }
+
+    public Long getHostUserId() {
+        return hostUserId;
+    }
+
+    public void setHostUserId(Long hostUserId) {
+        this.hostUserId = hostUserId;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public String getRoomPasswordHash() {
+        return roomPasswordHash;
+    }
+
+    public void setRoomPasswordHash(String roomPasswordHash) {
+        this.roomPasswordHash = roomPasswordHash;
+    }
+
+    public boolean hasPassword() {
+        return roomPasswordHash != null && !roomPasswordHash.isEmpty();
     }
 }
