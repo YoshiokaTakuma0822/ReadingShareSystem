@@ -1,88 +1,48 @@
 package com.readingshare.survey.domain.model;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
- * アンケートエンティティ。
+ * アンケート集約のルートエンティティ。
+ * 要求仕様書「(3)アンケートを作成する」に対応。
  */
-@Entity
-@Table(name = "surveys")
 public class Survey {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // アンケートID (主キー)
+    private final SurveyId id;
+    private final String roomId; // アンケートが実施される部屋のID
+    private final String title; // アンケートのタイトル
+    private final List<Question> questions; // 質問のリスト
 
-    @NotNull
-    @Column(name = "room_id", nullable = false)
-    private Long roomId; // 関連する部屋ID
-
-    @NotNull
-    @Column(name = "creator_user_id", nullable = false)
-    private Long creatorUserId; // アンケート作成者のユーザーID
-
-    @NotNull
-    @Column(name = "title", nullable = false)
-    private String title; // アンケートタイトル
-
-    @Column(name = "description")
-    private String description; // アンケートの説明
-
-    @NotNull
-    @Column(name = "created_at", nullable = false)
-    private Instant createdAt; // 作成日時
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @JoinColumn(name = "survey_id") // SurveyのIDを外部キーとしてQuestionテーブルに保存
-    private List<Question> questions = new ArrayList<>(); // 質問リスト
-
-    // デフォルトコンストラクタ
-    public Survey() {}
-
-    public Survey(Long id, Long roomId, Long creatorUserId, String title, String description, Instant createdAt) {
-        this.id = id;
+    public Survey(String roomId, String title, List<Question> questions) {
+        if (roomId == null || roomId.isBlank()) {
+            throw new IllegalArgumentException("Room ID cannot be null or empty.");
+        }
+        if (title == null || title.isBlank()) {
+            throw new IllegalArgumentException("Title cannot be null or empty.");
+        }
+        if (questions == null || questions.isEmpty()) {
+            throw new IllegalArgumentException("Questions cannot be null or empty.");
+        }
+        this.id = new SurveyId(UUID.randomUUID().toString());
         this.roomId = roomId;
-        this.creatorUserId = creatorUserId;
         this.title = title;
-        this.description = description;
-        this.createdAt = createdAt;
+        this.questions = questions;
     }
 
-    // Getters
-    public Long getId() { return id; }
-    public Long getRoomId() { return roomId; }
-    public Long getCreatorUserId() { return creatorUserId; }
-    public String getTitle() { return title; }
-    public String getDescription() { return description; }
-    public Instant getCreatedAt() { return createdAt; }
-    public List<Question> getQuestions() { return questions; }
-
-    // Setters (JPAのためにidは必要)
-    public void setId(Long id) { this.id = id; }
-    public void setRoomId(Long roomId) { this.roomId = roomId; }
-    public void setCreatorUserId(Long creatorUserId) { this.creatorUserId = creatorUserId; }
-    public void setTitle(String title) { this.title = title; }
-    public void setDescription(String description) { this.description = description; }
-    public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
-    public void setQuestions(List<Question> questions) {
-        this.questions.clear();
-        if (questions != null) {
-            this.questions.addAll(questions);
-        }
+    public SurveyId getId() {
+        return id;
     }
 
-    /**
-     * 質問を追加するヘルパーメソッド。
-     * @param question 追加する質問
-     */
-    public void addQuestion(Question question) {
-        if (this.questions == null) {
-            this.questions = new ArrayList<>();
-        }
-        this.questions.add(question);
+    public String getRoomId() {
+        return roomId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public List<Question> getQuestions() {
+        return questions;
     }
 }

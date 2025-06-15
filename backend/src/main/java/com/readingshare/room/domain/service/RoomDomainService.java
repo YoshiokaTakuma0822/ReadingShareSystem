@@ -1,17 +1,18 @@
 package com.readingshare.room.domain.service;
 
-import com.readingshare.room.domain.model.Room;
-import com.readingshare.room.domain.model.RoomId;
-import com.readingshare.room.domain.model.RoomMember;
-import com.readingshare.room.domain.repository.IRoomRepository;
-import com.readingshare.room.domain.repository.IRoomMemberRepository;
-import com.readingshare.auth.infrastructure.security.IPasswordHasher; // パスワードハッシュ化のために利用
-import com.readingshare.common.exception.DomainException;
+import java.time.Instant;
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-import java.util.Optional;
+import com.readingshare.auth.infrastructure.security.IPasswordHasher; // パスワードハッシュ化のために利用
+import com.readingshare.common.exception.DomainException;
+import com.readingshare.room.domain.model.Room;
+import com.readingshare.room.domain.model.RoomId;
+import com.readingshare.room.domain.model.RoomMember;
+import com.readingshare.room.domain.repository.IRoomMemberRepository;
+import com.readingshare.room.domain.repository.IRoomRepository;
 
 /**
  * 部屋の作成とメンバー管理に関するドメインロジックを扱うサービス。
@@ -24,7 +25,8 @@ public class RoomDomainService {
     private final IRoomMemberRepository roomMemberRepository;
     private final IPasswordHasher passwordHasher; // パスワードハッシュ化のために注入
 
-    public RoomDomainService(IRoomRepository roomRepository, IRoomMemberRepository roomMemberRepository, IPasswordHasher passwordHasher) {
+    public RoomDomainService(IRoomRepository roomRepository, IRoomMemberRepository roomMemberRepository,
+            IPasswordHasher passwordHasher) {
         this.roomRepository = roomRepository;
         this.roomMemberRepository = roomMemberRepository;
         this.passwordHasher = passwordHasher;
@@ -32,7 +34,8 @@ public class RoomDomainService {
 
     /**
      * 新しい部屋を作成し、ホストをそのメンバーとして追加する。
-     * @param room 作成する部屋エンティティ（ID、パスワードハッシュは含まない）
+     *
+     * @param room        作成する部屋エンティティ（ID、パスワードハッシュは含まない）
      * @param rawPassword 平文の部屋パスワード（オプション）
      * @return 作成された部屋エンティティ
      * @throws DomainException 部屋の作成に失敗した場合（例: 同じ部屋名が存在する場合など）
@@ -56,8 +59,9 @@ public class RoomDomainService {
 
     /**
      * ユーザーを部屋のメンバーとして追加する。
-     * @param roomId 参加する部屋のID
-     * @param userId 参加するユーザーのID
+     *
+     * @param roomId       参加する部屋のID
+     * @param userId       参加するユーザーのID
      * @param roomPassword 部屋のパスワード（パスワード保護された部屋の場合に必要）
      * @throws DomainException 部屋が見つからない、パスワードが間違っている、既に部屋に参加している場合など
      */
@@ -90,6 +94,7 @@ public class RoomDomainService {
 
     /**
      * 特定の部屋のメンバーを検索する。
+     *
      * @param roomId 部屋ID
      * @return 部屋のメンバーリスト
      */

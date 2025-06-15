@@ -1,23 +1,19 @@
-package com.readingshare.room.domain.repository;
+package com.readingshare.room.infrastructure.persistence;
 
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
 import com.readingshare.room.domain.model.RoomMember;
 
 /**
- * 部屋メンバー情報の永続化を担当するリポジトリインターフェース。
+ * 部屋メンバー情報のJPAリポジトリインターフェース。
  * 担当: 芳岡
  */
-public interface IRoomMemberRepository {
-
-    /**
-     * 部屋メンバー情報を保存する。
-     *
-     * @param roomMember 保存する部屋メンバーエンティティ
-     * @return 保存された部屋メンバーエンティティ
-     */
-    RoomMember save(RoomMember roomMember);
+@Repository
+public interface RoomMemberRepository extends JpaRepository<RoomMember, Long> {
 
     /**
      * 特定の部屋の全メンバーを取得する。

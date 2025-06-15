@@ -1,95 +1,86 @@
 package com.readingshare.survey.controller;
 
-import com.readingshare.survey.domain.model.Survey;
-import com.readingshare.survey.domain.model.SurveyAnswer;
-import com.readingshare.survey.service.CreateSurveyService;
-import com.readingshare.survey.service.GetSurveyFormatService;
-import com.readingshare.survey.service.GetSurveyResultService;
-import com.readingshare.survey.service.SubmitSurveyAnswerService;
-import com.readingshare.survey.service.dto.CreateSurveyRequest;
-import com.readingshare.survey.service.dto.SubmitSurveyAnswerRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.Map;
+import com.readingshare.survey.application.service.SurveyService;
+import com.readingshare.survey.domain.model.Survey;
+import com.readingshare.survey.dto.CreateSurveyRequest;
+import com.readingshare.survey.dto.SubmitSurveyAnswerRequest;
+import com.readingshare.survey.dto.SurveyResultDto;
 
 /**
- * アンケートに関するAPIを処理するコントローラー。
+ * アンケート機能のRESTコントローラー
  * 担当: 成田
  */
 @RestController
 @RequestMapping("/api/surveys")
 public class SurveyController {
 
-    private final CreateSurveyService createSurveyService;
-    private final GetSurveyFormatService getSurveyFormatService;
-    private final SubmitSurveyAnswerService submitSurveyAnswerService;
-    private final GetSurveyResultService getSurveyResultService;
+    private final SurveyService surveyService;
 
-    public SurveyController(CreateSurveyService createSurveyService,
-                            GetSurveyFormatService getSurveyFormatService,
-                            SubmitSurveyAnswerService submitSurveyAnswerService,
-                            GetSurveyResultService getSurveyResultService) {
-        this.createSurveyService = createSurveyService;
-        this.getSurveyFormatService = getSurveyFormatService;
-        this.submitSurveyAnswerService = submitSurveyAnswerService;
-        this.getSurveyResultService = getSurveyResultService;
+    public SurveyController(SurveyService surveyService) {
+        this.surveyService = surveyService;
     }
 
     /**
+     * W7 アンケート作成画面からのリクエストを処理
      * 新しいアンケートを作成する。
+     *
      * @param request アンケート作成リクエスト
      * @return 作成されたアンケート情報
      */
     @PostMapping
-    public ResponseEntity<Survey> createSurvey(@RequestBody CreateSurveyRequest request) {
-        // TODO: userIdは認証情報から取得する
-        Long currentUserId = 1L; // 仮のユーザーID
-        Survey newSurvey = createSurveyService.createSurvey(
-                request.getRoomId(),
-                currentUserId,
-                request.getTitle(),
-                request.getDescription(),
-                request.getQuestions()
-        );
-        return ResponseEntity.ok(newSurvey);
+    public ResponseEntity<Void> createSurvey(@RequestBody CreateSurveyRequest request) {
+        surveyService.createSurvey(request);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     /**
-     * 特定のアンケートのフォーマット（質問内容）を取得する。
-     * @param surveyId アンケートID
+     * W8 アンケート回答画面からのリクエストを処理
+     * アンケートの回答を提出する。
+     *
+     * @param surveyId アンケートのID
+     * @param request  アンケート回答リクエスト
+     * @return 提出成功時はHTTP 200 OK
+     */
+    @PostMapping("/{surveyId}/answers")
+    public ResponseEntity<Void> submitAnswer(
+            @PathVariable String surveyId,
+            @RequestBody SubmitSurveyAnswerRequest request) {
+        surveyService.submitAnswer(surveyId, request);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * W9 アンケート結果画面のためのデータ取得
+     * アンケートの集計結果を取得する。
+     *
+     * @param surveyId アンケートのID
+     * @return アンケート結果DTO
+     */
+    @GetMapping("/{surveyId}/results")
+    public ResponseEntity<SurveyResultDto> getSurveyResult(@PathVariable String surveyId) {
+        SurveyResultDto result = surveyService.getSurveyResult(surveyId);
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * アンケートのフォーマット（質問内容）を取得する。
+     *
+     * @param surveyId アンケートのID
      * @return アンケートフォーマット
      */
     @GetMapping("/{surveyId}/format")
-    public ResponseEntity<Survey> getSurveyFormat(@PathVariable Long surveyId) {
-        return getSurveyFormatService.getSurveyFormat(surveyId)
+    public ResponseEntity<Survey> getSurveyFormat(@PathVariable String surveyId) {
+        return surveyService.getSurveyFormat(surveyId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
-    }
-
-    /**
-     * アンケートの回答を提出する。
-     * @param surveyId 回答するアンケートID
-     * @param request アンケート回答リクエスト
-     * @return 提出成功時はHTTP 200 OK
-     */
-    @PostMapping("/{surveyId}/answer")
-    public ResponseEntity<String> submitSurveyAnswer(@PathVariable Long surveyId, @RequestBody SubmitSurveyAnswerRequest request) {
-        // TODO: userIdは認証情報から取得する
-        Long currentUserId = 2L; // 仮のユーザーID
-        submitSurveyAnswerService.submitAnswer(surveyId, currentUserId, request.getAnswers());
-        return ResponseEntity.ok("Survey answer submitted successfully.");
-    }
-
-    /**
-     * 特定のアンケートの結果を取得する。
-     * @param surveyId 結果を取得するアンケートID
-     * @return アンケート結果（回答リスト）
-     */
-    @GetMapping("/{surveyId}/results")
-    public ResponseEntity<List<SurveyAnswer>> getSurveyResults(@PathVariable Long surveyId) {
-        List<SurveyAnswer> results = getSurveyResultService.getSurveyResults(surveyId);
-        return ResponseEntity.ok(results);
     }
 }

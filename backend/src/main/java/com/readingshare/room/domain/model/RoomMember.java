@@ -1,34 +1,36 @@
 package com.readingshare.room.domain.model;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
+import java.util.Objects;
 
-/**
- * F3 部屋参加情報に基く部屋のメンバー情報エンティティ。
- */
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
 @Entity
 @Table(name = "room_members")
 public class RoomMember {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // 参加情報ID (主キー)
+    private Long roomMemberId;
 
-    @NotNull
-    @Column(name = "room_id", nullable = false)
-    private Long roomId; // F2 部屋情報と連携する部屋ID
+    @Column(nullable = false)
+    private Long roomId;
 
-    @NotNull
-    @Column(name = "user_id", nullable = false)
-    private Long userId; // F1 会員情報と連携するユーザーID
+    @Column(nullable = false)
+    private Long userId;
 
-    @NotNull
-    @Column(name = "joined_at", nullable = false)
-    private Instant joinedAt; // 参加日時
+    @Column(nullable = false)
+    private Instant joinedAt;
 
-    // デフォルトコンストラクタ
-    public RoomMember() {}
+    // --- コンストラクタ ---
+    public RoomMember() {
+        // JPA用
+    }
 
     public RoomMember(Long roomId, Long userId, Instant joinedAt) {
         this.roomId = roomId;
@@ -36,15 +38,62 @@ public class RoomMember {
         this.joinedAt = joinedAt;
     }
 
-    // Getter
-    public Long getId() { return id; }
-    public Long getRoomId() { return roomId; }
-    public Long getUserId() { return userId; }
-    public Instant getJoinedAt() { return joinedAt; }
+    // --- Getter / Setter ---
+    public Long getRoomMemberId() {
+        return roomMemberId;
+    }
 
-    // Setter (JPAのためにidは必要)
-    public void setId(Long id) { this.id = id; }
-    public void setRoomId(Long roomId) { this.roomId = roomId; }
-    public void setUserId(Long userId) { this.userId = userId; }
-    public void setJoinedAt(Instant joinedAt) { this.joinedAt = joinedAt; }
+    public void setRoomMemberId(Long roomMemberId) {
+        this.roomMemberId = roomMemberId;
+    }
+
+    public Long getRoomId() {
+        return roomId;
+    }
+
+    public void setRoomId(Long roomId) {
+        this.roomId = roomId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public Instant getJoinedAt() {
+        return joinedAt;
+    }
+
+    public void setJoinedAt(Instant joinedAt) {
+        this.joinedAt = joinedAt;
+    }
+
+    // --- equals / hashCode / toString ---
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof RoomMember))
+            return false;
+        RoomMember that = (RoomMember) o;
+        return Objects.equals(roomMemberId, that.roomMemberId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(roomMemberId);
+    }
+
+    @Override
+    public String toString() {
+        return "RoomMember{" +
+                "roomMemberId=" + roomMemberId +
+                ", roomId=" + roomId +
+                ", userId=" + userId +
+                ", joinedAt=" + joinedAt +
+                '}';
+    }
 }

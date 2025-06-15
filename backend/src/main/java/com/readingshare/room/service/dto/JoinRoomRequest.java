@@ -6,7 +6,46 @@ package com.readingshare.room.service.dto;
 public class JoinRoomRequest {
     private String roomPassword; // パスワード保護された部屋の場合に必要
 
-    // Getters and Setters
-    public String getRoomPassword() { return roomPassword; }
-    public void setRoomPassword(String roomPassword) { this.roomPassword = roomPassword; }
+    private Long roomId;
+    private Long userId;
+
+    public JoinRoomRequest() {
+    }
+
+    public JoinRoomRequest(Long roomId, Long userId) {
+        this.roomId = roomId;
+        this.userId = userId;
+    }
+
+    public Long getRoomId() {
+        return roomId;
+    }
+
+    public void setRoomId(Long roomId) {
+        this.roomId = roomId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public String getRoomPassword() {
+        return roomPassword;
+    }
+
+    public void setRoomPassword(String roomPassword) {
+        this.roomPassword = roomPassword;
+    }
+
+    @Override
+    public String toString() {
+        return "JoinRoomRequest{" +
+                "roomId=" + roomId +
+                ", userId=" + userId +
+                '}';
+    }
 }
