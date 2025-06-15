@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.jspecify.annotations.NonNull;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,12 +12,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.readingshare.room.domain.model.Room;
 import com.readingshare.room.dto.RoomResponse;
 import com.readingshare.room.service.RoomService;
+import com.readingshare.room.service.SearchRoomService;
 import com.readingshare.security.JwtPayload;
 
 /**
@@ -28,9 +31,11 @@ import com.readingshare.security.JwtPayload;
 @RequestMapping("/api/rooms")
 public class RoomController {
     private final RoomService roomService;
+    private final SearchRoomService searchRoomService;
 
-    public RoomController(RoomService roomService) {
+    public RoomController(RoomService roomService, SearchRoomService searchRoomService) {
         this.roomService = roomService;
+        this.searchRoomService = searchRoomService;
     }
 
     /**
