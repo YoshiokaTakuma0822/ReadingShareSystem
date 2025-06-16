@@ -67,10 +67,10 @@ const ReadingScreen: React.FC = () => {
   }));
 
   return (
-    <div className="flex flex-col items-center justify-center w-full h-full" style={{ minHeight: '100vh', backgroundColor: '#fff' }}>
+    <div className="flex flex-col items-center justify-center w-full h-full" style={{ minHeight: '100vh', backgroundColor: 'var(--green-bg)' }}>
       {/* 進捗バー＋アイコン */}
       <div style={{ position: 'relative', width: 320, height: 40, marginBottom: 16 }}>
-        {/* 枠線と青ゲージ（自分の進捗） */}
+        {/* 枠線とゲージ（自分の進捗） */}
         <div style={{
           position: 'absolute',
           top: 10,
@@ -78,14 +78,14 @@ const ReadingScreen: React.FC = () => {
           width: '100%',
           height: 12,
           borderRadius: 6,
-          backgroundColor: '#ddd',
+          backgroundColor: 'var(--green-bg)',
           overflow: 'hidden',
-          border: '1px solid #aaa'
+          border: '1px solid var(--border)'
         }}>
           <div style={{
             width: `${progressPercent * 100}%`,
             height: '100%',
-            backgroundColor: '#2196f3',
+            backgroundColor: 'var(--green-main)',
             borderRadius: 6,
           }}></div>
         </div>
@@ -100,14 +100,14 @@ const ReadingScreen: React.FC = () => {
               width: 30,
               height: 30,
               borderRadius: '50%',
-              background: m.isMe ? '#2196f3' : '#fff',
-              border: m.isMe ? '2px solid #1976d2' : '1px solid #aaa',
+              background: m.isMe ? 'var(--green-dark)' : 'var(--white)',
+              border: m.isMe ? '2px solid var(--green-main)' : '1px solid var(--border)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: m.isMe ? '#fff' : '#333',
+              color: m.isMe ? 'var(--white)' : 'var(--green-dark)',
               fontWeight: 'bold',
-              boxShadow: m.isMe ? '0 0 8px rgba(33, 150, 243, 0.6)' : '0 1px 3px rgba(0,0,0,0.2)',
+              boxShadow: m.isMe ? '0 0 8px var(--green-light)' : '0 1px 3px rgba(0,0,0,0.08)',
               zIndex: 2,
               fontSize: 16,
               transition: 'left 0.3s ease-out'
@@ -134,7 +134,7 @@ const ReadingScreen: React.FC = () => {
           transform: 'translateX(-100%)', // 中央の左に配置
           width: 200,
           height: 280,
-          backgroundColor: '#f8f8f8',
+          backgroundColor: 'var(--white)',
           border: '1px solid #ccc',
           borderRight: 'none',
           boxShadow: 'inset 5px 0 15px rgba(0,0,0,0.1)',
@@ -152,7 +152,7 @@ const ReadingScreen: React.FC = () => {
           left: '50%',
           width: 200,
           height: 280,
-          backgroundColor: '#f8f8f8',
+          backgroundColor: 'var(--white)',
           border: '1px solid #ccc',
           borderLeft: 'none',
           boxShadow: 'inset -5px 0 15px rgba(0,0,0,0.1)',
@@ -187,7 +187,7 @@ const ReadingScreen: React.FC = () => {
             transformOrigin: '0% 50%', // 中央の背表紙を軸に
             width: 200,
             height: 280,
-            backgroundColor: '#fff',
+            backgroundColor: 'var(--white)',
             border: '1px solid #ccc',
             transition: 'transform 1.5s cubic-bezier(.4, 0.0, .2, 1), box-shadow 1.5s ease-out',
             zIndex: 10,
@@ -236,9 +236,11 @@ const ReadingScreen: React.FC = () => {
             flex: 1,
             padding: 12,
             borderRadius: 8,
-            border: '1px solid #222',
+            border: '1px solid var(--border)',
             fontSize: 18,
-            minWidth: '200px'
+            minWidth: '200px',
+            background: 'var(--green-bg)',
+            color: 'var(--accent)'
           }}
           placeholder="メッセージを入力..."
         />
@@ -247,12 +249,13 @@ const ReadingScreen: React.FC = () => {
             marginLeft: 8,
             padding: '12px 24px',
             borderRadius: 8,
-            border: '1px solid #222',
+            border: '1px solid var(--border)',
             fontSize: 18,
-            background: 'transparent',
-            color: '#333',
+            background: 'var(--green-light)',
+            color: 'var(--accent)',
             cursor: 'pointer',
-            boxShadow: 'none'
+            boxShadow: 'none',
+            fontWeight: 'bold'
           }}
         >
           送信
@@ -263,12 +266,13 @@ const ReadingScreen: React.FC = () => {
             marginLeft: 8,
             padding: '12px 24px',
             borderRadius: 8,
-            border: '1px solid #222',
+            border: '1px solid var(--border)',
             fontSize: 18,
-            background: '#f5f5f5',
-            color: '#333',
+            background: 'var(--green-bg)',
+            color: 'var(--accent)',
             cursor: 'pointer',
-            boxShadow: 'none'
+            boxShadow: 'none',
+            fontWeight: 'bold'
           }}
         >
           進捗入力
@@ -279,12 +283,13 @@ const ReadingScreen: React.FC = () => {
             marginLeft: 8,
             padding: '12px 24px',
             borderRadius: 8,
-            border: '1px solid #2196f3',
+            border: '1px solid var(--border)',
             fontSize: 18,
-            background: flipping ? '#e3f2fd' : '#fff',
-            color: '#2196f3',
+            background: flipping ? 'var(--green-light)' : 'var(--white)',
+            color: 'var(--accent)',
             cursor: 'pointer',
-            boxShadow: 'none'
+            boxShadow: 'none',
+            fontWeight: 'bold'
           }}
         >
           {flipping ? '自動めくり停止' : '自動めくり開始'}

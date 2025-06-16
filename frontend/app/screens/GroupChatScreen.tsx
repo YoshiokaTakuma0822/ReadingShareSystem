@@ -25,9 +25,9 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
   };
 
   return (
-    <div style={{ border: '4px solid #222', margin: 24, padding: 24 }}>
-      <h2 style={{ textAlign: 'center', fontSize: 28, marginBottom: 16 }}>{roomTitle}</h2>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 32, minHeight: 200 }}>
+    <div style={{ border: '4px solid #388e3c', margin: 24, padding: 24, background: 'linear-gradient(135deg, #e0f7ef 0%, #f1fdf6 100%)', borderRadius: 12, maxWidth: 1200, minHeight: 600, marginLeft: 'auto', marginRight: 'auto', display: 'flex', flexDirection: 'column', height: '80vh' }}>
+      <h2 style={{ textAlign: 'center', fontSize: 28, marginBottom: 16, color: '#388e3c' }}>{roomTitle}</h2>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 32, minHeight: 200, maxHeight: '60vh', overflowY: 'auto', background: 'rgba(255,255,255,0.7)', borderRadius: 8, padding: 16 }}>
         {messages.map(msg => {
           const isMine = msg.user === currentUser;
           return (
@@ -49,7 +49,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                   borderRadius: 16,
                   padding: 8,
                   background: isMine ? '#e0f7fa' : '#fff',
-                  maxWidth: 320,
+                  maxWidth: 600,
                   wordBreak: 'break-word',
                 }}
               >

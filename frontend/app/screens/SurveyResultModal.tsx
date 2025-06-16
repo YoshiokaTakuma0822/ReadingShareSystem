@@ -30,8 +30,8 @@ const SurveyResultModal: React.FC<SurveyResultModalProps> = ({ open, surveyId, o
   if (!open) return null;
 
   return (
-    <div style={{ border: '4px solid #222', margin: 24, padding: 32, maxWidth: 600, background: '#fff', borderRadius: 8 }}>
-      <h2 style={{ textAlign: 'center', fontSize: 28, marginBottom: 24 }}>{title || 'アンケート結果'}</h2>
+    <div style={{ border: '4px solid #388e3c', margin: 24, padding: 32, maxWidth: 600, background: '#f1fdf6', borderRadius: 8, boxShadow: '0 4px 24px #a5d6a7' }}>
+      <h2 style={{ textAlign: 'center', fontSize: 28, marginBottom: 24, color: '#388e3c' }}>{title || 'アンケート結果'}</h2>
       {loading ? (
         <div>読み込み中...</div>
       ) : error ? (

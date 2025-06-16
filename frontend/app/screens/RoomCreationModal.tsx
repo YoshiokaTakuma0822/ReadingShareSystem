@@ -40,8 +40,8 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, onClose, on
   if (!open) return null;
 
   return (
-    <div style={{ maxWidth: 700, margin: '40px auto', border: '2px solid #222', padding: 32, borderRadius: 8, background: '#fff', zIndex: 1000, position: 'relative' }}>
-      <h2 style={{ fontWeight: 'bold', fontSize: 28, marginBottom: 24 }}>詳細設定</h2>
+    <div style={{ maxWidth: 700, margin: '40px auto', border: '2px solid #388e3c', padding: 32, borderRadius: 8, background: '#f1fdf6', zIndex: 1000, position: 'relative', boxShadow: '0 4px 24px #a5d6a7' }}>
+      <h2 style={{ fontWeight: 'bold', fontSize: 28, marginBottom: 24, color: '#388e3c' }}>詳細設定</h2>
       <div style={{ display: 'flex', gap: 32 }}>
         <div style={{ flex: 1 }}>
           <div style={{ marginBottom: 16 }}>

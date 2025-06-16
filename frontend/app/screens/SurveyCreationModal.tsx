@@ -49,8 +49,11 @@ const SurveyCreationModal: React.FC<SurveyCreationModalProps> = ({ open, onClose
   if (!open) return null;
 
   return (
-    <div style={{ border: '4px solid #222', margin: 24, padding: 32, maxWidth: 700, background: '#fff', borderRadius: 8 }}>
-      <h2 style={{ fontWeight: 'bold', fontSize: 28, marginBottom: 24 }}>アンケート作成</h2>
+    <div style={{ border: '4px solid #388e3c', margin: 24, padding: 32, maxWidth: 700, background: '#f1fdf6', borderRadius: 8, boxShadow: '0 4px 24px #a5d6a7' }}>
+      <h2 style={{ fontWeight: 'bold', fontSize: 28, marginBottom: 24, color: '#388e3c' }}>アンケート作成</h2>
+      <div style={{ marginBottom: 16, color: '#388e3c', fontSize: 15, fontWeight: 500 }}>
+        この画面は開いて確認できません（サンプルはホーム画面からご利用ください）
+      </div>
       <div style={{ marginBottom: 16 }}>
         <label>タイトル</label>
         <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="今日はどこの章まで読むか" style={{ width: '100%', padding: 8, marginTop: 4 }} />

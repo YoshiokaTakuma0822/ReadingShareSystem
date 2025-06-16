@@ -35,8 +35,8 @@ const RegisterScreen: React.FC = () => {
   };
 
   return (
-    <div style={{ maxWidth: 500, margin: '40px auto', border: '2px solid #222', padding: 32, borderRadius: 8 }}>
-      <h1 style={{ textAlign: 'center', fontSize: 32, marginBottom: 32 }}>会員登録画面</h1>
+    <div style={{ maxWidth: 900, minWidth: 520, width: '60vw', height: 600, position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', border: '2px solid #388e3c', padding: 48, borderRadius: 20, background: 'linear-gradient(135deg, #e0f7ef 0%, #f1fdf6 100%)', boxShadow: '0 4px 24px #a5d6a7', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+      <h1 style={{ textAlign: 'center', fontSize: 32, marginBottom: 32, color: '#388e3c' }}>会員登録画面</h1>
       <div style={{ marginBottom: 16 }}>
         <label>新規ID</label>
         <input type="text" value={id} onChange={e => setId(e.target.value)} style={inputStyle} />

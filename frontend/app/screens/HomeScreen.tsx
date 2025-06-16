@@ -38,7 +38,6 @@ const HomeScreen: React.FC = () => {
   React.useEffect(() => {
     if (tab === 'search') handleSearch();
   }, [tab]);
-
   // 部屋作成後のリスト再取得
   const handleRoomCreated = () => {
     setShowCreateModal(false);
@@ -47,20 +46,42 @@ const HomeScreen: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 32 }}>
+    <div style={{ padding: 32, background: 'var(--green-bg)', minHeight: '100vh' }}>
+      {/* 各W画面の確認方法案内 */}
+      <div style={{ background: 'var(--green-bg)', border: '1px solid var(--border)', borderRadius: 10, padding: 24, marginBottom: 32 }}>
+        <h2 style={{ color: 'var(--accent)', fontSize: 22, marginBottom: 12 }}>各W画面の確認方法</h2>
+        <ul style={{ lineHeight: 2, fontSize: 16, color: 'var(--accent)', marginLeft: 16 }}>
+          <li><a href="/screens/HomeScreen" style={{ color: '#8d6748', textDecoration: 'underline' }}>W1: ホーム画面</a></li>
+          <li><a href="/screens/LoginScreen" style={{ color: '#8d6748', textDecoration: 'underline' }}>W2: ログイン画面</a></li>
+          <li><a href="/screens/RegisterScreen" style={{ color: '#8d6748', textDecoration: 'underline' }}>W3: 会員登録画面</a></li>
+          <li><a href="/screens/RoomCreationModal" style={{ color: '#8d6748', textDecoration: 'underline' }}>W4: 部屋作成画面</a> <span style={{ color: '#b0b8c9', fontSize: 13 }}>(この画面は開いても白い画面しか表示されません)</span></li>
+          <li><a href="/screens/RoomJoinModal" style={{ color: '#8d6748', textDecoration: 'underline' }}>W5: 部屋参加画面</a> <span style={{ color: '#b0b8c9', fontSize: 13 }}>(この画面は開いても白い画面しか表示されません)</span></li>
+          <li><a href="/screens/GroupChatScreen" style={{ color: '#8d6748', textDecoration: 'underline' }}>W6: グループチャット画面</a></li>
+          <li><a href="/screens/SurveyCreationModal" style={{ color: '#8d6748', textDecoration: 'underline' }}>W7: アンケート作成画面</a> <span style={{ color: '#b0b8c9', fontSize: 13 }}>(この画面は開いても白い画面しか表示されません)</span></li>
+          <li><a href="/screens/SurveyAnswerModal" style={{ color: '#8d6748', textDecoration: 'underline' }}>W8: アンケート回答画面</a> <span style={{ color: '#b0b8c9', fontSize: 13 }}>(この画面は開いても白い画面しか表示されません)</span></li>
+          <li><a href="/screens/SurveyResultModal" style={{ color: '#8d6748', textDecoration: 'underline' }}>W9: アンケート結果画面</a> <span style={{ color: '#b0b8c9', fontSize: 13 }}>(この画面は開いても白い画面しか表示されません)</span></li>
+          <li><a href="/screens/ReadingScreen" style={{ color: '#8d6748', textDecoration: 'underline' }}>W10: 読書画面</a></li>
+        </ul>
+        <div style={{ marginTop: 12, color: 'var(--accent)', fontWeight: 'bold' }}>
+          全W画面サンプル集は現在ご利用いただけません
+        </div>
+        <div style={{ marginTop: 20, color: '#388e3c', fontWeight: 500, fontSize: 15 }}>
+          {/* アンケート作成テンプレート（サンプル）削除 */}
+        </div>
+      </div>
       <div style={{ display: 'flex', gap: 16, marginBottom: 24 }}>
         <button
-          style={{ flex: 1, padding: 16, background: tab === 'create' ? '#eee' : '#fff', borderBottom: tab === 'create' ? '2px solid #222' : '1px solid #ccc' }}
+          style={{ flex: 1, padding: 16, background: tab === 'create' ? 'var(--green-light)' : 'var(--white)', borderBottom: tab === 'create' ? '2px solid var(--accent)' : '1px solid var(--green-light)', color: 'var(--accent)', fontWeight: 'bold' }}
           onClick={() => setTab('create')}
         >部屋作成</button>
         <button
-          style={{ flex: 1, padding: 16, background: tab === 'search' ? '#eee' : '#fff', borderBottom: tab === 'search' ? '2px solid #222' : '1px solid #ccc' }}
+          style={{ flex: 1, padding: 16, background: tab === 'search' ? 'var(--green-light)' : 'var(--white)', borderBottom: tab === 'search' ? '2px solid var(--accent)' : '1px solid var(--green-light)', color: 'var(--accent)', fontWeight: 'bold' }}
           onClick={() => setTab('search')}
         >検索</button>
       </div>
       {tab === 'create' && (
         <div style={{ marginBottom: 24 }}>
-          <button onClick={() => setShowCreateModal(true)} style={{ padding: '12px 32px', fontSize: 18, borderRadius: 8, border: '1px solid #222' }}>
+          <button onClick={() => setShowCreateModal(true)} style={{ padding: '12px 32px', fontSize: 18, borderRadius: 8, border: '1px solid var(--text-main)' }}>
             部屋を作成する
           </button>
         </div>
@@ -82,35 +103,38 @@ const HomeScreen: React.FC = () => {
       ) : error ? (
         <div style={{ color: 'red' }}>{error}</div>
       ) : (
-        <div style={{ border: '2px solid #222', padding: 24 }}>
+        <div style={{ border: '2px solid var(--text-main)', padding: 24 }}>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24 }}>
-            {rooms.map((room) => (
-              <div key={room.roomId} style={{ border: '1px solid #222', width: 200, height: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>
-                {room.roomName}
+            {rooms.length === 0 ? (
+              <div style={{ color: '#b0b8c9', fontSize: 20, width: '100%', textAlign: 'center', padding: '32px 0' }}>
+                部屋はありません
               </div>
-            ))}
+            ) : (
+              rooms.map((room) => (
+                <div key={room.roomId} style={{ border: '1px solid var(--text-main)', width: 200, height: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>
+                  {room.roomName}
+                </div>
+              ))
+            )}
           </div>
         </div>
       )}
       {showCreateModal && (
         <RoomCreationModal open={showCreateModal} onClose={() => setShowCreateModal(false)} onCreated={handleRoomCreated} />
       )}
-      <div style={{ margin: '32px 0' }}>
-        <button onClick={() => setShowSurveyAnswerModal(true)} style={{ padding: '12px 32px', fontSize: 18, borderRadius: 8, border: '1px solid #222', background: '#f5f5f5' }}>
-          アンケート回答モーダルを開く（サンプル）
-        </button>
-      </div>
       {showSurveyAnswerModal && (
         <SurveyAnswerModal open={showSurveyAnswerModal} surveyId={dummySurveyId} onClose={() => setShowSurveyAnswerModal(false)} onAnswered={() => { setShowSurveyAnswerModal(false); alert('回答送信完了（ダミー）'); }} />
       )}
-      <div style={{ margin: '32px 0' }}>
-        <button onClick={() => setShowSurveyResultModal(true)} style={{ padding: '12px 32px', fontSize: 18, borderRadius: 8, border: '1px solid #222', background: '#f5f5f5' }}>
-          アンケート結果モーダルを開く（サンプル）
-        </button>
-      </div>
       {showSurveyResultModal && (
         <SurveyResultModal open={showSurveyResultModal} surveyId={dummySurveyId} onClose={() => setShowSurveyResultModal(false)} />
       )}
+      <div style={{ marginTop: 32, display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+        <button type="button" style={{ padding: '16px 32px', fontSize: 18, borderRadius: 8, border: '1px solid #388e3c', background: '#e0f7ef', color: '#388e3c', fontWeight: 600 }} onClick={() => window.open('/screens/RoomCreationSample', '_blank')}>部屋作成サンプル（ウィンドウ型）</button>
+        <button type="button" style={{ padding: '16px 32px', fontSize: 18, borderRadius: 8, border: '1px solid #388e3c', background: '#e0f7ef', color: '#388e3c', fontWeight: 600 }} onClick={() => window.open('/screens/RoomJoinSample', '_blank')}>部屋参加サンプル（ウィンドウ型）</button>
+        <button type="button" style={{ padding: '16px 32px', fontSize: 18, borderRadius: 8, border: '1px solid #388e3c', background: '#e0f7ef', color: '#388e3c', fontWeight: 600 }} onClick={() => window.open('/screens/SurveyCreationSample', '_blank')}>アンケート作成サンプル（ウィンドウ型）</button>
+        <button type="button" style={{ padding: '16px 32px', fontSize: 18, borderRadius: 8, border: '1px solid #388e3c', background: '#e0f7ef', color: '#388e3c', fontWeight: 600 }} onClick={() => window.open('/screens/SurveyAnswerSample', '_blank')}>アンケート回答サンプル（ウィンドウ型）</button>
+        <button type="button" style={{ padding: '16px 32px', fontSize: 18, borderRadius: 8, border: '1px solid #388e3c', background: '#e0f7ef', color: '#388e3c', fontWeight: 600 }} onClick={() => window.open('/screens/SurveyResultSample', '_blank')}>アンケート結果サンプル（ウィンドウ型）</button>
+      </div>
     </div>
   );
 };
