@@ -64,10 +64,11 @@ public class RoomDomainService {
      * @param roomId       部屋ID
      * @param userId       ユーザーID
      * @param roomPassword 部屋のパスワード（オプション）
+     * @return 作成されたRoomMemberエンティティ
      * @throws DomainException メンバー追加に失敗した場合
      */
     @Transactional
-    public void addRoomMember(UUID roomId, UUID userId, String roomPassword) {
+    public RoomMember addRoomMember(UUID roomId, UUID userId, String roomPassword) {
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new DomainException("指定された部屋が見つかりません。"));
 
@@ -85,7 +86,7 @@ public class RoomDomainService {
 
         // メンバーとして追加
         RoomMember newMember = new RoomMember(roomId, userId, Instant.now());
-        roomMemberRepository.save(newMember);
+        return roomMemberRepository.save(newMember);
     }
 
     /**

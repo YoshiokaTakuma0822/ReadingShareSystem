@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import com.readingshare.room.domain.model.Room;
 
 /**
@@ -43,4 +46,12 @@ public interface IRoomRepository {
      * @return 全ての部屋のリスト
      */
     List<Room> findAll();
+
+    /**
+     * ページングして部屋一覧を取得する。
+     *
+     * @param pageable ページング情報
+     * @return ページングされた部屋のリスト
+     */
+    Page<Room> findAll(Pageable pageable);
 }

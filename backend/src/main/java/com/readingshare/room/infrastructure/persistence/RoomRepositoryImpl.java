@@ -6,6 +6,8 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import com.readingshare.room.domain.model.Room;
@@ -35,5 +37,10 @@ public class RoomRepositoryImpl implements IRoomRepository {
     @Override
     public List<Room> findAll() {
         return roomRepository.findAll();
+    }
+
+    @Override
+    public Page<Room> findAll(Pageable pageable) {
+        return roomRepository.findAll(pageable);
     }
 }

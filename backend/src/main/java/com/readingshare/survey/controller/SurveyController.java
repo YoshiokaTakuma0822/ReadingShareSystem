@@ -97,4 +97,28 @@ public class SurveyController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    /**
+     * アンケートの質問に新しい選択肢を追加する。
+     *
+     * @param surveyId アンケートのID
+     * @param request  選択肢追加リクエスト
+     * @return 追加成功時はHTTP 200 OK
+     */
+    @PostMapping("/{surveyId}/options")
+    public ResponseEntity<Void> addOption(@PathVariable UUID surveyId,
+            @RequestBody AddOptionRequest request) {
+        try {
+            surveyService.addOption(surveyId, request.questionText(), request.newOption());
+            return ResponseEntity.ok().build();
+        } catch (ApplicationException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    /**
+     * 選択肢追加リクエストDTO
+     */
+    public record AddOptionRequest(String questionText, String newOption) {
+    }
 }

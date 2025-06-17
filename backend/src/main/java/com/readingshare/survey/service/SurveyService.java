@@ -44,7 +44,8 @@ public class SurveyService {
             }
 
             List<Question> questions = request.questions().stream()
-                    .map(q -> new Question(q.questionText(), q.options()))
+                    .map(q -> new Question(q.questionText(), q.options(), q.questionType(),
+                            q.allowAnonymous(), q.allowAddOptions()))
                     .collect(Collectors.toList());
             Survey survey = new Survey(request.roomId(), request.title(), questions);
             Survey savedSurvey = surveyRepository.save(survey);
@@ -59,7 +60,7 @@ public class SurveyService {
     public void submitAnswer(UUID surveyId, SubmitSurveyAnswerRequest request) {
         surveyRepository.findById(surveyId)
                 .orElseThrow(() -> new ApplicationException("Survey not found with id: " + surveyId));
-        SurveyAnswer answer = new SurveyAnswer(surveyId, request.userId(), request.answers());
+        SurveyAnswer answer = new SurveyAnswer(surveyId, request.userId(), request.answers(), request.isAnonymous());
         surveyRepository.saveAnswer(answer);
     }
 
@@ -76,16 +77,40 @@ public class SurveyService {
         return surveyRepository.findById(surveyId);
     }
 
+    /**
+     * アンケートの質問に新しい選択肢を追加する
+     */
+    @Transactional
+    public void addOption(UUID surveyId, String questionText, String newOption) {
+        Survey survey = surveyRepository.findById(surveyId)
+                .orElseThrow(() -> new ApplicationException("Survey not found with id: " + surveyId));
+
+        Question targetQuestion = survey.getQuestions().stream()
+                .filter(q -> q.getQuestionText().equals(questionText))
+                .findFirst()
+                .orElseThrow(() -> new ApplicationException("Question not found: " + questionText));
+
+        try {
+            targetQuestion.addOption(newOption);
+            surveyRepository.save(survey);
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            throw new ApplicationException(e.getMessage(), e);
+        }
+    }
+
     private SurveyResultResponse buildResultDto(Survey survey, List<SurveyAnswer> answers) {
         List<SurveyResultResponse.QuestionResultResponse> questionResults = new ArrayList<>();
         for (Question question : survey.getQuestions()) {
             Map<String, Long> votes = question.getOptions().stream()
                     .collect(Collectors.toMap(Function.identity(), option -> 0L));
             for (SurveyAnswer answer : answers) {
-                Integer selectedOptionIndex = answer.getAnswers().get(question.getQuestionText());
-                if (selectedOptionIndex != null && selectedOptionIndex < question.getOptions().size()) {
-                    String selectedOption = question.getOptions().get(selectedOptionIndex);
-                    votes.computeIfPresent(selectedOption, (key, value) -> value + 1);
+                List<String> selectedOptions = answer.getAnswers().get(question.getQuestionText());
+                if (selectedOptions != null) {
+                    for (String selectedOption : selectedOptions) {
+                        if (selectedOption != null && question.getOptions().contains(selectedOption)) {
+                            votes.computeIfPresent(selectedOption, (key, value) -> value + 1);
+                        }
+                    }
                 }
             }
             questionResults.add(new SurveyResultResponse.QuestionResultResponse(question.getQuestionText(), votes));

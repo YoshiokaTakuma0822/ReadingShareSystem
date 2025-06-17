@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.readingshare.common.exception.DifferentQuestionnaireComponentException;
 import com.readingshare.common.exception.DomainException;
 import com.readingshare.survey.domain.model.Question;
+import com.readingshare.survey.domain.model.QuestionType;
 import com.readingshare.survey.domain.model.Survey;
 import com.readingshare.survey.domain.model.SurveyAnswer;
 import com.readingshare.survey.domain.repository.ISurveyAnswerRepository;
@@ -69,12 +70,12 @@ public class SurveyDomainService {
      *
      * @param surveyId 回答するアンケートID
      * @param userId   回答するユーザーID
-     * @param answers  回答内容（質問文と選択肢インデックスのマップ）
+     * @param answers  回答内容（質問文と選択肢文字列のマップ）
      * @throws DomainException                          アンケートが見つからない、回答形式が不正、既に回答済みの場合など
      * @throws DifferentQuestionnaireComponentException いずれかの変数の欠損又は誤りのとき
      */
     @Transactional
-    public void submitSurveyAnswer(UUID surveyId, UUID userId, Map<String, Integer> answers) {
+    public void submitSurveyAnswer(UUID surveyId, UUID userId, Map<String, List<String>> answers) {
         Survey survey = surveyRepository.findById(surveyId)
                 .orElseThrow(() -> new DomainException("Survey not found"));
 
@@ -84,7 +85,7 @@ public class SurveyDomainService {
         }
 
         // 回答内容を検証
-        Map<String, Integer> validatedAnswers = validateAnswers(survey.getQuestions(), answers);
+        Map<String, List<String>> validatedAnswers = validateAnswers(survey.getQuestions(), answers);
 
         // 回答を保存
         SurveyAnswer surveyAnswer = new SurveyAnswer(surveyId, userId, validatedAnswers);
@@ -99,25 +100,34 @@ public class SurveyDomainService {
      * @return 検証済みの回答内容
      * @throws DifferentQuestionnaireComponentException 回答内容が質問と一致しない場合
      */
-    private Map<String, Integer> validateAnswers(List<Question> questions, Map<String, Integer> answers) {
-        Map<String, Integer> validatedAnswers = new HashMap<>();
+    private Map<String, List<String>> validateAnswers(List<Question> questions, Map<String, List<String>> answers) {
+        Map<String, List<String>> validatedAnswers = new HashMap<>();
 
-        for (Map.Entry<String, Integer> entry : answers.entrySet()) {
+        for (Map.Entry<String, List<String>> entry : answers.entrySet()) {
             String questionText = entry.getKey();
-            Integer selectedOptionIndex = entry.getValue();
+            List<String> selectedOptions = entry.getValue();
 
             // 質問文が存在するか確認
             Question question = questions.stream()
                     .filter(q -> q.getQuestionText().equals(questionText))
                     .findFirst()
-                    .orElseThrow(() -> new DifferentQuestionnaireComponentException("Invalid question text: " + questionText));
+                    .orElseThrow(() -> new DifferentQuestionnaireComponentException(
+                            "Invalid question text: " + questionText));
 
-            // 選択肢のインデックスが正しいか確認
-            if (selectedOptionIndex < 0 || selectedOptionIndex >= question.getOptions().size()) {
-                throw new DifferentQuestionnaireComponentException("Invalid option index: " + selectedOptionIndex);
+            // 選択肢の検証
+            for (String selectedOption : selectedOptions) {
+                if (!question.getOptions().contains(selectedOption)) {
+                    throw new DifferentQuestionnaireComponentException("Invalid option: " + selectedOption);
+                }
             }
 
-            validatedAnswers.put(questionText, selectedOptionIndex);
+            // 単一選択の場合、複数選択肢が選ばれていないかチェック
+            if (question.getQuestionType() == QuestionType.SINGLE_CHOICE && selectedOptions.size() > 1) {
+                throw new DifferentQuestionnaireComponentException(
+                        "Single choice question cannot have multiple answers");
+            }
+
+            validatedAnswers.put(questionText, selectedOptions);
         }
 
         return validatedAnswers;

@@ -4,6 +4,8 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -29,6 +31,7 @@ public class Room {
     @Column(nullable = false)
     private Instant createdAt;
 
+    @JsonIgnore
     @Column(nullable = true)
     private String roomPasswordHash;
 
@@ -76,6 +79,16 @@ public class Room {
 
     public String getRoomPasswordHash() {
         return roomPasswordHash;
+    }
+
+    /**
+     * パスワードが設定されているかどうかを判定する。
+     * JSONシリアライゼーション時にクライアントに返される。
+     *
+     * @return パスワードが設定されている場合はtrue、そうでなければfalse
+     */
+    public boolean isHasPassword() {
+        return roomPasswordHash != null && !roomPasswordHash.isEmpty();
     }
 
     // --- セッター ---
