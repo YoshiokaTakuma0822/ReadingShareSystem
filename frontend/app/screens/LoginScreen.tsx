@@ -1,6 +1,6 @@
 "use client"
 import React, { useState } from 'react'
-import { authService } from '../../lib/authApi'
+import { authApi } from '../../lib/authApi'
 
 const inputStyle = {
     width: '100%',
@@ -23,7 +23,7 @@ const LoginScreen: React.FC = () => {
         setLoading(true)
         setError(null)
         try {
-            await authService.login(id, password)
+            await authApi.login(id, password)
             // 認証後の画面遷移や状態管理はここで実装
             window.location.href = '/'
         } catch (e) {

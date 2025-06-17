@@ -1,6 +1,6 @@
 "use client"
 import React, { useEffect, useState } from 'react'
-import { surveyService } from '../../lib/surveyApi'
+import { surveyApi } from '../../lib/surveyApi'
 
 interface SurveyResultModalProps {
     open: boolean
@@ -18,7 +18,7 @@ const SurveyResultModal: React.FC<SurveyResultModalProps> = ({ open, surveyId, o
         if (!open) return
         setLoading(true)
         setError(null)
-        surveyService.getSurveyResult(surveyId)
+        surveyApi.getSurveyResult(surveyId)
             .then(data => {
                 setTitle(data.title)
                 setResults(data.results)

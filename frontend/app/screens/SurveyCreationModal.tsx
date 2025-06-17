@@ -1,6 +1,6 @@
 "use client"
 import React, { useState } from 'react'
-import { surveyService } from '../../lib/surveyApi'
+import { surveyApi } from '../../lib/surveyApi'
 
 interface SurveyCreationModalProps {
     open: boolean
@@ -30,7 +30,7 @@ const SurveyCreationModal: React.FC<SurveyCreationModalProps> = ({ open, onClose
         setLoading(true)
         setError(null)
         try {
-            await surveyService.createSurvey({
+            await surveyApi.createSurvey({
                 title,
                 options,
                 endDate,

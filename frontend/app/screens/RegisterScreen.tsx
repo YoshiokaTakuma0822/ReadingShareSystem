@@ -1,6 +1,6 @@
 "use client"
 import React, { useState } from 'react'
-import { authService } from '../../lib/authApi'
+import { authApi } from '../../lib/authApi'
 
 const inputStyle = {
     width: '100%',
@@ -25,7 +25,7 @@ const RegisterScreen: React.FC = () => {
         setError(null)
         setSuccess(false)
         try {
-            await authService.register(id, password)
+            await authApi.register(id, password)
             setSuccess(true)
         } catch (e) {
             setError('登録に失敗しました')

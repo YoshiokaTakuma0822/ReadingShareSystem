@@ -1,6 +1,6 @@
 "use client"
 import React, { useState } from 'react'
-import { roomService } from '../../lib/roomApi'
+import { roomApi } from '../../lib/roomApi'
 
 interface RoomJoinModalProps {
     open: boolean
@@ -29,7 +29,7 @@ const RoomJoinModal: React.FC<RoomJoinModalProps> = ({ open, roomId, onClose, on
         setLoading(true)
         setError(null)
         try {
-            await roomService.joinRoom(roomId, password)
+            await roomApi.joinRoom(roomId, password)
             onJoined()
         } catch (e) {
             setError('部屋参加に失敗しました')

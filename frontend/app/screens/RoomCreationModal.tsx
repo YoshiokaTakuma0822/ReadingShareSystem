@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { CreateRoomRequest } from '../../types/room'
-import { roomService } from '../../lib/roomApi'
+import { roomApi } from '../../lib/roomApi'
 
 interface RoomCreationModalProps {
     open: boolean
@@ -28,7 +28,7 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, onClose, on
                 password: password || undefined,
                 comment: comment || undefined,
             }
-            await roomService.createRoom(req)
+            await roomApi.createRoom(req)
             onCreated()
         } catch (e) {
             setError('部屋作成に失敗しました')

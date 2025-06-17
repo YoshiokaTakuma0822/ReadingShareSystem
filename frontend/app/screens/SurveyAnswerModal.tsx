@@ -1,6 +1,6 @@
 "use client"
 import React, { useEffect, useState } from 'react'
-import { surveyService } from '../../lib/surveyApi'
+import { surveyApi } from '../../lib/surveyApi'
 
 interface SurveyAnswerModalProps {
     open: boolean
@@ -20,7 +20,7 @@ const SurveyAnswerModal: React.FC<SurveyAnswerModalProps> = ({ open, surveyId, o
         if (!open) return
         setLoading(true)
         setError(null)
-        surveyService.getSurvey(surveyId)
+        surveyApi.getSurvey(surveyId)
             .then(data => {
                 setTitle(data.title)
                 setOptions(data.options)
@@ -34,7 +34,7 @@ const SurveyAnswerModal: React.FC<SurveyAnswerModalProps> = ({ open, surveyId, o
         setLoading(true)
         setError(null)
         try {
-            await surveyService.answerSurvey(surveyId, { answer: selected })
+            await surveyApi.answerSurvey(surveyId, { answer: selected })
             onAnswered()
         } catch (e) {
             setError('回答送信に失敗しました')

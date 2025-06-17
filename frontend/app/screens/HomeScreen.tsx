@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { Room } from '../../types/room'
-import { roomService } from '../../lib/roomApi'
+import { roomApi } from '../../lib/roomApi'
 import RoomCreationModal from './RoomCreationModal'
 import SurveyAnswerModal from './SurveyAnswerModal'
 import SurveyResultModal from './SurveyResultModal'
@@ -25,7 +25,7 @@ const HomeScreen: React.FC = () => {
         setLoading(true)
         setError(null)
         try {
-            const result = await roomService.searchRooms(searchText)
+            const result = await roomApi.searchRooms(searchText)
             setRooms(result.rooms || [])
         } catch (e) {
             setError('部屋の取得に失敗しました')
