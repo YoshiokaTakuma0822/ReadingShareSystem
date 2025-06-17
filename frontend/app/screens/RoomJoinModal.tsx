@@ -1,10 +1,12 @@
 "use client"
 import React, { useState } from 'react'
 import { roomApi } from '../../lib/roomApi'
+import { JoinRoomRequest } from '../../types/room'
 
 interface RoomJoinModalProps {
     open: boolean
     roomId: string
+    userId: string // 追加: ユーザーID
     onClose: () => void
     onJoined: () => void
 }
@@ -20,7 +22,7 @@ const inputStyle = {
     outline: 'none',
 }
 
-const RoomJoinModal: React.FC<RoomJoinModalProps> = ({ open, roomId, onClose, onJoined }) => {
+const RoomJoinModal: React.FC<RoomJoinModalProps> = ({ open, roomId, userId, onClose, onJoined }) => {
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
@@ -29,7 +31,12 @@ const RoomJoinModal: React.FC<RoomJoinModalProps> = ({ open, roomId, onClose, on
         setLoading(true)
         setError(null)
         try {
-            await roomApi.joinRoom(roomId, password)
+            const request: JoinRoomRequest = {
+                roomId,
+                userId,
+                roomPassword: password || undefined
+            }
+            await roomApi.joinRoom(request)
             onJoined()
         } catch (e) {
             setError('部屋参加に失敗しました')

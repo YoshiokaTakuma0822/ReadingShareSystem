@@ -1,6 +1,7 @@
 "use client"
 import React, { useState } from 'react'
 import { authApi } from '../../lib/authApi'
+import { LoginRequest } from '../../types/auth'
 
 const inputStyle = {
     width: '100%',
@@ -14,7 +15,7 @@ const inputStyle = {
 }
 
 const LoginScreen: React.FC = () => {
-    const [id, setId] = useState('')
+    const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
@@ -23,8 +24,13 @@ const LoginScreen: React.FC = () => {
         setLoading(true)
         setError(null)
         try {
-            await authApi.login(id, password)
+            const request: LoginRequest = {
+                username,
+                password
+            }
+            const response = await authApi.login(request)
             // 認証後の画面遷移や状態管理はここで実装
+            console.log('Login successful:', response)
             window.location.href = '/'
         } catch (e) {
             setError('ログインに失敗しました')
@@ -37,8 +43,8 @@ const LoginScreen: React.FC = () => {
         <div style={{ maxWidth: 900, minWidth: 520, width: '60vw', height: 540, position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', border: '2px solid #388e3c', padding: 48, borderRadius: 20, background: 'linear-gradient(135deg, #e0f7ef 0%, #f1fdf6 100%)', boxShadow: '0 4px 24px #a5d6a7', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
             <h1 style={{ textAlign: 'center', fontSize: 36, marginBottom: 32, color: '#388e3c' }}>読書共有システム</h1>
             <div style={{ marginBottom: 16 }}>
-                <label>ID</label>
-                <input type="text" value={id} onChange={e => setId(e.target.value)} style={inputStyle} />
+                <label>ユーザー名</label>
+                <input type="text" value={username} onChange={e => setUsername(e.target.value)} style={inputStyle} />
             </div>
             <div style={{ marginBottom: 24 }}>
                 <label>パスワード</label>

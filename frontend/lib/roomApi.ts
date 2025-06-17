@@ -1,8 +1,8 @@
 import apiClient from './apiClient'
-import { Room, CreateRoomRequest, SearchRoomResult } from '../types/room'
+import { Room, CreateRoomRequest, SearchRoomResult, JoinRoomRequest } from '../types/room'
 
 export const roomApi = {
-    createRoom: async (request: CreateRoomRequest & { password?: string }): Promise<Room> => {
+    createRoom: async (request: CreateRoomRequest): Promise<Room> => {
         const response = await apiClient.post<Room>('/rooms', request)
         return response.data
     },
@@ -10,8 +10,8 @@ export const roomApi = {
         const response = await apiClient.get<Room[]>('/rooms/search', { params: { keyword } })
         return { rooms: response.data }
     },
-    joinRoom: async (roomId: string, password?: string) => {
-        const response = await apiClient.post('/rooms/join', { roomId, roomPassword: password })
+    joinRoom: async (request: JoinRoomRequest) => {
+        const response = await apiClient.post('/rooms/join', request)
         return response.data
     },
 }

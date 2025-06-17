@@ -1,17 +1,5 @@
 import apiClient from './apiClient'
-
-export interface ChatMessage {
-    id: string
-    roomId: string
-    userId: string
-    message: string
-    timestamp: string
-}
-
-export interface SendMessageRequest {
-    userId: string
-    message: string
-}
+import { ChatMessage, SendMessageRequest } from '../types/chat'
 
 export const chatApi = {
     sendMessage: async (roomId: string, request: SendMessageRequest): Promise<void> => {

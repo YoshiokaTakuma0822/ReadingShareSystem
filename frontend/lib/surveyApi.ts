@@ -1,19 +1,20 @@
 import apiClient from './apiClient'
+import { Survey, CreateSurveyRequest, SubmitSurveyAnswerRequest, SurveyResult } from '../types/survey'
 
 export const surveyApi = {
-    createSurvey: async (data: any) => {
-        const response = await apiClient.post('/surveys', data)
+    createSurvey: async (request: CreateSurveyRequest): Promise<Survey> => {
+        const response = await apiClient.post('/surveys', request)
         return response.data
     },
-    getSurvey: async (surveyId: string) => {
+    getSurvey: async (surveyId: string): Promise<Survey> => {
         const response = await apiClient.get(`/surveys/${surveyId}`)
         return response.data
     },
-    answerSurvey: async (surveyId: string, answer: any) => {
-        const response = await apiClient.post(`/surveys/${surveyId}/answer`, answer)
+    answerSurvey: async (surveyId: string, request: SubmitSurveyAnswerRequest): Promise<void> => {
+        const response = await apiClient.post(`/surveys/${surveyId}/answer`, request)
         return response.data
     },
-    getSurveyResult: async (surveyId: string) => {
+    getSurveyResult: async (surveyId: string): Promise<SurveyResult> => {
         const response = await apiClient.get(`/surveys/${surveyId}/result`)
         return response.data
     },

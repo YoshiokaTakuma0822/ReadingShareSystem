@@ -6,15 +6,15 @@ import { roomApi } from '../../lib/roomApi'
 
 interface RoomCreationModalProps {
     open: boolean
+    userId: string // 追加: ホストユーザーID
     onClose: () => void
     onCreated: () => void
 }
 
-const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, onClose, onCreated }) => {
+const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onClose, onCreated }) => {
     const [roomName, setRoomName] = useState('')
-    const [maxMembers, setMaxMembers] = useState(5)
+    const [bookTitle, setBookTitle] = useState('') // 追加: 本のタイトル
     const [password, setPassword] = useState('')
-    const [comment, setComment] = useState('')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
@@ -24,9 +24,9 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, onClose, on
         try {
             const req: CreateRoomRequest = {
                 roomName,
-                maxMembers,
+                bookTitle,
+                hostUserId: userId,
                 password: password || undefined,
-                comment: comment || undefined,
             }
             await roomApi.createRoom(req)
             onCreated()
@@ -49,17 +49,13 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, onClose, on
                         <input type="text" value={roomName} onChange={e => setRoomName(e.target.value)} placeholder="部屋名を入力してください" style={{ width: '100%', padding: 8, marginTop: 4 }} />
                     </div>
                     <div style={{ marginBottom: 16 }}>
-                        <label>人数</label>
-                        <input type="number" value={maxMembers} onChange={e => setMaxMembers(Number(e.target.value))} placeholder="人数を入力してください" style={{ width: '100%', padding: 8, marginTop: 4 }} />
+                        <label>本のタイトル</label>
+                        <input type="text" value={bookTitle} onChange={e => setBookTitle(e.target.value)} placeholder="本のタイトルを入力してください" style={{ width: '100%', padding: 8, marginTop: 4 }} />
                     </div>
                     <div style={{ marginBottom: 16 }}>
-                        <label>パスワード</label>
+                        <label>パスワード（オプション）</label>
                         <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="パスワードを入力してください" style={{ width: '100%', padding: 8, marginTop: 4 }} />
                     </div>
-                </div>
-                <div style={{ flex: 1 }}>
-                    <label>ひとことコメント</label>
-                    <textarea value={comment} onChange={e => setComment(e.target.value)} placeholder="ひとことコメント" style={{ width: '100%', height: 120, padding: 8, marginTop: 4 }} />
                 </div>
             </div>
             {error && <div style={{ color: 'red', marginTop: 12 }}>{error}</div>}

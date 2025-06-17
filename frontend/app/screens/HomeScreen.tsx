@@ -19,6 +19,8 @@ const HomeScreen: React.FC = () => {
 
     // サンプル用のダミーsurveyId
     const dummySurveyId = 'sample-survey-id-1'
+    // サンプル用のダミーuserId (実際のアプリでは認証から取得)
+    const dummyUserId = 'sample-user-id-1'
 
     // 部屋検索API
     const handleSearch = async () => {
@@ -111,7 +113,7 @@ const HomeScreen: React.FC = () => {
                             </div>
                         ) : (
                             rooms.map((room) => (
-                                <div key={room.roomId} style={{ border: '1px solid var(--text-main)', width: 200, height: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>
+                                <div key={room.id} style={{ border: '1px solid var(--text-main)', width: 200, height: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>
                                     {room.roomName}
                                 </div>
                             ))
@@ -120,7 +122,7 @@ const HomeScreen: React.FC = () => {
                 </div>
             )}
             {showCreateModal && (
-                <RoomCreationModal open={showCreateModal} onClose={() => setShowCreateModal(false)} onCreated={handleRoomCreated} />
+                <RoomCreationModal open={showCreateModal} userId={dummyUserId} onClose={() => setShowCreateModal(false)} onCreated={handleRoomCreated} />
             )}
             {showSurveyAnswerModal && (
                 <SurveyAnswerModal open={showSurveyAnswerModal} surveyId={dummySurveyId} onClose={() => setShowSurveyAnswerModal(false)} onAnswered={() => { setShowSurveyAnswerModal(false); alert('回答送信完了（ダミー）') }} />
