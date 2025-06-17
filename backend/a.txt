@@ -1,0 +1,1 @@
+docker compose exec -T postgres psql -U readingshare -d readingshare_db -c "SELECT * FROM rooms;"
