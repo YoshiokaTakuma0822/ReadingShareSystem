@@ -14,7 +14,7 @@ import com.readingshare.survey.domain.model.SurveyAnswer;
  * 担当: 成田
  */
 @Repository
-public interface SurveyAnswerRepository extends JpaRepository<SurveyAnswer, UUID> {
+public interface SurveyAnswerJpaRepository extends JpaRepository<SurveyAnswer, UUID> {
 
     /**
      * 特定のアンケートの全回答を取得する。

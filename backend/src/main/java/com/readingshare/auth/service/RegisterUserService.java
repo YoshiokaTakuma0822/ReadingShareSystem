@@ -1,6 +1,7 @@
 package com.readingshare.auth.service;
 
 import java.time.Instant;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
@@ -26,11 +27,13 @@ public class RegisterUserService {
      *
      * @param username ユーザー名
      * @param password パスワード
+     * @return 登録されたユーザーのID
      * @throws ApplicationException ユーザー名が既に存在する場合など
      */
-    public void register(String username, String password) {
+    public UUID register(String username, String password) {
         // ドメインサービスにユーザー登録処理を委譲
-        User newUser = new User(username, null, null, Instant.now()); // パスワードハッシュとcontentsはドメインサービスで設定される, IDは自動生成
-        authenticationDomainService.registerUser(newUser, password);
+        User newUser = new User(username, null, Instant.now()); // パスワードハッシュはドメインサービスで設定される, IDは自動生成
+        User registeredUser = authenticationDomainService.registerUser(newUser, password);
+        return registeredUser.getId();
     }
 }

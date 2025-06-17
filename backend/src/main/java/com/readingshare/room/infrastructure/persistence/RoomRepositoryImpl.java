@@ -15,7 +15,7 @@ import com.readingshare.room.domain.repository.IRoomRepository;
 public class RoomRepositoryImpl implements IRoomRepository {
     @Autowired
     @Lazy
-    private RoomRepository roomRepository;
+    private RoomJpaRepository roomRepository;
 
     @Override
     public Room save(Room room) {

@@ -1,5 +1,7 @@
 package com.readingshare.auth.controller;
 
+import java.util.UUID;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,24 +33,23 @@ public class AuthController {
      * ユーザーログインを処理する。
      *
      * @param request ログインリクエストデータ
-     * @return 認証成功時はHTTP 200 OK
+     * @return 認証成功時はユーザーIDとHTTP 200 OK
      */
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest request) {
-        // 実際にはJWTなどの認証トークンを返す
-        loginService.login(request.username(), request.password());
-        return ResponseEntity.ok("Login successful");
+    public ResponseEntity<UUID> login(@RequestBody LoginRequest request) {
+        UUID userId = loginService.login(request.username(), request.password());
+        return ResponseEntity.ok(userId);
     }
 
     /**
      * 新規会員登録を処理する。
      *
      * @param request 会員登録リクエストデータ
-     * @return 登録成功時はHTTP 200 OK
+     * @return 登録成功時は新規ユーザーIDとHTTP 200 OK
      */
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody RegisterUserRequest request) {
-        registerUserService.register(request.username(), request.password());
-        return ResponseEntity.ok("User registered successfully");
+    public ResponseEntity<UUID> register(@RequestBody RegisterUserRequest request) {
+        UUID userId = registerUserService.register(request.username(), request.password());
+        return ResponseEntity.ok(userId);
     }
 }

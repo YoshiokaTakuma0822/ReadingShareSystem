@@ -15,7 +15,7 @@ import com.readingshare.chat.domain.repository.IChatMessageRepository;
 public class ChatMessageRepositoryImpl implements IChatMessageRepository {
     @Autowired
     @Lazy
-    private ChatMessageRepository chatMessageRepository;
+    private ChatMessageJpaRepository chatMessageRepository;
 
     @Override
     public ChatMessage save(ChatMessage chatMessage) {

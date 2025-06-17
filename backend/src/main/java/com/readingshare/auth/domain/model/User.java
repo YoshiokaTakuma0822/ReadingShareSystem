@@ -6,7 +6,6 @@ import java.util.UUID;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
@@ -28,10 +27,6 @@ public class User {
     @Column(name = "password_hash", nullable = false)
     private String passwordHash; // パスワードのハッシュ
 
-    @Lob // Large Object for potentially large JSON content
-    @Column(name = "contents", columnDefinition = "json") // contents (JSON形式で保存される想定)
-    private String contents; // JSONとして保存される内容
-
     @NotNull
     @Column(name = "joined_at", nullable = false)
     private Instant joinedAt; // アカウント作成時刻
@@ -40,19 +35,17 @@ public class User {
     public User() {
     }
 
-    public User(UUID id, String username, String contents, Instant joinedAt) {
+    public User(UUID id, String username, Instant joinedAt) {
         this.id = id;
         this.username = username;
-        this.contents = contents;
         this.joinedAt = joinedAt;
     }
 
     // パスワードハッシュを設定するためのコンストラクタ
-    public User(String username, String passwordHash, String contents, Instant joinedAt) {
+    public User(String username, String passwordHash, Instant joinedAt) {
         this.id = UUID.randomUUID(); // 新規作成時はUUIDを自動生成
         this.username = username;
         this.passwordHash = passwordHash;
-        this.contents = contents;
         this.joinedAt = joinedAt;
     }
 
@@ -67,10 +60,6 @@ public class User {
 
     public String getPasswordHash() {
         return passwordHash;
-    }
-
-    public String getContents() {
-        return contents;
     }
 
     public Instant getJoinedAt() {
@@ -88,10 +77,6 @@ public class User {
 
     public void setPasswordHash(String passwordHash) {
         this.passwordHash = passwordHash;
-    }
-
-    public void setContents(String contents) {
-        this.contents = contents;
     }
 
     public void setJoinedAt(Instant joinedAt) {

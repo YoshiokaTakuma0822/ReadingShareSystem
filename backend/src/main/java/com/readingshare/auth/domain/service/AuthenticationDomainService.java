@@ -2,6 +2,7 @@ package com.readingshare.auth.domain.service;
 
 import java.time.Instant;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,16 +32,19 @@ public class AuthenticationDomainService {
      *
      * @param username ユーザー名
      * @param password 平文のパスワード
-     * @return 認証成功ならtrue、失敗ならfalse
+     * @return 認証成功時はユーザーID、失敗時はnull
      * @throws DomainException データベースアクセスエラー時など
      */
-    public boolean authenticate(String username, String password) {
+    public UUID authenticate(String username, String password) {
         Optional<User> userOptional = userRepository.findByUsername(username);
         if (userOptional.isEmpty()) {
-            return false;
+            return null;
         }
         User user = userOptional.get();
-        return passwordHasher.verifyPassword(password, user.getPasswordHash());
+        if (passwordHasher.verifyPassword(password, user.getPasswordHash())) {
+            return user.getId();
+        }
+        return null;
     }
 
     /**

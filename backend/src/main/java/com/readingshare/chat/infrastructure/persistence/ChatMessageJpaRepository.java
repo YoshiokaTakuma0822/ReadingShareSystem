@@ -13,7 +13,7 @@ import com.readingshare.chat.domain.model.ChatMessage;
  * 担当: 榎本
  */
 @Repository
-public interface ChatMessageRepository extends JpaRepository<ChatMessage, UUID> {
+public interface ChatMessageJpaRepository extends JpaRepository<ChatMessage, UUID> {
 
     /**
      * 特定の部屋のチャット履歴を取得する。

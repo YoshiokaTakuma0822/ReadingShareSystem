@@ -14,7 +14,7 @@ import com.readingshare.survey.domain.model.Survey;
  * 担当: 成田
  */
 @Repository
-public interface SurveyRepository extends JpaRepository<Survey, UUID> {
+public interface SurveyJpaRepository extends JpaRepository<Survey, UUID> {
 
     /**
      * アンケートIDでアンケートを検索する。

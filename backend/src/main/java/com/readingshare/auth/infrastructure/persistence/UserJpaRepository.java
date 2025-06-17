@@ -13,7 +13,7 @@ import com.readingshare.auth.domain.model.User;
  * 担当: 小亀
  */
 @Repository
-public interface UserRepository extends JpaRepository<User, UUID> {
+public interface UserJpaRepository extends JpaRepository<User, UUID> {
 
     /**
      * ユーザーIDでユーザーを検索する。

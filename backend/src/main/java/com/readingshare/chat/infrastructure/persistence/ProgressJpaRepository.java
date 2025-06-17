@@ -14,7 +14,7 @@ import com.readingshare.chat.domain.model.UserProgress;
  * 担当: 榎本
  */
 @Repository
-public interface ProgressRepository extends JpaRepository<UserProgress, UUID> {
+public interface ProgressJpaRepository extends JpaRepository<UserProgress, UUID> {
 
     /**
      * 特定の部屋の全ユーザーの進捗情報を取得する。

@@ -14,7 +14,7 @@ import com.readingshare.room.domain.model.RoomMember;
  * 担当: 芳岡
  */
 @Repository
-public interface RoomMemberRepository extends JpaRepository<RoomMember, UUID> {
+public interface RoomMemberJpaRepository extends JpaRepository<RoomMember, UUID> {
 
     /**
      * 特定の部屋の全メンバーを取得する。

@@ -15,7 +15,7 @@ import com.readingshare.survey.domain.repository.ISurveyAnswerRepository;
 public class SurveyAnswerRepositoryImpl implements ISurveyAnswerRepository {
     @Autowired
     @Lazy
-    private SurveyAnswerRepository surveyAnswerRepository;
+    private SurveyAnswerJpaRepository surveyAnswerRepository;
 
     @Override
     public SurveyAnswer save(SurveyAnswer surveyAnswer) {

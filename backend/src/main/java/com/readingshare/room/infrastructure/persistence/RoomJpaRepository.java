@@ -15,7 +15,7 @@ import com.readingshare.room.domain.model.Room;
  * 担当: 芳岡
  */
 @Repository
-public interface RoomRepository extends JpaRepository<Room, UUID> {
+public interface RoomJpaRepository extends JpaRepository<Room, UUID> {
 
     /**
      * 指定されたキーワードに一致する部屋を検索する。

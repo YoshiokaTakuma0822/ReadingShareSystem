@@ -15,7 +15,7 @@ import com.readingshare.chat.domain.repository.IProgressRepository;
 public class ProgressRepositoryImpl implements IProgressRepository {
     @Autowired
     @Lazy
-    private ProgressRepository progressRepository;
+    private ProgressJpaRepository progressRepository;
 
     @Override
     public UserProgress save(UserProgress userProgress) {
