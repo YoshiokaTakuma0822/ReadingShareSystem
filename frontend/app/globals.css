@@ -3,6 +3,16 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  /* グリーン＆白基調カラーパレット */
+  --green-main: #4CAF50;
+  --green-dark: #388E3C;
+  --green-light: #A5D6A7;
+  --green-bg: #e0f7ef;
+  --white: #fff;
+  --border: #81c784;
+  --accent: #388e3c;
+  --text-main: #222;
+  --text-accent: #388e3c;
 }
 
 @theme inline {
@@ -16,6 +26,9 @@
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --green-bg: #1a2b1a;
+    --white: #222;
+    --text-main: #ededed;
   }
 }
 
