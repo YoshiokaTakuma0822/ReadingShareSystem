@@ -36,7 +36,7 @@ public class SurveyService {
 
     // --- アンケート作成 ---
     @Transactional
-    public void createSurvey(CreateSurveyRequest request) {
+    public UUID createSurvey(CreateSurveyRequest request) {
         try {
             // roomIdが存在するかチェック
             if (!roomRepository.findById(request.roomId()).isPresent()) {
@@ -47,7 +47,8 @@ public class SurveyService {
                     .map(q -> new Question(q.questionText(), q.options()))
                     .collect(Collectors.toList());
             Survey survey = new Survey(request.roomId(), request.title(), questions);
-            surveyRepository.save(survey);
+            Survey savedSurvey = surveyRepository.save(survey);
+            return savedSurvey.getId();
         } catch (IllegalArgumentException e) {
             throw new ApplicationException(e.getMessage(), e);
         }
@@ -77,13 +78,11 @@ public class SurveyService {
 
     private SurveyResultResponse buildResultDto(Survey survey, List<SurveyAnswer> answers) {
         List<SurveyResultResponse.QuestionResultResponse> questionResults = new ArrayList<>();
-        for (int i = 0; i < survey.getQuestions().size(); i++) {
-            Question question = survey.getQuestions().get(i);
-            final int questionIndex = i;
+        for (Question question : survey.getQuestions()) {
             Map<String, Long> votes = question.getOptions().stream()
                     .collect(Collectors.toMap(Function.identity(), option -> 0L));
             for (SurveyAnswer answer : answers) {
-                Integer selectedOptionIndex = answer.getAnswers().get(questionIndex);
+                Integer selectedOptionIndex = answer.getAnswers().get(question.getQuestionText());
                 if (selectedOptionIndex != null && selectedOptionIndex < question.getOptions().size()) {
                     String selectedOption = question.getOptions().get(selectedOptionIndex);
                     votes.computeIfPresent(selectedOption, (key, value) -> value + 1);

@@ -69,12 +69,12 @@ public class SurveyDomainService {
      *
      * @param surveyId 回答するアンケートID
      * @param userId   回答するユーザーID
-     * @param answers  回答内容（質問IDと回答テキストのマップ）
+     * @param answers  回答内容（質問文と選択肢インデックスのマップ）
      * @throws DomainException                          アンケートが見つからない、回答形式が不正、既に回答済みの場合など
      * @throws DifferentQuestionnaireComponentException いずれかの変数の欠損又は誤りのとき
      */
     @Transactional
-    public void submitSurveyAnswer(UUID surveyId, UUID userId, Map<String, String> answers) {
+    public void submitSurveyAnswer(UUID surveyId, UUID userId, Map<String, Integer> answers) {
         Survey survey = surveyRepository.findById(surveyId)
                 .orElseThrow(() -> new DomainException("Survey not found"));
 
@@ -84,7 +84,7 @@ public class SurveyDomainService {
         }
 
         // 回答内容を検証
-        Map<Integer, Integer> validatedAnswers = validateAnswers(survey.getQuestions(), answers);
+        Map<String, Integer> validatedAnswers = validateAnswers(survey.getQuestions(), answers);
 
         // 回答を保存
         SurveyAnswer surveyAnswer = new SurveyAnswer(surveyId, userId, validatedAnswers);
@@ -99,25 +99,25 @@ public class SurveyDomainService {
      * @return 検証済みの回答内容
      * @throws DifferentQuestionnaireComponentException 回答内容が質問と一致しない場合
      */
-    private Map<Integer, Integer> validateAnswers(List<Question> questions, Map<String, String> answers) {
-        Map<Integer, Integer> validatedAnswers = new HashMap<>();
+    private Map<String, Integer> validateAnswers(List<Question> questions, Map<String, Integer> answers) {
+        Map<String, Integer> validatedAnswers = new HashMap<>();
 
-        for (Map.Entry<String, String> entry : answers.entrySet()) {
-            int questionIndex = Integer.parseInt(entry.getKey());
-            int selectedOptionIndex = Integer.parseInt(entry.getValue());
+        for (Map.Entry<String, Integer> entry : answers.entrySet()) {
+            String questionText = entry.getKey();
+            Integer selectedOptionIndex = entry.getValue();
 
-            // 質問のインデックスが正しいか確認
-            if (questionIndex < 0 || questionIndex >= questions.size()) {
-                throw new DifferentQuestionnaireComponentException("Invalid question index: " + questionIndex);
-            }
+            // 質問文が存在するか確認
+            Question question = questions.stream()
+                    .filter(q -> q.getQuestionText().equals(questionText))
+                    .findFirst()
+                    .orElseThrow(() -> new DifferentQuestionnaireComponentException("Invalid question text: " + questionText));
 
-            Question question = questions.get(questionIndex);
             // 選択肢のインデックスが正しいか確認
             if (selectedOptionIndex < 0 || selectedOptionIndex >= question.getOptions().size()) {
                 throw new DifferentQuestionnaireComponentException("Invalid option index: " + selectedOptionIndex);
             }
 
-            validatedAnswers.put(questionIndex, selectedOptionIndex);
+            validatedAnswers.put(questionText, selectedOptionIndex);
         }
 
         return validatedAnswers;

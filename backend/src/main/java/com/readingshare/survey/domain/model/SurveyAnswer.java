@@ -32,7 +32,7 @@ public class SurveyAnswer {
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "answers", columnDefinition = "jsonb")
-    private Map<Integer, Integer> answers;
+    private Map<String, Integer> answers;
 
     @Column(name = "answered_at")
     private LocalDateTime answeredAt;
@@ -40,7 +40,7 @@ public class SurveyAnswer {
     public SurveyAnswer() {
     }
 
-    public SurveyAnswer(UUID surveyId, UUID userId, Map<Integer, Integer> answers) {
+    public SurveyAnswer(UUID surveyId, UUID userId, Map<String, Integer> answers) {
         if (surveyId == null || userId == null || answers == null || answers.isEmpty()) {
             throw new IllegalArgumentException("Survey ID, User ID, and answers cannot be null or empty.");
         }
@@ -51,11 +51,11 @@ public class SurveyAnswer {
         this.answeredAt = LocalDateTime.now();
     }
 
-    public void setAnswers(Map<Integer, Integer> answers) {
+    public void setAnswers(Map<String, Integer> answers) {
         this.answers = answers;
     }
 
-    public Map<Integer, Integer> getAnswers() {
+    public Map<String, Integer> getAnswers() {
         return answers;
     }
 

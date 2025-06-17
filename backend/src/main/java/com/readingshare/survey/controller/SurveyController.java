@@ -36,13 +36,13 @@ public class SurveyController {
      * 新しいアンケートを作成する。
      *
      * @param request アンケート作成リクエスト
-     * @return 作成されたアンケート情報
+     * @return 作成されたアンケートのID
      */
     @PostMapping
-    public ResponseEntity<?> createSurvey(@RequestBody CreateSurveyRequest request) {
+    public ResponseEntity<UUID> createSurvey(@RequestBody CreateSurveyRequest request) {
         try {
-            surveyService.createSurvey(request);
-            return ResponseEntity.ok().build();
+            UUID surveyId = surveyService.createSurvey(request);
+            return ResponseEntity.ok(surveyId);
         } catch (ApplicationException e) {
             return ResponseEntity.badRequest().build();
         }
