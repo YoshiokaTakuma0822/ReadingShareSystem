@@ -37,7 +37,7 @@ public class GetChatHistoryService {
      */
     @Transactional(readOnly = true)
     public List<ChatMessage> getChatHistory(UUID roomId) {
-        // Check if the room exists
+        // 部屋の存在チェック
         if (!roomRepository.findById(roomId).isPresent()) {
             throw new ApplicationException("Room not found. Room ID: " + roomId);
         }
