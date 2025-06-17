@@ -18,9 +18,11 @@ const HomeScreen: React.FC = () => {
     const [showSurveyResultModal, setShowSurveyResultModal] = useState(false)
 
     // サンプル用のダミーsurveyId
-    const dummySurveyId = 'sample-survey-id-1'
+    // const dummySurveyId = 'sample-survey-id-1'
+    const dummySurveyId = '00000000-0000-0000-0000-000000000001' // 例: 固定のダミーID
     // サンプル用のダミーuserId (実際のアプリでは認証から取得)
-    const dummyUserId = 'sample-user-id-1'
+    // const dummyUserId = 'sample-user-id-1'
+    const dummyUserId = '00000000-0000-0000-0000-000000000001' // 例: 固定のダミーID
 
     // 部屋検索API
     const handleSearch = async () => {
