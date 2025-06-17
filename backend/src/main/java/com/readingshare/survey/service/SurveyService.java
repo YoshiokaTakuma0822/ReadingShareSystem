@@ -11,6 +11,8 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.readingshare.common.exception.ApplicationException;
+import com.readingshare.room.domain.repository.IRoomRepository;
 import com.readingshare.survey.domain.model.Question;
 import com.readingshare.survey.domain.model.Survey;
 import com.readingshare.survey.domain.model.SurveyAnswer;
@@ -25,22 +27,29 @@ import com.readingshare.survey.dto.SurveyResultResponse;
 @Service
 public class SurveyService {
     private final ISurveyRepository surveyRepository;
+    private final IRoomRepository roomRepository;
 
-    public SurveyService(ISurveyRepository surveyRepository) {
+    public SurveyService(ISurveyRepository surveyRepository, IRoomRepository roomRepository) {
         this.surveyRepository = surveyRepository;
+        this.roomRepository = roomRepository;
     }
 
     // --- アンケート作成 ---
     @Transactional
     public void createSurvey(CreateSurveyRequest request) {
         try {
+            // roomIdが存在するかチェック
+            if (!roomRepository.findById(request.roomId()).isPresent()) {
+                throw new ApplicationException("Room not found with id: " + request.roomId());
+            }
+
             List<Question> questions = request.questions().stream()
                     .map(q -> new Question(q.questionText(), q.options()))
                     .collect(Collectors.toList());
             Survey survey = new Survey(request.roomId(), request.title(), questions);
             surveyRepository.save(survey);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException(e.getMessage(), e);
+            throw new ApplicationException(e.getMessage(), e);
         }
     }
 
@@ -48,7 +57,7 @@ public class SurveyService {
     @Transactional
     public void submitAnswer(UUID surveyId, SubmitSurveyAnswerRequest request) {
         surveyRepository.findById(surveyId)
-                .orElseThrow(() -> new RuntimeException("Survey not found with id: " + surveyId));
+                .orElseThrow(() -> new ApplicationException("Survey not found with id: " + surveyId));
         SurveyAnswer answer = new SurveyAnswer(surveyId, request.userId(), request.answers());
         surveyRepository.saveAnswer(answer);
     }
@@ -57,7 +66,7 @@ public class SurveyService {
     @Transactional(readOnly = true)
     public SurveyResultResponse getSurveyResult(UUID surveyId) {
         Survey survey = surveyRepository.findById(surveyId)
-                .orElseThrow(() -> new RuntimeException("Survey not found with id: " + surveyId));
+                .orElseThrow(() -> new ApplicationException("Survey not found with id: " + surveyId));
         List<SurveyAnswer> answers = surveyRepository.findAnswersBySurveyId(surveyId);
         return buildResultDto(survey, answers);
     }

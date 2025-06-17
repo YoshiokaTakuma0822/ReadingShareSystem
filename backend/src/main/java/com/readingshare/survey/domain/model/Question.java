@@ -1,19 +1,19 @@
 package com.readingshare.survey.domain.model;
 
-import jakarta.persistence.Embeddable;
 import java.util.List;
 
 /**
  * 質問エンティティ。
+ * JSON形式でシリアライズされてデータベースに保存される。
  */
-@Embeddable
 public class Question {
     private String questionText;
 
     // @ElementCollection を削除
     private List<String> options; // 選択肢のリスト
 
-    public Question() {}
+    public Question() {
+    }
 
     public Question(String questionText, List<String> options) {
         if (questionText == null || questionText.isBlank()) {

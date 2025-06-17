@@ -2,7 +2,6 @@ package com.readingshare.survey.controller;
 
 import java.util.UUID;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.readingshare.common.exception.ApplicationException;
 import com.readingshare.survey.domain.model.Survey;
 import com.readingshare.survey.dto.CreateSurveyRequest;
 import com.readingshare.survey.dto.SubmitSurveyAnswerRequest;
@@ -39,9 +39,13 @@ public class SurveyController {
      * @return 作成されたアンケート情報
      */
     @PostMapping
-    public ResponseEntity<Void> createSurvey(@RequestBody CreateSurveyRequest request) {
-        surveyService.createSurvey(request);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<?> createSurvey(@RequestBody CreateSurveyRequest request) {
+        try {
+            surveyService.createSurvey(request);
+            return ResponseEntity.ok().build();
+        } catch (ApplicationException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     /**
@@ -56,8 +60,12 @@ public class SurveyController {
     public ResponseEntity<Void> submitAnswer(
             @PathVariable UUID surveyId,
             @RequestBody SubmitSurveyAnswerRequest request) {
-        surveyService.submitAnswer(surveyId, request);
-        return ResponseEntity.ok().build();
+        try {
+            surveyService.submitAnswer(surveyId, request);
+            return ResponseEntity.ok().build();
+        } catch (ApplicationException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     /**
@@ -69,8 +77,12 @@ public class SurveyController {
      */
     @GetMapping("/{surveyId}/results")
     public ResponseEntity<SurveyResultResponse> getSurveyResult(@PathVariable UUID surveyId) {
-        SurveyResultResponse result = surveyService.getSurveyResult(surveyId);
-        return ResponseEntity.ok(result);
+        try {
+            SurveyResultResponse result = surveyService.getSurveyResult(surveyId);
+            return ResponseEntity.ok(result);
+        } catch (ApplicationException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     /**

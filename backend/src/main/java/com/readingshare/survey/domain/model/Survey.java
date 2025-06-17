@@ -4,12 +4,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -23,8 +19,6 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "surveys")
 public class Survey {
-    private static final Logger logger = LoggerFactory.getLogger(Survey.class);
-    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @Id
     @Column(name = "id")
@@ -36,8 +30,9 @@ public class Survey {
     @Column(name = "title")
     private String title; // アンケートのタイトル
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "questions", columnDefinition = "jsonb")
-    private String questionsJson; // 質問のリスト（JSONB形式）
+    private List<Question> questions; // 質問のリスト（JSONB形式）
 
     @Column(name = "created_at")
     private LocalDateTime createdAt; // アンケート作成日時
@@ -58,27 +53,16 @@ public class Survey {
         this.id = UUID.randomUUID();
         this.roomId = roomId;
         this.title = title;
-        setQuestions(questions);
+        this.questions = questions;
         this.createdAt = LocalDateTime.now();
     }
 
     public void setQuestions(List<Question> questions) {
-        try {
-            this.questionsJson = objectMapper.writeValueAsString(questions);
-        } catch (JsonProcessingException e) {
-            logger.error("Failed to serialize questions to JSON", e);
-            throw new IllegalArgumentException("Failed to save questions", e);
-        }
+        this.questions = questions;
     }
 
     public List<Question> getQuestions() {
-        try {
-            return objectMapper.readValue(questionsJson, new TypeReference<List<Question>>() {
-            });
-        } catch (JsonProcessingException e) {
-            logger.error("Failed to deserialize questions from JSON", e);
-            throw new IllegalStateException("Failed to read questions", e);
-        }
+        return questions;
     }
 
     public UUID getId() {
