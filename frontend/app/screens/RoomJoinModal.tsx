@@ -15,11 +15,13 @@ const inputStyle = {
     width: '100%',
     padding: 8,
     marginTop: 4,
-    border: '2px solid #888',
+    border: '2px solid var(--border)',
     borderRadius: 6,
     fontSize: 16,
     boxSizing: 'border-box' as const,
     outline: 'none',
+    background: 'var(--input)',
+    color: 'var(--text)',
 }
 
 const RoomJoinModal: React.FC<RoomJoinModalProps> = ({ open, room, userId, onClose, onJoined }) => {
@@ -80,38 +82,39 @@ const RoomJoinModal: React.FC<RoomJoinModalProps> = ({ open, room, userId, onClo
                 maxWidth: 500,
                 width: '90%',
                 margin: 'auto',
-                border: '2px solid #388e3c',
+                border: '2px solid var(--accent)',
                 padding: 32,
                 borderRadius: 12,
-                background: '#f1fdf6',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.2)'
+                background: 'var(--background)',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+                color: 'var(--text)'
             }}
                 onClick={(e) => e.stopPropagation()} // モーダル内のクリックで閉じるのを防ぐ
             >
-                <h2 style={{ fontWeight: 'bold', fontSize: 24, marginBottom: 24, color: '#388e3c' }}>部屋に参加</h2>
+                <h2 style={{ fontWeight: 'bold', fontSize: 24, marginBottom: 24, color: 'var(--accent)' }}>部屋に参加</h2>
 
                 {/* 部屋情報表示 */}
                 <div style={{
-                    background: 'rgba(255,255,255,0.8)',
+                    background: 'var(--card)',
                     padding: 16,
                     borderRadius: 8,
                     marginBottom: 20,
-                    border: '1px solid #c8e6c9'
+                    border: '1px solid var(--border)'
                 }}>
-                    <h3 style={{ fontSize: 18, fontWeight: 'bold', color: '#2e7d32', marginBottom: 8 }}>
+                    <h3 style={{ fontSize: 18, fontWeight: 'bold', color: 'var(--accent)', marginBottom: 8 }}>
                         {room.roomName}
                     </h3>
-                    <p style={{ color: '#424242', marginBottom: 4 }}>
+                    <p style={{ color: 'var(--text)', marginBottom: 4 }}>
                         <strong>本:</strong> {room.bookTitle}
                     </p>
-                    <p style={{ color: '#424242', fontSize: 14 }}>
+                    <p style={{ color: 'var(--text-muted)', fontSize: 14 }}>
                         <strong>作成日:</strong> {new Date(room.createdAt).toLocaleDateString()}
                     </p>
                 </div>
 
                 {room.hasPassword && (
                     <div style={{ marginBottom: 16 }}>
-                        <label style={{ color: '#2e7d32', fontWeight: 'bold' }}>パスワード</label>
+                        <label style={{ color: 'var(--text)', fontWeight: 'bold' }}>パスワード</label>
                         <input
                             type="password"
                             value={password}
@@ -123,21 +126,21 @@ const RoomJoinModal: React.FC<RoomJoinModalProps> = ({ open, room, userId, onClo
                 )}
 
                 {!room.hasPassword && (
-                    <div style={{ marginBottom: 16, color: '#388e3c', fontSize: 14 }}>
+                    <div style={{ marginBottom: 16, color: 'var(--accent)', fontSize: 14 }}>
                         ✓ この部屋はパスワード保護されていません
                     </div>
                 )}
 
-                {error && <div style={{ color: 'red', marginBottom: 12, padding: 8, background: '#ffebee', borderRadius: 4 }}>{error}</div>}
+                {error && <div style={{ color: 'var(--error)', marginBottom: 12, padding: 8, background: 'var(--error-background)', borderRadius: 4 }}>{error}</div>}
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 16, marginTop: 24 }}>
                     <button
                         onClick={onClose}
                         style={{
                             padding: '12px 24px',
-                            border: '2px solid #666',
+                            border: '2px solid var(--border)',
                             borderRadius: 8,
                             background: 'transparent',
-                            color: '#666',
+                            color: 'var(--text)',
                             fontSize: 16,
                             cursor: 'pointer'
                         }}
@@ -149,9 +152,9 @@ const RoomJoinModal: React.FC<RoomJoinModalProps> = ({ open, room, userId, onClo
                         disabled={loading || (room.hasPassword && !password.trim())}
                         style={{
                             padding: '12px 24px',
-                            border: '2px solid #388e3c',
+                            border: '2px solid var(--accent)',
                             borderRadius: 8,
-                            background: '#388e3c',
+                            background: 'var(--accent)',
                             color: 'white',
                             fontSize: 16,
                             cursor: loading || (room.hasPassword && !password.trim()) ? 'not-allowed' : 'pointer',

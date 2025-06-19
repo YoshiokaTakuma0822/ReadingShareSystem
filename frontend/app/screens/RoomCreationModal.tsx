@@ -67,40 +67,41 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
                     maxWidth: 700,
                     width: '90%',
                     margin: 'auto',
-                    border: '2px solid #388e3c',
+                    border: '2px solid var(--accent)',
                     padding: 32,
                     borderRadius: 12,
-                    background: '#f1fdf6',
-                    boxShadow: '0 8px 32px rgba(0,0,0,0.2)'
+                    background: 'var(--background)',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+                    color: 'var(--text)'
                 }}
                 onClick={(e) => e.stopPropagation()} // モーダル内のクリックで閉じるのを防ぐ
             >
-                <h2 style={{ fontWeight: 'bold', fontSize: 28, marginBottom: 24, color: '#388e3c' }}>詳細設定</h2>
+                <h2 style={{ fontWeight: 'bold', fontSize: 28, marginBottom: 24, color: 'var(--accent)' }}>詳細設定</h2>
                 <div style={{ display: 'flex', gap: 32 }}>
                     <div style={{ flex: 1 }}>
                         <div style={{ marginBottom: 16 }}>
-                            <label>部屋名</label>
-                            <input type="text" value={roomName} onChange={e => setRoomName(e.target.value)} placeholder="部屋名を入力してください" style={{ width: '100%', padding: 8, marginTop: 4 }} />
+                            <label style={{ color: 'var(--text)' }}>部屋名</label>
+                            <input type="text" value={roomName} onChange={e => setRoomName(e.target.value)} placeholder="部屋名を入力してください" style={{ width: '100%', padding: 8, marginTop: 4, background: 'var(--input)', color: 'var(--text)', border: '1px solid var(--border)' }} />
                         </div>
                         <div style={{ marginBottom: 16 }}>
-                            <label>本のタイトル</label>
-                            <input type="text" value={bookTitle} onChange={e => setBookTitle(e.target.value)} placeholder="本のタイトルを入力してください" style={{ width: '100%', padding: 8, marginTop: 4 }} />
+                            <label style={{ color: 'var(--text)' }}>本のタイトル</label>
+                            <input type="text" value={bookTitle} onChange={e => setBookTitle(e.target.value)} placeholder="本のタイトルを入力してください" style={{ width: '100%', padding: 8, marginTop: 4, background: 'var(--input)', color: 'var(--text)', border: '1px solid var(--border)' }} />
                         </div>
                         <div style={{ marginBottom: 16 }}>
-                            <label>パスワード（オプション）</label>
-                            <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="パスワードを入力してください" style={{ width: '100%', padding: 8, marginTop: 4 }} />
+                            <label style={{ color: 'var(--text)' }}>パスワード（オプション）</label>
+                            <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="パスワードを入力してください" style={{ width: '100%', padding: 8, marginTop: 4, background: 'var(--input)', color: 'var(--text)', border: '1px solid var(--border)' }} />
                         </div>                    </div>
                 </div>
-                {error && <div style={{ color: 'red', marginTop: 12 }}>{error}</div>}
+                {error && <div style={{ color: 'var(--error)', marginTop: 12 }}>{error}</div>}
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 16, marginTop: 32 }}>
                     <button
                         onClick={onClose}
                         style={{
                             padding: '12px 24px',
-                            border: '2px solid #666',
+                            border: '2px solid var(--border)',
                             borderRadius: 8,
                             background: 'transparent',
-                            color: '#666',
+                            color: 'var(--text)',
                             fontSize: 16,
                             cursor: 'pointer'
                         }}
@@ -112,9 +113,9 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
                         disabled={loading || !roomName.trim() || !bookTitle.trim()}
                         style={{
                             padding: '12px 24px',
-                            border: '2px solid #388e3c',
+                            border: '2px solid var(--accent)',
                             borderRadius: 8,
-                            background: '#388e3c',
+                            background: 'var(--accent)',
                             color: 'white',
                             fontSize: 16,
                             cursor: loading || !roomName.trim() || !bookTitle.trim() ? 'not-allowed' : 'pointer',

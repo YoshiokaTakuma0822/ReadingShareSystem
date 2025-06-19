@@ -201,7 +201,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                         justifyContent: 'center',
                         fontSize: '2em',
                         fontWeight: 'bold',
-                        color: '#555',
+                        color: 'var(--text)',
                         borderRadius: '2px 0 0 2px',
                         boxShadow: pageFlipAnim ? '0 10px 20px rgba(0,0,0,0.3)' : '0 2px 5px rgba(0,0,0,0.1)',
                         // 左ページが右ページに重なるアニメーション
@@ -230,7 +230,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
             </div>
 
             {/* ページ数表示 */}
-            <div className="mt-2 text-lg">{displayPage + 1} / {maxPage}</div>
+            <div className="mt-2 text-lg" style={{ color: 'var(--text)' }}>{displayPage + 1} / {maxPage}</div>
 
             {/* メッセージ欄・進捗入力・ページめくり操作・チャットに戻るボタン */}
             <div style={{ display: 'flex', alignItems: 'center', marginTop: 32, gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
@@ -303,7 +303,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                             borderRadius: 8,
                             border: '1px solid var(--border)',
                             fontSize: 18,
-                            background: '#2196f3',
+                            background: 'var(--green-main)',
                             color: 'white',
                             cursor: 'pointer',
                             boxShadow: 'none',

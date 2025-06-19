@@ -1,39 +1,55 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  /* グリーン＆白基調カラーパレット */
-  --green-main: #4CAF50;
-  --green-dark: #388E3C;
-  --green-light: #A5D6A7;
-  --green-bg: #e0f7ef;
-  --white: #fff;
-  --border: #81c784;
-  --accent: #388e3c;
-  --text-main: #222;
-  --text-accent: #388e3c;
-}
+    --background: #ffffff;
+    --foreground: #171717;
+    /* グリーン＆白基調カラーパレット */
+    --green-main: #4CAF50;
+    --green-dark: #388E3C;
+    --green-light: #A5D6A7;
+    --green-bg: #e0f7ef;
+    --white: #fff;
+    --border: #81c784;
+    --accent: #388e3c;
+    --text-main: #222;
+    --text-accent: #388e3c;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+    /* 追加のUI色 */
+    --text: #222222;
+    --text-muted: #666666;
+    --input: #ffffff;
+    --card: #f9f9f9;
+    --error: #d32f2f;
+    --error-background: #ffebee;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-    --green-bg: #1a2b1a;
-    --white: #222;
-    --text-main: #ededed;
-  }
+    :root {
+        --background: #0a0a0a;
+        --foreground: #ededed;
+        /* ダークモード用のグリーンカラーパレット */
+        --green-main: #81C784;
+        --green-dark: #4CAF50;
+        --green-light: #2E7D32;
+        --green-bg: #1a2b1a;
+        --white: #1e1e1e;
+        --border: #4a5e4a;
+        --accent: #81C784;
+        --text-main: #f0f0f0;
+        --text-accent: #A5D6A7;
+
+        /* ダークモード用のUI色 */
+        --text: #e0e0e0;
+        --text-muted: #999999;
+        --input: #2d2d2d;
+        --card: #1a1a1a;
+        --error: #f44336;
+        --error-background: #2d1b1b;
+    }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+    background: var(--background);
+    color: var(--foreground);
+    font-family: Arial, Helvetica, sans-serif;
 }

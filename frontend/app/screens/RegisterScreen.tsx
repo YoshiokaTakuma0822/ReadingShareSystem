@@ -8,11 +8,13 @@ const inputStyle = {
     width: '100%',
     padding: 8,
     marginTop: 4,
-    border: '2px solid #888',
+    border: '2px solid var(--border)',
     borderRadius: 6,
     fontSize: 16,
     boxSizing: 'border-box' as const,
     outline: 'none',
+    background: 'var(--white)',
+    color: 'var(--text-main)',
 }
 
 const RegisterScreen: React.FC = () => {
@@ -49,23 +51,23 @@ const RegisterScreen: React.FC = () => {
     }
 
     return (
-        <div style={{ maxWidth: 900, minWidth: 520, width: '60vw', height: 600, position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', border: '2px solid #388e3c', padding: 48, borderRadius: 20, background: 'linear-gradient(135deg, #e0f7ef 0%, #f1fdf6 100%)', boxShadow: '0 4px 24px #a5d6a7', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-            <h1 style={{ textAlign: 'center', fontSize: 32, marginBottom: 32, color: '#388e3c' }}>会員登録画面</h1>
+        <div style={{ maxWidth: 900, minWidth: 520, width: '60vw', height: 600, position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', border: '2px solid var(--accent)', padding: 48, borderRadius: 20, background: 'var(--green-bg)', boxShadow: '0 4px 24px var(--green-light)', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+            <h1 style={{ textAlign: 'center', fontSize: 32, marginBottom: 32, color: 'var(--accent)' }}>会員登録画面</h1>
             <div style={{ marginBottom: 16 }}>
-                <label>ユーザー名</label>
+                <label style={{ color: 'var(--text-main)' }}>ユーザー名</label>
                 <input type="text" value={username} onChange={e => setUsername(e.target.value)} style={inputStyle} />
             </div>
             <div style={{ marginBottom: 16 }}>
-                <label>メールアドレス</label>
+                <label style={{ color: 'var(--text-main)' }}>メールアドレス</label>
                 <input type="email" value={email} onChange={e => setEmail(e.target.value)} style={inputStyle} />
             </div>
             <div style={{ marginBottom: 24 }}>
-                <label>パスワード</label>
+                <label style={{ color: 'var(--text-main)' }}>パスワード</label>
                 <input type="password" value={password} onChange={e => setPassword(e.target.value)} style={inputStyle} />
             </div>
             {error && <div style={{ color: 'red', marginBottom: 12 }}>{error}</div>}
-            {success && <div style={{ color: 'green', marginBottom: 12 }}>登録が完了しました！</div>}
-            <button onClick={handleRegister} disabled={loading} style={{ width: '100%', padding: 12, fontSize: 18, borderRadius: 8, border: '1px solid #222' }}>{loading ? '登録中...' : '登録'}</button>
+            {success && <div style={{ color: 'var(--green-main)', marginBottom: 12 }}>登録が完了しました！</div>}
+            <button onClick={handleRegister} disabled={loading} style={{ width: '100%', padding: 12, fontSize: 18, borderRadius: 8, border: '1px solid var(--text-main)', background: 'var(--accent)', color: 'var(--white)' }}>{loading ? '登録中...' : '登録'}</button>
         </div>
     )
 }

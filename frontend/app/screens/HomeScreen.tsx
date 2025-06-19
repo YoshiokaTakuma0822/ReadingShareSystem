@@ -95,8 +95,8 @@ const HomeScreen: React.FC = () => {
                         onClick={logout}
                         style={{
                             padding: '8px 16px',
-                            background: '#dc3545',
-                            color: 'white',
+                            background: 'var(--accent)',
+                            color: 'var(--white)',
                             border: 'none',
                             borderRadius: 4,
                             cursor: 'pointer',
@@ -111,7 +111,7 @@ const HomeScreen: React.FC = () => {
                     <a
                         href="/debug"
                         style={{
-                            color: '#666',
+                            color: 'var(--text-accent)',
                             fontSize: 12,
                             textDecoration: 'underline',
                             display: process.env.NODE_ENV === 'development' ? 'inline' : 'none'
@@ -168,7 +168,7 @@ const HomeScreen: React.FC = () => {
                 <div style={{ border: '2px solid var(--text-main)', padding: 24 }}>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24 }}>
                         {rooms.length === 0 ? (
-                            <div style={{ color: '#b0b8c9', fontSize: 20, width: '100%', textAlign: 'center', padding: '32px 0' }}>
+                            <div style={{ color: 'var(--text-accent)', fontSize: 20, width: '100%', textAlign: 'center', padding: '32px 0' }}>
                                 部屋はありません
                             </div>
                         ) : (
@@ -210,7 +210,7 @@ const HomeScreen: React.FC = () => {
                                             本: {room.bookTitle}
                                         </p>
                                     </div>
-                                    <div style={{ fontSize: 12, color: '#666', display: 'flex', justifyContent: 'space-between' }}>
+                                    <div style={{ fontSize: 12, color: 'var(--text-accent)', display: 'flex', justifyContent: 'space-between' }}>
                                         <span>作成日: {new Date(room.createdAt).toLocaleDateString()}</span>
                                         <span>{room.hasPassword ? '🔒 パスワード有' : '🔓 オープン'}</span>
                                     </div>

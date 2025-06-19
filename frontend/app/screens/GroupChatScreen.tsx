@@ -130,8 +130,8 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
     }
 
     return (
-        <div style={{ border: '4px solid #388e3c', margin: 24, padding: 24, background: 'linear-gradient(135deg, #e0f7ef 0%, #f1fdf6 100%)', borderRadius: 12, maxWidth: 1200, minHeight: 600, marginLeft: 'auto', marginRight: 'auto', display: 'flex', flexDirection: 'column', height: '80vh' }}>
-            <h2 style={{ textAlign: 'center', fontSize: 28, marginBottom: 16, color: '#388e3c' }}>
+        <div style={{ border: '4px solid var(--accent)', margin: 24, padding: 24, background: 'var(--green-bg)', borderRadius: 12, maxWidth: 1200, minHeight: 600, marginLeft: 'auto', marginRight: 'auto', display: 'flex', flexDirection: 'column', height: '80vh' }}>
+            <h2 style={{ textAlign: 'center', fontSize: 28, marginBottom: 16, color: 'var(--accent)' }}>
                 {String(roomTitle)}
             </h2>
 
@@ -142,7 +142,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                     style={{
                         padding: '12px 24px',
                         fontSize: 16,
-                        background: '#4caf50',
+                        background: 'var(--accent)',
                         color: 'white',
                         border: 'none',
                         borderRadius: 8,
@@ -158,7 +158,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                     style={{
                         padding: '12px 24px',
                         fontSize: 16,
-                        background: '#2196f3',
+                        background: 'var(--green-main)',
                         color: 'white',
                         border: 'none',
                         borderRadius: 8,
@@ -174,7 +174,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                     style={{
                         padding: '12px 24px',
                         fontSize: 16,
-                        background: '#757575',
+                        background: 'var(--text-muted)',
                         color: 'white',
                         border: 'none',
                         borderRadius: 8,
@@ -190,19 +190,19 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
             {/* エラー表示 */}
             {error && (
                 <div style={{
-                    background: '#ffebee',
-                    color: '#c62828',
+                    background: 'var(--error-background)',
+                    color: 'var(--error)',
                     padding: 12,
                     borderRadius: 8,
                     marginBottom: 16,
-                    border: '1px solid #ef5350'
+                    border: '1px solid var(--error)'
                 }}>
                     {error}
                     <button
                         onClick={loadChatHistory}
                         style={{
                             marginLeft: 12,
-                            background: '#c62828',
+                            background: 'var(--error)',
                             color: 'white',
                             border: 'none',
                             padding: '4px 8px',
@@ -215,14 +215,14 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                 </div>
             )}
 
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 32, minHeight: 200, maxHeight: '60vh', overflowY: 'auto', background: 'rgba(255,255,255,0.7)', borderRadius: 8, padding: 16 }}>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 32, minHeight: 200, maxHeight: '60vh', overflowY: 'auto', background: 'var(--card)', borderRadius: 8, padding: 16 }}>
                 {loading ? (
                     <div style={{
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center',
                         height: '100%',
-                        color: '#666',
+                        color: 'var(--text-muted)',
                         fontSize: 16
                     }}>
                         チャット履歴を読み込み中...
@@ -233,7 +233,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                         justifyContent: 'center',
                         alignItems: 'center',
                         height: '100%',
-                        color: '#999',
+                        color: 'var(--text-muted)',
                         fontSize: 16
                     }}>
                         まだメッセージがありません
@@ -252,16 +252,17 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                                 }}
                             >
                                 {!isMine && (
-                                    <span style={{ border: '1px solid #222', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <span style={{ border: '1px solid var(--text)', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text)', background: 'var(--background)' }}>
                                         {String(msg.user).charAt(0).toUpperCase()}
                                     </span>
                                 )}
                                 <div
                                     style={{
-                                        border: '1px solid #222',
+                                        border: '1px solid var(--border)',
                                         borderRadius: 16,
                                         padding: 8,
-                                        background: isMine ? '#e0f7fa' : '#fff',
+                                        background: isMine ? 'var(--green-light)' : 'var(--background)',
+                                        color: isMine ? 'white' : 'var(--text)',
                                         maxWidth: 600,
                                         wordBreak: 'break-word',
                                     }}
@@ -269,7 +270,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                                     {String(msg.text)}
                                 </div>
                                 {isMine && (
-                                    <span style={{ border: '1px solid #222', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#e0f7fa' }}>
+                                    <span style={{ border: '1px solid var(--text)', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--green-light)', color: 'white' }}>
                                         {String(msg.user).charAt(0).toUpperCase()}
                                     </span>
                                 )}
@@ -284,7 +285,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                     value={input}
                     onChange={e => setInput(e.target.value)}
                     onKeyDown={e => { if (e.key === 'Enter') handleSend() }}
-                    style={{ flex: 1, padding: 12, borderRadius: 8, border: '1px solid #222', fontSize: 18 }}
+                    style={{ flex: 1, padding: 12, borderRadius: 8, border: '1px solid var(--border)', fontSize: 18, background: 'var(--input)', color: 'var(--text)' }}
                     placeholder="メッセージを入力..."
                     disabled={loading}
                 />
@@ -293,9 +294,10 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                         marginLeft: 8,
                         padding: '12px 24px',
                         borderRadius: 8,
-                        border: '1px solid #222',
+                        border: '1px solid var(--border)',
                         fontSize: 18,
-                        background: loading ? '#ccc' : 'white',
+                        background: loading ? 'var(--text-muted)' : 'var(--accent)',
+                        color: loading ? 'var(--text)' : 'white',
                         cursor: loading ? 'not-allowed' : 'pointer'
                     }}
                     onClick={handleSend}
