@@ -39,31 +39,91 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
 
     if (!open) return null
 
+    const handleBackgroundClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        // クリックされた要素が背景の場合のみ閉じる
+        if (e.target === e.currentTarget) {
+            onClose()
+        }
+    }
+
     return (
-        <div style={{ maxWidth: 700, margin: '40px auto', border: '2px solid #388e3c', padding: 32, borderRadius: 8, background: '#f1fdf6', zIndex: 1000, position: 'relative', boxShadow: '0 4px 24px #a5d6a7' }}>
-            <h2 style={{ fontWeight: 'bold', fontSize: 28, marginBottom: 24, color: '#388e3c' }}>詳細設定</h2>
-            <div style={{ display: 'flex', gap: 32 }}>
-                <div style={{ flex: 1 }}>
-                    <div style={{ marginBottom: 16 }}>
-                        <label>部屋名</label>
-                        <input type="text" value={roomName} onChange={e => setRoomName(e.target.value)} placeholder="部屋名を入力してください" style={{ width: '100%', padding: 8, marginTop: 4 }} />
-                    </div>
-                    <div style={{ marginBottom: 16 }}>
-                        <label>本のタイトル</label>
-                        <input type="text" value={bookTitle} onChange={e => setBookTitle(e.target.value)} placeholder="本のタイトルを入力してください" style={{ width: '100%', padding: 8, marginTop: 4 }} />
-                    </div>
-                    <div style={{ marginBottom: 16 }}>
-                        <label>パスワード（オプション）</label>
-                        <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="パスワードを入力してください" style={{ width: '100%', padding: 8, marginTop: 4 }} />
-                    </div>
+        <div
+            style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: 'rgba(0,0,0,0.5)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 1000
+            }}
+            onClick={handleBackgroundClick}
+        >
+            <div
+                style={{
+                    maxWidth: 700,
+                    width: '90%',
+                    margin: 'auto',
+                    border: '2px solid #388e3c',
+                    padding: 32,
+                    borderRadius: 12,
+                    background: '#f1fdf6',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.2)'
+                }}
+                onClick={(e) => e.stopPropagation()} // モーダル内のクリックで閉じるのを防ぐ
+            >
+                <h2 style={{ fontWeight: 'bold', fontSize: 28, marginBottom: 24, color: '#388e3c' }}>詳細設定</h2>
+                <div style={{ display: 'flex', gap: 32 }}>
+                    <div style={{ flex: 1 }}>
+                        <div style={{ marginBottom: 16 }}>
+                            <label>部屋名</label>
+                            <input type="text" value={roomName} onChange={e => setRoomName(e.target.value)} placeholder="部屋名を入力してください" style={{ width: '100%', padding: 8, marginTop: 4 }} />
+                        </div>
+                        <div style={{ marginBottom: 16 }}>
+                            <label>本のタイトル</label>
+                            <input type="text" value={bookTitle} onChange={e => setBookTitle(e.target.value)} placeholder="本のタイトルを入力してください" style={{ width: '100%', padding: 8, marginTop: 4 }} />
+                        </div>
+                        <div style={{ marginBottom: 16 }}>
+                            <label>パスワード（オプション）</label>
+                            <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="パスワードを入力してください" style={{ width: '100%', padding: 8, marginTop: 4 }} />
+                        </div>                    </div>
                 </div>
-            </div>
-            {error && <div style={{ color: 'red', marginTop: 12 }}>{error}</div>}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 16, marginTop: 32 }}>
-                <button onClick={onClose} style={{ padding: '10px 24px', border: '1px solid #222', borderRadius: 8 }}>キャンセル</button>
-                <button onClick={handleCreate} style={{ padding: '10px 24px', border: '1px solid #222', borderRadius: 8 }} disabled={loading}>
-                    {loading ? '作成中...' : '部屋を作成'}
-                </button>
+                {error && <div style={{ color: 'red', marginTop: 12 }}>{error}</div>}
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 16, marginTop: 32 }}>
+                    <button
+                        onClick={onClose}
+                        style={{
+                            padding: '12px 24px',
+                            border: '2px solid #666',
+                            borderRadius: 8,
+                            background: 'transparent',
+                            color: '#666',
+                            fontSize: 16,
+                            cursor: 'pointer'
+                        }}
+                    >
+                        キャンセル
+                    </button>
+                    <button
+                        onClick={handleCreate}
+                        disabled={loading || !roomName.trim() || !bookTitle.trim()}
+                        style={{
+                            padding: '12px 24px',
+                            border: '2px solid #388e3c',
+                            borderRadius: 8,
+                            background: '#388e3c',
+                            color: 'white',
+                            fontSize: 16,
+                            cursor: loading || !roomName.trim() || !bookTitle.trim() ? 'not-allowed' : 'pointer',
+                            opacity: loading || !roomName.trim() || !bookTitle.trim() ? 0.6 : 1
+                        }}
+                    >
+                        {loading ? '作成中...' : '部屋を作成'}
+                    </button>
+                </div>
             </div>
         </div>
     )
