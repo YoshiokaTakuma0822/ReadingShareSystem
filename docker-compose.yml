@@ -12,7 +12,7 @@ services:
             - postgres-data:/var/lib/postgresql/data
         restart: unless-stopped
         networks:
-            - backend
+            - backend_db
 
     app:
         build:
@@ -32,12 +32,13 @@ services:
         restart: unless-stopped
         networks:
             - backend
+            - backend_db
 
-    nginx:
+    nodejs:
         build:
             context: ./frontend
             dockerfile: Dockerfile
-        container_name: demo-nginx
+        container_name: demo-nodejs
         ports:
             - "80:80"
         depends_on:
@@ -52,6 +53,8 @@ volumes:
 
 
 networks:
+    backend_db:
+        internal: true
     backend:
         internal: true
     frontend:

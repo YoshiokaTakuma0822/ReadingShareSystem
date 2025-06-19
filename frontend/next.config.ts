@@ -1,21 +1,15 @@
 import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
-    // API routes rewrite for development
+    // API routes rewrite for development and production
     async rewrites() {
         return [
             {
                 source: '/api/:path*',
-                destination: 'http://localhost:8080/api/:path*',
+                destination: process.env.NODE_ENV === 'production' ?
+                    'http://app:8080/api/:path*' : 'http://localhost:8080/api/:path*',
             },
         ]
-    },
-
-    // Environment variables
-    env: {
-        API_BASE_URL: process.env.NODE_ENV === 'production'
-            ? '/api'
-            : 'http://localhost:8080/api',
     },
 }
 
