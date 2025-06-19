@@ -1,5 +1,5 @@
 import React from 'react'
-import GroupChatScreen from '../../screens/GroupChatScreen'
+import GroupChatScreen from '../../../screens/GroupChatScreen'
 
 interface ChatPageProps {
     params: Promise<{

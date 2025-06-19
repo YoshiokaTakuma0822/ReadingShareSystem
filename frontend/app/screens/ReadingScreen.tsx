@@ -297,7 +297,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                 </button>
                 {roomId && (
                     <button
-                        onClick={() => window.location.href = `/chat/${roomId}`}
+                        onClick={() => window.location.href = `/rooms/${roomId}/chat`}
                         style={{
                             padding: '12px 24px',
                             borderRadius: 8,

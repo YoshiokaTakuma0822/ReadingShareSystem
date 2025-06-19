@@ -82,7 +82,7 @@ const HomeScreen: React.FC = () => {
         setShowJoinModal(false)
         if (selectedRoom) {
             // グループチャット画面へ移動
-            window.location.href = `/chat/${selectedRoom.id}`
+            window.location.href = `/rooms/${selectedRoom.id}/chat`
         }
     }
 

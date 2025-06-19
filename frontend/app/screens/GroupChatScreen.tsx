@@ -29,7 +29,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
 
     const handleGoToReading = () => {
         if (roomId) {
-            window.location.href = `/reading/${roomId}`
+            window.location.href = `/rooms/${roomId}/reading`
         }
     }
 
