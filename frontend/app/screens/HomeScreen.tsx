@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { Room } from '../../types/room'
 import { roomApi } from '../../lib/roomApi'
+import { getDummyUserId, requireAuth, logout } from '../../lib/authUtils'
 import RoomCreationModal from './RoomCreationModal'
 import RoomJoinModal from './RoomJoinModal'
 import SurveyAnswerModal from './SurveyAnswerModal'
@@ -19,13 +20,20 @@ const HomeScreen: React.FC = () => {
     const [error, setError] = useState<string | null>(null)
     const [showSurveyAnswerModal, setShowSurveyAnswerModal] = useState(false)
     const [showSurveyResultModal, setShowSurveyResultModal] = useState(false)
+    const [currentUserId, setCurrentUserId] = useState<string>('00000000-0000-0000-0000-000000000001')
 
     // サンプル用のダミーsurveyId
-    // const dummySurveyId = 'sample-survey-id-1'
-    const dummySurveyId = '00000000-0000-0000-0000-000000000001' // 例: 固定のダミーID
-    // サンプル用のダミーuserId (実際のアプリでは認証から取得)
-    // const dummyUserId = 'sample-user-id-1'
-    const dummyUserId = '00000000-0000-0000-0000-000000000001' // 例: 固定のダミーID
+    const dummySurveyId = '00000000-0000-0000-0000-000000000001'
+
+    // 認証チェック
+    React.useEffect(() => {
+        requireAuth()
+    }, [])
+
+    // クライアントサイドでユーザーIDを初期化
+    React.useEffect(() => {
+        setCurrentUserId(getDummyUserId())
+    }, [])
 
     // 部屋検索API（空文字の場合は全件取得）
     const handleSearch = async () => {
@@ -73,15 +81,31 @@ const HomeScreen: React.FC = () => {
     const handleRoomJoined = () => {
         setShowJoinModal(false)
         if (selectedRoom) {
-            // 読書画面へ移動
-            window.location.href = `/reading/${selectedRoom.id}`
+            // グループチャット画面へ移動
+            window.location.href = `/chat/${selectedRoom.id}`
         }
     }
 
     return (
         <div style={{ padding: 32, background: 'var(--green-bg)', minHeight: '100vh' }}>
             <div style={{ marginBottom: 32 }}>
-                <h1 style={{ color: 'var(--accent)', fontSize: 32, marginBottom: 8 }}>読書共有システム</h1>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                    <h1 style={{ color: 'var(--accent)', fontSize: 32, margin: 0 }}>読書共有システム</h1>
+                    <button
+                        onClick={logout}
+                        style={{
+                            padding: '8px 16px',
+                            background: '#dc3545',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: 4,
+                            cursor: 'pointer',
+                            fontSize: 14
+                        }}
+                    >
+                        ログアウト
+                    </button>
+                </div>
                 <p style={{ color: 'var(--text-main)', fontSize: 16 }}>友達と一緒に読書を楽しもう</p>
                 <div style={{ marginTop: 16 }}>
                     <a
@@ -197,13 +221,13 @@ const HomeScreen: React.FC = () => {
                 </div>
             )}
             {showCreateModal && (
-                <RoomCreationModal open={showCreateModal} userId={dummyUserId} onClose={() => setShowCreateModal(false)} onCreated={handleRoomCreated} />
+                <RoomCreationModal open={showCreateModal} userId={currentUserId} onClose={() => setShowCreateModal(false)} onCreated={handleRoomCreated} />
             )}
             {showJoinModal && selectedRoom && (
                 <RoomJoinModal
                     open={showJoinModal}
                     room={selectedRoom}
-                    userId={dummyUserId}
+                    userId={currentUserId}
                     onClose={() => {
                         setShowJoinModal(false)
                         setSelectedRoom(null)

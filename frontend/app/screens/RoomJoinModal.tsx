@@ -38,7 +38,13 @@ const RoomJoinModal: React.FC<RoomJoinModalProps> = ({ open, room, userId, onClo
             }
             await roomApi.joinRoom(request)
             onJoined()
-        } catch (e) {
+        } catch (e: any) {
+            // 既に部屋のメンバーの場合は、そのまま成功として扱う
+            const errorMessage = e.response?.data?.message || e.message || ''
+            if (errorMessage.includes('既に部屋のメンバーです')) {
+                onJoined()
+                return
+            }
             setError('部屋参加に失敗しました')
         } finally {
             setLoading(false)

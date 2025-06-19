@@ -1,5 +1,6 @@
 "use client"
 import React, { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { authApi } from '../../lib/authApi'
 import { RegisterUserRequest } from '../../types/auth'
 
@@ -15,6 +16,7 @@ const inputStyle = {
 }
 
 const RegisterScreen: React.FC = () => {
+    const router = useRouter()
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
     const [email, setEmail] = useState('')
@@ -35,6 +37,10 @@ const RegisterScreen: React.FC = () => {
             const user = await authApi.register(request)
             console.log('Registration successful:', user)
             setSuccess(true)
+            // 登録成功後、少し待ってからホームに遷移
+            setTimeout(() => {
+                router.push('/')
+            }, 1500)
         } catch (e) {
             setError('登録に失敗しました')
         } finally {

@@ -1,19 +1,19 @@
 package com.readingshare.auth.infrastructure.security;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 /**
- * BCryptアルゴリズムを使用したパスワードハッシャーの実装。
- * Spring SecurityのBCryptPasswordEncoderを利用。
+ * Spring SecurityのPasswordEncoderを使用したパスワードハッシャーの実装。
  * 担当: 小亀
  */
 @Component
 public class PasswordHasherImpl implements IPasswordHasher {
-    private final BCryptPasswordEncoder passwordEncoder;
 
-    public PasswordHasherImpl() {
-        this.passwordEncoder = new BCryptPasswordEncoder();
+    private final PasswordEncoder passwordEncoder;
+
+    public PasswordHasherImpl(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override

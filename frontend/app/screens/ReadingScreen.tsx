@@ -232,8 +232,8 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
             {/* ページ数表示 */}
             <div className="mt-2 text-lg">{displayPage + 1} / {maxPage}</div>
 
-            {/* メッセージ欄・進捗入力・ページめくり操作 */}
-            <div style={{ display: 'flex', alignItems: 'center', marginTop: 32 }}>
+            {/* メッセージ欄・進捗入力・ページめくり操作・チャットに戻るボタン */}
+            <div style={{ display: 'flex', alignItems: 'center', marginTop: 32, gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
                 <input
                     type="text"
                     style={{
@@ -250,7 +250,6 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                 />
                 <button
                     style={{
-                        marginLeft: 8,
                         padding: '12px 24px',
                         borderRadius: 8,
                         border: '1px solid var(--border)',
@@ -267,7 +266,6 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                 <button
                     onClick={() => setShowProgressModal(true)}
                     style={{
-                        marginLeft: 8,
                         padding: '12px 24px',
                         borderRadius: 8,
                         border: '1px solid var(--border)',
@@ -284,7 +282,6 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                 <button
                     onClick={() => { setFlipping(f => !f); setDisplayPage(currentPage) }}
                     style={{
-                        marginLeft: 8,
                         padding: '12px 24px',
                         borderRadius: 8,
                         border: '1px solid var(--border)',
@@ -298,6 +295,24 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                 >
                     {flipping ? '自動めくり停止' : '自動めくり開始'}
                 </button>
+                {roomId && (
+                    <button
+                        onClick={() => window.location.href = `/chat/${roomId}`}
+                        style={{
+                            padding: '12px 24px',
+                            borderRadius: 8,
+                            border: '1px solid var(--border)',
+                            fontSize: 18,
+                            background: '#2196f3',
+                            color: 'white',
+                            cursor: 'pointer',
+                            boxShadow: 'none',
+                            fontWeight: 'bold'
+                        }}
+                    >
+                        💬 チャットに戻る
+                    </button>
+                )}
             </div>
 
             {/* 進捗入力モーダル */}

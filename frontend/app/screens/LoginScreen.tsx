@@ -29,7 +29,7 @@ const LoginScreen: React.FC = () => {
                 password
             }
             const response = await authApi.login(request)
-            // 認証後の画面遷移や状態管理はここで実装
+            // ログイン成功後、ホーム画面にリダイレクト
             console.log('Login successful:', response)
             window.location.href = '/'
         } catch (e) {

@@ -15,12 +15,17 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-    token: string // 認証トークン
-    user: User
+    userId: UserId
+    token: string // Bearer Token
+    username: Username
+}
+
+export interface RegisterUserResponse {
+    userId: UserId // 登録時も同様にユーザーIDを返す
 }
 
 export interface RegisterUserRequest {
     username: Username
     password: Password
-    email: Email // 会員登録時に入力する場合
+    email?: Email // オプショナルに変更（バックエンドで使われていない）
 }

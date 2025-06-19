@@ -1,5 +1,6 @@
 "use client"
 import React, { useState } from 'react'
+import SurveyCreationModal from './SurveyCreationModal'
 
 interface Message {
     id: number
@@ -17,6 +18,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
     const [messages, setMessages] = useState<Message[]>([])
     const [input, setInput] = useState("")
     const [msgId, setMsgId] = useState(1)
+    const [showSurveyModal, setShowSurveyModal] = useState(false)
 
     const handleSend = () => {
         if (!input.trim()) return
@@ -25,9 +27,76 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
         setInput("")
     }
 
+    const handleGoToReading = () => {
+        if (roomId) {
+            window.location.href = `/reading/${roomId}`
+        }
+    }
+
+    const handleCreateSurvey = () => {
+        setShowSurveyModal(true)
+    }
+
+    const handleSurveyCreated = () => {
+        setShowSurveyModal(false)
+        // サーベイ作成後の処理（必要に応じて）
+    }
+
     return (
         <div style={{ border: '4px solid #388e3c', margin: 24, padding: 24, background: 'linear-gradient(135deg, #e0f7ef 0%, #f1fdf6 100%)', borderRadius: 12, maxWidth: 1200, minHeight: 600, marginLeft: 'auto', marginRight: 'auto', display: 'flex', flexDirection: 'column', height: '80vh' }}>
             <h2 style={{ textAlign: 'center', fontSize: 28, marginBottom: 16, color: '#388e3c' }}>{roomTitle}</h2>
+
+            {/* ナビゲーションボタン */}
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginBottom: 16, flexWrap: 'wrap' }}>
+                <button
+                    onClick={handleGoToReading}
+                    style={{
+                        padding: '12px 24px',
+                        fontSize: 16,
+                        background: '#4caf50',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: 8,
+                        cursor: 'pointer',
+                        fontWeight: 'bold',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                    }}
+                >
+                    📖 読書画面へ
+                </button>
+                <button
+                    onClick={handleCreateSurvey}
+                    style={{
+                        padding: '12px 24px',
+                        fontSize: 16,
+                        background: '#2196f3',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: 8,
+                        cursor: 'pointer',
+                        fontWeight: 'bold',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                    }}
+                >
+                    📊 アンケート作成
+                </button>
+                <button
+                    onClick={() => window.location.href = '/'}
+                    style={{
+                        padding: '12px 24px',
+                        fontSize: 16,
+                        background: '#757575',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: 8,
+                        cursor: 'pointer',
+                        fontWeight: 'bold',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                    }}
+                >
+                    🏠 ホームへ
+                </button>
+            </div>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 32, minHeight: 200, maxHeight: '60vh', overflowY: 'auto', background: 'rgba(255,255,255,0.7)', borderRadius: 8, padding: 16 }}>
                 {messages.map(msg => {
                     const isMine = msg.user === currentUser
@@ -77,6 +146,16 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                     onClick={handleSend}
                 >送信</button>
             </div>
+
+            {/* アンケート作成モーダル */}
+            {showSurveyModal && roomId && (
+                <SurveyCreationModal
+                    open={showSurveyModal}
+                    roomId={roomId}
+                    onClose={() => setShowSurveyModal(false)}
+                    onCreated={handleSurveyCreated}
+                />
+            )}
         </div>
     )
 }
