@@ -52,6 +52,19 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * ResourceNotFoundExceptionをHTTP 404 Not Foundとして処理する。
+     * リソースが見つからない場合のエラー。
+     *
+     * @param ex ResourceNotFoundException
+     * @return エラーメッセージを含むResponseEntity
+     */
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
+    /**
      * ApplicationExceptionをHTTP 400 Bad Requestとして処理する。
      * アプリケーション層の一般的なエラー。
      *

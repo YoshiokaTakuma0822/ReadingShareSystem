@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.readingshare.common.exception.ApplicationException;
+import com.readingshare.common.exception.ResourceNotFoundException;
 import com.readingshare.room.domain.repository.IRoomRepository;
 import com.readingshare.survey.domain.model.Question;
 import com.readingshare.survey.domain.model.Survey;
@@ -40,7 +41,7 @@ public class SurveyService {
         try {
             // roomIdが存在するかチェック
             if (!roomRepository.findById(request.roomId()).isPresent()) {
-                throw new ApplicationException("Room not found with id: " + request.roomId());
+                throw new ResourceNotFoundException("Room not found with id: " + request.roomId());
             }
 
             List<Question> questions = request.questions().stream()
@@ -59,7 +60,7 @@ public class SurveyService {
     @Transactional
     public void submitAnswer(UUID surveyId, SubmitSurveyAnswerRequest request) {
         surveyRepository.findById(surveyId)
-                .orElseThrow(() -> new ApplicationException("Survey not found with id: " + surveyId));
+                .orElseThrow(() -> new ResourceNotFoundException("Survey not found with id: " + surveyId));
         SurveyAnswer answer = new SurveyAnswer(surveyId, request.userId(), request.answers(), request.isAnonymous());
         surveyRepository.saveAnswer(answer);
     }
@@ -68,7 +69,7 @@ public class SurveyService {
     @Transactional(readOnly = true)
     public SurveyResultResponse getSurveyResult(UUID surveyId) {
         Survey survey = surveyRepository.findById(surveyId)
-                .orElseThrow(() -> new ApplicationException("Survey not found with id: " + surveyId));
+                .orElseThrow(() -> new ResourceNotFoundException("Survey not found with id: " + surveyId));
         List<SurveyAnswer> answers = surveyRepository.findAnswersBySurveyId(surveyId);
         return buildResultDto(survey, answers);
     }
@@ -83,12 +84,12 @@ public class SurveyService {
     @Transactional
     public void addOption(UUID surveyId, String questionText, String newOption) {
         Survey survey = surveyRepository.findById(surveyId)
-                .orElseThrow(() -> new ApplicationException("Survey not found with id: " + surveyId));
+                .orElseThrow(() -> new ResourceNotFoundException("Survey not found with id: " + surveyId));
 
         Question targetQuestion = survey.getQuestions().stream()
                 .filter(q -> q.getQuestionText().equals(questionText))
                 .findFirst()
-                .orElseThrow(() -> new ApplicationException("Question not found: " + questionText));
+                .orElseThrow(() -> new ResourceNotFoundException("Question not found: " + questionText));
 
         try {
             targetQuestion.addOption(newOption);

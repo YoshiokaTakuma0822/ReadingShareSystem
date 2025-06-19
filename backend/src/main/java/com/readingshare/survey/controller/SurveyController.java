@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.readingshare.common.exception.ApplicationException;
 import com.readingshare.survey.domain.model.Survey;
 import com.readingshare.survey.dto.CreateSurveyRequest;
 import com.readingshare.survey.dto.SubmitSurveyAnswerRequest;
@@ -40,12 +39,8 @@ public class SurveyController {
      */
     @PostMapping
     public ResponseEntity<UUID> createSurvey(@RequestBody CreateSurveyRequest request) {
-        try {
-            UUID surveyId = surveyService.createSurvey(request);
-            return ResponseEntity.ok(surveyId);
-        } catch (ApplicationException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        UUID surveyId = surveyService.createSurvey(request);
+        return ResponseEntity.ok(surveyId);
     }
 
     /**
@@ -60,12 +55,8 @@ public class SurveyController {
     public ResponseEntity<Void> submitAnswer(
             @PathVariable UUID surveyId,
             @RequestBody SubmitSurveyAnswerRequest request) {
-        try {
-            surveyService.submitAnswer(surveyId, request);
-            return ResponseEntity.ok().build();
-        } catch (ApplicationException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        surveyService.submitAnswer(surveyId, request);
+        return ResponseEntity.ok().build();
     }
 
     /**
@@ -77,12 +68,8 @@ public class SurveyController {
      */
     @GetMapping("/{surveyId}/results")
     public ResponseEntity<SurveyResultResponse> getSurveyResult(@PathVariable UUID surveyId) {
-        try {
-            SurveyResultResponse result = surveyService.getSurveyResult(surveyId);
-            return ResponseEntity.ok(result);
-        } catch (ApplicationException e) {
-            return ResponseEntity.notFound().build();
-        }
+        SurveyResultResponse result = surveyService.getSurveyResult(surveyId);
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -108,12 +95,8 @@ public class SurveyController {
     @PostMapping("/{surveyId}/options")
     public ResponseEntity<Void> addOption(@PathVariable UUID surveyId,
             @RequestBody AddOptionRequest request) {
-        try {
-            surveyService.addOption(surveyId, request.questionText(), request.newOption());
-            return ResponseEntity.ok().build();
-        } catch (ApplicationException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        surveyService.addOption(surveyId, request.questionText(), request.newOption());
+        return ResponseEntity.ok().build();
     }
 
     /**

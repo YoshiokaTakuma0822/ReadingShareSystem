@@ -11,11 +11,18 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.readingshare.auth.infrastructure.security.UserPrincipal;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 /**
  * 認証が必要なAPIのサンプルコントローラー。
  */
 @RestController
 @RequestMapping("/api/user")
+@Tag(name = "ユーザー", description = "認証済みユーザー情報関連のAPI")
 public class UserController {
 
     /**
@@ -24,6 +31,13 @@ public class UserController {
      * @return ユーザー情報
      */
     @GetMapping("/me")
+    @Operation(summary = "現在のユーザー情報取得", description = "認証されたユーザーの情報を取得します")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "ユーザー情報取得成功"),
+            @ApiResponse(responseCode = "401", description = "認証が必要"),
+            @ApiResponse(responseCode = "404", description = "ユーザーが見つからない")
+    })
     public ResponseEntity<UserInfo> getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 

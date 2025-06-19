@@ -16,12 +16,19 @@ import com.readingshare.auth.service.LoginService;
 import com.readingshare.auth.service.LogoutService;
 import com.readingshare.auth.service.RegisterUserService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 /**
  * ログイン・会員登録に関するAPIを処理するコントローラー。
  * 担当: 小亀
  */
 @RestController
 @RequestMapping("/api/auth")
+@Tag(name = "認証", description = "ユーザー認証関連のAPI")
 public class AuthController {
 
     private final LoginService loginService;
@@ -42,6 +49,11 @@ public class AuthController {
      * @return 認証成功時はベアラートークンとユーザー情報、HTTP 200 OK
      */
     @PostMapping("/login")
+    @Operation(summary = "ユーザーログイン", description = "ユーザー名とパスワードでログインし、Bearer Tokenを取得します")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "ログイン成功"),
+            @ApiResponse(responseCode = "400", description = "認証失敗")
+    })
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
         LoginResponse response = loginService.login(request.username(), request.password());
         return ResponseEntity.ok(response);
@@ -54,6 +66,11 @@ public class AuthController {
      * @return 登録成功時は新規ユーザーIDとHTTP 200 OK
      */
     @PostMapping("/register")
+    @Operation(summary = "新規会員登録", description = "新しいユーザーアカウントを作成します")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "登録成功"),
+            @ApiResponse(responseCode = "400", description = "登録失敗（ユーザー名重複など）")
+    })
     public ResponseEntity<UUID> register(@RequestBody RegisterUserRequest request) {
         UUID userId = registerUserService.register(request.username(), request.password());
         return ResponseEntity.ok(userId);
@@ -66,6 +83,11 @@ public class AuthController {
      * @return ログアウト成功時はHTTP 200 OK
      */
     @PostMapping("/logout")
+    @Operation(summary = "ログアウト", description = "現在のデバイスからログアウトします")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "ログアウト成功")
+    })
     public ResponseEntity<Void> logout(@RequestHeader("Authorization") String authorizationHeader) {
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             String token = authorizationHeader.substring(7); // "Bearer " を除去
@@ -81,6 +103,11 @@ public class AuthController {
      * @return ログアウト成功時はHTTP 200 OK
      */
     @PostMapping("/logout-all")
+    @Operation(summary = "全デバイスからログアウト", description = "すべてのデバイスからログアウトします")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "ログアウト成功")
+    })
     public ResponseEntity<Void> logoutAll(@RequestHeader("Authorization") String authorizationHeader) {
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             String token = authorizationHeader.substring(7); // "Bearer " を除去
