@@ -18,7 +18,6 @@ services:
         build:
             context: ./backend
             dockerfile: Dockerfile
-        image: demo-springboot:latest
         container_name: demo-app
         expose:
             - 8080
