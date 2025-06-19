@@ -22,6 +22,11 @@ services:
         container_name: demo-app
         expose:
             - 8080
+        environment:
+            DB_HOST: postgres
+            DB_PORT: 5432
+            DB_USER: readingshare
+            DB_PASS: readingshare
         depends_on:
             - postgres
         restart: unless-stopped
