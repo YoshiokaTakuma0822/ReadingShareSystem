@@ -1,13 +1,13 @@
 import { UserId, Username, User } from './auth'
 import { RoomId } from './room'
 
-export type MessageContent = string // チャットメッセージの内容
+export type MessageContent = string | { value: string } // チャットメッセージの内容（バックエンドではオブジェクト形式）
 
 export interface ChatMessage {
     id: string // UUID (バックエンドのエンティティに合わせてmessageIdからidに変更)
     roomId: RoomId
     senderUserId: UserId | null // バックエンドのエンティティに合わせてsenderからsenderUserIdに変更、匿名ユーザーの場合null
-    content: MessageContent // バックエンドではMessageContentオブジェクトだが、フロントエンドでは文字列として扱う
+    content: MessageContent // バックエンドではMessageContentオブジェクト
     sentAt: string // 送信時刻 (Instant)
 }
 
