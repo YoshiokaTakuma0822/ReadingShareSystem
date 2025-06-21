@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.readingshare.room.domain.model.Room;
 import com.readingshare.room.domain.model.RoomMember;
@@ -21,6 +23,7 @@ import com.readingshare.room.dto.JoinRoomRequest;
 import com.readingshare.room.dto.UpdateRoomRequest;
 import com.readingshare.room.dto.RoomResponse;
 import com.readingshare.room.service.RoomService;
+import com.readingshare.auth.infrastructure.security.UserPrincipal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -128,6 +131,26 @@ public class RoomController {
      */
     @DeleteMapping("/{roomId}")
     public ResponseEntity<Void> deleteRoom(@PathVariable("roomId") String roomId) {
+        // 認証ユーザーID取得
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof UserPrincipal)) {
+            return ResponseEntity.status(403).build();
+        }
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        UUID userId = userPrincipal.getUserId();
+        // 部屋情報取得
+        Room room = roomService.getRoomById(UUID.fromString(roomId)).map(r -> {
+            Room entity = new Room();
+            entity.setId(r.getId());
+            entity.setHostUserId(r.getHostUserId());
+            return entity;
+        }).orElse(null);
+        if (room == null) {
+            return ResponseEntity.notFound().build();
+        }
+        if (!userId.equals(room.getHostUserId())) {
+            return ResponseEntity.status(403).build();
+        }
         roomService.deleteRoom(roomId);
         return ResponseEntity.noContent().build();
     }

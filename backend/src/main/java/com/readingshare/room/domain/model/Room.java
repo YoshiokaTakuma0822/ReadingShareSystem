@@ -161,6 +161,14 @@ public class Room {
         this.pageSpeed = pageSpeed;
     }
 
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public void setHostUserId(UUID hostUserId) {
+        this.hostUserId = hostUserId;
+    }
+
     // --- その他のメソッド ---
     @Override
     public boolean equals(Object o) {

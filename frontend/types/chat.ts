@@ -22,6 +22,7 @@ export interface UserProgress {
 
 export interface SendMessageRequest {
     messageContent: string // バックエンドのDTOに合わせてcontentからmessageContentに変更
+    sentAt: string // 送信時刻（ISO8601文字列）を追加
 }
 
 export interface RecordProgressRequest {

@@ -50,7 +50,7 @@ public class ChatController {
     @PostMapping("/{roomId}/message")
     public ResponseEntity<String> sendMessage(@PathVariable UUID roomId, @RequestBody SendMessageRequest request) {
         UUID currentUserId = getCurrentUserId();
-        sendChatMessageService.sendMessage(roomId, currentUserId, request.messageContent());
+        sendChatMessageService.sendMessage(roomId, currentUserId, request.messageContent(), request.sentAt());
         return ResponseEntity.ok("Message sent successfully.");
     }
 

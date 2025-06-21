@@ -1,15 +1,16 @@
 "use client"
-import HomeScreen from './screens/HomeScreen';
-import { useEffect, useState } from 'react';
-import { requireAuth } from '../lib/authUtils';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { authStorage } from '../lib/authUtils';
 
 export default function Page() {
-  const [checked, setChecked] = useState(false);
+  const router = useRouter();
   useEffect(() => {
-    if (requireAuth()) {
-      setChecked(true);
+    if (authStorage.isLoggedIn()) {
+      router.replace('/home');
+    } else {
+      router.replace('/login');
     }
-  }, []);
-  if (!checked) return null;
-  return <HomeScreen />;
+  }, [router]);
+  return null;
 }

@@ -102,14 +102,6 @@ const HomeScreen: React.FC = () => {
         handleSearch() // 即時更新
     }
 
-    // 部屋一覧の自動更新（5秒ごと）
-    React.useEffect(() => {
-        const interval = setInterval(() => {
-            handleSearch()
-        }, 5000)
-        return () => clearInterval(interval)
-    }, [])
-
     // 部屋削除API呼び出し
     const handleDeleteRoom = async (roomId: string) => {
         if (!window.confirm('本当にこの部屋を削除しますか？')) return
@@ -123,8 +115,18 @@ const HomeScreen: React.FC = () => {
 
     // 部屋一覧の特徴ごとにプルダウンで絞り込み
     const [roomType, setRoomType] = useState<'all' | 'open' | 'closed'>('all')
-    // ジャンルプルダウンは廃止
-    // const [searchGenre, setSearchGenre] = useState('')
+    // ジャンル選択肢（RoomCreationModalと共通化推奨）
+    const genreOptions = [
+        '小説', 'ビジネス', '漫画', 'エッセイ', '専門書', 'ライトノベル', '児童書', 'その他'
+    ];
+    const [searchGenre, setSearchGenre] = useState('')
+
+    // パスワード有無選択肢
+    const [searchPasswordType, setSearchPasswordType] = useState('all'); // all, open, closed
+
+    // 2段階プルダウンUI
+    // 1段目: ジャンル, パスワード有無
+    const [mainFilter, setMainFilter] = useState<'genre' | 'password'>('genre');
 
     // 部屋一覧の特徴ごとに絞り込み
     const filteredRooms = rooms.filter(room => {
@@ -134,10 +136,19 @@ const HomeScreen: React.FC = () => {
             (room.bookTitle && room.bookTitle.toLowerCase().includes(keyword)) ||
             (room.genre && room.genre.toLowerCase().includes(keyword)) ||
             (room.hostUserId && room.hostUserId.toLowerCase().includes(keyword));
-        if (roomType === 'all') return match;
-        if (roomType === 'open') return !room.hasPassword && match;
-        if (roomType === 'closed') return room.hasPassword && match;
-        return match;
+        let genreMatch = true;
+        let passwordMatch = true;
+        if (mainFilter === 'genre') {
+            genreMatch = !searchGenre || room.genre === searchGenre;
+        }
+        if (mainFilter === 'password') {
+            if (searchPasswordType === 'open') passwordMatch = !room.hasPassword;
+            else if (searchPasswordType === 'closed') passwordMatch = room.hasPassword;
+        }
+        if (roomType === 'all') return match && genreMatch && passwordMatch;
+        if (roomType === 'open') return !room.hasPassword && match && genreMatch && passwordMatch;
+        if (roomType === 'closed') return room.hasPassword && match && genreMatch && passwordMatch;
+        return match && genreMatch && passwordMatch;
     })
 
     // 履歴欄で現存する部屋のみ入室可能にし、削除済みはグレーアウト＋警告表示。
@@ -215,6 +226,34 @@ const HomeScreen: React.FC = () => {
             </div>
 
             {/* 部屋一覧表示 */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', marginBottom: 12, gap: 0, justifyContent: 'flex-end' }}>
+                {/* 絞り込み系を右側にまとめて配置 */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                        <select value={mainFilter} onChange={e => setMainFilter(e.target.value as 'genre' | 'password')} style={{ padding: 8, borderRadius: 6, border: '1px solid #b0b8c9', fontSize: 16 }}>
+                            <option value="genre">ジャンルで絞り込み</option>
+                            <option value="password">パスワード有無で絞り込み</option>
+                        </select>
+                        {mainFilter === 'genre' ? (
+                            <select value={searchGenre} onChange={e => setSearchGenre(e.target.value)} style={{ padding: 8, borderRadius: 6, border: '1px solid #b0b8c9', fontSize: 16 }}>
+                                <option value="">すべてのジャンル</option>
+                                {genreOptions.map(opt => (
+                                    <option key={opt} value={opt}>{opt}</option>
+                                ))}
+                            </select>
+                        ) : (
+                            <select value={searchPasswordType} onChange={e => setSearchPasswordType(e.target.value)} style={{ padding: 8, borderRadius: 6, border: '1px solid #b0b8c9', fontSize: 16 }}>
+                                <option value="all">すべて</option>
+                                <option value="open">オープン（パスワードなし）</option>
+                                <option value="closed">クローズ（パスワード有）</option>
+                            </select>
+                        )}
+                    </div>
+                    {/* 更新ボタンをその右の下に配置 */}
+                    <button onClick={handleSearch} style={{ padding: '6px 18px', borderRadius: 8, background: '#388e3c', color: '#fff', border: 'none', fontWeight: 'bold', fontSize: 16, marginTop: 4, alignSelf: 'flex-end' }}>更新</button>
+                </div>
+                <span style={{ color: '#888', fontSize: 14, marginLeft: 16, alignSelf: 'flex-end' }}>部屋情報を最新に更新</span>
+            </div>
             {loading ? (
                 <div>読み込み中...</div>
             ) : error ? (

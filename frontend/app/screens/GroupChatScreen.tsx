@@ -107,8 +107,11 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
         if (!input.trim() || !roomId) return
 
         try {
-            // サーバーにメッセージを送信
-            await chatApi.sendMessage(roomId, { messageContent: input })
+            // サーバーにメッセージを送信（送信時刻を付与）
+            await chatApi.sendMessage(roomId, {
+                messageContent: input,
+                sentAt: new Date().toISOString(),
+            })
             // 送信直後に全員のチャット履歴を即時再取得
             await loadChatHistory()
             setInput("")
