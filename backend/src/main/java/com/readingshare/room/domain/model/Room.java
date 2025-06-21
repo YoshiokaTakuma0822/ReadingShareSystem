@@ -1,7 +1,9 @@
 package com.readingshare.room.domain.model;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.UUID;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -27,6 +29,14 @@ public class Room {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
+    private Integer totalPages;      // 本のページ数
+    private Integer pageTurnSpeed;   // ページめくり速度
+
+    // --- フィールド追加 ---
+    private String genre;
+    private String startTime;
+    private String endTime;
+
     // --- コンストラクタ ---
     public Room() {
         // JPA用
@@ -43,6 +53,25 @@ public class Room {
         this.roomName = roomName;
         this.hostUserId = hostUserId;
         this.createdAt = createdAt;
+    }
+
+    public Room(String roomName, Long hostUserId, Integer totalPages, Integer pageTurnSpeed) {
+        this.roomName = roomName;
+        this.hostUserId = hostUserId;
+        this.createdAt = LocalDateTime.now();
+        this.totalPages = totalPages;
+        this.pageTurnSpeed = pageTurnSpeed;
+    }
+
+    public Room(String roomName, Long hostUserId, Integer totalPages, Integer pageTurnSpeed, String genre, String startTime, String endTime) {
+        this.roomName = roomName;
+        this.hostUserId = hostUserId;
+        this.createdAt = LocalDateTime.now();
+        this.totalPages = totalPages;
+        this.pageTurnSpeed = pageTurnSpeed;
+        this.genre = genre;
+        this.startTime = startTime;
+        this.endTime = endTime;
     }
 
     // --- Getter / Setter ---
@@ -78,6 +107,46 @@ public class Room {
         this.createdAt = createdAt;
     }
 
+    public Integer getTotalPages() {
+        return totalPages;
+    }
+
+    public void setTotalPages(Integer totalPages) {
+        this.totalPages = totalPages;
+    }
+
+    public Integer getPageTurnSpeed() {
+        return pageTurnSpeed;
+    }
+
+    public void setPageTurnSpeed(Integer pageTurnSpeed) {
+        this.pageTurnSpeed = pageTurnSpeed;
+    }
+
+    public String getGenre() {
+        return genre;
+    }
+
+    public void setGenre(String genre) {
+        this.genre = genre;
+    }
+
+    public String getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
+    }
+
+    public String getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(String endTime) {
+        this.endTime = endTime;
+    }
+
     // --- equals / hashCode / toString ---
     @Override
     public boolean equals(Object o) {
@@ -99,6 +168,11 @@ public class Room {
                 ", roomName='" + roomName + '\'' +
                 ", hostUserId=" + hostUserId +
                 ", createdAt=" + createdAt +
+                ", totalPages=" + totalPages +
+                ", pageTurnSpeed=" + pageTurnSpeed +
+                ", genre='" + genre + '\'' +
+                ", startTime='" + startTime + '\'' +
+                ", endTime='" + endTime + '\'' +
                 '}';
     }
 }

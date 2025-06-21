@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * REST API コントローラー - 部屋作成 / 参加 / 検索
@@ -64,5 +65,15 @@ public class RoomController {
     public ResponseEntity<List<Room>> searchRooms(@RequestParam String keyword) {
         List<Room> rooms = searchRoomService.searchRooms(keyword);
         return ResponseEntity.ok(rooms);
+    }
+
+    /**
+     * ユーザーが参加したことのある部屋の履歴（最新10件）
+     * GET /api/rooms/history?userId=xxx
+     */
+    @GetMapping("/history")
+    public ResponseEntity<List<Room>> getRoomHistory(@RequestParam("userId") Long userId) {
+        List<Room> history = joinRoomService.findRecentRoomsByUserId(userId, 10);
+        return ResponseEntity.ok(history);
     }
 }
