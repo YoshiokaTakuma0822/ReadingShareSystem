@@ -71,6 +71,32 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.8.0</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.fasterxml.jackson.core</groupId>
+                        <artifactId>jackson-databind</artifactId>
+                        <version>2.15.2</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <doclet>com.readingshare.common.doclet.JsonDoclet</doclet>
+                    <docletArtifact>
+                        <groupId>${project.groupId}</groupId>
+                        <artifactId>${project.artifactId}</artifactId>
+                        <version>${project.version}</version>
+                    </docletArtifact>
+                    <useStandardDocletOptions>false</useStandardDocletOptions>
+                    <additionalOptions>
+                        <additionalOption>-outputFile</additionalOption>
+                        <additionalOption>${project.build.directory}/javadoc.json</additionalOption>
+                    </additionalOptions>
+                    <source>${java.version}</source>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
     <repositories>
