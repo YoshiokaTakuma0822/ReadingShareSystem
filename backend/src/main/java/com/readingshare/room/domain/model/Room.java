@@ -35,25 +35,50 @@ public class Room {
     @Column(nullable = true)
     private String roomPasswordHash;
 
+    @Column(nullable = true)
+    private Integer maxPage;
+
+    @Column(nullable = true, length = 100)
+    private String genre;
+
+    @Column(nullable = true)
+    private Instant startTime;
+
+    @Column(nullable = true)
+    private Instant endTime;
+
+    @Column(nullable = true)
+    private Integer pageSpeed;
+
     // --- コンストラクタ ---
     public Room() {
         // JPA用
     }
 
-    public Room(String roomName, String bookTitle, UUID hostUserId) {
+    public Room(String roomName, String bookTitle, UUID hostUserId, Integer maxPage, String genre, Instant startTime, Instant endTime, Integer pageSpeed) {
         this.id = UUID.randomUUID();
         this.roomName = roomName;
         this.bookTitle = bookTitle;
         this.hostUserId = hostUserId;
         this.createdAt = Instant.now();
+        this.maxPage = maxPage;
+        this.genre = genre;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.pageSpeed = pageSpeed;
     }
 
-    public Room(UUID id, String roomName, String bookTitle, UUID hostUserId, Instant createdAt) {
+    public Room(UUID id, String roomName, String bookTitle, UUID hostUserId, Instant createdAt, Integer maxPage, String genre, Instant startTime, Instant endTime, Integer pageSpeed) {
         this.id = id;
         this.roomName = roomName;
         this.bookTitle = bookTitle;
         this.hostUserId = hostUserId;
         this.createdAt = createdAt;
+        this.maxPage = maxPage;
+        this.genre = genre;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.pageSpeed = pageSpeed;
     }
 
     // --- ゲッター ---
@@ -81,6 +106,26 @@ public class Room {
         return roomPasswordHash;
     }
 
+    public Integer getMaxPage() {
+        return maxPage;
+    }
+
+    public String getGenre() {
+        return genre;
+    }
+
+    public Instant getStartTime() {
+        return startTime;
+    }
+
+    public Instant getEndTime() {
+        return endTime;
+    }
+
+    public Integer getPageSpeed() {
+        return pageSpeed;
+    }
+
     /**
      * パスワードが設定されているかどうかを判定する。
      * JSONシリアライゼーション時にクライアントに返される。
@@ -94,6 +139,26 @@ public class Room {
     // --- セッター ---
     public void setRoomPasswordHash(String roomPasswordHash) {
         this.roomPasswordHash = roomPasswordHash;
+    }
+
+    public void setMaxPage(Integer maxPage) {
+        this.maxPage = maxPage;
+    }
+
+    public void setGenre(String genre) {
+        this.genre = genre;
+    }
+
+    public void setStartTime(Instant startTime) {
+        this.startTime = startTime;
+    }
+
+    public void setEndTime(Instant endTime) {
+        this.endTime = endTime;
+    }
+
+    public void setPageSpeed(Integer pageSpeed) {
+        this.pageSpeed = pageSpeed;
     }
 
     // --- その他のメソッド ---

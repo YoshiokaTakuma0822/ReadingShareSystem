@@ -2,6 +2,7 @@
 import React, { useState } from 'react'
 import { authApi } from '../../lib/authApi'
 import { LoginRequest } from '../../types/auth'
+import Link from 'next/link';
 
 const inputStyle = {
     width: '100%',
@@ -51,9 +52,15 @@ const LoginScreen: React.FC = () => {
                 <input type="password" value={password} onChange={e => setPassword(e.target.value)} style={inputStyle} />
             </div>
             {error && <div style={{ color: 'red', marginBottom: 12 }}>{error}</div>}
-            <button onClick={handleLogin} disabled={loading} style={{ width: '100%', padding: 12, fontSize: 18, borderRadius: 8, border: '1px solid #222' }}>{loading ? 'ログイン中...' : 'ログイン'}</button>
+            <button 
+                onClick={handleLogin} 
+                disabled={loading || !username || !password} 
+                style={{ width: '100%', padding: 12, fontSize: 18, borderRadius: 8, border: '1px solid #222' }}
+            >
+                {loading ? 'ログイン中...' : 'ログイン'}
+            </button>
             <div style={{ textAlign: 'right', marginTop: 16 }}>
-                <a href="/register">会員登録はこちら</a>
+                <Link href="/register">会員登録はこちら</Link>
             </div>
         </div>
     )

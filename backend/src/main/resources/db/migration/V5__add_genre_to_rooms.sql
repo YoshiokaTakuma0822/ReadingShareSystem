@@ -1,0 +1,1 @@
+ALTER TABLE rooms ADD COLUMN genre VARCHAR(100);

@@ -15,9 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.readingshare.auth.infrastructure.security.UserPrincipal;
 import com.readingshare.chat.domain.model.ChatMessage;
+import com.readingshare.chat.dto.ChatMessageResponse;
 import com.readingshare.chat.dto.SendMessageRequest;
 import com.readingshare.chat.service.GetChatHistoryService;
 import com.readingshare.chat.service.SendChatMessageService;
+import com.readingshare.auth.domain.repository.IUserRepository;
 import com.readingshare.common.exception.ApplicationException;
 
 /**
@@ -30,10 +32,12 @@ public class ChatController {
 
     private final SendChatMessageService sendChatMessageService;
     private final GetChatHistoryService getChatHistoryService;
+    private final IUserRepository userRepository;
 
-    public ChatController(SendChatMessageService sendChatMessageService, GetChatHistoryService getChatHistoryService) {
+    public ChatController(SendChatMessageService sendChatMessageService, GetChatHistoryService getChatHistoryService, IUserRepository userRepository) {
         this.sendChatMessageService = sendChatMessageService;
         this.getChatHistoryService = getChatHistoryService;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -57,9 +61,21 @@ public class ChatController {
      * @return チャットメッセージのリスト
      */
     @GetMapping("/{roomId}/history")
-    public ResponseEntity<List<ChatMessage>> getChatHistory(@PathVariable UUID roomId) {
-        List<ChatMessage> chatHistory = getChatHistoryService.getChatHistory(roomId);
-        return ResponseEntity.ok(chatHistory);
+    public ResponseEntity<List<ChatMessageResponse>> getChatHistory(@PathVariable UUID roomId) {
+        List<ChatMessage> messages = getChatHistoryService.getChatHistory(roomId);
+        List<ChatMessageResponse> response = messages.stream().map(msg -> {
+            String username = userRepository.findById(msg.getSenderUserId())
+                .map(u -> u.getUsername()).orElse("匿名");
+            return new ChatMessageResponse(
+                msg.getId(),
+                msg.getRoomId(),
+                msg.getSenderUserId(),
+                username,
+                msg.getContent().getValue(),
+                msg.getSentAt()
+            );
+        }).toList();
+        return ResponseEntity.ok(response);
     }
 
     /**
