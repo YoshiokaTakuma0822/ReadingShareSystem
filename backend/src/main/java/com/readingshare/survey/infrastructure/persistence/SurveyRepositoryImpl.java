@@ -45,4 +45,8 @@ public class SurveyRepositoryImpl implements ISurveyRepository {
     public List<SurveyAnswer> findAnswersBySurveyId(UUID surveyId) {
         return surveyAnswerRepository.findBySurveyId(surveyId);
     }
+
+    public SurveyAnswerJpaRepository getSurveyAnswerRepository() {
+        return surveyAnswerRepository;
+    }
 }

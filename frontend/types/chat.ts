@@ -27,3 +27,8 @@ export interface RecordProgressRequest {
     roomId: RoomId
     currentPage: number
 }
+
+// チャットストリーム混在型
+export type ChatStreamItem =
+  | { type: 'message'; message: ChatMessage; createdAt: string }
+  | { type: 'survey'; survey: import('./survey').Survey; createdAt: string }

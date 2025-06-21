@@ -99,6 +99,13 @@ public class SurveyService {
         }
     }
 
+    public boolean hasUserAnswered(UUID surveyId, UUID userId) {
+        if (surveyRepository instanceof com.readingshare.survey.infrastructure.persistence.SurveyRepositoryImpl impl) {
+            return impl.getSurveyAnswerRepository().findBySurveyIdAndUserId(surveyId, userId).isPresent();
+        }
+        return false;
+    }
+
     private SurveyResultResponse buildResultDto(Survey survey, List<SurveyAnswer> answers) {
         List<SurveyResultResponse.QuestionResultResponse> questionResults = new ArrayList<>();
         for (Question question : survey.getQuestions()) {

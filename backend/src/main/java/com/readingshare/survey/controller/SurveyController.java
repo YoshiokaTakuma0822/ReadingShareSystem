@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.readingshare.survey.domain.model.Survey;
@@ -97,6 +98,22 @@ public class SurveyController {
             @RequestBody AddOptionRequest request) {
         surveyService.addOption(surveyId, request.questionText(), request.newOption());
         return ResponseEntity.ok().build();
+    }
+
+    /**
+     * ユーザーがアンケートに回答済みかどうかを判定する。
+     *
+     * @param surveyId アンケートのID
+     * @param userId   ユーザーのID
+     * @return 回答済みならばHTTP 200 OK と true、未回答ならば false
+     */
+    @GetMapping("/{surveyId}/answered")
+    public ResponseEntity<Boolean> hasUserAnswered(
+        @PathVariable UUID surveyId,
+        @RequestParam UUID userId
+    ) {
+        boolean answered = surveyService.hasUserAnswered(surveyId, userId);
+        return ResponseEntity.ok(answered);
     }
 
     /**
