@@ -15,9 +15,9 @@ import com.readingshare.auth.domain.repository.IAuthTokenRepository;
  * 認証トークンリポジトリの実装。
  *
  * @author 003
- * @componentIdName C05 会員情報管理部
- * @moduleIdName M0511 認証トークンリポジトリ実装
- * @dependsOn M0510 認証トークンリポジトリ
+ * @componentId C5
+ * @moduleName 認証トークンリポジトリ実装
+ * @see AuthTokenJpaRepository
  */
 @Repository
 @Transactional

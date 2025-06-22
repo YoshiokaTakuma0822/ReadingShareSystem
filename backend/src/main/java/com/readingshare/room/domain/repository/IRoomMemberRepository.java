@@ -7,9 +7,11 @@ import java.util.UUID;
 import com.readingshare.room.domain.model.RoomMember;
 
 /**
- * 部屋メンバー情報の永続化を担当するリポジトリインターフェース。
- * 
- * @author 23004
+ * ルームメンバー情報の永続化を担当するリポジトリインターフェース。
+ *
+ * @author 02004
+ * @componentId C3
+ * @moduleName ルームメンバーリポジトリ
  */
 public interface IRoomMemberRepository {
 

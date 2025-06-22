@@ -26,15 +26,15 @@ import io.swagger.v3.oas.annotations.tags.Tag;
  * ログイン・会員登録に関するAPIを処理するコントローラー。
  *
  * @author 003
- * @componentIdName C02 ログイン・会員登録
- * @moduleIdName M0201 ログイン・会員登録コントローラー
- * @dependsOn M0220 ログインサービス
- * @dependsOn M0221 ログアウトサービス
- * @dependsOn M0222 新規会員登録サービス
- * @dependsOn M0215 ログインリクエストDTO
- * @dependsOn M0216 ログインレスポンスDTO
- * @dependsOn M0217 新規会員登録リクエストDTO
- * @dependsOn M0218 ログアウトリクエストDTO
+ * @componentId C2
+ * @moduleName ログイン・会員登録コントローラー
+ * @see LoginService
+ * @see RegisterUserService
+ * @see LogoutService
+ * @see LoginRequest
+ * @see LoginResponse
+ * @see LogoutService
+ * @see RegisterUserRequest
  */
 @RestController
 @RequestMapping("/api/auth")

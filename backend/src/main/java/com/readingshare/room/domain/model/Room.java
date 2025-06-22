@@ -12,7 +12,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 /**
- * 部屋を表すエンティティ。
+ * Roomエンティティクラス。部屋情報を管理し、本の共有セッション用の情報を保持する。
+ * 一意な識別子、名称、本タイトル、ホストユーザーID、作成日時、およびパスワード設定状態を含む。
+ *
+ * @author 02004
+ * @componentId C3
+ * @moduleName Roomドメインモデル
  */
 @Entity
 @Table(name = "rooms")

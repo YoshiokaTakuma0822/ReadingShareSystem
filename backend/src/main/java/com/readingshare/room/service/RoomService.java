@@ -18,10 +18,13 @@ import com.readingshare.room.domain.repository.IRoomRepository;
 import com.readingshare.room.domain.service.RoomDomainService;
 
 /**
- * 部屋に関する統合アプリケーションサービス。
- * 部屋の作成、検索、参加などの機能を提供する。
- * 
- * @author 23004
+ * ルーム作成、検索、参加などを提供するアプリケーションサービス。
+ * ドメインサービスおよびリポジトリを利用して部屋操作を統合する。
+ *
+ * @author 02004
+ * @componentId C3
+ * @moduleName ルームサービス
+ * @see RoomDomainService
  */
 @Service
 public class RoomService {

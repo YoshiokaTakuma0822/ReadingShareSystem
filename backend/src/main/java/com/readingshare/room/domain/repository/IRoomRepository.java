@@ -10,9 +10,12 @@ import org.springframework.data.domain.Pageable;
 import com.readingshare.room.domain.model.Room;
 
 /**
- * 部屋情報の永続化を担当するリポジトリインターフェース。
- * 
- * @author 23004
+ * ルーム情報の永続化を担当するリポジトリインターフェース。
+ * データベース操作を通じてRoomエンティティの保存・検索を提供する。
+ *
+ * @author 02004
+ * @componentId C3
+ * @moduleName Roomリポジトリ
  */
 public interface IRoomRepository {
 

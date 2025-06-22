@@ -21,7 +21,7 @@ import com.readingshare.survey.service.SurveyService;
  * SurveyController は、アンケート機能のRESTコントローラーです。
  * アンケートの作成、回答、結果取得などの操作を提供します。
  *
- * @author 23002
+ * @author 02002
  */
 @RestController
 @RequestMapping("/api/surveys")

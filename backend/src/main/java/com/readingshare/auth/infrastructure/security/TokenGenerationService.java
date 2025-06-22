@@ -14,9 +14,8 @@ import com.readingshare.auth.domain.model.User;
  * 認証トークンの生成を担当するサービス。
  *
  * @author 003
- * @componentIdName C05 会員情報管理部
- * @moduleIdName M0514 認証トークン生成サービス
- * @dependsOn M0517 認証トークンクリーンアップスケジューラー
+ * @componentId C5
+ * @moduleName 認証トークン生成サービス
  */
 @Service
 public class TokenGenerationService {

@@ -4,8 +4,8 @@ package com.readingshare.auth.infrastructure.security;
  * パスワードのハッシュ化と検証を行うインターフェース。
  *
  * @author 003
- * @componentIdName C05 会員情報管理部
- * @moduleIdName M0522 パスワードハッシュ化インターフェース
+ * @componentId C5
+ * @moduleName パスワードハッシュ化インターフェース
  */
 public interface IPasswordHasher {
 

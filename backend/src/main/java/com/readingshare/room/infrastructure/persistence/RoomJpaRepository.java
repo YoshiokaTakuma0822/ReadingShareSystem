@@ -11,9 +11,11 @@ import org.springframework.stereotype.Repository;
 import com.readingshare.room.domain.model.Room;
 
 /**
- * 部屋情報のJPAリポジトリインターフェース。
- * 
- * @author 23004
+ * ルーム情報のJPAリポジトリインターフェース。
+ *
+ * @author 02004
+ * @componentId C6
+ * @moduleName ルームJPAリポジトリ
  */
 @Repository
 public interface RoomJpaRepository extends JpaRepository<Room, UUID> {

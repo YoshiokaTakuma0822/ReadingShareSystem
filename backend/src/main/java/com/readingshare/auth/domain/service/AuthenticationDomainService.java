@@ -16,10 +16,9 @@ import com.readingshare.common.exception.DomainException;
  * 認証とユーザー管理に関するドメインロジックを扱うサービス。
  *
  * @author 003
- * @componentIdName C02 ログイン・会員登録
- * @moduleIdName M0210 認証ドメインサービス
- * @dependsOn M0211 認証トークンリポジトリ
- * @dependsOn M0212 ユーザーリポジトリ
+ * @componentId C2
+ * @moduleName 認証ドメインサービス
+ * @see IUserRepository
  */
 @Service
 public class AuthenticationDomainService {

@@ -10,7 +10,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 /**
- * 部屋のメンバーを表すエンティティ。
+ * ルームメンバー（部屋の参加者）を表すエンティティ。部屋立て・部屋参加機能の一部として、部屋に参加しているユーザーの情報を管理します。
+ *
+ * @author 02004
+ * @componentId C3
+ * @moduleName ルームメンバー管理
  */
 @Entity
 @Table(name = "room_members")

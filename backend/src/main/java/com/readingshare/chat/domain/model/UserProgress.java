@@ -13,9 +13,9 @@ import jakarta.validation.constraints.NotNull;
 /**
  * グループチャットのユーザー進捗エンティティ。
  *
- * @author 23001
- * @componentIdName C04 グループチャット
- * @moduleIdName M0406 ユーザー進捗エンティティ
+ * @author 02001
+ * @componentId C4
+ * @moduleName ユーザー進捗エンティティ
  */
 @Entity
 @Table(name = "user_progress")

@@ -11,8 +11,8 @@ import com.readingshare.auth.domain.repository.IAuthTokenRepository;
  * 認証トークンの定期的なクリーンアップを行うスケジュールタスク。
  *
  * @author 003
- * @componentIdName C05 会員情報管理部
- * @moduleIdName M0517 認証トークンクリーンアップスケジューラー
+ * @componentId C5
+ * @moduleName 認証トークンクリーンアップスケジューラー
  */
 @Component
 public class TokenCleanupScheduler {

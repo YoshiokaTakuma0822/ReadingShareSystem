@@ -11,8 +11,10 @@ import com.readingshare.room.domain.model.RoomMember;
 
 /**
  * 部屋メンバー情報のJPAリポジトリインターフェース。
- * 
- * @author 23004
+ *
+ * @author 02004
+ * @componentId C6
+ * @moduleName ルームメンバーJPAリポジトリ
  */
 @Repository
 public interface RoomMemberJpaRepository extends JpaRepository<RoomMember, UUID> {

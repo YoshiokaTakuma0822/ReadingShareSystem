@@ -13,8 +13,8 @@ import jakarta.validation.constraints.NotNull;
  * 会員情報に基くユーザーエンティティ。
  *
  * @author 003
- * @componentIdName C02 ログイン・会員登録
- * @moduleIdName M0204 ユーザーエンティティ
+ * @componentId C2
+ * @moduleName ユーザーエンティティ
  */
 @Entity
 @Table(name = "users") // テーブル名は "users" が一般的

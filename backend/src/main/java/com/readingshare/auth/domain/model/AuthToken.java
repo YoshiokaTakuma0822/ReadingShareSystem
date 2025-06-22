@@ -16,8 +16,8 @@ import jakarta.validation.constraints.NotNull;
  * Bearer Token認証のためのopaqueトークンを管理する。
  *
  * @author 003
- * @componentIdName C02 ログイン・会員登録
- * @moduleIdName M0203 認証トークンエンティティ
+ * @componentId C2
+ * @moduleName 認証トークンエンティティ
  */
 @Entity
 @Table(name = "auth_tokens")

@@ -15,9 +15,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  * Spring Securityの設定クラス。
  *
  * @author 003
- * @componentIdName C05 会員情報管理部
- * @moduleIdName M0524 セキュリティ設定
- * @dependsOn M0514 Bearer Token認証フィルター
+ * @componentId C5
+ * @moduleName セキュリティ設定
+ * @see BearerTokenAuthenticationFilter
  */
 @Configuration
 @EnableWebSecurity

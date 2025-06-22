@@ -3,9 +3,11 @@ package com.readingshare.room.dto;
 import java.util.UUID;
 
 /**
- * 部屋参加リクエストのDTO。
+ * 部屋参加APIのリクエストDTO。
  *
- * @author 23004
+ * @author 02004
+ * @componentId C3
+ * @moduleName ルーム参加リクエストDTO
  */
 public record JoinRoomRequest(
         UUID roomId,

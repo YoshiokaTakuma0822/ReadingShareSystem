@@ -21,7 +21,7 @@ import com.readingshare.survey.domain.repository.ISurveyRepository;
 /**
  * アンケートに関するドメインロジックを扱うサービス。
  *
- * @author 23002
+ * @author 02002
  */
 @Service
 public class SurveyDomainService {

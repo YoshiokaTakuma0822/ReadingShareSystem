@@ -13,9 +13,9 @@ import jakarta.validation.constraints.NotNull;
 /**
  * グループチャットのメッセージエンティティ。
  *
- * @author 23001
- * @componentIdName C04 グループチャット
- * @moduleIdName M0404 チャットメッセージエンティティ
+ * @author 02001
+ * @componentId C4
+ * @moduleName チャットメッセージエンティティ
  */
 @Entity
 @Table(name = "chat_messages")

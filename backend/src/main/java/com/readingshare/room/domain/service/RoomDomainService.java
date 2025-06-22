@@ -16,8 +16,13 @@ import com.readingshare.room.domain.repository.IRoomRepository;
 
 /**
  * 部屋の作成とメンバー管理に関するドメインロジックを扱うサービス。
- * 
- * @author 23004
+ *
+ * @author 02004
+ * @componentId C3
+ * @moduleName ルームドメインサービス
+ * @see IRoomRepository
+ * @see IRoomMemberRepository
+ * @see IPasswordHasher
  */
 @Service
 public class RoomDomainService {

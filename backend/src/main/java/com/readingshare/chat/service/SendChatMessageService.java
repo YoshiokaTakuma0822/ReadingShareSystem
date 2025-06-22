@@ -15,17 +15,11 @@ import com.readingshare.common.exception.DatabaseAccessException;
 import com.readingshare.room.domain.repository.IRoomRepository;
 
 /**
- * グループチャットのメッセージ送信サービス。
- *
- * @author 23001
- * @componentIdName C04 グループチャット
- * @moduleIdName M0408 チャットメッセージ送信サービス
- */
-
-/**
  * チャットメッセセージ送信のアプリケーションサービス。
  *
- * @author 23001
+ * @author 02001
+ * @componentId C4
+ * @moduleName チャットメッセージ送信サービス
  */
 @Service
 public class SendChatMessageService {
@@ -107,6 +101,10 @@ public class SendChatMessageService {
 
     /**
      * 入力値の基本検証を行う。
+     *
+     * @param roomId  検証する部屋のID
+     * @param userId  検証するユーザーのID
+     * @param content メッセージ内容
      */
     private void validateInput(UUID roomId, UUID userId, String content) {
         if (roomId == null) {
@@ -122,6 +120,9 @@ public class SendChatMessageService {
 
     /**
      * ユーザーが部屋に参加しているかを検証する。
+     *
+     * @param roomId 検証する部屋のID
+     * @param userId 検証するユーザーのID
      */
     private void validateUserInRoom(UUID roomId, UUID userId) {
         // 部屋の存在チェック
@@ -140,6 +141,9 @@ public class SendChatMessageService {
 
     /**
      * メッセージ内容を検証し、MessageContentオブジェクトを作成する。
+     *
+     * @param content メッセージ内容
+     * @return MessageContent オブジェクト
      */
     private MessageContent validateAndCreateMessageContent(String content) {
         if (content == null || content.trim().isEmpty()) {
@@ -159,6 +163,9 @@ public class SendChatMessageService {
 
     /**
      * 不適切な内容の基本的なフィルタリングを行う。
+     *
+     * @param content フィルタリング対象のメッセージ内容
+     * @return フィルタリング後のメッセージ内容
      */
     private String filterInappropriateContent(String content) {
         // TODO: より高度なコンテンツフィルタリングを実装

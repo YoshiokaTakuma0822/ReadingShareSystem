@@ -10,9 +10,8 @@ import com.readingshare.auth.domain.model.AuthToken;
  * 認証トークンのリポジトリインターフェース。
  *
  * @author 003
- * @componentIdName C02 ログイン・会員登録
- * @moduleIdName M0211 認証トークンリポジトリ
- * @dependsOn M0203 認証トークンエンティティ
+ * @componentId C2
+ * @moduleName 認証トークンリポジトリ
  */
 public interface IAuthTokenRepository {
 

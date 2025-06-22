@@ -17,8 +17,11 @@ import com.readingshare.room.dto.JoinRoomRequest;
 import com.readingshare.room.service.RoomService;
 
 /**
- * RoomController は、部屋の作成、参加、検索に関するREST APIを提供するコントローラークラスです。
- * REST API コントローラー - 部屋作成 / 参加 / 検索
+ * ルーム作成および参加のREST APIコントローラ。HTTPリクエストを受け取り、部屋生成・参加処理を提供する。
+ *
+ * @author 02004
+ * @componentId C3
+ * @moduleName Roomコントローラ
  */
 @RestController
 @RequestMapping("/api/rooms")

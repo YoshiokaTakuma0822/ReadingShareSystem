@@ -13,7 +13,7 @@ import com.readingshare.survey.domain.model.Survey;
  * SurveyJpaRepository は、アンケート情報のJPAリポジトリインターフェースです。
  * アンケートの検索や保存を行います。
  *
- * @author 23002
+ * @author 02002
  */
 @Repository
 public interface SurveyJpaRepository extends JpaRepository<Survey, UUID> {

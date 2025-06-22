@@ -13,9 +13,10 @@ import com.readingshare.common.exception.ApplicationException;
  * ユーザーログアウトのアプリケーションサービス。
  *
  * @author 003
- * @componentIdName C02 ログイン・会員登録
- * @moduleIdName M0221 ログアウトサービス
- * @dependsOn M0210 認証ドメインサービス
+ * @componentId C2
+ * @moduleName ログアウトサービス
+ * @see IAuthTokenRepository
+ * @see AuthToken
  */
 @Service
 @Transactional

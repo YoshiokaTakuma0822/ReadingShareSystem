@@ -11,8 +11,12 @@ import com.readingshare.room.domain.model.RoomMember;
 import com.readingshare.room.domain.repository.IRoomMemberRepository;
 
 /**
- * 部屋メンバーリポジトリの実装クラス。
- * データベース操作を担当します。
+ * ルームメンバーリポジトリの実装クラス。データベース操作を担当します。
+ *
+ * @author 02004
+ * @componentId C6
+ * @moduleName ルームメンバーリポジトリ実装
+ * @see RoomMemberJpaRepository
  */
 @Repository
 public class RoomMemberRepositoryImpl implements IRoomMemberRepository {

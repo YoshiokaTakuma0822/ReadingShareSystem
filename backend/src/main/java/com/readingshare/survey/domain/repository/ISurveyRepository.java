@@ -11,7 +11,10 @@ import com.readingshare.survey.domain.model.SurveyAnswer;
  * ISurveyRepository は、アンケート情報の永続化を担当するリポジトリインターフェースです。
  * アンケートの保存、検索、回答の保存などの操作を提供します。
  *
- * @author 23002
+ * @author 02002
+ * @componentId C8
+ * @moduleName アンケートリポジトリ
+ * @see Survey
  */
 public interface ISurveyRepository {
     /**

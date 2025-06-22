@@ -11,8 +11,8 @@ import com.readingshare.auth.domain.model.User;
  * ユーザー情報のJPAリポジトリインターフェース。
  *
  * @author 003
- * @componentIdName C05 会員情報管理部
- * @moduleIdName M0512 ユーザーリポジトリ
+ * @componentId C5
+ * @moduleName ユーザーリポジトリ
  */
 public interface UserJpaRepository extends JpaRepository<User, UUID> {
 

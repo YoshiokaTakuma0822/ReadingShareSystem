@@ -9,9 +9,8 @@ import com.readingshare.auth.domain.model.User;
  * ユーザー情報の永続化を担当するリポジトリインターフェース。
  *
  * @author 003
- * @componentIdName C02 ログイン・会員登録
- * @moduleIdName M0212 ユーザーリポジトリ
- * @dependsOn M0204 ユーザーエンティティ
+ * @componentId C2
+ * @moduleName ユーザーリポジトリ
  */
 public interface IUserRepository {
 

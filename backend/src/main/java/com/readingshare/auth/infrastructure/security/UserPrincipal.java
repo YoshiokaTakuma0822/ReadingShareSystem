@@ -14,8 +14,8 @@ import com.readingshare.auth.domain.model.User;
  * Spring SecurityのUserDetailsを実装するユーザープリンシパル。
  *
  * @author 003
- * @componentIdName C05 会員情報管理部
- * @moduleIdName M0521 ユーザープリンシパル
+ * @componentId C5
+ * @moduleName ユーザープリンシパル
  */
 public class UserPrincipal implements UserDetails {
 

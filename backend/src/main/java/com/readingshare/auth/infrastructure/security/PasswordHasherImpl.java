@@ -7,9 +7,9 @@ import org.springframework.stereotype.Component;
  * Spring SecurityのPasswordEncoderを使用したパスワードハッシャーの実装。
  *
  * @author 003
- * @componentIdName C05 会員情報管理部
- * @moduleIdName M0523 パスワードハッシュ化実装
- * @dependsOn M0522 パスワードハッシュ化インターフェース
+ * @componentId C5
+ * @moduleName パスワードハッシュ化実装
+ * @see IPasswordHasher
  */
 @Component
 public class PasswordHasherImpl implements IPasswordHasher {

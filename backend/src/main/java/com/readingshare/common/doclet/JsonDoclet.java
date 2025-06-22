@@ -30,6 +30,7 @@ import com.sun.source.doctree.DocTree;
 import com.sun.source.doctree.LiteralTree;
 import com.sun.source.doctree.ParamTree;
 import com.sun.source.doctree.ReturnTree;
+import com.sun.source.doctree.SeeTree;
 import com.sun.source.doctree.TextTree;
 import com.sun.source.doctree.ThrowsTree;
 import com.sun.source.doctree.UnknownBlockTagTree;
@@ -82,7 +83,8 @@ public class JsonDoclet implements Doclet {
             // すべてのクラスを取得
             Set<TypeElement> classes = ElementFilter.typesIn(environment.getIncludedElements())
                     .stream()
-                    .filter(e -> e.getKind() == ElementKind.CLASS || e.getKind() == ElementKind.INTERFACE)
+                    .filter(e -> e.getKind() == ElementKind.CLASS || e.getKind() == ElementKind.INTERFACE ||
+                            e.getKind() == ElementKind.RECORD || e.getKind() == ElementKind.ENUM)
                     .collect(Collectors.toSet());
 
             // JSONデータを構築
@@ -262,6 +264,14 @@ public class JsonDoclet implements Doclet {
                 list.add(content);
                 p.put(tagName, list);
             }
+            return null;
+        }
+
+        @Override
+        public Void visitSee(SeeTree node, Map<String, Object> p) {
+            @SuppressWarnings("unchecked")
+            List<String> sees = (List<String>) p.computeIfAbsent("see", k -> new ArrayList<>());
+            sees.add(node.getReference().toString());
             return null;
         }
 

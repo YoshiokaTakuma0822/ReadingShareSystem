@@ -22,8 +22,8 @@ import jakarta.servlet.http.HttpServletResponse;
  * Bearer Token認証を処理するフィルター。
  *
  * @author 003
- * @componentIdName C05 会員情報管理部
- * @moduleIdName M0514 Bearer Token認証フィルター
+ * @componentId C5
+ * @moduleName Token認証フィルター
  */
 @Component
 public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {

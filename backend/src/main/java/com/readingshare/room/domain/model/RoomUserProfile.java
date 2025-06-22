@@ -2,6 +2,10 @@ package com.readingshare.room.domain.model;
 
 /**
  * 部屋のユーザープロファイルを表すクラス。
+ *
+ * @author 02004
+ * @componentId C3
+ * @moduleName ルームユーザープロファイル
  */
 public class RoomUserProfile {
 

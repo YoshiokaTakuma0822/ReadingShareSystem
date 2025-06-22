@@ -13,9 +13,9 @@ import com.readingshare.auth.domain.repository.IUserRepository;
  * ユーザー情報のリポジトリ実装。
  *
  * @author 003
- * @componentIdName C05 会員情報管理部
- * @moduleIdName M0513 ユーザーリポジトリ実装
- * @dependsOn M0512 ユーザーリポジトリ
+ * @componentId C5
+ * @moduleName ユーザーリポジトリ実装
+ * @see UserJpaRepository
  */
 @Repository
 @Transactional

@@ -13,10 +13,9 @@ import com.readingshare.survey.domain.model.Survey;
 /**
  * グループチャットのストリームアイテムDTO。
  *
- * @author 23001
- * @componentIdName C04 グループチャット
- * @moduleIdName M0412 ストリームアイテムDTO
- * @dependsOn M0417 チャット情報DTO
+ * @author 02001
+ * @componentId C4
+ * @moduleName ストリームアイテムDTO
  */
 public class ChatStreamItemDto {
     /**

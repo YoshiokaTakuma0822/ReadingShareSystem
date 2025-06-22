@@ -1,7 +1,5 @@
 package com.readingshare.auth.controller;
 
-import java.util.UUID;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -9,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.readingshare.auth.dto.UserInfo;
 import com.readingshare.auth.infrastructure.security.UserPrincipal;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,9 +20,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
  * 認証が必要なAPIのサンプルコントローラー。
  *
  * @author 003
- * @componentIdName C02 ログイン・会員登録
- * @moduleIdName M0202 ユーザーコントローラー
- * @dependsOn M0217 ユーザー情報DTO
+ * @componentId C2
+ * @moduleName ユーザーコントローラー
+ * @see UserInfo
  */
 @RestController
 @RequestMapping("/api/user")
@@ -57,15 +56,5 @@ public class UserController {
         }
 
         return ResponseEntity.notFound().build();
-    }
-
-    /**
-     * ユーザー情報のレスポンスDTO。
-     *
-     * @author 003
-     * @componentIdName C02 ログイン・会員登録
-     * @moduleIdName M0217 ユーザー情報DTO
-     */
-    public record UserInfo(UUID userId, String username) {
     }
 }

@@ -9,9 +9,9 @@ import com.readingshare.chat.domain.model.ChatMessage;
 /**
  * グループチャットのメッセージリポジトリインターフェース。
  *
- * @author 23001
- * @componentIdName C04 グループチャット
- * @moduleIdName M0407 チャットメッセージリポジトリIF
+ * @author 02001
+ * @componentId C4
+ * @moduleName チャットメッセージリポジトリIF
  */
 public interface IChatMessageRepository {
 
