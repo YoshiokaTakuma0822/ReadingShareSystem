@@ -9,6 +9,9 @@ export interface Room {
     hostUserId: UserId // バックエンドのエンティティに合わせてhostUserからhostUserIdに変更
     createdAt: string // 部屋作成時刻 (Instant)
     hasPassword: boolean // パスワード保護されているかどうか
+    genre?: string // ジャンル
+    startTime?: string // ISO8601形式
+    endTime?: string // ISO8601形式
 }
 
 export interface CreateRoomRequest {
@@ -16,6 +19,9 @@ export interface CreateRoomRequest {
     bookTitle: string // バックエンドのAPIに合わせて追加
     hostUserId: UserId // バックエンドのAPIに合わせて追加
     password?: string // オプショナル
+    genre?: string // ジャンル
+    startTime?: string // ISO8601形式
+    endTime?: string // ISO8601形式
 }
 
 export interface JoinRoomRequest {

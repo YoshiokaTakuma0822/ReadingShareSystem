@@ -37,9 +37,9 @@ const RegisterScreen: React.FC = () => {
             const user = await authApi.register(request)
             console.log('Registration successful:', user)
             setSuccess(true)
-            // 登録成功後、少し待ってからホームに遷移
+            // 登録成功後、少し待ってからログイン画面に遷移
             setTimeout(() => {
-                router.push('/')
+                router.push('/login')
             }, 1500)
         } catch (e) {
             setError('登録に失敗しました')

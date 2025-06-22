@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.readingshare.chat.domain.model.ChatMessage;
+import com.readingshare.room.domain.model.Room;
 
 /**
  * チャットメッセージ情報の永続化を担当するリポジトリインターフェース。
@@ -23,10 +24,10 @@ public interface IChatMessageRepository {
     /**
      * 特定の部屋のチャット履歴を取得する。
      * 
-     * @param roomId 部屋ID
+     * @param room 部屋エンティティ
      * @return チャットメッセージのリスト
      */
-    List<ChatMessage> findByRoomId(UUID roomId);
+    List<ChatMessage> findByRoom(Room room);
 
     /**
      * IDでチャットメッセージを検索する。
@@ -35,4 +36,11 @@ public interface IChatMessageRepository {
      * @return チャットメッセージが見つかった場合はOptionalにChatMessage、見つからない場合はOptional.empty()
      */
     Optional<ChatMessage> findById(UUID id);
+
+    /**
+     * チャットメッセージを削除する。
+     * 
+     * @param chatMessage 削除するチャットメッセージエンティティ
+     */
+    void delete(ChatMessage chatMessage);
 }

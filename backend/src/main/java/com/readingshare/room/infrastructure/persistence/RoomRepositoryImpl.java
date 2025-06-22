@@ -43,4 +43,9 @@ public class RoomRepositoryImpl implements IRoomRepository {
     public Page<Room> findAll(Pageable pageable) {
         return roomRepository.findAll(pageable);
     }
+
+    @Override
+    public void deleteById(UUID id) {
+        roomRepository.deleteById(id);
+    }
 }

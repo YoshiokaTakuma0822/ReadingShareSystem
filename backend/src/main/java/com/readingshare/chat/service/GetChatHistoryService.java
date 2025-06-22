@@ -10,6 +10,7 @@ import com.readingshare.chat.domain.model.ChatMessage;
 import com.readingshare.chat.domain.repository.IChatMessageRepository;
 import com.readingshare.common.exception.ApplicationException;
 import com.readingshare.common.exception.DatabaseAccessException;
+import com.readingshare.room.domain.model.Room;
 import com.readingshare.room.domain.repository.IRoomRepository;
 
 /**
@@ -37,11 +38,8 @@ public class GetChatHistoryService {
      */
     @Transactional(readOnly = true)
     public List<ChatMessage> getChatHistory(UUID roomId) {
-        // 部屋の存在チェック
-        if (!roomRepository.findById(roomId).isPresent()) {
-            throw new ApplicationException("Room not found. Room ID: " + roomId);
-        }
-
-        return chatMessageRepository.findByRoomId(roomId);
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new ApplicationException("Room not found. Room ID: " + roomId));
+        return chatMessageRepository.findByRoom(room);
     }
 }

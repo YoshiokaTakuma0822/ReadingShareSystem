@@ -104,6 +104,15 @@ const RoomJoinModal: React.FC<RoomJoinModalProps> = ({ open, room, userId, onClo
                     <p style={{ color: '#424242', marginBottom: 4 }}>
                         <strong>本:</strong> {room.bookTitle}
                     </p>
+                    <p style={{ color: '#424242', marginBottom: 4 }}>
+                        <strong>ジャンル:</strong> {room.genre || '未設定'}
+                    </p>
+                    <p style={{ color: '#424242', marginBottom: 4 }}>
+                        <strong>開始時刻:</strong> {room.startTime ? new Date(room.startTime).toLocaleString() : '未設定'}
+                    </p>
+                    <p style={{ color: '#424242', marginBottom: 4 }}>
+                        <strong>終了時刻:</strong> {room.endTime ? new Date(room.endTime).toLocaleString() : '未設定'}
+                    </p>
                     <p style={{ color: '#424242', fontSize: 14 }}>
                         <strong>作成日:</strong> {new Date(room.createdAt).toLocaleDateString()}
                     </p>

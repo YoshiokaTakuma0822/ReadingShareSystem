@@ -23,12 +23,17 @@ public class RoomMemberRepositoryImpl implements IRoomMemberRepository {
     }
 
     @Override
-    public List<RoomMember> findByRoomId(UUID roomId) {
-        return roomMemberRepository.findByRoomId(roomId);
+    public List<RoomMember> findByRoom(com.readingshare.room.domain.model.Room room) {
+        return roomMemberRepository.findByRoom(room);
     }
 
     @Override
-    public Optional<RoomMember> findByRoomIdAndUserId(UUID roomId, UUID userId) {
-        return roomMemberRepository.findByRoomIdAndUserId(roomId, userId);
+    public Optional<RoomMember> findByRoomAndUserId(com.readingshare.room.domain.model.Room room, UUID userId) {
+        return roomMemberRepository.findByRoomAndUserId(room, userId);
+    }
+
+    @Override
+    public void delete(RoomMember roomMember) {
+        roomMemberRepository.delete(roomMember);
     }
 }

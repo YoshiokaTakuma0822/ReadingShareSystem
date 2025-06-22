@@ -4,8 +4,6 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -31,9 +29,8 @@ public class Room {
     @Column(nullable = false)
     private Instant createdAt;
 
-    @JsonIgnore
     @Column(nullable = true)
-    private String roomPasswordHash;
+    private Instant endTime;
 
     // --- コンストラクタ ---
     public Room() {
@@ -48,12 +45,22 @@ public class Room {
         this.createdAt = Instant.now();
     }
 
-    public Room(UUID id, String roomName, String bookTitle, UUID hostUserId, Instant createdAt) {
+    public Room(String roomName, String bookTitle, UUID hostUserId, Instant endTime) {
+        this.id = UUID.randomUUID();
+        this.roomName = roomName;
+        this.bookTitle = bookTitle;
+        this.hostUserId = hostUserId;
+        this.createdAt = Instant.now();
+        this.endTime = endTime;
+    }
+
+    public Room(UUID id, String roomName, String bookTitle, UUID hostUserId, Instant createdAt, Instant endTime) {
         this.id = id;
         this.roomName = roomName;
         this.bookTitle = bookTitle;
         this.hostUserId = hostUserId;
         this.createdAt = createdAt;
+        this.endTime = endTime;
     }
 
     // --- ゲッター ---
@@ -77,23 +84,12 @@ public class Room {
         return createdAt;
     }
 
-    public String getRoomPasswordHash() {
-        return roomPasswordHash;
+    public Instant getEndTime() {
+        return endTime;
     }
 
-    /**
-     * パスワードが設定されているかどうかを判定する。
-     * JSONシリアライゼーション時にクライアントに返される。
-     *
-     * @return パスワードが設定されている場合はtrue、そうでなければfalse
-     */
-    public boolean isHasPassword() {
-        return roomPasswordHash != null && !roomPasswordHash.isEmpty();
-    }
-
-    // --- セッター ---
-    public void setRoomPasswordHash(String roomPasswordHash) {
-        this.roomPasswordHash = roomPasswordHash;
+    public void setEndTime(Instant endTime) {
+        this.endTime = endTime;
     }
 
     // --- その他のメソッド ---
@@ -120,6 +116,7 @@ public class Room {
                 ", bookTitle='" + bookTitle + '\'' +
                 ", hostUserId=" + hostUserId +
                 ", createdAt=" + createdAt +
+                ", endTime=" + endTime +
                 '}';
     }
 }

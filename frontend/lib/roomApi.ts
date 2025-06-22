@@ -10,8 +10,15 @@ export const roomApi = {
         const response = await apiClient.get<Room[]>('/rooms/search', { params: { keyword } })
         return { rooms: response.data }
     },
+    getRoom: async (roomId: string): Promise<Room> => {
+        const response = await apiClient.get<Room>(`/rooms/${roomId}`)
+        return response.data
+    },
     joinRoom: async (request: JoinRoomRequest) => {
         const response = await apiClient.post('/rooms/join', request)
         return response.data
+    },
+    deleteRoom: async (roomId: string) => {
+        await apiClient.delete(`/rooms/${roomId}`);
     },
 }

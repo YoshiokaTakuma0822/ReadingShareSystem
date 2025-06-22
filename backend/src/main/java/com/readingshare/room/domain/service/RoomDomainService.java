@@ -7,7 +7,6 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.readingshare.auth.infrastructure.security.IPasswordHasher; // パスワードハッシュ化のために利用
 import com.readingshare.common.exception.DomainException;
 import com.readingshare.room.domain.model.Room;
 import com.readingshare.room.domain.model.RoomMember;
@@ -23,13 +22,10 @@ public class RoomDomainService {
 
     private final IRoomRepository roomRepository;
     private final IRoomMemberRepository roomMemberRepository;
-    private final IPasswordHasher passwordHasher; // パスワードハッシュ化のために注入
 
-    public RoomDomainService(IRoomRepository roomRepository, IRoomMemberRepository roomMemberRepository,
-            IPasswordHasher passwordHasher) {
+    public RoomDomainService(IRoomRepository roomRepository, IRoomMemberRepository roomMemberRepository) {
         this.roomRepository = roomRepository;
         this.roomMemberRepository = roomMemberRepository;
-        this.passwordHasher = passwordHasher;
     }
 
     /**
@@ -42,16 +38,13 @@ public class RoomDomainService {
      */
     @Transactional
     public Room createRoom(Room room, String rawPassword) {
-        // パスワードが設定されていればハッシュ化
-        if (rawPassword != null && !rawPassword.isEmpty()) {
-            room.setRoomPasswordHash(passwordHasher.hashPassword(rawPassword));
-        }
+        // パスワード処理なし（初期シンプル状態に戻す）
 
         // 部屋を保存
         Room savedRoom = roomRepository.save(room);
 
-        // ホストを部屋のメンバーとして追加
-        RoomMember hostMember = new RoomMember(savedRoom.getId(), room.getHostUserId(), Instant.now());
+        // --- ホストを部屋のメンバーとして追加 ---
+        RoomMember hostMember = new RoomMember(savedRoom, room.getHostUserId(), Instant.now());
         roomMemberRepository.save(hostMember);
 
         return savedRoom;
@@ -72,20 +65,15 @@ public class RoomDomainService {
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new DomainException("指定された部屋が見つかりません。"));
 
-        // パスワードが設定されている場合は検証
-        if (room.getRoomPasswordHash() != null) {
-            if (roomPassword == null || !passwordHasher.verifyPassword(roomPassword, room.getRoomPasswordHash())) {
-                throw new DomainException("部屋のパスワードが正しくありません。");
-            }
-        }
+        // パスワード検証なし（初期シンプル状態に戻す）
 
         // ユーザーが既にメンバーでないか確認
-        if (roomMemberRepository.findByRoomIdAndUserId(roomId, userId).isPresent()) {
+        if (roomMemberRepository.findByRoomAndUserId(room, userId).isPresent()) {
             throw new DomainException("既に部屋のメンバーです。");
         }
 
         // メンバーとして追加
-        RoomMember newMember = new RoomMember(roomId, userId, Instant.now());
+        RoomMember newMember = new RoomMember(room, userId, Instant.now());
         return roomMemberRepository.save(newMember);
     }
 
@@ -98,6 +86,8 @@ public class RoomDomainService {
      */
     @Transactional(readOnly = true)
     public Optional<RoomMember> getRoomMember(UUID roomId, UUID userId) {
-        return roomMemberRepository.findByRoomIdAndUserId(roomId, userId);
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new DomainException("指定された部屋が見つかりません。"));
+        return roomMemberRepository.findByRoomAndUserId(room, userId);
     }
 }

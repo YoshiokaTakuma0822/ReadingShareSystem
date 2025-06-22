@@ -5,10 +5,11 @@ import { chatApi } from '../../lib/chatApi'
 import { ChatMessage } from '../../types/chat'
 
 interface Message {
-    id: number
-    user: string
-    text: string
-    isCurrentUser: boolean
+    id: number;
+    user: string;
+    text: string;
+    isCurrentUser: boolean;
+    sentAt?: string; // 追加
 }
 
 interface GroupChatScreenProps {
@@ -20,7 +21,7 @@ interface GroupChatScreenProps {
 const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャットルーム", currentUser = "あなた", roomId }) => {
     const [messages, setMessages] = useState<Message[]>([])
     const [input, setInput] = useState("")
-    const [msgId, setMsgId] = useState(1)
+    const [msgId, setMsgId] = useState(1); // 追加
     const [showSurveyModal, setShowSurveyModal] = useState(false)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
@@ -48,21 +49,18 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
 
             // ChatMessageをMessage形式に変換
             const convertedMessages: Message[] = chatHistory.map((msg, index) => {
-                console.log('メッセージ変換:', msg)
-
-                // contentがオブジェクトの場合は.valueを取得、文字列の場合はそのまま使用
                 let messageText = ''
                 if (typeof msg.content === 'object' && msg.content !== null && 'value' in msg.content) {
                     messageText = String((msg.content as { value: string }).value || '')
                 } else {
                     messageText = String(msg.content || '')
                 }
-
                 return {
                     id: index + 1,
                     user: String(msg.senderUserId || '匿名ユーザー'),
                     text: messageText,
-                    isCurrentUser: msg.senderUserId === currentUserId
+                    isCurrentUser: msg.senderUserId === currentUserId,
+                    sentAt: msg.sentAt // 追加
                 }
             })
 
@@ -85,32 +83,34 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
     }, [roomId, currentUserId])
 
     const handleSend = async () => {
-        if (!input.trim() || !roomId) return
+        if (!input.trim() || !roomId) return;
 
         try {
             // サーバーにメッセージを送信
-            await chatApi.sendMessage(roomId, { messageContent: input })
+            await chatApi.sendMessage(roomId, { messageContent: input });
 
             // ローカル状態を更新
             setMessages([...messages, {
                 id: msgId,
                 user: currentUser,
                 text: input,
-                isCurrentUser: true
-            }])
-            setMsgId(msgId + 1)
-            setInput("")
+                isCurrentUser: true,
+                sentAt: new Date().toISOString() // 送信時刻を仮で追加
+            }]);
+            setMsgId(msgId + 1);
+            setInput("");
         } catch (err) {
-            console.error('メッセージ送信に失敗しました:', err)
+            console.error('メッセージ送信に失敗しました:', err);
             // エラーが発生してもローカル状態は更新する（UX向上のため）
             setMessages([...messages, {
                 id: msgId,
                 user: currentUser,
                 text: input,
-                isCurrentUser: true
-            }])
-            setMsgId(msgId + 1)
-            setInput("")
+                isCurrentUser: true,
+                sentAt: new Date().toISOString()
+            }]);
+            setMsgId(msgId + 1);
+            setInput("");
         }
     }
 
@@ -256,17 +256,31 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                                         {String(msg.user).charAt(0).toUpperCase()}
                                     </span>
                                 )}
-                                <div
-                                    style={{
-                                        border: '1px solid #222',
-                                        borderRadius: 16,
-                                        padding: 8,
-                                        background: isMine ? '#e0f7fa' : '#fff',
-                                        maxWidth: 600,
-                                        wordBreak: 'break-word',
-                                    }}
-                                >
-                                    {String(msg.text)}
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                    {/* 自分のメッセージはタイムスタンプを左側に */}
+                                    {isMine && msg.sentAt && (
+                                        <span style={{ fontSize: '0.8em', color: '#888', minWidth: 60, textAlign: 'right' }}>
+                                            {new Date(msg.sentAt).toLocaleTimeString()}
+                                        </span>
+                                    )}
+                                    <div
+                                        style={{
+                                            border: '1px solid #222',
+                                            borderRadius: 16,
+                                            padding: 8,
+                                            background: isMine ? '#e0f7fa' : '#fff',
+                                            maxWidth: 600,
+                                            wordBreak: 'break-word',
+                                        }}
+                                    >
+                                        {String(msg.text)}
+                                    </div>
+                                    {/* 他人のメッセージはタイムスタンプを右側に */}
+                                    {!isMine && msg.sentAt && (
+                                        <span style={{ fontSize: '0.8em', color: '#888', minWidth: 60, textAlign: 'left' }}>
+                                            {new Date(msg.sentAt).toLocaleTimeString()}
+                                        </span>
+                                    )}
                                 </div>
                                 {isMine && (
                                     <span style={{ border: '1px solid #222', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#e0f7fa' }}>

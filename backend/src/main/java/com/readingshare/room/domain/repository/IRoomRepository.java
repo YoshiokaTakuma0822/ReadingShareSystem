@@ -54,4 +54,10 @@ public interface IRoomRepository {
      * @return ページングされた部屋のリスト
      */
     Page<Room> findAll(Pageable pageable);
+
+    /**
+     * 部屋IDで部屋を削除する。
+     * @param id 部屋ID
+     */
+    void deleteById(UUID id);
 }

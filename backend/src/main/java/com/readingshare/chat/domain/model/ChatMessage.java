@@ -7,6 +7,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
@@ -21,9 +23,9 @@ public class ChatMessage {
     @Column(columnDefinition = "UUID")
     private UUID id; // メッセージID (主キー)
 
-    @NotNull
-    @Column(name = "room_id", nullable = false, columnDefinition = "UUID")
-    private UUID roomId; // 関連する部屋ID
+    @ManyToOne
+    @JoinColumn(name = "room_id", nullable = false)
+    private com.readingshare.room.domain.model.Room room; // 関連する部屋
 
     @NotNull
     @Column(name = "sender_user_id", nullable = false, columnDefinition = "UUID")
@@ -40,9 +42,9 @@ public class ChatMessage {
     public ChatMessage() {
     }
 
-    public ChatMessage(UUID roomId, UUID senderUserId, MessageContent content, Instant sentAt) {
+    public ChatMessage(com.readingshare.room.domain.model.Room room, UUID senderUserId, MessageContent content, Instant sentAt) {
         this.id = UUID.randomUUID();
-        this.roomId = roomId;
+        this.room = room;
         this.senderUserId = senderUserId;
         this.content = content;
         this.sentAt = sentAt;
@@ -57,12 +59,12 @@ public class ChatMessage {
         this.id = id;
     }
 
-    public UUID getRoomId() {
-        return roomId;
+    public com.readingshare.room.domain.model.Room getRoom() {
+        return room;
     }
 
-    public void setRoomId(UUID roomId) {
-        this.roomId = roomId;
+    public void setRoom(com.readingshare.room.domain.model.Room room) {
+        this.room = room;
     }
 
     public UUID getSenderUserId() {
@@ -93,7 +95,7 @@ public class ChatMessage {
     public String toString() {
         return "ChatMessage{" +
                 "id=" + id +
-                ", roomId=" + roomId +
+                ", room=" + (room != null ? room.getId() : null) +
                 ", senderUserId=" + senderUserId +
                 ", content=" + content +
                 ", sentAt=" + sentAt +

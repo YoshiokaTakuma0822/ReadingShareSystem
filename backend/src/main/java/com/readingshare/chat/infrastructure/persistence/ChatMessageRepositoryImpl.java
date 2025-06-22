@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import com.readingshare.chat.domain.model.ChatMessage;
 import com.readingshare.chat.domain.repository.IChatMessageRepository;
+import com.readingshare.room.domain.model.Room;
 
 @Repository
 public class ChatMessageRepositoryImpl implements IChatMessageRepository {
@@ -23,12 +24,17 @@ public class ChatMessageRepositoryImpl implements IChatMessageRepository {
     }
 
     @Override
-    public List<ChatMessage> findByRoomId(UUID roomId) {
-        return chatMessageRepository.findByRoomIdOrderBySentAtAsc(roomId);
+    public List<ChatMessage> findByRoom(Room room) {
+        return chatMessageRepository.findByRoomOrderBySentAtAsc(room);
     }
 
     @Override
     public Optional<ChatMessage> findById(UUID id) {
         return chatMessageRepository.findById(id);
+    }
+
+    @Override
+    public void delete(ChatMessage chatMessage) {
+        chatMessageRepository.delete(chatMessage);
     }
 }

@@ -126,4 +126,12 @@ public class RoomService {
     public RoomMember joinRoom(UUID roomId, UUID userId, String roomPassword) {
         return roomDomainService.addRoomMember(roomId, userId, roomPassword);
     }
+
+    /**
+     * 部屋を削除する。
+     * @param roomId 部屋ID（UUID文字列）
+     */
+    public void deleteRoom(String roomId) {
+        roomRepository.deleteById(UUID.fromString(roomId));
+    }
 }

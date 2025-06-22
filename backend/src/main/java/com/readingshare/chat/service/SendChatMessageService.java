@@ -48,14 +48,21 @@ public class SendChatMessageService {
         // 入力値の検証
         validateInput(roomId, userId, content);
 
+        // Roomエンティティの取得
+        var roomOpt = roomRepository.findById(roomId);
+        if (roomOpt.isEmpty()) {
+            throw new ApplicationException("Room not found. Room ID: " + roomId);
+        }
+        var room = roomOpt.get();
+
         // ユーザーが部屋に参加しているかチェック
-        validateUserInRoom(roomId, userId);
+        validateUserInRoom(room, userId);
 
         // メッセージ内容の検証
         MessageContent messageContent = validateAndCreateMessageContent(content);
 
-        // チャットメッセージの作成と送信
-        ChatMessage chatMessage = new ChatMessage(roomId, userId, messageContent, Instant.now());
+        // ChatMessageの生成と送信（Room型）
+        ChatMessage chatMessage = new ChatMessage(room, userId, messageContent, Instant.now());
         chatDomainService.sendChatMessage(chatMessage);
 
         return chatMessage;
@@ -81,16 +88,18 @@ public class SendChatMessageService {
             throw new ApplicationException("Anonymous ID cannot be null or empty");
         }
 
-        // 部屋の存在チェック
-        if (!roomRepository.findById(roomId).isPresent()) {
+        // Roomエンティティの取得
+        var roomOpt = roomRepository.findById(roomId);
+        if (roomOpt.isEmpty()) {
             throw new ApplicationException("Room not found. Room ID: " + roomId);
         }
+        var room = roomOpt.get();
 
         // メッセージ内容の検証
         MessageContent messageContent = validateAndCreateMessageContent(content);
 
         // 匿名ユーザーの場合はnullをuserIdとして使用
-        ChatMessage chatMessage = new ChatMessage(roomId, null, messageContent, Instant.now());
+        ChatMessage chatMessage = new ChatMessage(room, null, messageContent, Instant.now());
         chatDomainService.sendChatMessage(chatMessage);
 
         return chatMessage;
@@ -114,19 +123,14 @@ public class SendChatMessageService {
     /**
      * ユーザーが部屋に参加しているかを検証する。
      */
-    private void validateUserInRoom(UUID roomId, UUID userId) {
-        // 部屋の存在チェック
-        if (!roomRepository.findById(roomId).isPresent()) {
-            throw new ApplicationException("Room not found. Room ID: " + roomId);
-        }
-
+    private void validateUserInRoom(com.readingshare.room.domain.model.Room room, UUID userId) {
+        // 部屋の存在チェック（Room型なので不要）
         // ユーザーの存在チェック
         if (!userRepository.findById(userId).isPresent()) {
             throw new ApplicationException("User not found. User ID: " + userId);
         }
-
         // TODO: ユーザーが部屋に参加しているかのチェックを実装
-        // 現在は部屋とユーザーの存在チェックのみ
+        // 現在はユーザーの存在チェックのみ
     }
 
     /**

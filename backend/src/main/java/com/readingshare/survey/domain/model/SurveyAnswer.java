@@ -35,8 +35,8 @@ public class SurveyAnswer {
     @Column(name = "answers", columnDefinition = "jsonb")
     private Map<String, List<String>> answers; // 文字列ベース
 
-    @Column(name = "is_anonymous")
-    private boolean isAnonymous; // 匿名回答かどうか
+    // @Column(name = "is_anonymous")
+    // private boolean isAnonymous; // 匿名回答かどうか
 
     @Column(name = "answered_at")
     private LocalDateTime answeredAt;
@@ -45,10 +45,7 @@ public class SurveyAnswer {
     }
 
     public SurveyAnswer(UUID surveyId, UUID userId, Map<String, List<String>> answers) {
-        this(surveyId, userId, answers, false); // デフォルトは非匿名
-    }
-
-    public SurveyAnswer(UUID surveyId, UUID userId, Map<String, List<String>> answers, boolean isAnonymous) {
+        // this(surveyId, userId, answers, false); // デフォルトは非匿名
         if (surveyId == null || userId == null || answers == null || answers.isEmpty()) {
             throw new IllegalArgumentException("Survey ID, User ID, and answers cannot be null or empty.");
         }
@@ -56,9 +53,21 @@ public class SurveyAnswer {
         this.surveyId = surveyId;
         this.userId = userId;
         this.answers = answers;
-        this.isAnonymous = isAnonymous;
+        // this.isAnonymous = false;
         this.answeredAt = LocalDateTime.now();
     }
+
+    // public SurveyAnswer(UUID surveyId, UUID userId, Map<String, List<String>> answers, boolean isAnonymous) {
+    //     if (surveyId == null || userId == null || answers == null || answers.isEmpty()) {
+    //         throw new IllegalArgumentException("Survey ID, User ID, and answers cannot be null or empty.");
+    //     }
+    //     this.id = UUID.randomUUID();
+    //     this.surveyId = surveyId;
+    //     this.userId = userId;
+    //     this.answers = answers;
+    //     this.isAnonymous = isAnonymous;
+    //     this.answeredAt = LocalDateTime.now();
+    // }
 
     public void setAnswers(Map<String, List<String>> answers) {
         this.answers = answers;
@@ -85,11 +94,11 @@ public class SurveyAnswer {
         return answeredAt;
     }
 
-    public boolean isAnonymous() {
-        return isAnonymous;
-    }
+    // public boolean isAnonymous() {
+    //     return isAnonymous;
+    // }
 
-    public void setAnonymous(boolean anonymous) {
-        isAnonymous = anonymous;
-    }
+    // public void setAnonymous(boolean anonymous) {
+    //     isAnonymous = anonymous;
+    // }
 }

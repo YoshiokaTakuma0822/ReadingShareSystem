@@ -1,9 +1,12 @@
 package com.readingshare.room.controller;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -70,5 +73,26 @@ public class RoomController {
     public ResponseEntity<List<Room>> searchRooms(@RequestParam String keyword) {
         List<Room> rooms = roomService.searchRooms(keyword);
         return ResponseEntity.ok(rooms);
+    }
+
+    /**
+     * 部屋詳細取得エンドポイント
+     * GET /api/rooms/{roomId}
+     */
+    @GetMapping("/{roomId}")
+    public ResponseEntity<Room> getRoomById(@PathVariable("roomId") String roomId) {
+        return roomService.getRoomById(UUID.fromString(roomId))
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    /**
+     * 部屋削除エンドポイント
+     * DELETE /api/rooms/{roomId}
+     */
+    @DeleteMapping("/{roomId}")
+    public ResponseEntity<Void> deleteRoom(@PathVariable("roomId") String roomId) {
+        roomService.deleteRoom(roomId);
+        return ResponseEntity.noContent().build();
     }
 }

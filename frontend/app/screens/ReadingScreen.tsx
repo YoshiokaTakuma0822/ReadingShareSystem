@@ -16,7 +16,6 @@ interface ReadingScreenProps {
 }
 
 const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
-  // 進捗入力モーダル用の状態
   const [showProgressModal, setShowProgressModal] = useState(false);
   const [currentPage, setCurrentPage] = useState<number>(150);
   const [displayPage, setDisplayPage] = useState<number>(150);
@@ -86,7 +85,13 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
           <div
             key={m.name}
             className="memberIcon"
-            style={{ left: `calc(${320 * m.percent}px - 15px)` }}
+            style={{
+              left: `calc(${320 * m.percent}px - 15px)`,
+              background: m.isMe ? 'var(--green-dark)' : 'var(--white)',
+              border: m.isMe ? '2px solid var(--green-main)' : '1px solid var(--border)',
+              color: m.isMe ? 'var(--white)' : 'var(--green-dark)',
+              boxShadow: m.isMe ? '0 0 8px var(--green-light)' : '0 1px 3px rgba(0,0,0,0.08)',
+            }}
           >
             {m.name}
           </div>
@@ -100,7 +105,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
         <div className="spine"></div>
         {flippingPage !== null && (
           <div
-            className={`pageFlip ${animating ? "animate" : ""}`}
+            className={`pageFlip${animating ? " animate" : ""}`}
             onAnimationEnd={onFlipEnd}
           >
             <div className="back"></div>
@@ -113,7 +118,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
         {displayPage + 1} / {maxPage}
       </div>
 
-      {/* 操作エリア ※メッセージ入力欄・送信ボタンは削除 */}
+      {/* 操作エリア */}
       <div className="controls">
         <label className="flipIntervalLabel">
           <input
@@ -169,8 +174,8 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
 
       <style jsx>{`
         .container {
+          min-height: 100vh;
           width: 100vw;
-          height: 100vh;
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -178,15 +183,21 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
           background-color: var(--green-bg);
           overflow: hidden;
           text-align: center;
+          padding-top: 40px;
+          padding-bottom: 40px;
+          box-sizing: border-box;
         }
         .progressWrapper {
           position: relative;
           width: 320px;
           height: 40px;
-          margin-bottom: 16px;
+          margin: 0 auto 32px auto;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
         .progressBar {
-          position: absolute;
+          position: relative;
           top: 10px;
           left: 0;
           width: 100%;
@@ -195,6 +206,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
           background-color: var(--green-bg);
           overflow: hidden;
           border: 1px solid var(--border);
+          margin: 0 auto;
         }
         .progress {
           height: 100%;
@@ -211,13 +223,9 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
           align-items: center;
           justify-content: center;
           font-weight: bold;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-          z-index: 2;
           font-size: 16px;
           transition: left 0.3s ease-out;
-          background: var(--white);
-          border: 1px solid var(--border);
-          color: var(--green-dark);
+          z-index: 2;
         }
         .bookContainer {
           position: relative;
@@ -227,6 +235,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
           display: flex;
           justify-content: center;
           align-items: center;
+          margin: 0 auto 24px auto;
         }
         .leftPage {
           position: absolute;
@@ -304,16 +313,18 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
           border-radius: 2px 0 0 2px;
         }
         .pageCount {
-          margin-top: 8px;
+          margin-bottom: 24px;
           font-size: 1.125rem;
+          text-align: center;
         }
         .controls {
           display: flex;
           align-items: center;
-          margin-top: 32px;
+          margin-top: 0;
           gap: 8px;
           flex-wrap: wrap;
           justify-content: center;
+          width: 100%;
         }
         .intervalInput {
           padding: 12px;

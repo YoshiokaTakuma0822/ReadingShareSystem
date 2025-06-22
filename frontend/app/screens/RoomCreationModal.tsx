@@ -17,19 +17,25 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const [genre, setGenre] = useState('小説');
+    const [startTime, setStartTime] = useState('');
+    const [endTime, setEndTime] = useState('');
 
     const handleCreate = async () => {
-        setLoading(true)
-        setError(null)
+        setLoading(true);
+        setError(null);
         try {
             const req: CreateRoomRequest = {
                 roomName,
                 bookTitle,
                 hostUserId: userId,
                 password: password || undefined,
-            }
-            await roomApi.createRoom(req)
-            onCreated()
+                genre,
+                startTime: startTime || undefined,
+                endTime: endTime || undefined,
+            };
+            await roomApi.createRoom(req);
+            onCreated();
         } catch (e) {
             setError('部屋作成に失敗しました')
         } finally {
@@ -89,7 +95,47 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
                         <div style={{ marginBottom: 16 }}>
                             <label>パスワード（オプション）</label>
                             <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="パスワードを入力してください" style={{ width: '100%', padding: 8, marginTop: 4 }} />
-                        </div>                    </div>
+                        </div>
+                        <div style={{ marginBottom: 16 }}>
+                            <label>ジャンル</label>
+                            <select value={genre} onChange={e => setGenre(e.target.value)} style={{ width: '100%', padding: 8, marginTop: 4 }}>
+                                <option value="小説">小説</option>
+                                <option value="ビジネス">ビジネス</option>
+                                <option value="学習">学習</option>
+                                <option value="エッセイ">エッセイ</option>
+                                <option value="漫画">漫画</option>
+                                <option value="歴史">歴史</option>
+                                <option value="科学">科学</option>
+                                <option value="ライトノベル">ライトノベル</option>
+                                <option value="児童書">児童書</option>
+                                <option value="技術書">技術書</option>
+                                <option value="趣味・実用">趣味・実用</option>
+                                <option value="詩・短歌">詩・短歌</option>
+                                <option value="自己啓発">自己啓発</option>
+                                <option value="旅行">旅行</option>
+                                <option value="料理">料理</option>
+                                <option value="スポーツ">スポーツ</option>
+                                <option value="芸術">芸術</option>
+                                <option value="写真集">写真集</option>
+                                <option value="伝記">伝記</option>
+                                <option value="ファンタジー">ファンタジー</option>
+                                <option value="ミステリー">ミステリー</option>
+                                <option value="ホラー">ホラー</option>
+                                <option value="恋愛">恋愛</option>
+                                <option value="SF">SF</option>
+                                <option value="ノンフィクション">ノンフィクション</option>
+                                <option value="その他">その他</option>
+                            </select>
+                        </div>
+                        <div style={{ marginBottom: 16 }}>
+                            <label>開始時刻</label>
+                            <input type="datetime-local" value={startTime} onChange={e => setStartTime(e.target.value)} style={{ width: '100%', padding: 8, marginTop: 4 }} />
+                        </div>
+                        <div style={{ marginBottom: 16 }}>
+                            <label>終了時刻</label>
+                            <input type="datetime-local" value={endTime} onChange={e => setEndTime(e.target.value)} style={{ width: '100%', padding: 8, marginTop: 4 }} />
+                        </div>
+                    </div>
                 </div>
                 {error && <div style={{ color: 'red', marginTop: 12 }}>{error}</div>}
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 16, marginTop: 32 }}>

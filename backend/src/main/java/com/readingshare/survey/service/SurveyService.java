@@ -61,7 +61,7 @@ public class SurveyService {
     public void submitAnswer(UUID surveyId, SubmitSurveyAnswerRequest request) {
         surveyRepository.findById(surveyId)
                 .orElseThrow(() -> new ResourceNotFoundException("Survey not found with id: " + surveyId));
-        SurveyAnswer answer = new SurveyAnswer(surveyId, request.userId(), request.answers(), request.isAnonymous());
+        SurveyAnswer answer = new SurveyAnswer(surveyId, request.userId(), request.answers());
         surveyRepository.saveAnswer(answer);
     }
 

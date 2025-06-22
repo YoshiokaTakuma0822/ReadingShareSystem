@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.readingshare.chat.domain.model.ChatMessage;
+import com.readingshare.room.domain.model.Room;
 
 /**
  * チャットメッセージ情報のJPAリポジトリインターフェース。
@@ -18,8 +19,8 @@ public interface ChatMessageJpaRepository extends JpaRepository<ChatMessage, UUI
     /**
      * 特定の部屋のチャット履歴を取得する。
      *
-     * @param roomId 部屋ID
+     * @param room 部屋エンティティ
      * @return チャットメッセージのリスト
      */
-    List<ChatMessage> findByRoomIdOrderBySentAtAsc(UUID roomId);
+    List<ChatMessage> findByRoomOrderBySentAtAsc(Room room);
 }

@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.readingshare.room.domain.model.RoomMember;
+import com.readingshare.room.domain.model.Room;
 
 /**
  * 部屋メンバー情報の永続化を担当するリポジトリインターフェース。
@@ -23,17 +24,24 @@ public interface IRoomMemberRepository {
     /**
      * 特定の部屋の全メンバーを取得する。
      *
-     * @param roomId 部屋ID
+     * @param room 部屋エンティティ
      * @return 部屋のメンバーリスト
      */
-    List<RoomMember> findByRoomId(UUID roomId);
+    List<RoomMember> findByRoom(Room room);
 
     /**
      * 特定の部屋とユーザーの組み合わせでメンバーを検索する。
      *
-     * @param roomId 部屋ID
+     * @param room 部屋エンティティ
      * @param userId ユーザーID
      * @return メンバーが見つかった場合はOptionalにRoomMember、見つからない場合はOptional.empty()
      */
-    Optional<RoomMember> findByRoomIdAndUserId(UUID roomId, UUID userId);
+    Optional<RoomMember> findByRoomAndUserId(Room room, UUID userId);
+
+    /**
+     * 部屋メンバー情報を削除する。
+     *
+     * @param roomMember 削除する部屋メンバーエンティティ
+     */
+    void delete(RoomMember roomMember);
 }

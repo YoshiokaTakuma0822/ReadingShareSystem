@@ -7,6 +7,8 @@ import java.util.UUID;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -17,8 +19,9 @@ public class RoomMember {
     @Column(columnDefinition = "UUID")
     private UUID id;
 
-    @Column(nullable = false, columnDefinition = "UUID")
-    private UUID roomId;
+    @ManyToOne
+    @JoinColumn(name = "room_id", nullable = false)
+    private Room room;
 
     @Column(nullable = false, columnDefinition = "UUID")
     private UUID userId;
@@ -31,9 +34,9 @@ public class RoomMember {
         // JPA用
     }
 
-    public RoomMember(UUID roomId, UUID userId, Instant joinedAt) {
+    public RoomMember(Room room, UUID userId, Instant joinedAt) {
         this.id = UUID.randomUUID();
-        this.roomId = roomId;
+        this.room = room;
         this.userId = userId;
         this.joinedAt = joinedAt;
     }
@@ -47,12 +50,12 @@ public class RoomMember {
         this.id = id;
     }
 
-    public UUID getRoomId() {
-        return roomId;
+    public Room getRoom() {
+        return room;
     }
 
-    public void setRoomId(UUID roomId) {
-        this.roomId = roomId;
+    public void setRoom(Room room) {
+        this.room = room;
     }
 
     public UUID getUserId() {
@@ -91,7 +94,7 @@ public class RoomMember {
     public String toString() {
         return "RoomMember{" +
                 "id=" + id +
-                ", roomId=" + roomId +
+                ", room=" + (room != null ? room.getId() : null) +
                 ", userId=" + userId +
                 ", joinedAt=" + joinedAt +
                 '}';
