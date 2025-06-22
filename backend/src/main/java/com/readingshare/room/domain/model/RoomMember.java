@@ -37,6 +37,8 @@ public class RoomMember {
         this.joinedAt = joinedAt;
     }
 
+    // 削除: Room型のroomフィールドが存在しないため、このコンストラクタは不要です
+
     // --- Getter / Setter ---
     public UUID getId() {
         return id;

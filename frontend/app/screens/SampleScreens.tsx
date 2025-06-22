@@ -1,11 +1,12 @@
 "use client";
 import React from "react";
 
+// チャット画面のみタイムスタンプを付与
 const links = [
   { label: "HomeScreen (W1)", path: "/screens/HomeScreen" },
   { label: "LoginScreen (W2)", path: "/screens/LoginScreen" },
   { label: "RegisterScreen (W3)", path: "/screens/RegisterScreen" },
-  { label: "GroupChatScreen (W5)", path: "/screens/GroupChatScreen" },
+  { label: "GroupChatScreen (W5)", path: "/screens/GroupChatScreen", timestamp: "2024-06-22 10:00" }, // チャット画面のみ
   { label: "RoomCreationModal (W4)", path: "/screens/RoomCreationModal" },
   { label: "RoomJoinModal (W4)", path: "/screens/RoomJoinModal" },
   { label: "SurveyCreationModal (W6)", path: "/screens/SurveyCreationModal" },
@@ -23,6 +24,12 @@ const SampleScreens = () => (
           <a href={link.path} style={{ display: 'block', background: '#fff', borderRadius: 12, padding: 24, fontSize: 20, color: '#1976d2', textDecoration: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', textAlign: 'center', fontWeight: 600 }}>
             {link.label}
           </a>
+          {/* チャット画面のみタイムスタンプを表示 */}
+          {link.timestamp && (
+            <div style={{ fontSize: 12, color: '#888', textAlign: 'center', marginTop: 4 }}>
+              {link.timestamp}
+            </div>
+          )}
         </li>
       ))}
     </ul>

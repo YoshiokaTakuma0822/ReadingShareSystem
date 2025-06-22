@@ -50,6 +50,8 @@ public class Room {
     @Column(nullable = true)
     private Instant endTime;
 
+    private Long roomId;
+
     // --- コンストラクタ ---
     public Room() {
         // JPA用
@@ -78,6 +80,34 @@ public class Room {
         this.genre = genre;
         this.startTime = startTime;
         this.endTime = endTime;
+    }
+
+    public Room(
+        String roomName,
+        UUID hostUserId,
+        Integer totalPages,
+        Integer pageTurnSpeed,
+        String genre,
+        Instant startTime,
+        Instant endTime
+    ) {
+        this.roomName = roomName;
+        this.hostUserId = hostUserId;
+        this.totalPages = totalPages;
+        this.pageTurnSpeed = pageTurnSpeed;
+        this.genre = genre;
+        this.startTime = startTime;
+        this.endTime = endTime;
+    }
+
+    public Room(String roomName, Long hostUserId, Integer totalPages, Integer pageTurnSpeed, String genre, String startTime, String endTime) {
+        this.roomName = roomName;
+        this.hostUserId = UUID.fromString(String.valueOf(hostUserId));
+        this.totalPages = totalPages;
+        this.pageTurnSpeed = pageTurnSpeed;
+        this.genre = genre;
+        this.startTime = Instant.parse(startTime);
+        this.endTime = Instant.parse(endTime);
     }
 
     // --- Getter / Setter ---
@@ -125,6 +155,10 @@ public class Room {
         return pageTurnSpeed;
     }
 
+    public Long getRoomId() {
+        return roomId;
+    }
+
     /**
      * パスワードが設定されているかどうかを判定する。
      * JSONシリアライゼーション時にクライアントに返される。
@@ -166,6 +200,10 @@ public class Room {
 
     public void setHostUserId(UUID hostUserId) {
         this.hostUserId = hostUserId;
+    }
+
+    public void setRoomId(Long roomId) {
+        this.roomId = roomId;
     }
 
     // --- その他のメソッド ---

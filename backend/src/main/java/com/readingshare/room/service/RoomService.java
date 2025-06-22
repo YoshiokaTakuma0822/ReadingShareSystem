@@ -165,12 +165,15 @@ public class RoomService {
      * @return 更新された部屋のエンティティ
      * @throws ApplicationException 部屋が見つからない場合
      */
-    @Transactional
+     @Transactional
     public Room updateRoom(String roomId, UpdateRoomRequest request) {
         UUID id = UUID.fromString(roomId);
         Room room = roomRepository.findById(id).orElseThrow(() -> new ApplicationException("部屋が見つかりません"));
-        if (request.getTotalPages() != null) {
-            room.setTotalPages(request.getTotalPages());
+        if (request.maxPage() != null) {
+            room.setMaxPage(request.maxPage());
+        }
+        if (request.totalPages() != null) {
+            room.setTotalPages(request.totalPages());
         }
         // 必要なら他の項目もここで更新
         return roomRepository.save(room);

@@ -13,12 +13,13 @@ public class CreateRoomRequest {
     private String startTime;       // 開始時刻（例: "2025-06-22T10:00:00"）
     private String endTime;         // 終了時刻
     private String bookTitle;
+    private String hostUserName;
 
     public CreateRoomRequest() {
         // デフォルトコンストラクタ
     }
 
-    public CreateRoomRequest(String roomName, Long hostUserId, Integer totalPages, Integer pageTurnSpeed, String genre, String startTime, String endTime) {
+    public CreateRoomRequest(String roomName, Long hostUserId, Integer totalPages, Integer pageTurnSpeed, String genre, String startTime, String endTime, String hostUserName) {
         this.roomName = roomName;
         this.hostUserId = hostUserId;
         this.totalPages = totalPages;
@@ -26,6 +27,7 @@ public class CreateRoomRequest {
         this.genre = genre;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.hostUserName = hostUserName;
     }
 
     public String getRoomName() {
@@ -92,6 +94,14 @@ public class CreateRoomRequest {
         this.bookTitle = bookTitle;
     }
 
+    public String getHostUserName() {
+        return hostUserName;
+    }
+
+    public void setHostUserName(String hostUserName) {
+        this.hostUserName = hostUserName;
+    }
+
     @Override
     public String toString() {
         return "CreateRoomRequest{" +
@@ -103,6 +113,7 @@ public class CreateRoomRequest {
                 ", startTime='" + startTime + '\'' +
                 ", endTime='" + endTime + '\'' +
                 ", bookTitle='" + bookTitle + '\'' +
+                ", hostUserName='" + hostUserName + '\'' +
                 '}';
     }
 }
