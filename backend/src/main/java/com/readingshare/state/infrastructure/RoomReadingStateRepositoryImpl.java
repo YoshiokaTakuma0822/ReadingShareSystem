@@ -1,11 +1,12 @@
 package com.readingshare.state.infrastructure;
 
-import com.readingshare.state.domain.model.RoomReadingState;
-import com.readingshare.state.domain.repository.RoomReadingStateRepository;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.springframework.stereotype.Repository;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.Map;
+import com.readingshare.state.domain.model.RoomReadingState;
+import com.readingshare.state.domain.repository.RoomReadingStateRepository;
 
 @Repository
 public class RoomReadingStateRepositoryImpl implements RoomReadingStateRepository {

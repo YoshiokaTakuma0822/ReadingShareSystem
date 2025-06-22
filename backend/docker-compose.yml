@@ -1,0 +1,16 @@
+services:
+    postgres:
+        image: postgres:17.5
+        container_name: readingshare-db
+        ports:
+            - "5432:5432"
+        environment:
+            POSTGRES_DB: readingshare_db
+            POSTGRES_USER: readingshare
+            POSTGRES_PASSWORD: readingshare
+        volumes:
+            - postgres-data:/var/lib/postgresql/data
+        restart: unless-stopped
+
+volumes:
+    postgres-data:

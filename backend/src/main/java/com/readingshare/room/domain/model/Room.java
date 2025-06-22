@@ -1,33 +1,39 @@
 package com.readingshare.room.domain.model;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.persistence.Column;
 
 @Entity
 @Table(name = "rooms")
 public class Room {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long roomId;
+    @Column(columnDefinition = "UUID")
+    private UUID id;
 
     @Column(nullable = false, length = 100)
     private String roomName;
 
-    @Column(nullable = false)
-    private Long hostUserId;
+    @Column(nullable = false, length = 200)
+    private String bookTitle;
+
+    @Column(nullable = false, columnDefinition = "UUID")
+    private UUID hostUserId;
 
     @Column(nullable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
+
+    @JsonIgnore
+    @Column(nullable = true)
+    private String roomPasswordHash;
 
     private Integer totalPages;      // 本のページ数
     private Integer pageTurnSpeed;   // ページめくり速度
@@ -42,31 +48,28 @@ public class Room {
         // JPA用
     }
 
-    public Room(String roomName, Long hostUserId) {
+    public Room(String roomName, String bookTitle, UUID hostUserId) {
+        this.id = UUID.randomUUID();
         this.roomName = roomName;
+        this.bookTitle = bookTitle;
         this.hostUserId = hostUserId;
-        this.createdAt = LocalDateTime.now();
+        this.createdAt = Instant.now();
     }
 
-    public Room(Long roomId, String roomName, Long hostUserId, LocalDateTime createdAt) {
-        this.roomId = roomId;
+    public Room(UUID id, String roomName, String bookTitle, UUID hostUserId, Instant createdAt) {
+        this.id = id;
         this.roomName = roomName;
+        this.bookTitle = bookTitle;
         this.hostUserId = hostUserId;
         this.createdAt = createdAt;
     }
 
-    public Room(String roomName, Long hostUserId, Integer totalPages, Integer pageTurnSpeed) {
+    public Room(String roomName, String bookTitle, UUID hostUserId, Integer totalPages, Integer pageTurnSpeed, String genre, String startTime, String endTime) {
+        this.id = UUID.randomUUID();
         this.roomName = roomName;
+        this.bookTitle = bookTitle;
         this.hostUserId = hostUserId;
-        this.createdAt = LocalDateTime.now();
-        this.totalPages = totalPages;
-        this.pageTurnSpeed = pageTurnSpeed;
-    }
-
-    public Room(String roomName, Long hostUserId, Integer totalPages, Integer pageTurnSpeed, String genre, String startTime, String endTime) {
-        this.roomName = roomName;
-        this.hostUserId = hostUserId;
-        this.createdAt = LocalDateTime.now();
+        this.createdAt = Instant.now();
         this.totalPages = totalPages;
         this.pageTurnSpeed = pageTurnSpeed;
         this.genre = genre;
@@ -75,36 +78,32 @@ public class Room {
     }
 
     // --- Getter / Setter ---
-    public Long getRoomId() {
-        return roomId;
-    }
-
-    public void setRoomId(Long roomId) {
-        this.roomId = roomId;
+    public UUID getId() {
+        return id;
     }
 
     public String getRoomName() {
         return roomName;
     }
 
-    public void setRoomName(String roomName) {
-        this.roomName = roomName;
+    public String getBookTitle() {
+        return bookTitle;
     }
 
-    public Long getHostUserId() {
+    public UUID getHostUserId() {
         return hostUserId;
     }
 
-    public void setHostUserId(Long hostUserId) {
-        this.hostUserId = hostUserId;
-    }
-
-    public LocalDateTime getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public String getRoomPasswordHash() {
+        return roomPasswordHash;
+    }
+
+    public void setRoomPasswordHash(String roomPasswordHash) {
+        this.roomPasswordHash = roomPasswordHash;
     }
 
     public Integer getTotalPages() {
@@ -147,25 +146,38 @@ public class Room {
         this.endTime = endTime;
     }
 
+    /**
+     * パスワードが設定されているかどうかを判定する。
+     * JSONシリアライゼーション時にクライアントに返される。
+     *
+     * @return パスワードが設定されている場合はtrue、そうでなければfalse
+     */
+    public boolean isHasPassword() {
+        return roomPasswordHash != null && !roomPasswordHash.isEmpty();
+    }
+
     // --- equals / hashCode / toString ---
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Room)) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         Room room = (Room) o;
-        return Objects.equals(roomId, room.roomId);
+        return Objects.equals(id, room.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(roomId);
+        return Objects.hash(id);
     }
 
     @Override
     public String toString() {
         return "Room{" +
-                "roomId=" + roomId +
+                "id=" + id +
                 ", roomName='" + roomName + '\'' +
+                ", bookTitle='" + bookTitle + '\'' +
                 ", hostUserId=" + hostUserId +
                 ", createdAt=" + createdAt +
                 ", totalPages=" + totalPages +

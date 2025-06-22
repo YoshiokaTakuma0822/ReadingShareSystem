@@ -1,13 +1,20 @@
-export async function fetchRoomState(roomId: string) {
-  const res = await fetch(`/api/room-reading-state/${roomId}`);
-  if (!res.ok) throw new Error('Failed to fetch room state');
-  return res.json();
+import apiClient from './apiClient'
+import { RoomReadingStateResponse, UpdateUserReadingStateRequest } from '../types/readingState'
+
+export async function fetchRoomState(roomId: string): Promise<RoomReadingStateResponse> {
+    const response = await apiClient.get(`/rooms/${roomId}/states`)
+    return response.data
 }
 
-export async function turnPage(roomId: string, userId: string, direction: 'next' | 'prev') {
-  const res = await fetch(`/api/room-reading-state/${roomId}/user/turn?userId=${userId}&direction=${direction}`, {
-    method: 'POST',
-  });
-  if (!res.ok) throw new Error('Failed to turn page');
-  return res.json();
+export async function updateUserReadingState(roomId: string, userId: string, request: UpdateUserReadingStateRequest): Promise<void> {
+    const response = await apiClient.post(`/rooms/${roomId}/states/${userId}`, request)
+    return response.data
+}
+
+export async function turnPage(roomId: string, userId: string, direction: 'next' | 'prev'): Promise<void> {
+    const response = await apiClient.post(`/progress/${roomId}/record`, {
+        userId,
+        direction
+    })
+    return response.data
 }
