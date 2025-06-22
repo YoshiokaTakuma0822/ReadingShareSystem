@@ -293,20 +293,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
 
             {/* チャット欄 */}
             <div style={{ flex: 1, overflowY: 'auto', marginBottom: 16, background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #b0b8c9', display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {messages.map((msg, idx) => (
-                    <div key={msg.id} style={{ display: 'flex', alignItems: 'center', gap: 12, flexDirection: msg.isCurrentUser ? 'row-reverse' : 'row', justifyContent: msg.isCurrentUser ? 'flex-end' : 'flex-start' }}>
-                        {/* ユーザーアイコン（頭文字） */}
-                        <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#e0e0e0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: 18, color: '#388e3c', marginLeft: msg.isCurrentUser ? 0 : 4, marginRight: msg.isCurrentUser ? 4 : 0 }}>
-                            {getUserInitial(msg.user)}
-                        </div>
-                        <div style={{ flex: 1, textAlign: msg.isCurrentUser ? 'right' : 'left' }}>
-                            <div style={{ fontWeight: msg.isCurrentUser ? 'bold' : 'normal', color: msg.isCurrentUser ? '#388e3c' : '#333' }}>{msg.user}</div>
-                            <div style={{ fontSize: 16, display: 'inline-block', background: msg.isCurrentUser ? '#c8e6c9' : '#fff', borderRadius: 8, padding: '8px 16px', margin: msg.isCurrentUser ? '0 0 0 24px' : '0 24px 0 0' }}>{msg.text}</div>
-                            {/* タイムスタンプ */}
-                            <div style={{ fontSize: 12, color: '#888' }}>{new Date().toLocaleTimeString()}</div>
-                        </div>
-                    </div>
-                ) : streamItems.length === 0 ? (
+                {streamItems.length === 0 ? (
                     <div style={{
                         display: 'flex',
                         justifyContent: 'center',
