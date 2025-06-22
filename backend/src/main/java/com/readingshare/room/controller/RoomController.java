@@ -22,6 +22,9 @@ import com.readingshare.room.service.RoomService;
  * @author 02004
  * @componentId C3
  * @moduleName Roomコントローラ
+ * @see RoomService
+ * @see CreateRoomRequest
+ * @see JoinRoomRequest
  */
 @RestController
 @RequestMapping("/api/rooms")

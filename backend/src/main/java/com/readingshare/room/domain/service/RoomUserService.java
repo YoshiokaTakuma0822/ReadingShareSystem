@@ -9,6 +9,7 @@ import com.readingshare.room.domain.model.RoomUserProfile;
  * @author 02004
  * @componentId C3
  * @moduleName ルームユーザーサービス
+ * @see RoomUserProfile
  */
 public interface RoomUserService {
     /**

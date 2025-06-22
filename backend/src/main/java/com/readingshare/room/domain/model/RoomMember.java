@@ -14,7 +14,7 @@ import jakarta.persistence.Table;
  *
  * @author 02004
  * @componentId C3
- * @moduleName ルームメンバー管理
+ * @moduleName ルームメンバードメインモデル
  */
 @Entity
 @Table(name = "room_members")
