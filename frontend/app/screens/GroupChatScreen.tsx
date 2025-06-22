@@ -9,6 +9,7 @@ interface Message {
     user: string
     text: string
     isCurrentUser: boolean
+    sentAt: string // 送信時刻を追加
 }
 
 interface GroupChatScreenProps {
@@ -60,6 +61,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                 user: msg.senderUsername || '匿名', // ユーザー名を表示
                 text: typeof msg.content === 'string' ? msg.content : msg.content.value,
                 isCurrentUser: String(msg.senderUserId) === String(currentUserId),
+                sentAt: msg.sentAt // 送信時刻を格納
             })))
             // Surveyメッセージ取得（例: チャット履歴からSurvey関連を抽出）
             const surveyMsgs = chatHistory.filter(msg => {
@@ -237,7 +239,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                             <div style={{ fontWeight: msg.isCurrentUser ? 'bold' : 'normal', color: msg.isCurrentUser ? '#388e3c' : '#333' }}>{msg.user}</div>
                             <div style={{ fontSize: 16, display: 'inline-block', background: msg.isCurrentUser ? '#c8e6c9' : '#fff', borderRadius: 8, padding: '8px 16px', margin: msg.isCurrentUser ? '0 0 0 24px' : '0 24px 0 0' }}>{msg.text}</div>
                             {/* タイムスタンプ */}
-                            <div style={{ fontSize: 12, color: '#888' }}>{new Date().toLocaleTimeString()}</div>
+                            <div style={{ fontSize: 12, color: '#888' }}>{msg.sentAt ? new Date(msg.sentAt).toLocaleTimeString() : ''}</div>
                         </div>
                     </div>
                 ))}
