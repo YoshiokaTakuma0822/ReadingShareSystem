@@ -370,11 +370,40 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                                                                     {opt}
                                                                 </label>
                                                             ))}
-                                                            {/* 追加選択肢入力欄など... */}
+                                                            {/* 選択肢追加欄 */}
+                                                            {q.allowAddOptions && (
+                                                                <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+                                                                    <input
+                                                                        type="text"
+                                                                        placeholder="選択肢を追加"
+                                                                        value={newOptionInput[survey.id + '-' + qIdx] || ''}
+                                                                        onChange={e => setNewOptionInput(prev => ({ ...prev, [survey.id + '-' + qIdx]: e.target.value }))}
+                                                                        style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #b0b8c9', fontSize: 14 }}
+                                                                    />
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            const val = (newOptionInput[survey.id + '-' + qIdx] || '').trim();
+                                                                            if (!val) return;
+                                                                            setAddedOptions(prev => ({
+                                                                                ...prev,
+                                                                                [survey.id + '-' + qIdx]: [...(prev[survey.id + '-' + qIdx] || []), val]
+                                                                            }));
+                                                                            setNewOptionInput(prev => ({ ...prev, [survey.id + '-' + qIdx]: '' }));
+                                                                        }}
+                                                                        style={{ padding: '4px 12px', borderRadius: 4, background: '#2196f3', color: '#fff', border: 'none', fontSize: 14 }}
+                                                                    >追加</button>
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     );
                                                 })}
-                                                {/* 回答ボタンなど... */}
+                                                {/* 回答ボタン */}
+                                                <div style={{ textAlign: 'right', marginTop: 8 }}>
+                                                    <button
+                                                        onClick={() => handleSurveyAnswer(survey)}
+                                                        style={{ padding: '8px 24px', borderRadius: 6, background: '#388e3c', color: '#fff', border: 'none', fontWeight: 'bold', fontSize: 16 }}
+                                                    >回答する</button>
+                                                </div>
                                             </>
                                         )}
                                     </div>
