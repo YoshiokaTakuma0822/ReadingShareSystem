@@ -12,6 +12,7 @@ public class CreateRoomRequest {
     private String genre;           // ジャンル
     private String startTime;       // 開始時刻（例: "2025-06-22T10:00:00"）
     private String endTime;         // 終了時刻
+    private String bookTitle;
 
     public CreateRoomRequest() {
         // デフォルトコンストラクタ
@@ -83,6 +84,14 @@ public class CreateRoomRequest {
         this.endTime = endTime;
     }
 
+    public String getBookTitle() {
+        return bookTitle;
+    }
+
+    public void setBookTitle(String bookTitle) {
+        this.bookTitle = bookTitle;
+    }
+
     @Override
     public String toString() {
         return "CreateRoomRequest{" +
@@ -93,6 +102,7 @@ public class CreateRoomRequest {
                 ", genre='" + genre + '\'' +
                 ", startTime='" + startTime + '\'' +
                 ", endTime='" + endTime + '\'' +
+                ", bookTitle='" + bookTitle + '\'' +
                 '}';
     }
 }

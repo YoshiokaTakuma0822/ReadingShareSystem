@@ -32,7 +32,6 @@ public class RoomMember {
     }
 
     public RoomMember(UUID roomId, UUID userId, Instant joinedAt) {
-        this.id = UUID.randomUUID();
         this.roomId = roomId;
         this.userId = userId;
         this.joinedAt = joinedAt;

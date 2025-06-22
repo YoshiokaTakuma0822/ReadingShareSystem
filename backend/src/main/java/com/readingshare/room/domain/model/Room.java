@@ -35,43 +35,46 @@ public class Room {
     @Column(nullable = true)
     private String roomPasswordHash;
 
+    @Column(nullable = true)
     private Integer totalPages;      // 本のページ数
+
+    @Column(nullable = true)
     private Integer pageTurnSpeed;   // ページめくり速度
 
-    // --- フィールド追加 ---
+    @Column(nullable = true, length = 100)
     private String genre;
-    private String startTime;
-    private String endTime;
+
+    @Column(nullable = true)
+    private Instant startTime;
+
+    @Column(nullable = true)
+    private Instant endTime;
 
     // --- コンストラクタ ---
     public Room() {
         // JPA用
     }
 
-    public Room(String roomName, String bookTitle, UUID hostUserId) {
-        this.id = UUID.randomUUID();
-        this.roomName = roomName;
-        this.bookTitle = bookTitle;
-        this.hostUserId = hostUserId;
-        this.createdAt = Instant.now();
-    }
-
-    public Room(UUID id, String roomName, String bookTitle, UUID hostUserId, Instant createdAt) {
-        this.id = id;
-        this.roomName = roomName;
-        this.bookTitle = bookTitle;
-        this.hostUserId = hostUserId;
-        this.createdAt = createdAt;
-    }
-
-    public Room(String roomName, String bookTitle, UUID hostUserId, Integer totalPages, Integer pageTurnSpeed, String genre, String startTime, String endTime) {
+    public Room(String roomName, String bookTitle, UUID hostUserId, Integer totalPages, String genre, Instant startTime, Instant endTime, Integer pageTurnSpeed) {
         this.id = UUID.randomUUID();
         this.roomName = roomName;
         this.bookTitle = bookTitle;
         this.hostUserId = hostUserId;
         this.createdAt = Instant.now();
         this.totalPages = totalPages;
+        this.genre = genre;
+        this.startTime = startTime;
+        this.endTime = endTime;
         this.pageTurnSpeed = pageTurnSpeed;
+    }
+
+    public Room(UUID id, String roomName, String bookTitle, UUID hostUserId, Instant createdAt, Integer totalPages, String genre, Instant startTime, Instant endTime, Integer pageSpeed) {
+        this.id = id;
+        this.roomName = roomName;
+        this.bookTitle = bookTitle;
+        this.hostUserId = hostUserId;
+        this.createdAt = createdAt;
+        this.totalPages = totalPages;
         this.genre = genre;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -102,48 +105,24 @@ public class Room {
         return roomPasswordHash;
     }
 
-    public void setRoomPasswordHash(String roomPasswordHash) {
-        this.roomPasswordHash = roomPasswordHash;
-    }
-
     public Integer getTotalPages() {
         return totalPages;
-    }
-
-    public void setTotalPages(Integer totalPages) {
-        this.totalPages = totalPages;
-    }
-
-    public Integer getPageTurnSpeed() {
-        return pageTurnSpeed;
-    }
-
-    public void setPageTurnSpeed(Integer pageTurnSpeed) {
-        this.pageTurnSpeed = pageTurnSpeed;
     }
 
     public String getGenre() {
         return genre;
     }
 
-    public void setGenre(String genre) {
-        this.genre = genre;
-    }
-
-    public String getStartTime() {
+    public Instant getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(String startTime) {
-        this.startTime = startTime;
-    }
-
-    public String getEndTime() {
+    public Instant getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(String endTime) {
-        this.endTime = endTime;
+    public Integer getPageTurnSpeed() {
+        return pageTurnSpeed;
     }
 
     /**
@@ -156,7 +135,40 @@ public class Room {
         return roomPasswordHash != null && !roomPasswordHash.isEmpty();
     }
 
-    // --- equals / hashCode / toString ---
+    // --- セッター ---
+    public void setRoomPasswordHash(String roomPasswordHash) {
+        this.roomPasswordHash = roomPasswordHash;
+    }
+
+    public void setTotalPages(Integer totalPages) {
+        this.totalPages = totalPages;
+    }
+
+    public void setGenre(String genre) {
+        this.genre = genre;
+    }
+
+    public void setStartTime(Instant startTime) {
+        this.startTime = startTime;
+    }
+
+    public void setEndTime(Instant endTime) {
+        this.endTime = endTime;
+    }
+
+    public void setPageTurnSpeed(Integer pageTurnSpeed) {
+        this.pageTurnSpeed = pageTurnSpeed;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public void setHostUserId(UUID hostUserId) {
+        this.hostUserId = hostUserId;
+    }
+
+    // --- その他のメソッド ---
     @Override
     public boolean equals(Object o) {
         if (this == o)

@@ -3,22 +3,17 @@ package com.readingshare.room.domain.repository;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
-<<<<<<< HEAD
-public interface IRoomMemberRepository extends JpaRepository<RoomMember, Long> {
-    Optional<RoomMember> findByRoomIdAndUserId(Long roomId, Long userId);
-    List<RoomMember> findByRoomId(Long roomId);
-    List<Long> findRecentRoomIdsByUserId(Long userId, int limit);
-}
-=======
 import com.readingshare.room.domain.model.RoomMember;
 
 /**
  * 部屋メンバー情報の永続化を担当するリポジトリインターフェース。
  * 担当: 芳岡
  */
-public interface IRoomMemberRepository {
-
+public interface IRoomMemberRepository extends JpaRepository<RoomMember, Long> {
     /**
      * 部屋メンバー情報を保存する。
      *
@@ -43,5 +38,7 @@ public interface IRoomMemberRepository {
      * @return メンバーが見つかった場合はOptionalにRoomMember、見つからない場合はOptional.empty()
      */
     Optional<RoomMember> findByRoomIdAndUserId(UUID roomId, UUID userId);
+
+    @Query("SELECT rm.roomId FROM RoomMember rm WHERE rm.userId = :userId ORDER BY rm.joinedAt DESC")
+    List<UUID> findRecentRoomIdsByUserId(@Param("userId") UUID userId, org.springframework.data.domain.Pageable pageable);
 }
->>>>>>> origin/dev2

@@ -17,6 +17,15 @@ interface GroupChatScreenProps {
     roomId?: string
 }
 
+// Surveyメッセージ用の型
+interface SurveyMessage {
+    id: string;
+    surveyId: string;
+    type: 'survey';
+    title: string;
+    createdAt: string;
+}
+
 const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャットルーム", currentUser = "あなた", roomId }) => {
     const [messages, setMessages] = useState<Message[]>([])
     const [input, setInput] = useState("")
@@ -25,6 +34,9 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+    const [surveyMessages, setSurveyMessages] = useState<SurveyMessage[]>([])
+    const [showSurveyAnswerModal, setShowSurveyAnswerModal] = useState(false);
+    const [dummySurveyId, setDummySurveyId] = useState<string | null>(null);
 
     // コンポーネントマウント時にユーザーIDを取得
     useEffect(() => {
@@ -38,40 +50,38 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
             setLoading(false)
             return
         }
-
+        setLoading(true)
+        setError(null)
         try {
-            setLoading(true)
-            setError(null)
+            // チャット履歴取得
             const chatHistory = await chatApi.getChatHistory(roomId)
-
-            console.log('取得したチャット履歴:', chatHistory)
-
-            // ChatMessageをMessage形式に変換
-            const convertedMessages: Message[] = chatHistory.map((msg, index) => {
-                console.log('メッセージ変換:', msg)
-
-                // contentがオブジェクトの場合は.valueを取得、文字列の場合はそのまま使用
-                let messageText = ''
-                if (typeof msg.content === 'object' && msg.content !== null && 'value' in msg.content) {
-                    messageText = String((msg.content as { value: string }).value || '')
-                } else {
-                    messageText = String(msg.content || '')
+            setMessages(chatHistory.map((msg, idx) => ({
+                id: idx, // 連番でnumber型に変換
+                user: msg.senderUsername || '匿名', // ユーザー名を表示
+                text: typeof msg.content === 'string' ? msg.content : msg.content.value,
+                isCurrentUser: String(msg.senderUserId) === String(currentUserId),
+            })))
+            // Surveyメッセージ取得（例: チャット履歴からSurvey関連を抽出）
+            const surveyMsgs = chatHistory.filter(msg => {
+                if (typeof msg.content === 'object' && msg.content.value.startsWith('[SURVEY]')) {
+                    return true
                 }
-
-                return {
-                    id: index + 1,
-                    user: String(msg.senderUserId || '匿名ユーザー'),
-                    text: messageText,
-                    isCurrentUser: msg.senderUserId === currentUserId
-                }
-            })
-
-            setMessages(convertedMessages)
-            setMsgId(convertedMessages.length + 1)
-        } catch (err) {
-            console.error('チャット履歴の取得に失敗しました:', err)
-            console.log('エラー詳細:', err)
-            setError('チャット履歴の読み込みに失敗しました')
+                return false
+            }).map(msg => {
+                const value = typeof msg.content === 'object' ? msg.content.value : ''
+                // [SURVEY]surveyId:title 形式を想定
+                const match = value.match(/^\[SURVEY\](.*?):(.*)$/)
+                return match ? {
+                    id: msg.id,
+                    surveyId: match[1],
+                    type: 'survey',
+                    title: match[2],
+                    createdAt: msg.sentAt,
+                } : null
+            }).filter(Boolean) as SurveyMessage[]
+            setSurveyMessages(surveyMsgs)
+        } catch (e) {
+            setError('チャット履歴の取得に失敗しました')
         } finally {
             setLoading(false)
         }
@@ -84,32 +94,29 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
         }
     }, [roomId, currentUserId])
 
+    // チャット自動更新（5秒ごと）
+    useEffect(() => {
+        if (!roomId || !currentUserId) return;
+        const interval = setInterval(() => {
+            loadChatHistory();
+        }, 5000);
+        return () => clearInterval(interval);
+    }, [roomId, currentUserId])
+
     const handleSend = async () => {
         if (!input.trim() || !roomId) return
 
         try {
-            // サーバーにメッセージを送信
-            await chatApi.sendMessage(roomId, { messageContent: input })
-
-            // ローカル状態を更新
-            setMessages([...messages, {
-                id: msgId,
-                user: currentUser,
-                text: input,
-                isCurrentUser: true
-            }])
-            setMsgId(msgId + 1)
+            // サーバーにメッセージを送信（送信時刻を付与）
+            await chatApi.sendMessage(roomId, {
+                messageContent: input,
+                sentAt: new Date().toISOString(),
+            })
+            // 送信直後に全員のチャット履歴を即時再取得
+            await loadChatHistory()
             setInput("")
         } catch (err) {
             console.error('メッセージ送信に失敗しました:', err)
-            // エラーが発生してもローカル状態は更新する（UX向上のため）
-            setMessages([...messages, {
-                id: msgId,
-                user: currentUser,
-                text: input,
-                isCurrentUser: true
-            }])
-            setMsgId(msgId + 1)
             setInput("")
         }
     }
@@ -128,6 +135,9 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
         setShowSurveyModal(false)
         // サーベイ作成後の処理（必要に応じて）
     }
+
+    // 1. チャットのユーザーアイコンを頭文字一文字に
+    const getUserInitial = (user: string) => user.charAt(0).toUpperCase();
 
     return (
         <div style={{ border: '4px solid #388e3c', margin: 24, padding: 24, background: 'linear-gradient(135deg, #e0f7ef 0%, #f1fdf6 100%)', borderRadius: 12, maxWidth: 1200, minHeight: 600, marginLeft: 'auto', marginRight: 'auto', display: 'flex', flexDirection: 'column', height: '80vh' }}>
@@ -215,92 +225,22 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                 </div>
             )}
 
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 32, minHeight: 200, maxHeight: '60vh', overflowY: 'auto', background: 'rgba(255,255,255,0.7)', borderRadius: 8, padding: 16 }}>
-                {loading ? (
-                    <div style={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        height: '100%',
-                        color: '#666',
-                        fontSize: 16
-                    }}>
-                        チャット履歴を読み込み中...
+            {/* チャット欄 */}
+            <div style={{ flex: 1, overflowY: 'auto', marginBottom: 16, background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #b0b8c9', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {messages.map((msg, idx) => (
+                    <div key={msg.id} style={{ display: 'flex', alignItems: 'center', gap: 12, flexDirection: msg.isCurrentUser ? 'row-reverse' : 'row', justifyContent: msg.isCurrentUser ? 'flex-end' : 'flex-start' }}>
+                        {/* ユーザーアイコン（頭文字） */}
+                        <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#e0e0e0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: 18, color: '#388e3c', marginLeft: msg.isCurrentUser ? 0 : 4, marginRight: msg.isCurrentUser ? 4 : 0 }}>
+                            {getUserInitial(msg.user)}
+                        </div>
+                        <div style={{ flex: 1, textAlign: msg.isCurrentUser ? 'right' : 'left' }}>
+                            <div style={{ fontWeight: msg.isCurrentUser ? 'bold' : 'normal', color: msg.isCurrentUser ? '#388e3c' : '#333' }}>{msg.user}</div>
+                            <div style={{ fontSize: 16, display: 'inline-block', background: msg.isCurrentUser ? '#c8e6c9' : '#fff', borderRadius: 8, padding: '8px 16px', margin: msg.isCurrentUser ? '0 0 0 24px' : '0 24px 0 0' }}>{msg.text}</div>
+                            {/* タイムスタンプ */}
+                            <div style={{ fontSize: 12, color: '#888' }}>{new Date().toLocaleTimeString()}</div>
+                        </div>
                     </div>
-                ) : messages.length === 0 ? (
-                    <div style={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        height: '100%',
-                        color: '#999',
-                        fontSize: 16
-                    }}>
-                        まだメッセージがありません
-                    </div>
-                ) : (
-                    messages.map(msg => {
-                        const isMine = msg.isCurrentUser
-                        return (
-                            <div
-                                key={msg.id}
-                                style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 8,
-                                    justifyContent: isMine ? 'flex-end' : 'flex-start',
-                                }}
-                            >
-                                {!isMine && (
-                                    <span style={{ border: '1px solid #222', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                        {String(msg.user).charAt(0).toUpperCase()}
-                                    </span>
-                                )}
-                                <div
-                                    style={{
-                                        border: '1px solid #222',
-                                        borderRadius: 16,
-                                        padding: 8,
-                                        background: isMine ? '#e0f7fa' : '#fff',
-                                        maxWidth: 600,
-                                        wordBreak: 'break-word',
-                                    }}
-                                >
-                                    {String(msg.text)}
-                                </div>
-                                {isMine && (
-                                    <span style={{ border: '1px solid #222', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#e0f7fa' }}>
-                                        {String(msg.user).charAt(0).toUpperCase()}
-                                    </span>
-                                )}
-                            </div>
-                        )
-                    })
-                )}
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', marginTop: 32 }}>
-                <input
-                    type="text"
-                    value={input}
-                    onChange={e => setInput(e.target.value)}
-                    onKeyDown={e => { if (e.key === 'Enter') handleSend() }}
-                    style={{ flex: 1, padding: 12, borderRadius: 8, border: '1px solid #222', fontSize: 18 }}
-                    placeholder="メッセージを入力..."
-                    disabled={loading}
-                />
-                <button
-                    style={{
-                        marginLeft: 8,
-                        padding: '12px 24px',
-                        borderRadius: 8,
-                        border: '1px solid #222',
-                        fontSize: 18,
-                        background: loading ? '#ccc' : 'white',
-                        cursor: loading ? 'not-allowed' : 'pointer'
-                    }}
-                    onClick={handleSend}
-                    disabled={loading}
-                >送信</button>
+                ))}
             </div>
 
             {/* アンケート作成モーダル */}
@@ -312,6 +252,55 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                     onCreated={handleSurveyCreated}
                 />
             )}
+
+            {/* チャット欄の下部にSurveyメッセージを表示 */}
+            <div style={{ marginTop: 24 }}>
+                {surveyMessages.length > 0 && (
+                    <div style={{ background: '#e3f2fd', borderRadius: 8, padding: 12, marginBottom: 8 }}>
+                        <b>アンケート:</b>
+                        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                            {surveyMessages.map(s => (
+                                <li key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                                    <span style={{ color: '#1976d2', fontWeight: 500 }}>アンケート名：</span>
+                                    <span style={{ color: '#1976d2', fontWeight: 500 }}>{s.title}</span>
+                                    <span style={{ marginLeft: 8, fontSize: 12, color: '#888' }}>{new Date(s.createdAt).toLocaleString()}</span>
+                                    <button
+                                        style={{ marginLeft: 'auto', padding: '6px 16px', background: '#388e3c', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 14 }}
+                                        onClick={() => {
+                                            setShowSurveyAnswerModal(true);
+                                            setDummySurveyId(s.surveyId);
+                                        }}
+                                    >
+                                        回答する
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
+            </div>
+
+            {/* チャット入力欄 */}
+            <form
+                onSubmit={e => { e.preventDefault(); handleSend(); }}
+                style={{ display: 'flex', gap: 12, marginTop: 8 }}
+            >
+                <input
+                    type="text"
+                    value={input}
+                    onChange={e => setInput(e.target.value)}
+                    placeholder="メッセージを入力..."
+                    style={{ flex: 1, padding: 12, fontSize: 16, borderRadius: 8, border: '1px solid #b0b8c9' }}
+                    onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { handleSend(); e.preventDefault(); } }}
+                />
+                <button
+                    type="submit"
+                    disabled={!input.trim()}
+                    style={{ padding: '12px 24px', fontSize: 16, borderRadius: 8, background: '#388e3c', color: 'white', border: 'none', fontWeight: 'bold', cursor: !input.trim() ? 'not-allowed' : 'pointer', opacity: !input.trim() ? 0.6 : 1 }}
+                >
+                    送信
+                </button>
+            </form>
         </div>
     )
 }

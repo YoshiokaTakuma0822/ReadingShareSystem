@@ -1,5 +1,6 @@
 package com.readingshare.room.service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -10,12 +11,15 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.readingshare.auth.domain.repository.IUserRepository;
 import com.readingshare.common.exception.ApplicationException;
 import com.readingshare.common.exception.DatabaseAccessException;
 import com.readingshare.room.domain.model.Room;
 import com.readingshare.room.domain.model.RoomMember;
 import com.readingshare.room.domain.repository.IRoomRepository;
 import com.readingshare.room.domain.service.RoomDomainService;
+import com.readingshare.room.dto.RoomResponse;
+import com.readingshare.room.dto.UpdateRoomRequest;
 
 /**
  * 部屋に関する統合アプリケーションサービス。
@@ -27,10 +31,29 @@ public class RoomService {
 
     private final IRoomRepository roomRepository;
     private final RoomDomainService roomDomainService;
+    private final IUserRepository userRepository;
 
-    public RoomService(IRoomRepository roomRepository, RoomDomainService roomDomainService) {
+    public RoomService(IRoomRepository roomRepository, RoomDomainService roomDomainService, IUserRepository userRepository) {
         this.roomRepository = roomRepository;
         this.roomDomainService = roomDomainService;
+        this.userRepository = userRepository;
+    }
+
+    public RoomResponse toRoomResponse(Room room) {
+        String username = userRepository.findById(room.getHostUserId())
+            .map(u -> u.getUsername()).orElse("匿名");
+        return new RoomResponse(
+            room.getId(),
+            room.getRoomName(),
+            room.getBookTitle(),
+            room.getHostUserId(),
+            username,
+            room.getTotalPages(), // 修正
+            room.getGenre(),
+            room.getStartTime(),
+            room.getEndTime(),
+            room.getPageTurnSpeed() // 修正
+        );
     }
 
     // =============== 部屋作成関連 ===============
@@ -44,8 +67,8 @@ public class RoomService {
      * @return 作成された部屋のエンティティ
      * @throws ApplicationException 部屋作成に失敗した場合
      */
-    public Room createRoom(String roomName, String bookTitle, UUID hostUserId) {
-        Room newRoom = new Room(roomName, bookTitle, hostUserId);
+    public Room createRoom(String roomName, String bookTitle, UUID hostUserId, Integer totalPages, String genre, Instant startTime, Instant endTime, Integer pageTurnSpeed) {
+        Room newRoom = new Room(roomName, bookTitle, hostUserId, totalPages, genre, startTime, endTime, pageTurnSpeed);
         // パスワードはオプションなので、ここではnullを渡す
         return roomDomainService.createRoom(newRoom, null);
     }
@@ -60,8 +83,8 @@ public class RoomService {
      * @return 作成された部屋のエンティティ
      * @throws ApplicationException 部屋作成に失敗した場合
      */
-    public Room createRoomWithPassword(String roomName, String bookTitle, UUID hostUserId, String roomPassword) {
-        Room newRoom = new Room(roomName, bookTitle, hostUserId);
+    public Room createRoomWithPassword(String roomName, String bookTitle, UUID hostUserId, String roomPassword, Integer totalPages, String genre, Instant startTime, Instant endTime, Integer pageTurnSpeed) {
+        Room newRoom = new Room(roomName, bookTitle, hostUserId, totalPages, genre, startTime, endTime, pageTurnSpeed);
         return roomDomainService.createRoom(newRoom, roomPassword);
     }
 
@@ -75,12 +98,19 @@ public class RoomService {
      * @throws DatabaseAccessException データベースアクセスエラー時
      */
     @Transactional(readOnly = true)
-    public List<Room> searchRooms(String keyword) {
-        if (keyword == null || keyword.trim().isEmpty()) {
-            return roomRepository.findAll();
-        } else {
-            return roomRepository.findByKeyword(keyword);
-        }
+    public List<RoomResponse> searchRooms(String keyword) {
+        List<Room> rooms = (keyword == null || keyword.trim().isEmpty())
+            ? roomRepository.findAll()
+            : roomRepository.findByKeyword(keyword);
+        return rooms.stream().map(this::toRoomResponse).toList();
+    }
+
+    /**
+     * ジャンルで部屋を検索する
+     */
+    @Transactional(readOnly = true)
+    public List<RoomResponse> searchRoomsByGenre(String genre) {
+        return roomRepository.findByGenre(genre).stream().map(this::toRoomResponse).toList();
     }
 
     /**
@@ -91,8 +121,8 @@ public class RoomService {
      * @throws DatabaseAccessException データベースアクセスエラー時
      */
     @Transactional(readOnly = true)
-    public Optional<Room> getRoomById(UUID roomId) {
-        return roomRepository.findById(roomId);
+    public Optional<RoomResponse> getRoomById(UUID roomId) {
+        return roomRepository.findById(roomId).map(this::toRoomResponse);
     }
 
     /**
@@ -102,14 +132,14 @@ public class RoomService {
      * @return 部屋のリスト（作成日時の新しい順）
      */
     @Transactional(readOnly = true)
-    public List<Room> getRooms(int limit) {
+    public List<RoomResponse> getRooms(int limit) {
         // limitの妥当性チェック
         if (limit <= 0 || limit > 100) {
             limit = 10; // デフォルト値
         }
 
         Pageable pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
-        return roomRepository.findAll(pageable).getContent();
+        return roomRepository.findAll(pageable).getContent().stream().map(this::toRoomResponse).toList();
     }
 
     // =============== 部屋参加関連 ===============
@@ -125,5 +155,36 @@ public class RoomService {
      */
     public RoomMember joinRoom(UUID roomId, UUID userId, String roomPassword) {
         return roomDomainService.addRoomMember(roomId, userId, roomPassword);
+    }
+
+    /**
+     * 部屋の情報を更新する。
+     *
+     * @param roomId  更新する部屋のID
+     * @param request 更新内容を含むリクエスト
+     * @return 更新された部屋のエンティティ
+     * @throws ApplicationException 部屋が見つからない場合
+     */
+    @Transactional
+    public Room updateRoom(String roomId, UpdateRoomRequest request) {
+        UUID id = UUID.fromString(roomId);
+        Room room = roomRepository.findById(id).orElseThrow(() -> new ApplicationException("部屋が見つかりません"));
+        if (request.getTotalPages() != null) {
+            room.setTotalPages(request.getTotalPages());
+        }
+        // 必要なら他の項目もここで更新
+        return roomRepository.save(room);
+    }
+
+    /**
+     * 部屋を削除する。
+     *
+     * @param roomId 削除する部屋のID
+     * @throws ApplicationException 部屋が見つからない場合
+     */
+    @Transactional
+    public void deleteRoom(String roomId) {
+        UUID id = UUID.fromString(roomId);
+        roomRepository.deleteById(id);
     }
 }

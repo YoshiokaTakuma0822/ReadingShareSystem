@@ -1,47 +1,29 @@
 package com.readingshare.room.infrastructure.persistence;
 
-<<<<<<< HEAD
-import com.readingshare.room.domain.model.Room;
-import com.readingshare.room.domain.repository.IRoomRepositoryCustom;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
-=======
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
->>>>>>> origin/dev2
 
 import com.readingshare.room.domain.model.Room;
 import com.readingshare.room.domain.repository.IRoomRepository;
 
-<<<<<<< HEAD
-// @Repository アノテーションは省略可能（Spring Data のルールに従う場合）
-public class RoomRepositoryImpl implements IRoomRepositoryCustom {
-
-    @PersistenceContext
-    private EntityManager entityManager;
-
-=======
 @Repository
 public class RoomRepositoryImpl implements IRoomRepository {
     @Autowired
     @Lazy
     private RoomJpaRepository roomRepository;
 
->>>>>>> origin/dev2
     @Override
     public Room save(Room room) {
         return roomRepository.save(room);
     }
-<<<<<<< HEAD
-=======
 
     @Override
     public Optional<Room> findById(UUID id) {
@@ -54,6 +36,11 @@ public class RoomRepositoryImpl implements IRoomRepository {
     }
 
     @Override
+    public List<Room> findByGenre(String genre) {
+        return roomRepository.findByGenre(genre);
+    }
+
+    @Override
     public List<Room> findAll() {
         return roomRepository.findAll();
     }
@@ -62,5 +49,19 @@ public class RoomRepositoryImpl implements IRoomRepository {
     public Page<Room> findAll(Pageable pageable) {
         return roomRepository.findAll(pageable);
     }
->>>>>>> origin/dev2
+
+    @Override
+    public void deleteById(UUID id) {
+        roomRepository.deleteById(id);
+    }
+
+    @Override
+    public <S extends Room> boolean exists(Example<S> example) {
+        return roomRepository.exists(example);
+    }
+
+    @Override
+    public Room getById(UUID id) {
+        return roomRepository.getById(id);
+    }
 }

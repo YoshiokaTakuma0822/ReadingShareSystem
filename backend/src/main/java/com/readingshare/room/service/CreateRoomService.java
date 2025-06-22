@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Service
 public class CreateRoomService {
 
@@ -31,24 +33,25 @@ public class CreateRoomService {
         // Room を作成・保存
         Room room = new Room(
             request.getRoomName(),
-            request.getHostUserId(),
+            request.getBookTitle(),
+            UUID.fromString(request.getHostUserId()),
             request.getTotalPages(),
-            request.getPageTurnSpeed(),
-            request.getGenre(),         // 追加
-            request.getStartTime(),     // 追加
-            request.getEndTime()        // 追加
+            request.getGenre(),
+            request.getStartTime(),
+            request.getEndTime(),
+            request.getPageTurnSpeed()
         );
         Room savedRoom = roomRepository.save(room);
 
         // ホストユーザーを RoomMember として登録
-        RoomMember member = new RoomMember(savedRoom.getRoomId(), request.getHostUserId());
+        RoomMember member = new RoomMember(savedRoom.getId(), UUID.fromString(request.getHostUserId()));
         roomMemberRepository.save(member);
 
         return savedRoom;
     }
 
     @Transactional
-    public void deleteRoom(Long roomId, Long userId) {
+    public void deleteRoom(UUID roomId, UUID userId) {
         Room room = roomRepository.findById(roomId)
             .orElseThrow(() -> new IllegalArgumentException("Room not found"));
 
