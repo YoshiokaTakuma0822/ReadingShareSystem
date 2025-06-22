@@ -1,8 +1,8 @@
 "use client"
 
 import React, { useState } from 'react'
-import { CreateRoomRequest } from '../../types/room'
 import { roomApi } from '../../lib/roomApi'
+import { CreateRoomRequest } from '../../types/room'
 
 interface RoomCreationModalProps {
     open: boolean
@@ -11,6 +11,16 @@ interface RoomCreationModalProps {
     onCreated: () => void
 }
 
+/**
+ * RoomCreationModal コンポーネント: 部屋作成モーダルを表示する Functional Component
+ *
+ * @param props.open - モーダルの表示/非表示フラグ
+ * @param props.userId - ホストユーザーID
+ * @param props.onClose - モーダルを閉じるコールバック関数
+ * @param props.onCreated - 部屋作成完了後に呼ばれるコールバック関数
+ *
+ * @returns JSX.Element | null 部屋作成モーダルのReact要素、非表示時はnull
+ */
 const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onClose, onCreated }) => {
     const [roomName, setRoomName] = useState('')
     const [bookTitle, setBookTitle] = useState('') // 追加: 本のタイトル

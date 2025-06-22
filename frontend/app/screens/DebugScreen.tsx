@@ -2,6 +2,11 @@
 
 import React from 'react'
 
+/**
+ * DebugScreen コンポーネント: デバッグ用画面を表示する Functional Component
+ *
+ * @returns JSX.Element デバッグ画面を描画するReact要素
+ */
 const DebugScreen: React.FC = () => {
     return (
         <div style={{ padding: 32, background: 'var(--green-bg)', minHeight: '100vh' }}>

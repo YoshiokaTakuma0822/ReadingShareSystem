@@ -14,6 +14,11 @@ const inputStyle = {
     outline: 'none',
 }
 
+/**
+ * LoginScreen コンポーネント: ユーザーのログイン画面を表示する Functional Component
+ *
+ * @returns JSX.Element ログイン画面を描画するReact要素
+ */
 const LoginScreen: React.FC = () => {
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')

@@ -1,0 +1,3545 @@
+{
+	"schemaVersion": "2.0",
+	"id": 0,
+	"name": "Documentation",
+	"variant": "project",
+	"kind": 1,
+	"flags": {},
+	"children": [
+		{
+			"id": 4,
+			"name": "debug/page",
+			"variant": "declaration",
+			"kind": 2,
+			"flags": {},
+			"children": [
+				{
+					"id": 49,
+					"name": "default",
+					"variant": "declaration",
+					"kind": 64,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "debug/page.tsx",
+							"line": 3,
+							"character": 24
+						}
+					],
+					"signatures": [
+						{
+							"id": 50,
+							"name": "default",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "debug/page.tsx",
+									"line": 3,
+									"character": 24
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": {
+									"packageName": "@types/react",
+									"packagePath": "index.d.ts",
+									"qualifiedName": "React.JSX.Element"
+								},
+								"name": "Element",
+								"package": "@types/react",
+								"qualifiedName": "React.JSX.Element"
+							}
+						}
+					]
+				}
+			],
+			"groups": [
+				{
+					"title": "Functions",
+					"children": [
+						49
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "debug/page.tsx",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 1,
+			"name": "layout",
+			"variant": "declaration",
+			"kind": 2,
+			"flags": {},
+			"children": [
+				{
+					"id": 2,
+					"name": "metadata",
+					"variant": "declaration",
+					"kind": 32,
+					"flags": {
+						"isConst": true
+					},
+					"sources": [
+						{
+							"fileName": "layout.tsx",
+							"line": 15,
+							"character": 13
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "next",
+							"packagePath": "dist/lib/metadata/types/metadata-interface.d.ts",
+							"qualifiedName": "Metadata"
+						},
+						"name": "Metadata",
+						"package": "next"
+					},
+					"defaultValue": "..."
+				},
+				{
+					"id": 42,
+					"name": "default",
+					"variant": "declaration",
+					"kind": 64,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "layout.tsx",
+							"line": 20,
+							"character": 24
+						}
+					],
+					"signatures": [
+						{
+							"id": 43,
+							"name": "default",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "layout.tsx",
+									"line": 20,
+									"character": 24
+								}
+							],
+							"parameters": [
+								{
+									"id": 44,
+									"name": "__namedParameters",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": {
+											"packageName": "typescript",
+											"packagePath": "lib/lib.es5.d.ts",
+											"qualifiedName": "Readonly"
+										},
+										"typeArguments": [
+											{
+												"type": "reflection",
+												"declaration": {
+													"id": 45,
+													"name": "__type",
+													"variant": "declaration",
+													"kind": 65536,
+													"flags": {},
+													"children": [
+														{
+															"id": 46,
+															"name": "children",
+															"variant": "declaration",
+															"kind": 1024,
+															"flags": {},
+															"sources": [
+																{
+																	"fileName": "layout.tsx",
+																	"line": 23,
+																	"character": 4
+																}
+															],
+															"type": {
+																"type": "reference",
+																"target": {
+																	"packageName": "@types/react",
+																	"packagePath": "index.d.ts",
+																	"qualifiedName": "React.ReactNode"
+																},
+																"name": "React.ReactNode",
+																"package": "@types/react"
+															}
+														}
+													],
+													"groups": [
+														{
+															"title": "Properties",
+															"children": [
+																46
+															]
+														}
+													],
+													"sources": [
+														{
+															"fileName": "layout.tsx",
+															"line": 22,
+															"character": 12
+														}
+													]
+												}
+											}
+										],
+										"name": "Readonly",
+										"package": "typescript"
+									}
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": {
+									"packageName": "@types/react",
+									"packagePath": "index.d.ts",
+									"qualifiedName": "React.JSX.Element"
+								},
+								"name": "Element",
+								"package": "@types/react",
+								"qualifiedName": "React.JSX.Element"
+							}
+						}
+					]
+				}
+			],
+			"groups": [
+				{
+					"title": "Variables",
+					"children": [
+						2
+					]
+				},
+				{
+					"title": "Functions",
+					"children": [
+						42
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "layout.tsx",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 5,
+			"name": "login/page",
+			"variant": "declaration",
+			"kind": 2,
+			"flags": {},
+			"children": [
+				{
+					"id": 51,
+					"name": "default",
+					"variant": "declaration",
+					"kind": 64,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "login/page.tsx",
+							"line": 4,
+							"character": 24
+						}
+					],
+					"signatures": [
+						{
+							"id": 52,
+							"name": "default",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "login/page.tsx",
+									"line": 4,
+									"character": 24
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": {
+									"packageName": "@types/react",
+									"packagePath": "index.d.ts",
+									"qualifiedName": "React.JSX.Element"
+								},
+								"name": "Element",
+								"package": "@types/react",
+								"qualifiedName": "React.JSX.Element"
+							}
+						}
+					]
+				}
+			],
+			"groups": [
+				{
+					"title": "Functions",
+					"children": [
+						51
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "login/page.tsx",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 3,
+			"name": "page",
+			"variant": "declaration",
+			"kind": 2,
+			"flags": {},
+			"children": [
+				{
+					"id": 47,
+					"name": "default",
+					"variant": "declaration",
+					"kind": 64,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "page.tsx",
+							"line": 10,
+							"character": 24
+						}
+					],
+					"signatures": [
+						{
+							"id": 48,
+							"name": "default",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Page component for the root route of the application.\n\nThis page renders the main "
+									},
+									{
+										"kind": "code",
+										"text": "`HomeScreen`"
+									},
+									{
+										"kind": "text",
+										"text": " component."
+									}
+								],
+								"blockTags": [
+									{
+										"tag": "@returns",
+										"content": [
+											{
+												"kind": "text",
+												"text": "A React element representing the home screen."
+											}
+										]
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "page.tsx",
+									"line": 10,
+									"character": 24
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": {
+									"packageName": "@types/react",
+									"packagePath": "index.d.ts",
+									"qualifiedName": "React.JSX.Element"
+								},
+								"name": "Element",
+								"package": "@types/react",
+								"qualifiedName": "React.JSX.Element"
+							}
+						}
+					]
+				}
+			],
+			"groups": [
+				{
+					"title": "Functions",
+					"children": [
+						47
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "page.tsx",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 6,
+			"name": "register/page",
+			"variant": "declaration",
+			"kind": 2,
+			"flags": {},
+			"children": [
+				{
+					"id": 53,
+					"name": "default",
+					"variant": "declaration",
+					"kind": 64,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "register/page.tsx",
+							"line": 4,
+							"character": 24
+						}
+					],
+					"signatures": [
+						{
+							"id": 54,
+							"name": "default",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "register/page.tsx",
+									"line": 4,
+									"character": 24
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": {
+									"packageName": "@types/react",
+									"packagePath": "index.d.ts",
+									"qualifiedName": "React.JSX.Element"
+								},
+								"name": "Element",
+								"package": "@types/react",
+								"qualifiedName": "React.JSX.Element"
+							}
+						}
+					]
+				}
+			],
+			"groups": [
+				{
+					"title": "Functions",
+					"children": [
+						53
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "register/page.tsx",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 40,
+			"name": "rooms/[roomId]/chat/page",
+			"variant": "declaration",
+			"kind": 2,
+			"flags": {},
+			"children": [
+				{
+					"id": 69,
+					"name": "default",
+					"variant": "declaration",
+					"kind": 64,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "rooms/[roomId]/chat/page.tsx",
+							"line": 10,
+							"character": 24
+						}
+					],
+					"signatures": [
+						{
+							"id": 70,
+							"name": "default",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "rooms/[roomId]/chat/page.tsx",
+									"line": 10,
+									"character": 24
+								}
+							],
+							"parameters": [
+								{
+									"id": 71,
+									"name": "__namedParameters",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": {
+											"packageName": "my-app",
+											"packagePath": "app/rooms/[roomId]/chat/page.tsx",
+											"qualifiedName": "ChatPageProps"
+										},
+										"name": "ChatPageProps",
+										"package": "my-app"
+									}
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": {
+									"packageName": "@types/react",
+									"packagePath": "index.d.ts",
+									"qualifiedName": "React.JSX.Element"
+								},
+								"name": "Element",
+								"package": "@types/react",
+								"qualifiedName": "React.JSX.Element"
+							}
+						}
+					]
+				}
+			],
+			"groups": [
+				{
+					"title": "Functions",
+					"children": [
+						69
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "rooms/[roomId]/chat/page.tsx",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 41,
+			"name": "rooms/[roomId]/reading/page",
+			"variant": "declaration",
+			"kind": 2,
+			"flags": {},
+			"children": [
+				{
+					"id": 72,
+					"name": "default",
+					"variant": "declaration",
+					"kind": 64,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "rooms/[roomId]/reading/page.tsx",
+							"line": 10,
+							"character": 24
+						}
+					],
+					"signatures": [
+						{
+							"id": 73,
+							"name": "default",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "rooms/[roomId]/reading/page.tsx",
+									"line": 10,
+									"character": 24
+								}
+							],
+							"parameters": [
+								{
+									"id": 74,
+									"name": "__namedParameters",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": {
+											"packageName": "my-app",
+											"packagePath": "app/rooms/[roomId]/reading/page.tsx",
+											"qualifiedName": "ReadingPageProps"
+										},
+										"name": "ReadingPageProps",
+										"package": "my-app"
+									}
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": {
+									"packageName": "@types/react",
+									"packagePath": "index.d.ts",
+									"qualifiedName": "React.JSX.Element"
+								},
+								"name": "Element",
+								"package": "@types/react",
+								"qualifiedName": "React.JSX.Element"
+							}
+						}
+					]
+				}
+			],
+			"groups": [
+				{
+					"title": "Functions",
+					"children": [
+						72
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "rooms/[roomId]/reading/page.tsx",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 7,
+			"name": "screens/DebugScreen",
+			"variant": "declaration",
+			"kind": 2,
+			"flags": {},
+			"children": [
+				{
+					"id": 75,
+					"name": "default",
+					"variant": "declaration",
+					"kind": 32,
+					"flags": {
+						"isConst": true
+					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "デバッグ用画面を表示する"
+							}
+						],
+						"blockTags": [
+							{
+								"tag": "@author",
+								"content": [
+									{
+										"kind": "text",
+										"text": "003"
+									}
+								]
+							},
+							{
+								"tag": "@componentIdName",
+								"content": [
+									{
+										"kind": "text",
+										"text": "C01 UI処理"
+									}
+								]
+							},
+							{
+								"tag": "@moduleIdName",
+								"content": [
+									{
+										"kind": "text",
+										"text": "M0101 デバッグスクリーン"
+									}
+								]
+							},
+							{
+								"tag": "@parentModuleIdName",
+								"content": []
+							},
+							{
+								"tag": "@returns",
+								"content": [
+									{
+										"kind": "text",
+										"text": "JSX.Element デバッグ画面を描画するReact要素"
+									}
+								]
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "screens/DebugScreen.tsx",
+							"line": 27,
+							"character": 6
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "@types/react",
+							"packagePath": "index.d.ts",
+							"qualifiedName": "React.FC"
+						},
+						"name": "React.FC",
+						"package": "@types/react"
+					},
+					"defaultValue": "..."
+				}
+			],
+			"groups": [
+				{
+					"title": "Variables",
+					"children": [
+						75
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "screens/DebugScreen.tsx",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 8,
+			"name": "screens/GroupChatScreen",
+			"variant": "declaration",
+			"kind": 2,
+			"flags": {},
+			"children": [
+				{
+					"id": 76,
+					"name": "default",
+					"variant": "declaration",
+					"kind": 32,
+					"flags": {
+						"isConst": true
+					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "GroupChatScreen コンポーネント: グループチャット画面を表示する Functional Component"
+							}
+						],
+						"blockTags": [
+							{
+								"tag": "@returns",
+								"content": [
+									{
+										"kind": "text",
+										"text": "JSX.Element グループチャット画面を描画するReact要素"
+									}
+								]
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "screens/GroupChatScreen.tsx",
+							"line": 28,
+							"character": 6
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "@types/react",
+							"packagePath": "index.d.ts",
+							"qualifiedName": "React.FC"
+						},
+						"typeArguments": [
+							{
+								"type": "reference",
+								"target": {
+									"packageName": "my-app",
+									"packagePath": "app/screens/GroupChatScreen.tsx",
+									"qualifiedName": "GroupChatScreenProps"
+								},
+								"name": "GroupChatScreenProps",
+								"package": "my-app"
+							}
+						],
+						"name": "React.FC",
+						"package": "@types/react"
+					},
+					"defaultValue": "..."
+				}
+			],
+			"groups": [
+				{
+					"title": "Variables",
+					"children": [
+						76
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "screens/GroupChatScreen.tsx",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 25,
+			"name": "screens/GroupChatScreen/page",
+			"variant": "declaration",
+			"kind": 2,
+			"flags": {},
+			"children": [
+				{
+					"id": 55,
+					"name": "default",
+					"variant": "declaration",
+					"kind": 64,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "screens/GroupChatScreen/page.tsx",
+							"line": 22,
+							"character": 24
+						}
+					],
+					"signatures": [
+						{
+							"id": 56,
+							"name": "default",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "screens/GroupChatScreen/page.tsx",
+									"line": 22,
+									"character": 24
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": {
+									"packageName": "@types/react",
+									"packagePath": "index.d.ts",
+									"qualifiedName": "React.JSX.Element"
+								},
+								"name": "Element",
+								"package": "@types/react",
+								"qualifiedName": "React.JSX.Element"
+							}
+						}
+					]
+				}
+			],
+			"groups": [
+				{
+					"title": "Functions",
+					"children": [
+						55
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "screens/GroupChatScreen/page.tsx",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 9,
+			"name": "screens/HomeScreen",
+			"variant": "declaration",
+			"kind": 2,
+			"flags": {},
+			"children": [
+				{
+					"id": 77,
+					"name": "default",
+					"variant": "declaration",
+					"kind": 32,
+					"flags": {
+						"isConst": true
+					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "HomeScreen コンポーネント: ホーム画面を表示する Functional Component"
+							}
+						],
+						"blockTags": [
+							{
+								"tag": "@returns",
+								"content": [
+									{
+										"kind": "text",
+										"text": "JSX.Element ホーム画面を描画するReact要素"
+									}
+								]
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "screens/HomeScreen.tsx",
+							"line": 17,
+							"character": 6
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "@types/react",
+							"packagePath": "index.d.ts",
+							"qualifiedName": "React.FC"
+						},
+						"name": "React.FC",
+						"package": "@types/react"
+					},
+					"defaultValue": "..."
+				}
+			],
+			"groups": [
+				{
+					"title": "Variables",
+					"children": [
+						77
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "screens/HomeScreen.tsx",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 26,
+			"name": "screens/HomeScreen/page",
+			"variant": "declaration",
+			"kind": 2,
+			"flags": {},
+			"children": [
+				{
+					"id": 93,
+					"name": "default",
+					"variant": "reference",
+					"kind": 4194304,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "screens/HomeScreen/page.tsx",
+							"line": 2,
+							"character": 0
+						}
+					],
+					"target": 77
+				}
+			],
+			"groups": [
+				{
+					"title": "References",
+					"children": [
+						93
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "screens/HomeScreen/page.tsx",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 10,
+			"name": "screens/LoginScreen",
+			"variant": "declaration",
+			"kind": 2,
+			"flags": {},
+			"children": [
+				{
+					"id": 78,
+					"name": "default",
+					"variant": "declaration",
+					"kind": 32,
+					"flags": {
+						"isConst": true
+					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "LoginScreen コンポーネント: ユーザーのログイン画面を表示する Functional Component"
+							}
+						],
+						"blockTags": [
+							{
+								"tag": "@returns",
+								"content": [
+									{
+										"kind": "text",
+										"text": "JSX.Element ログイン画面を描画するReact要素"
+									}
+								]
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "screens/LoginScreen.tsx",
+							"line": 22,
+							"character": 6
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "@types/react",
+							"packagePath": "index.d.ts",
+							"qualifiedName": "React.FC"
+						},
+						"name": "React.FC",
+						"package": "@types/react"
+					},
+					"defaultValue": "..."
+				}
+			],
+			"groups": [
+				{
+					"title": "Variables",
+					"children": [
+						78
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "screens/LoginScreen.tsx",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 27,
+			"name": "screens/LoginScreen/page",
+			"variant": "declaration",
+			"kind": 2,
+			"flags": {},
+			"children": [
+				{
+					"id": 94,
+					"name": "default",
+					"variant": "reference",
+					"kind": 4194304,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "screens/LoginScreen/page.tsx",
+							"line": 2,
+							"character": 0
+						}
+					],
+					"target": 78
+				}
+			],
+			"groups": [
+				{
+					"title": "References",
+					"children": [
+						94
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "screens/LoginScreen/page.tsx",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 11,
+			"name": "screens/ReadingProgressModal",
+			"variant": "declaration",
+			"kind": 2,
+			"flags": {},
+			"children": [
+				{
+					"id": 79,
+					"name": "default",
+					"variant": "declaration",
+					"kind": 32,
+					"flags": {
+						"isConst": true
+					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "ReadingProgressModal コンポーネント: 読書進捗入力モーダルを表示する Functional Component"
+							}
+						],
+						"blockTags": [
+							{
+								"tag": "@param",
+								"name": "props.open",
+								"content": [
+									{
+										"kind": "text",
+										"text": "モーダルの表示/非表示フラグ"
+									}
+								]
+							},
+							{
+								"tag": "@param",
+								"name": "props.currentPage",
+								"content": [
+									{
+										"kind": "text",
+										"text": "現在のページ数"
+									}
+								]
+							},
+							{
+								"tag": "@param",
+								"name": "props.maxPage",
+								"content": [
+									{
+										"kind": "text",
+										"text": "許容される最大ページ数"
+									}
+								]
+							},
+							{
+								"tag": "@param",
+								"name": "props.onClose",
+								"content": [
+									{
+										"kind": "text",
+										"text": "モーダルを閉じるコールバック関数"
+									}
+								]
+							},
+							{
+								"tag": "@param",
+								"name": "props.onSubmit",
+								"content": [
+									{
+										"kind": "text",
+										"text": "入力されたページ数を送信するコールバック関数"
+									}
+								]
+							},
+							{
+								"tag": "@returns",
+								"content": [
+									{
+										"kind": "text",
+										"text": "JSX.Element | null 読書進捗入力モーダルのReact要素、非表示時はnull"
+									}
+								]
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "screens/ReadingProgressModal.tsx",
+							"line": 23,
+							"character": 6
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "@types/react",
+							"packagePath": "index.d.ts",
+							"qualifiedName": "React.FC"
+						},
+						"typeArguments": [
+							{
+								"type": "reference",
+								"target": {
+									"packageName": "my-app",
+									"packagePath": "app/screens/ReadingProgressModal.tsx",
+									"qualifiedName": "ReadingProgressModalProps"
+								},
+								"name": "ReadingProgressModalProps",
+								"package": "my-app"
+							}
+						],
+						"name": "React.FC",
+						"package": "@types/react"
+					},
+					"defaultValue": "..."
+				}
+			],
+			"groups": [
+				{
+					"title": "Variables",
+					"children": [
+						79
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "screens/ReadingProgressModal.tsx",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 12,
+			"name": "screens/ReadingScreen",
+			"variant": "declaration",
+			"kind": 2,
+			"flags": {},
+			"children": [
+				{
+					"id": 80,
+					"name": "default",
+					"variant": "declaration",
+					"kind": 32,
+					"flags": {
+						"isConst": true
+					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "ReadingScreen コンポーネント: 読書進捗表示と自動ページめくり機能を含む読書画面"
+							}
+						],
+						"blockTags": [
+							{
+								"tag": "@param",
+								"name": "props.roomId",
+								"content": [
+									{
+										"kind": "text",
+										"text": "チャットページへ戻る際に使用するルームID（オプション）"
+									}
+								]
+							},
+							{
+								"tag": "@returns",
+								"content": [
+									{
+										"kind": "text",
+										"text": "JSX.Element 読書画面を描画するReact要素"
+									}
+								]
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "screens/ReadingScreen.tsx",
+							"line": 26,
+							"character": 6
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "@types/react",
+							"packagePath": "index.d.ts",
+							"qualifiedName": "React.FC"
+						},
+						"typeArguments": [
+							{
+								"type": "reference",
+								"target": {
+									"packageName": "my-app",
+									"packagePath": "app/screens/ReadingScreen.tsx",
+									"qualifiedName": "ReadingScreenProps"
+								},
+								"name": "ReadingScreenProps",
+								"package": "my-app"
+							}
+						],
+						"name": "React.FC",
+						"package": "@types/react"
+					},
+					"defaultValue": "..."
+				}
+			],
+			"groups": [
+				{
+					"title": "Variables",
+					"children": [
+						80
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "screens/ReadingScreen.tsx",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 28,
+			"name": "screens/ReadingScreen/page",
+			"variant": "declaration",
+			"kind": 2,
+			"flags": {},
+			"children": [
+				{
+					"id": 57,
+					"name": "default",
+					"variant": "declaration",
+					"kind": 64,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "screens/ReadingScreen/page.tsx",
+							"line": 18,
+							"character": 24
+						}
+					],
+					"signatures": [
+						{
+							"id": 58,
+							"name": "default",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "screens/ReadingScreen/page.tsx",
+									"line": 18,
+									"character": 24
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": {
+									"packageName": "@types/react",
+									"packagePath": "index.d.ts",
+									"qualifiedName": "React.JSX.Element"
+								},
+								"name": "Element",
+								"package": "@types/react",
+								"qualifiedName": "React.JSX.Element"
+							}
+						}
+					]
+				}
+			],
+			"groups": [
+				{
+					"title": "Functions",
+					"children": [
+						57
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "screens/ReadingScreen/page.tsx",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 13,
+			"name": "screens/RegisterScreen",
+			"variant": "declaration",
+			"kind": 2,
+			"flags": {},
+			"children": [
+				{
+					"id": 81,
+					"name": "default",
+					"variant": "declaration",
+					"kind": 32,
+					"flags": {
+						"isConst": true
+					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "RegisterScreen コンポーネント: 会員登録画面を表示する Functional Component"
+							}
+						],
+						"blockTags": [
+							{
+								"tag": "@returns",
+								"content": [
+									{
+										"kind": "text",
+										"text": "JSX.Element 会員登録画面を描画するReact要素"
+									}
+								]
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "screens/RegisterScreen.tsx",
+							"line": 23,
+							"character": 6
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "@types/react",
+							"packagePath": "index.d.ts",
+							"qualifiedName": "React.FC"
+						},
+						"name": "React.FC",
+						"package": "@types/react"
+					},
+					"defaultValue": "..."
+				}
+			],
+			"groups": [
+				{
+					"title": "Variables",
+					"children": [
+						81
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "screens/RegisterScreen.tsx",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 29,
+			"name": "screens/RegisterScreen/page",
+			"variant": "declaration",
+			"kind": 2,
+			"flags": {},
+			"children": [
+				{
+					"id": 95,
+					"name": "default",
+					"variant": "reference",
+					"kind": 4194304,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "screens/RegisterScreen/page.tsx",
+							"line": 2,
+							"character": 0
+						}
+					],
+					"target": 81
+				}
+			],
+			"groups": [
+				{
+					"title": "References",
+					"children": [
+						95
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "screens/RegisterScreen/page.tsx",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 14,
+			"name": "screens/RoomCreationModal",
+			"variant": "declaration",
+			"kind": 2,
+			"flags": {},
+			"children": [
+				{
+					"id": 82,
+					"name": "default",
+					"variant": "declaration",
+					"kind": 32,
+					"flags": {
+						"isConst": true
+					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "RoomCreationModal コンポーネント: 部屋作成モーダルを表示する Functional Component"
+							}
+						],
+						"blockTags": [
+							{
+								"tag": "@param",
+								"name": "props.open",
+								"content": [
+									{
+										"kind": "text",
+										"text": "モーダルの表示/非表示フラグ"
+									}
+								]
+							},
+							{
+								"tag": "@param",
+								"name": "props.userId",
+								"content": [
+									{
+										"kind": "text",
+										"text": "ホストユーザーID"
+									}
+								]
+							},
+							{
+								"tag": "@param",
+								"name": "props.onClose",
+								"content": [
+									{
+										"kind": "text",
+										"text": "モーダルを閉じるコールバック関数"
+									}
+								]
+							},
+							{
+								"tag": "@param",
+								"name": "props.onCreated",
+								"content": [
+									{
+										"kind": "text",
+										"text": "部屋作成完了後に呼ばれるコールバック関数"
+									}
+								]
+							},
+							{
+								"tag": "@returns",
+								"content": [
+									{
+										"kind": "text",
+										"text": "JSX.Element | null 部屋作成モーダルのReact要素、非表示時はnull"
+									}
+								]
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "screens/RoomCreationModal.tsx",
+							"line": 24,
+							"character": 6
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "@types/react",
+							"packagePath": "index.d.ts",
+							"qualifiedName": "React.FC"
+						},
+						"typeArguments": [
+							{
+								"type": "reference",
+								"target": {
+									"packageName": "my-app",
+									"packagePath": "app/screens/RoomCreationModal.tsx",
+									"qualifiedName": "RoomCreationModalProps"
+								},
+								"name": "RoomCreationModalProps",
+								"package": "my-app"
+							}
+						],
+						"name": "React.FC",
+						"package": "@types/react"
+					},
+					"defaultValue": "..."
+				}
+			],
+			"groups": [
+				{
+					"title": "Variables",
+					"children": [
+						82
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "screens/RoomCreationModal.tsx",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 30,
+			"name": "screens/RoomCreationModal/page",
+			"variant": "declaration",
+			"kind": 2,
+			"flags": {},
+			"children": [
+				{
+					"id": 59,
+					"name": "default",
+					"variant": "declaration",
+					"kind": 64,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "screens/RoomCreationModal/page.tsx",
+							"line": 6,
+							"character": 24
+						}
+					],
+					"signatures": [
+						{
+							"id": 60,
+							"name": "default",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "screens/RoomCreationModal/page.tsx",
+									"line": 6,
+									"character": 24
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": {
+									"packageName": "@types/react",
+									"packagePath": "index.d.ts",
+									"qualifiedName": "React.JSX.Element"
+								},
+								"name": "Element",
+								"package": "@types/react",
+								"qualifiedName": "React.JSX.Element"
+							}
+						}
+					]
+				}
+			],
+			"groups": [
+				{
+					"title": "Functions",
+					"children": [
+						59
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "screens/RoomCreationModal/page.tsx",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 15,
+			"name": "screens/RoomCreationSample",
+			"variant": "declaration",
+			"kind": 2,
+			"flags": {},
+			"children": [
+				{
+					"id": 83,
+					"name": "default",
+					"variant": "declaration",
+					"kind": 32,
+					"flags": {
+						"isConst": true
+					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "RoomCreationSample コンポーネント: 部屋作成サンプル画面を表示する Functional Component"
+							}
+						],
+						"blockTags": [
+							{
+								"tag": "@returns",
+								"content": [
+									{
+										"kind": "text",
+										"text": "JSX.Element 部屋作成サンプル画面を描画するReact要素"
+									}
+								]
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "screens/RoomCreationSample.tsx",
+							"line": 9,
+							"character": 6
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "@types/react",
+							"packagePath": "index.d.ts",
+							"qualifiedName": "React.FC"
+						},
+						"name": "React.FC",
+						"package": "@types/react"
+					},
+					"defaultValue": "..."
+				}
+			],
+			"groups": [
+				{
+					"title": "Variables",
+					"children": [
+						83
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "screens/RoomCreationSample.tsx",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 31,
+			"name": "screens/RoomCreationSample/page",
+			"variant": "declaration",
+			"kind": 2,
+			"flags": {},
+			"children": [
+				{
+					"id": 96,
+					"name": "default",
+					"variant": "reference",
+					"kind": 4194304,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "screens/RoomCreationSample/page.tsx",
+							"line": 2,
+							"character": 0
+						}
+					],
+					"target": 83
+				}
+			],
+			"groups": [
+				{
+					"title": "References",
+					"children": [
+						96
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "screens/RoomCreationSample/page.tsx",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 16,
+			"name": "screens/RoomJoinModal",
+			"variant": "declaration",
+			"kind": 2,
+			"flags": {},
+			"children": [
+				{
+					"id": 84,
+					"name": "default",
+					"variant": "declaration",
+					"kind": 32,
+					"flags": {
+						"isConst": true
+					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "RoomJoinModal コンポーネント: 部屋参加モーダルを表示する Functional Component"
+							}
+						],
+						"blockTags": [
+							{
+								"tag": "@returns",
+								"content": [
+									{
+										"kind": "text",
+										"text": "JSX.Element | null 部屋参加モーダルのReact要素 または非表示時はnull"
+									}
+								]
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "screens/RoomJoinModal.tsx",
+							"line": 30,
+							"character": 6
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "@types/react",
+							"packagePath": "index.d.ts",
+							"qualifiedName": "React.FC"
+						},
+						"typeArguments": [
+							{
+								"type": "reference",
+								"target": {
+									"packageName": "my-app",
+									"packagePath": "app/screens/RoomJoinModal.tsx",
+									"qualifiedName": "RoomJoinModalProps"
+								},
+								"name": "RoomJoinModalProps",
+								"package": "my-app"
+							}
+						],
+						"name": "React.FC",
+						"package": "@types/react"
+					},
+					"defaultValue": "..."
+				}
+			],
+			"groups": [
+				{
+					"title": "Variables",
+					"children": [
+						84
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "screens/RoomJoinModal.tsx",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 32,
+			"name": "screens/RoomJoinModal/page",
+			"variant": "declaration",
+			"kind": 2,
+			"flags": {},
+			"children": [
+				{
+					"id": 61,
+					"name": "default",
+					"variant": "declaration",
+					"kind": 64,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "screens/RoomJoinModal/page.tsx",
+							"line": 52,
+							"character": 24
+						}
+					],
+					"signatures": [
+						{
+							"id": 62,
+							"name": "default",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "screens/RoomJoinModal/page.tsx",
+									"line": 52,
+									"character": 24
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": {
+									"packageName": "@types/react",
+									"packagePath": "index.d.ts",
+									"qualifiedName": "React.JSX.Element"
+								},
+								"name": "Element",
+								"package": "@types/react",
+								"qualifiedName": "React.JSX.Element"
+							}
+						}
+					]
+				}
+			],
+			"groups": [
+				{
+					"title": "Functions",
+					"children": [
+						61
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "screens/RoomJoinModal/page.tsx",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 17,
+			"name": "screens/RoomJoinSample",
+			"variant": "declaration",
+			"kind": 2,
+			"flags": {},
+			"children": [
+				{
+					"id": 85,
+					"name": "default",
+					"variant": "declaration",
+					"kind": 32,
+					"flags": {
+						"isConst": true
+					},
+					"sources": [
+						{
+							"fileName": "screens/RoomJoinSample.tsx",
+							"line": 4,
+							"character": 6
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "@types/react",
+							"packagePath": "index.d.ts",
+							"qualifiedName": "React.FC"
+						},
+						"name": "React.FC",
+						"package": "@types/react"
+					},
+					"defaultValue": "..."
+				}
+			],
+			"groups": [
+				{
+					"title": "Variables",
+					"children": [
+						85
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "screens/RoomJoinSample.tsx",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 33,
+			"name": "screens/RoomJoinSample/page",
+			"variant": "declaration",
+			"kind": 2,
+			"flags": {},
+			"children": [
+				{
+					"id": 97,
+					"name": "default",
+					"variant": "reference",
+					"kind": 4194304,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "screens/RoomJoinSample/page.tsx",
+							"line": 2,
+							"character": 0
+						}
+					],
+					"target": 85
+				}
+			],
+			"groups": [
+				{
+					"title": "References",
+					"children": [
+						97
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "screens/RoomJoinSample/page.tsx",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 18,
+			"name": "screens/SampleScreens",
+			"variant": "declaration",
+			"kind": 2,
+			"flags": {},
+			"children": [
+				{
+					"id": 86,
+					"name": "default",
+					"variant": "declaration",
+					"kind": 32,
+					"flags": {
+						"isConst": true
+					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "SampleScreensコンポーネント: 全W画面サンプル集を表示するFunctional Component"
+							}
+						],
+						"blockTags": [
+							{
+								"tag": "@returns",
+								"content": [
+									{
+										"kind": "text",
+										"text": "JSX.Element 画面サンプルの一覧を描画するReact要素"
+									}
+								]
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "screens/SampleScreens.tsx",
+							"line": 22,
+							"character": 6
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "@types/react",
+							"packagePath": "index.d.ts",
+							"qualifiedName": "React.FC"
+						},
+						"name": "React.FC",
+						"package": "@types/react"
+					},
+					"defaultValue": "..."
+				}
+			],
+			"groups": [
+				{
+					"title": "Variables",
+					"children": [
+						86
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "screens/SampleScreens.tsx",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 19,
+			"name": "screens/SurveyAnswerModal",
+			"variant": "declaration",
+			"kind": 2,
+			"flags": {},
+			"children": [
+				{
+					"id": 87,
+					"name": "default",
+					"variant": "declaration",
+					"kind": 32,
+					"flags": {
+						"isConst": true
+					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "SurveyAnswerModal component shows a modal dialog for answering a survey."
+							}
+						],
+						"blockTags": [
+							{
+								"tag": "@param",
+								"name": "open",
+								"content": [
+									{
+										"kind": "text",
+										"text": "Whether the modal is currently open."
+									}
+								]
+							},
+							{
+								"tag": "@param",
+								"name": "surveyId",
+								"content": [
+									{
+										"kind": "text",
+										"text": "The ID of the survey to display."
+									}
+								]
+							},
+							{
+								"tag": "@param",
+								"name": "onClose",
+								"content": [
+									{
+										"kind": "text",
+										"text": "Callback invoked when the modal is closed."
+									}
+								]
+							},
+							{
+								"tag": "@param",
+								"name": "onAnswered",
+								"content": [
+									{
+										"kind": "text",
+										"text": "Callback invoked after a successful answer submission."
+									}
+								]
+							},
+							{
+								"tag": "@returns",
+								"content": [
+									{
+										"kind": "text",
+										"text": "A React element for the survey answer modal or null when closed."
+									}
+								]
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "screens/SurveyAnswerModal.tsx",
+							"line": 24,
+							"character": 6
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "@types/react",
+							"packagePath": "index.d.ts",
+							"qualifiedName": "React.FC"
+						},
+						"typeArguments": [
+							{
+								"type": "reference",
+								"target": {
+									"packageName": "my-app",
+									"packagePath": "app/screens/SurveyAnswerModal.tsx",
+									"qualifiedName": "SurveyAnswerModalProps"
+								},
+								"name": "SurveyAnswerModalProps",
+								"package": "my-app"
+							}
+						],
+						"name": "React.FC",
+						"package": "@types/react"
+					},
+					"defaultValue": "..."
+				}
+			],
+			"groups": [
+				{
+					"title": "Variables",
+					"children": [
+						87
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "screens/SurveyAnswerModal.tsx",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 34,
+			"name": "screens/SurveyAnswerModal/page",
+			"variant": "declaration",
+			"kind": 2,
+			"flags": {},
+			"children": [
+				{
+					"id": 63,
+					"name": "default",
+					"variant": "declaration",
+					"kind": 64,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "screens/SurveyAnswerModal/page.tsx",
+							"line": 29,
+							"character": 24
+						}
+					],
+					"signatures": [
+						{
+							"id": 64,
+							"name": "default",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "screens/SurveyAnswerModal/page.tsx",
+									"line": 29,
+									"character": 24
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": {
+									"packageName": "@types/react",
+									"packagePath": "index.d.ts",
+									"qualifiedName": "React.JSX.Element"
+								},
+								"name": "Element",
+								"package": "@types/react",
+								"qualifiedName": "React.JSX.Element"
+							}
+						}
+					]
+				}
+			],
+			"groups": [
+				{
+					"title": "Functions",
+					"children": [
+						63
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "screens/SurveyAnswerModal/page.tsx",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 20,
+			"name": "screens/SurveyAnswerSample",
+			"variant": "declaration",
+			"kind": 2,
+			"flags": {},
+			"children": [
+				{
+					"id": 88,
+					"name": "default",
+					"variant": "declaration",
+					"kind": 32,
+					"flags": {
+						"isConst": true
+					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "SurveyAnswerSample コンポーネント: サンプルのアンケート回答画面を表示する Functional Component"
+							}
+						],
+						"blockTags": [
+							{
+								"tag": "@returns",
+								"content": [
+									{
+										"kind": "text",
+										"text": "JSX.Element アンケート回答サンプル画面を描画するReact要素"
+									}
+								]
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "screens/SurveyAnswerSample.tsx",
+							"line": 11,
+							"character": 6
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "@types/react",
+							"packagePath": "index.d.ts",
+							"qualifiedName": "React.FC"
+						},
+						"name": "React.FC",
+						"package": "@types/react"
+					},
+					"defaultValue": "..."
+				}
+			],
+			"groups": [
+				{
+					"title": "Variables",
+					"children": [
+						88
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "screens/SurveyAnswerSample.tsx",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 35,
+			"name": "screens/SurveyAnswerSample/page",
+			"variant": "declaration",
+			"kind": 2,
+			"flags": {},
+			"children": [
+				{
+					"id": 98,
+					"name": "default",
+					"variant": "reference",
+					"kind": 4194304,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "screens/SurveyAnswerSample/page.tsx",
+							"line": 2,
+							"character": 0
+						}
+					],
+					"target": 88
+				}
+			],
+			"groups": [
+				{
+					"title": "References",
+					"children": [
+						98
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "screens/SurveyAnswerSample/page.tsx",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 21,
+			"name": "screens/SurveyCreationModal",
+			"variant": "declaration",
+			"kind": 2,
+			"flags": {},
+			"children": [
+				{
+					"id": 89,
+					"name": "default",
+					"variant": "declaration",
+					"kind": 32,
+					"flags": {
+						"isConst": true
+					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "SurveyCreationModal コンポーネント: アンケート作成モーダルを表示する Functional Component"
+							}
+						],
+						"blockTags": [
+							{
+								"tag": "@returns",
+								"content": [
+									{
+										"kind": "text",
+										"text": "JSX.Element | null アンケート作成モーダルのReact要素 または非表示時はnull"
+									}
+								]
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "screens/SurveyCreationModal.tsx",
+							"line": 18,
+							"character": 6
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "@types/react",
+							"packagePath": "index.d.ts",
+							"qualifiedName": "React.FC"
+						},
+						"typeArguments": [
+							{
+								"type": "reference",
+								"target": {
+									"packageName": "my-app",
+									"packagePath": "app/screens/SurveyCreationModal.tsx",
+									"qualifiedName": "SurveyCreationModalProps"
+								},
+								"name": "SurveyCreationModalProps",
+								"package": "my-app"
+							}
+						],
+						"name": "React.FC",
+						"package": "@types/react"
+					},
+					"defaultValue": "..."
+				}
+			],
+			"groups": [
+				{
+					"title": "Variables",
+					"children": [
+						89
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "screens/SurveyCreationModal.tsx",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 36,
+			"name": "screens/SurveyCreationModal/page",
+			"variant": "declaration",
+			"kind": 2,
+			"flags": {},
+			"children": [
+				{
+					"id": 65,
+					"name": "default",
+					"variant": "declaration",
+					"kind": 64,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "screens/SurveyCreationModal/page.tsx",
+							"line": 29,
+							"character": 24
+						}
+					],
+					"signatures": [
+						{
+							"id": 66,
+							"name": "default",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "screens/SurveyCreationModal/page.tsx",
+									"line": 29,
+									"character": 24
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": {
+									"packageName": "@types/react",
+									"packagePath": "index.d.ts",
+									"qualifiedName": "React.JSX.Element"
+								},
+								"name": "Element",
+								"package": "@types/react",
+								"qualifiedName": "React.JSX.Element"
+							}
+						}
+					]
+				}
+			],
+			"groups": [
+				{
+					"title": "Functions",
+					"children": [
+						65
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "screens/SurveyCreationModal/page.tsx",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 22,
+			"name": "screens/SurveyCreationSample",
+			"variant": "declaration",
+			"kind": 2,
+			"flags": {},
+			"children": [
+				{
+					"id": 90,
+					"name": "default",
+					"variant": "declaration",
+					"kind": 32,
+					"flags": {
+						"isConst": true
+					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "SurveyCreationSample コンポーネント: アンケート作成サンプル画面を表示する Functional Component"
+							}
+						],
+						"blockTags": [
+							{
+								"tag": "@returns",
+								"content": [
+									{
+										"kind": "text",
+										"text": "JSX.Element アンケート作成サンプル画面を描画するReact要素"
+									}
+								]
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "screens/SurveyCreationSample.tsx",
+							"line": 9,
+							"character": 6
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "@types/react",
+							"packagePath": "index.d.ts",
+							"qualifiedName": "React.FC"
+						},
+						"name": "React.FC",
+						"package": "@types/react"
+					},
+					"defaultValue": "..."
+				}
+			],
+			"groups": [
+				{
+					"title": "Variables",
+					"children": [
+						90
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "screens/SurveyCreationSample.tsx",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 37,
+			"name": "screens/SurveyCreationSample/page",
+			"variant": "declaration",
+			"kind": 2,
+			"flags": {},
+			"children": [
+				{
+					"id": 99,
+					"name": "default",
+					"variant": "reference",
+					"kind": 4194304,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "screens/SurveyCreationSample/page.tsx",
+							"line": 2,
+							"character": 0
+						}
+					],
+					"target": 90
+				}
+			],
+			"groups": [
+				{
+					"title": "References",
+					"children": [
+						99
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "screens/SurveyCreationSample/page.tsx",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 23,
+			"name": "screens/SurveyResultModal",
+			"variant": "declaration",
+			"kind": 2,
+			"flags": {},
+			"children": [
+				{
+					"id": 91,
+					"name": "default",
+					"variant": "declaration",
+					"kind": 32,
+					"flags": {
+						"isConst": true
+					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "SurveyResultModal コンポーネント: アンケート結果表示モーダルを表示する Functional Component"
+							}
+						],
+						"blockTags": [
+							{
+								"tag": "@returns",
+								"content": [
+									{
+										"kind": "text",
+										"text": "JSX.Element | null 結果表示モーダルのReact要素 または非表示時はnull"
+									}
+								]
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "screens/SurveyResultModal.tsx",
+							"line": 17,
+							"character": 6
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "@types/react",
+							"packagePath": "index.d.ts",
+							"qualifiedName": "React.FC"
+						},
+						"typeArguments": [
+							{
+								"type": "reference",
+								"target": {
+									"packageName": "my-app",
+									"packagePath": "app/screens/SurveyResultModal.tsx",
+									"qualifiedName": "SurveyResultModalProps"
+								},
+								"name": "SurveyResultModalProps",
+								"package": "my-app"
+							}
+						],
+						"name": "React.FC",
+						"package": "@types/react"
+					},
+					"defaultValue": "..."
+				}
+			],
+			"groups": [
+				{
+					"title": "Variables",
+					"children": [
+						91
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "screens/SurveyResultModal.tsx",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 38,
+			"name": "screens/SurveyResultModal/page",
+			"variant": "declaration",
+			"kind": 2,
+			"flags": {},
+			"children": [
+				{
+					"id": 67,
+					"name": "default",
+					"variant": "declaration",
+					"kind": 64,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "screens/SurveyResultModal/page.tsx",
+							"line": 24,
+							"character": 24
+						}
+					],
+					"signatures": [
+						{
+							"id": 68,
+							"name": "default",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "screens/SurveyResultModal/page.tsx",
+									"line": 24,
+									"character": 24
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": {
+									"packageName": "@types/react",
+									"packagePath": "index.d.ts",
+									"qualifiedName": "React.JSX.Element"
+								},
+								"name": "Element",
+								"package": "@types/react",
+								"qualifiedName": "React.JSX.Element"
+							}
+						}
+					]
+				}
+			],
+			"groups": [
+				{
+					"title": "Functions",
+					"children": [
+						67
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "screens/SurveyResultModal/page.tsx",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 24,
+			"name": "screens/SurveyResultSample",
+			"variant": "declaration",
+			"kind": 2,
+			"flags": {},
+			"children": [
+				{
+					"id": 92,
+					"name": "default",
+					"variant": "declaration",
+					"kind": 32,
+					"flags": {
+						"isConst": true
+					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "SurveyResultSampleコンポーネント: サンプルアンケート結果を表示するFunctional Component"
+							}
+						],
+						"blockTags": [
+							{
+								"tag": "@returns",
+								"content": [
+									{
+										"kind": "text",
+										"text": "JSX.Element サンプル結果を描画するReact要素"
+									}
+								]
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "screens/SurveyResultSample.tsx",
+							"line": 15,
+							"character": 6
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "@types/react",
+							"packagePath": "index.d.ts",
+							"qualifiedName": "React.FC"
+						},
+						"name": "React.FC",
+						"package": "@types/react"
+					},
+					"defaultValue": "..."
+				}
+			],
+			"groups": [
+				{
+					"title": "Variables",
+					"children": [
+						92
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "screens/SurveyResultSample.tsx",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 39,
+			"name": "screens/SurveyResultSample/page",
+			"variant": "declaration",
+			"kind": 2,
+			"flags": {},
+			"children": [
+				{
+					"id": 100,
+					"name": "default",
+					"variant": "reference",
+					"kind": 4194304,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "screens/SurveyResultSample/page.tsx",
+							"line": 2,
+							"character": 0
+						}
+					],
+					"target": 92
+				}
+			],
+			"groups": [
+				{
+					"title": "References",
+					"children": [
+						100
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "screens/SurveyResultSample/page.tsx",
+					"line": 1,
+					"character": 0
+				}
+			]
+		}
+	],
+	"groups": [
+		{
+			"title": "Modules",
+			"children": [
+				4,
+				1,
+				5,
+				3,
+				6,
+				40,
+				41,
+				7,
+				8,
+				25,
+				9,
+				26,
+				10,
+				27,
+				11,
+				12,
+				28,
+				13,
+				29,
+				14,
+				30,
+				15,
+				31,
+				16,
+				32,
+				17,
+				33,
+				18,
+				19,
+				34,
+				20,
+				35,
+				21,
+				36,
+				22,
+				37,
+				23,
+				38,
+				24,
+				39
+			]
+		}
+	],
+	"symbolIdMap": {
+		"1": {
+			"packageName": "my-app",
+			"packagePath": "app/layout.tsx",
+			"qualifiedName": ""
+		},
+		"2": {
+			"packageName": "my-app",
+			"packagePath": "app/layout.tsx",
+			"qualifiedName": "metadata"
+		},
+		"3": {
+			"packageName": "my-app",
+			"packagePath": "app/page.tsx",
+			"qualifiedName": ""
+		},
+		"4": {
+			"packageName": "my-app",
+			"packagePath": "app/debug/page.tsx",
+			"qualifiedName": ""
+		},
+		"5": {
+			"packageName": "my-app",
+			"packagePath": "app/login/page.tsx",
+			"qualifiedName": ""
+		},
+		"6": {
+			"packageName": "my-app",
+			"packagePath": "app/register/page.tsx",
+			"qualifiedName": ""
+		},
+		"7": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/DebugScreen.tsx",
+			"qualifiedName": ""
+		},
+		"8": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/GroupChatScreen.tsx",
+			"qualifiedName": ""
+		},
+		"9": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/HomeScreen.tsx",
+			"qualifiedName": ""
+		},
+		"10": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/LoginScreen.tsx",
+			"qualifiedName": ""
+		},
+		"11": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/ReadingProgressModal.tsx",
+			"qualifiedName": ""
+		},
+		"12": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/ReadingScreen.tsx",
+			"qualifiedName": ""
+		},
+		"13": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/RegisterScreen.tsx",
+			"qualifiedName": ""
+		},
+		"14": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/RoomCreationModal.tsx",
+			"qualifiedName": ""
+		},
+		"15": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/RoomCreationSample.tsx",
+			"qualifiedName": ""
+		},
+		"16": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/RoomJoinModal.tsx",
+			"qualifiedName": ""
+		},
+		"17": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/RoomJoinSample.tsx",
+			"qualifiedName": ""
+		},
+		"18": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/SampleScreens.tsx",
+			"qualifiedName": ""
+		},
+		"19": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/SurveyAnswerModal.tsx",
+			"qualifiedName": ""
+		},
+		"20": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/SurveyAnswerSample.tsx",
+			"qualifiedName": ""
+		},
+		"21": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/SurveyCreationModal.tsx",
+			"qualifiedName": ""
+		},
+		"22": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/SurveyCreationSample.tsx",
+			"qualifiedName": ""
+		},
+		"23": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/SurveyResultModal.tsx",
+			"qualifiedName": ""
+		},
+		"24": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/SurveyResultSample.tsx",
+			"qualifiedName": ""
+		},
+		"25": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/GroupChatScreen/page.tsx",
+			"qualifiedName": ""
+		},
+		"26": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/HomeScreen/page.tsx",
+			"qualifiedName": ""
+		},
+		"27": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/LoginScreen/page.tsx",
+			"qualifiedName": ""
+		},
+		"28": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/ReadingScreen/page.tsx",
+			"qualifiedName": ""
+		},
+		"29": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/RegisterScreen/page.tsx",
+			"qualifiedName": ""
+		},
+		"30": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/RoomCreationModal/page.tsx",
+			"qualifiedName": ""
+		},
+		"31": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/RoomCreationSample/page.tsx",
+			"qualifiedName": ""
+		},
+		"32": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/RoomJoinModal/page.tsx",
+			"qualifiedName": ""
+		},
+		"33": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/RoomJoinSample/page.tsx",
+			"qualifiedName": ""
+		},
+		"34": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/SurveyAnswerModal/page.tsx",
+			"qualifiedName": ""
+		},
+		"35": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/SurveyAnswerSample/page.tsx",
+			"qualifiedName": ""
+		},
+		"36": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/SurveyCreationModal/page.tsx",
+			"qualifiedName": ""
+		},
+		"37": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/SurveyCreationSample/page.tsx",
+			"qualifiedName": ""
+		},
+		"38": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/SurveyResultModal/page.tsx",
+			"qualifiedName": ""
+		},
+		"39": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/SurveyResultSample/page.tsx",
+			"qualifiedName": ""
+		},
+		"40": {
+			"packageName": "my-app",
+			"packagePath": "app/rooms/[roomId]/chat/page.tsx",
+			"qualifiedName": ""
+		},
+		"41": {
+			"packageName": "my-app",
+			"packagePath": "app/rooms/[roomId]/reading/page.tsx",
+			"qualifiedName": ""
+		},
+		"42": {
+			"packageName": "my-app",
+			"packagePath": "app/layout.tsx",
+			"qualifiedName": "default"
+		},
+		"43": {
+			"packageName": "my-app",
+			"packagePath": "app/layout.tsx",
+			"qualifiedName": "default"
+		},
+		"44": {
+			"packageName": "my-app",
+			"packagePath": "app/layout.tsx",
+			"qualifiedName": "__0"
+		},
+		"45": {
+			"packageName": "my-app",
+			"packagePath": "app/layout.tsx",
+			"qualifiedName": "__type"
+		},
+		"46": {
+			"packageName": "my-app",
+			"packagePath": "app/layout.tsx",
+			"qualifiedName": "__type.children"
+		},
+		"47": {
+			"packageName": "my-app",
+			"packagePath": "app/page.tsx",
+			"qualifiedName": "default"
+		},
+		"48": {
+			"packageName": "my-app",
+			"packagePath": "app/page.tsx",
+			"qualifiedName": "default"
+		},
+		"49": {
+			"packageName": "my-app",
+			"packagePath": "app/debug/page.tsx",
+			"qualifiedName": "default"
+		},
+		"50": {
+			"packageName": "my-app",
+			"packagePath": "app/debug/page.tsx",
+			"qualifiedName": "default"
+		},
+		"51": {
+			"packageName": "my-app",
+			"packagePath": "app/login/page.tsx",
+			"qualifiedName": "default"
+		},
+		"52": {
+			"packageName": "my-app",
+			"packagePath": "app/login/page.tsx",
+			"qualifiedName": "default"
+		},
+		"53": {
+			"packageName": "my-app",
+			"packagePath": "app/register/page.tsx",
+			"qualifiedName": "default"
+		},
+		"54": {
+			"packageName": "my-app",
+			"packagePath": "app/register/page.tsx",
+			"qualifiedName": "default"
+		},
+		"55": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/GroupChatScreen/page.tsx",
+			"qualifiedName": "default"
+		},
+		"56": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/GroupChatScreen/page.tsx",
+			"qualifiedName": "default"
+		},
+		"57": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/ReadingScreen/page.tsx",
+			"qualifiedName": "default"
+		},
+		"58": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/ReadingScreen/page.tsx",
+			"qualifiedName": "default"
+		},
+		"59": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/RoomCreationModal/page.tsx",
+			"qualifiedName": "default"
+		},
+		"60": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/RoomCreationModal/page.tsx",
+			"qualifiedName": "default"
+		},
+		"61": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/RoomJoinModal/page.tsx",
+			"qualifiedName": "default"
+		},
+		"62": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/RoomJoinModal/page.tsx",
+			"qualifiedName": "default"
+		},
+		"63": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/SurveyAnswerModal/page.tsx",
+			"qualifiedName": "default"
+		},
+		"64": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/SurveyAnswerModal/page.tsx",
+			"qualifiedName": "default"
+		},
+		"65": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/SurveyCreationModal/page.tsx",
+			"qualifiedName": "default"
+		},
+		"66": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/SurveyCreationModal/page.tsx",
+			"qualifiedName": "default"
+		},
+		"67": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/SurveyResultModal/page.tsx",
+			"qualifiedName": "default"
+		},
+		"68": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/SurveyResultModal/page.tsx",
+			"qualifiedName": "default"
+		},
+		"69": {
+			"packageName": "my-app",
+			"packagePath": "app/rooms/[roomId]/chat/page.tsx",
+			"qualifiedName": "default"
+		},
+		"70": {
+			"packageName": "my-app",
+			"packagePath": "app/rooms/[roomId]/chat/page.tsx",
+			"qualifiedName": "default"
+		},
+		"71": {
+			"packageName": "my-app",
+			"packagePath": "app/rooms/[roomId]/chat/page.tsx",
+			"qualifiedName": "__0"
+		},
+		"72": {
+			"packageName": "my-app",
+			"packagePath": "app/rooms/[roomId]/reading/page.tsx",
+			"qualifiedName": "default"
+		},
+		"73": {
+			"packageName": "my-app",
+			"packagePath": "app/rooms/[roomId]/reading/page.tsx",
+			"qualifiedName": "default"
+		},
+		"74": {
+			"packageName": "my-app",
+			"packagePath": "app/rooms/[roomId]/reading/page.tsx",
+			"qualifiedName": "__0"
+		},
+		"75": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/DebugScreen.tsx",
+			"qualifiedName": "DebugScreen"
+		},
+		"76": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/GroupChatScreen.tsx",
+			"qualifiedName": "GroupChatScreen"
+		},
+		"77": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/HomeScreen.tsx",
+			"qualifiedName": "HomeScreen"
+		},
+		"78": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/LoginScreen.tsx",
+			"qualifiedName": "LoginScreen"
+		},
+		"79": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/ReadingProgressModal.tsx",
+			"qualifiedName": "ReadingProgressModal"
+		},
+		"80": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/ReadingScreen.tsx",
+			"qualifiedName": "ReadingScreen"
+		},
+		"81": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/RegisterScreen.tsx",
+			"qualifiedName": "RegisterScreen"
+		},
+		"82": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/RoomCreationModal.tsx",
+			"qualifiedName": "RoomCreationModal"
+		},
+		"83": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/RoomCreationSample.tsx",
+			"qualifiedName": "RoomCreationSample"
+		},
+		"84": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/RoomJoinModal.tsx",
+			"qualifiedName": "RoomJoinModal"
+		},
+		"85": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/RoomJoinSample.tsx",
+			"qualifiedName": "RoomJoinSample"
+		},
+		"86": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/SampleScreens.tsx",
+			"qualifiedName": "SampleScreens"
+		},
+		"87": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/SurveyAnswerModal.tsx",
+			"qualifiedName": "SurveyAnswerModal"
+		},
+		"88": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/SurveyAnswerSample.tsx",
+			"qualifiedName": "SurveyAnswerSample"
+		},
+		"89": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/SurveyCreationModal.tsx",
+			"qualifiedName": "SurveyCreationModal"
+		},
+		"90": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/SurveyCreationSample.tsx",
+			"qualifiedName": "SurveyCreationSample"
+		},
+		"91": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/SurveyResultModal.tsx",
+			"qualifiedName": "SurveyResultModal"
+		},
+		"92": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/SurveyResultSample.tsx",
+			"qualifiedName": "SurveyResultSample"
+		},
+		"93": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/HomeScreen/page.tsx",
+			"qualifiedName": "default"
+		},
+		"94": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/LoginScreen/page.tsx",
+			"qualifiedName": "default"
+		},
+		"95": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/RegisterScreen/page.tsx",
+			"qualifiedName": "default"
+		},
+		"96": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/RoomCreationSample/page.tsx",
+			"qualifiedName": "default"
+		},
+		"97": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/RoomJoinSample/page.tsx",
+			"qualifiedName": "default"
+		},
+		"98": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/SurveyAnswerSample/page.tsx",
+			"qualifiedName": "default"
+		},
+		"99": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/SurveyCreationSample/page.tsx",
+			"qualifiedName": "default"
+		},
+		"100": {
+			"packageName": "my-app",
+			"packagePath": "app/screens/SurveyResultSample/page.tsx",
+			"qualifiedName": "default"
+		}
+	},
+	"files": {
+		"entries": {
+			"1": "app/layout.tsx",
+			"2": "app/page.tsx",
+			"3": "app/debug/page.tsx",
+			"4": "app/login/page.tsx",
+			"5": "app/register/page.tsx",
+			"6": "app/screens/DebugScreen.tsx",
+			"7": "app/screens/GroupChatScreen.tsx",
+			"8": "app/screens/HomeScreen.tsx",
+			"9": "app/screens/LoginScreen.tsx",
+			"10": "app/screens/ReadingProgressModal.tsx",
+			"11": "app/screens/ReadingScreen.tsx",
+			"12": "app/screens/RegisterScreen.tsx",
+			"13": "app/screens/RoomCreationModal.tsx",
+			"14": "app/screens/RoomCreationSample.tsx",
+			"15": "app/screens/RoomJoinModal.tsx",
+			"16": "app/screens/RoomJoinSample.tsx",
+			"17": "app/screens/SampleScreens.tsx",
+			"18": "app/screens/SurveyAnswerModal.tsx",
+			"19": "app/screens/SurveyAnswerSample.tsx",
+			"20": "app/screens/SurveyCreationModal.tsx",
+			"21": "app/screens/SurveyCreationSample.tsx",
+			"22": "app/screens/SurveyResultModal.tsx",
+			"23": "app/screens/SurveyResultSample.tsx",
+			"24": "app/screens/GroupChatScreen/page.tsx",
+			"25": "app/screens/HomeScreen/page.tsx",
+			"26": "app/screens/LoginScreen/page.tsx",
+			"27": "app/screens/ReadingScreen/page.tsx",
+			"28": "app/screens/RegisterScreen/page.tsx",
+			"29": "app/screens/RoomCreationModal/page.tsx",
+			"30": "app/screens/RoomCreationSample/page.tsx",
+			"31": "app/screens/RoomJoinModal/page.tsx",
+			"32": "app/screens/RoomJoinSample/page.tsx",
+			"33": "app/screens/SurveyAnswerModal/page.tsx",
+			"34": "app/screens/SurveyAnswerSample/page.tsx",
+			"35": "app/screens/SurveyCreationModal/page.tsx",
+			"36": "app/screens/SurveyCreationSample/page.tsx",
+			"37": "app/screens/SurveyResultModal/page.tsx",
+			"38": "app/screens/SurveyResultSample/page.tsx",
+			"39": "app/rooms/[roomId]/chat/page.tsx",
+			"40": "app/rooms/[roomId]/reading/page.tsx"
+		},
+		"reflections": {
+			"1": 1,
+			"2": 3,
+			"3": 4,
+			"4": 5,
+			"5": 6,
+			"6": 7,
+			"7": 8,
+			"8": 9,
+			"9": 10,
+			"10": 11,
+			"11": 12,
+			"12": 13,
+			"13": 14,
+			"14": 15,
+			"15": 16,
+			"16": 17,
+			"17": 18,
+			"18": 19,
+			"19": 20,
+			"20": 21,
+			"21": 22,
+			"22": 23,
+			"23": 24,
+			"24": 25,
+			"25": 26,
+			"26": 27,
+			"27": 28,
+			"28": 29,
+			"29": 30,
+			"30": 31,
+			"31": 32,
+			"32": 33,
+			"33": 34,
+			"34": 35,
+			"35": 36,
+			"36": 37,
+			"37": 38,
+			"38": 39,
+			"39": 40,
+			"40": 41
+		}
+	}
+}

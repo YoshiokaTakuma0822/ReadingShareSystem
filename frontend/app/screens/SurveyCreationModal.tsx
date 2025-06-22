@@ -1,7 +1,7 @@
 "use client"
 import React, { useState } from 'react'
 import { surveyApi } from '../../lib/surveyApi'
-import { CreateSurveyRequest, Question, QuestionType } from '../../types/survey'
+import { CreateSurveyRequest, Question } from '../../types/survey'
 
 interface SurveyCreationModalProps {
     open: boolean
@@ -10,6 +10,11 @@ interface SurveyCreationModalProps {
     onCreated: () => void
 }
 
+/**
+ * SurveyCreationModal コンポーネント: アンケート作成モーダルを表示する Functional Component
+ *
+ * @returns JSX.Element | null アンケート作成モーダルのReact要素 または非表示時はnull
+ */
 const SurveyCreationModal: React.FC<SurveyCreationModalProps> = ({ open, roomId, onClose, onCreated }) => {
     const [title, setTitle] = useState("今日はどこの章まで読むか")
     const [options, setOptions] = useState(["第1章", "第2章"])

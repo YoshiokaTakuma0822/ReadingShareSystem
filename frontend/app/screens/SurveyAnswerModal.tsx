@@ -1,7 +1,8 @@
 "use client"
 import React, { useEffect, useState } from 'react'
+import { useUserId } from '../../lib/authUtils'
 import { surveyApi } from '../../lib/surveyApi'
-import { Survey, SubmitSurveyAnswerRequest } from '../../types/survey'
+import { SubmitSurveyAnswerRequest, Survey } from '../../types/survey'
 
 interface SurveyAnswerModalProps {
     open: boolean
@@ -10,7 +11,18 @@ interface SurveyAnswerModalProps {
     onAnswered: () => void
 }
 
+/**
+ * SurveyAnswerModal component shows a modal dialog for answering a survey.
+ *
+ * @param {boolean} open - Whether the modal is currently open.
+ * @param {string} surveyId - The ID of the survey to display.
+ * @param {() => void} onClose - Callback invoked when the modal is closed.
+ * @param {() => void} onAnswered - Callback invoked after a successful answer submission.
+ *
+ * @returns {JSX.Element | null} A React element for the survey answer modal or null when closed.
+ */
 const SurveyAnswerModal: React.FC<SurveyAnswerModalProps> = ({ open, surveyId, onClose, onAnswered }) => {
+    const userId = useUserId()
     const [survey, setSurvey] = useState<Survey | null>(null)
     const [selected, setSelected] = useState<string | null>(null)
     const [loading, setLoading] = useState(false)
@@ -29,13 +41,14 @@ const SurveyAnswerModal: React.FC<SurveyAnswerModalProps> = ({ open, surveyId, o
     }, [open, surveyId])
 
     const handleAnswer = async () => {
-        if (!selected || !survey) return
+        if (!selected || !survey || !userId) return
         setLoading(true)
         setError(null)
         try {
             const request: SubmitSurveyAnswerRequest = {
                 surveyId,
-                answers: new Map([[survey.questions[0].questionText, [selected]]]),
+                userId,
+                answers: { [survey.questions[0].questionText]: [selected] },
                 isAnonymous: false
             }
             await surveyApi.answerSurvey(surveyId, request)

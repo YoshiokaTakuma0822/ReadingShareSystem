@@ -1,14 +1,19 @@
 "use client"
 
 import React, { useState } from 'react'
-import { Room } from '../../types/room'
+import { getDummyUserId, logout, requireAuth } from '../../lib/authUtils'
 import { roomApi } from '../../lib/roomApi'
-import { getDummyUserId, requireAuth, logout } from '../../lib/authUtils'
+import { Room } from '../../types/room'
 import RoomCreationModal from './RoomCreationModal'
 import RoomJoinModal from './RoomJoinModal'
 import SurveyAnswerModal from './SurveyAnswerModal'
 import SurveyResultModal from './SurveyResultModal'
 
+/**
+ * HomeScreen コンポーネント: ホーム画面を表示する Functional Component
+ *
+ * @returns JSX.Element ホーム画面を描画するReact要素
+ */
 const HomeScreen: React.FC = () => {
     const [tab, setTab] = useState<'create' | 'search'>('search') // 初期表示を検索タブに変更
     const [searchText, setSearchText] = useState('')

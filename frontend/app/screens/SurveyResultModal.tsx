@@ -9,6 +9,11 @@ interface SurveyResultModalProps {
     onClose: () => void
 }
 
+/**
+ * SurveyResultModal コンポーネント: アンケート結果表示モーダルを表示する Functional Component
+ *
+ * @returns JSX.Element | null 結果表示モーダルのReact要素 または非表示時はnull
+ */
 const SurveyResultModal: React.FC<SurveyResultModalProps> = ({ open, surveyId, onClose }) => {
     const [surveyResult, setSurveyResult] = useState<SurveyResult | null>(null)
     const [loading, setLoading] = useState(false)

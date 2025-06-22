@@ -1,6 +1,6 @@
 "use client"
-import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import React, { useState } from 'react'
 import { authApi } from '../../lib/authApi'
 import { RegisterUserRequest } from '../../types/auth'
 
@@ -15,6 +15,11 @@ const inputStyle = {
     outline: 'none',
 }
 
+/**
+ * RegisterScreen コンポーネント: 会員登録画面を表示する Functional Component
+ *
+ * @returns JSX.Element 会員登録画面を描画するReact要素
+ */
 const RegisterScreen: React.FC = () => {
     const router = useRouter()
     const [username, setUsername] = useState('')

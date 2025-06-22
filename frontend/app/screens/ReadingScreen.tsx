@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import ReadingProgressModal from './ReadingProgressModal' // 同じディレクトリにあると仮定
 
 // 仮の部屋メンバー進捗データ
@@ -17,6 +17,12 @@ interface ReadingScreenProps {
     roomId?: string
 }
 
+/**
+ * ReadingScreen コンポーネント: 読書進捗表示と自動ページめくり機能を含む読書画面
+ *
+ * @param props.roomId - チャットページへ戻る際に使用するルームID（オプション）
+ * @returns JSX.Element 読書画面を描画するReact要素
+ */
 const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
     const [showProgressModal, setShowProgressModal] = useState(false)
     const [currentPage, setCurrentPage] = useState(150) // 自分のページ

@@ -1,10 +1,10 @@
 "use client"
-import React, { useState, useEffect, useRef } from 'react'
-import SurveyCreationModal from './SurveyCreationModal'
+import React, { useEffect, useRef, useState } from 'react'
 import { chatApi } from '../../lib/chatApi'
-import { ChatMessage, ChatStreamItem } from '../../types/chat'
 import { surveyApi } from '../../lib/surveyApi'
+import { ChatStreamItem } from '../../types/chat'
 import { Survey } from '../../types/survey'
+import SurveyCreationModal from './SurveyCreationModal'
 import SurveyResultModal from './SurveyResultModal'
 
 interface Message {
@@ -20,6 +20,11 @@ interface GroupChatScreenProps {
     roomId?: string
 }
 
+/**
+ * GroupChatScreen コンポーネント: グループチャット画面を表示する Functional Component
+ *
+ * @returns JSX.Element グループチャット画面を描画するReact要素
+ */
 const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャットルーム", currentUser = "あなた", roomId }) => {
     const [messages, setMessages] = useState<Message[]>([])
     const [input, setInput] = useState("")
@@ -114,19 +119,19 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
 
     // チャットストリーム取得時に各アンケートの回答状況も取得
     useEffect(() => {
-        if (!roomId || !currentUserId) return;
+        if (!roomId || !currentUserId) return
         const fetchAnswered = async () => {
-            const stream = await chatApi.getChatStream(roomId);
-            setStreamItems(stream);
+            const stream = await chatApi.getChatStream(roomId)
+            setStreamItems(stream)
             // アンケートID一覧
-            const surveyIds = stream.filter(item => item.type === 'survey').map(item => item.survey.id);
+            const surveyIds = stream.filter(item => item.type === 'survey').map(item => item.survey.id)
             // サーバーに問い合わせ
             const results = await Promise.all(
                 surveyIds.map(sid => surveyApi.hasUserAnswered(sid, currentUserId))
-            );
-            setAnsweredSurveyIds(surveyIds.filter((_, i) => results[i]));
-        };
-        fetchAnswered();
+            )
+            setAnsweredSurveyIds(surveyIds.filter((_, i) => results[i]))
+        }
+        fetchAnswered()
     }, [roomId, currentUserId])
 
     const handleSend = async () => {
@@ -177,11 +182,11 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
     // survey回答送信
     const handleSurveyAnswer = async (survey: Survey) => {
         if (!surveyAnswers[survey.id]) return
-        const answerObj: Record<string, string[]> = {};
+        const answerObj: Record<string, string[]> = {}
         survey.questions.forEach((q) => {
-            const ans = surveyAnswers[survey.id]?.filter(opt => q.options.includes(opt)) || [];
-            answerObj[q.questionText] = ans;
-        });
+            const ans = surveyAnswers[survey.id]?.filter(opt => q.options.includes(opt)) || []
+            answerObj[q.questionText] = ans
+        })
         try {
             await surveyApi.answerSurvey(survey.id, {
                 surveyId: survey.id,
@@ -205,7 +210,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
 
     // ユーザーがこのアンケートに回答済みかどうかを判定する
     const hasAnsweredSurvey = (surveyId: string) => {
-        return answeredSurveyIds.includes(surveyId);
+        return answeredSurveyIds.includes(surveyId)
     }
 
     // チャットストリームが更新されたら一番下にスクロール
@@ -352,7 +357,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                                     <div style={{ fontWeight: 'bold', marginBottom: 8 }}>アンケート: {survey.title}</div>
                                     {answered ? (
                                         <button
-                                            onClick={() => { setResultSurveyId(survey.id); setShowSurveyResultModal(false); setTimeout(() => setShowSurveyResultModal(true), 0); }}
+                                            onClick={() => { setResultSurveyId(survey.id); setShowSurveyResultModal(false); setTimeout(() => setShowSurveyResultModal(true), 0) }}
                                             style={{ marginTop: 8, padding: '6px 16px', borderRadius: 6, background: '#388e3c', color: 'white', border: 'none', cursor: 'pointer' }}
                                         >アンケートの結果を表示する</button>
                                     ) : (

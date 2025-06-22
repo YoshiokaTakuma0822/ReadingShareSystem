@@ -22,6 +22,11 @@ const inputStyle = {
     outline: 'none',
 }
 
+/**
+ * RoomJoinModal コンポーネント: 部屋参加モーダルを表示する Functional Component
+ *
+ * @returns JSX.Element | null 部屋参加モーダルのReact要素 または非表示時はnull
+ */
 const RoomJoinModal: React.FC<RoomJoinModalProps> = ({ open, room, userId, onClose, onJoined }) => {
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
