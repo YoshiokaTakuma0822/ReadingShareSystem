@@ -1,1 +1,12 @@
 docker compose exec -T postgres psql -U readingshare -d readingshare_db -c "SELECT * FROM rooms;"
+./mvnw clean compile javadoc:javadoc
+./mvnw site
+export MAVEN_OPTS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005"
+./mvnw clean compile javadoc:javadoc
+
+
+cd backend
+mvn compile javadoc:javadoc \
+  -Ddoclet=com.readingshare.common.doclet.JsonDoclet \
+  -DdocletPath=target/classes \
+  -q

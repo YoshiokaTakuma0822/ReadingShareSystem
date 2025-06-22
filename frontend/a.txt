@@ -1,0 +1,5 @@
+npx typedoc --json docs.json src
+npx typedoc --json docs.json app/page.tsx
+npx typedoc --entryPoints app/page.tsx --tsconfig tsconfig.json --json docs.json
+npx typedoc --entryPoints app/*.tsx --tsconfig tsconfig.json --json docs.json
+npx typedoc --entryPoints "app/**/*.tsx" --json docs.json
