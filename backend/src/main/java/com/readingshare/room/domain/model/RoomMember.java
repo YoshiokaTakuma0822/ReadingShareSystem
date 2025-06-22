@@ -9,28 +9,41 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+/**
+ * 部屋のメンバーを表すエンティティ。
+ */
 @Entity
 @Table(name = "room_members")
 public class RoomMember {
 
     @Id
     @Column(columnDefinition = "UUID")
-    private UUID id;
+    private UUID id; // メンバーID
 
     @Column(nullable = false, columnDefinition = "UUID")
-    private UUID roomId;
+    private UUID roomId; // 部屋ID
 
     @Column(nullable = false, columnDefinition = "UUID")
-    private UUID userId;
+    private UUID userId; // ユーザーID
 
     @Column(nullable = false)
-    private Instant joinedAt;
+    private Instant joinedAt; // 参加日時
 
-    // --- コンストラクタ ---
+    /**
+     * デフォルトコンストラクタ。
+     * JPAの要件により必要です。
+     */
     public RoomMember() {
         // JPA用
     }
 
+    /**
+     * 部屋ID、ユーザーID、参加日時を指定してRoomMemberを作成します。
+     *
+     * @param roomId   部屋ID
+     * @param userId   ユーザーID
+     * @param joinedAt 参加日時
+     */
     public RoomMember(UUID roomId, UUID userId, Instant joinedAt) {
         this.id = UUID.randomUUID();
         this.roomId = roomId;

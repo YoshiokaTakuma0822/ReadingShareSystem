@@ -3,8 +3,8 @@ package com.readingshare.survey.domain.model;
 import java.util.List;
 
 /**
- * 質問エンティティ。
- * JSON形式でシリアライズされてデータベースに保存される。
+ * Question は、アンケートの質問を表すエンティティクラスです。
+ * 質問文、選択肢、質問タイプなどを管理します。
  */
 public class Question {
     private String questionText;
@@ -48,26 +48,58 @@ public class Question {
         this.allowAddOptions = allowAddOptions;
     }
 
+    /**
+     * 質問文を取得します。
+     *
+     * @return 質問文
+     */
     public String getQuestionText() {
         return questionText;
     }
 
+    /**
+     * 選択肢のリストを取得します。
+     *
+     * @return 選択肢のリスト
+     */
     public List<String> getOptions() {
         return options;
     }
 
+    /**
+     * 質問タイプを取得します。
+     *
+     * @return 質問タイプ
+     */
     public QuestionType getQuestionType() {
         return questionType;
     }
 
+    /**
+     * 匿名投票が許可されているかどうかを取得します。
+     *
+     * @return 匿名投票が許可されている場合はtrue、それ以外の場合はfalse
+     */
     public boolean isAllowAnonymous() {
         return allowAnonymous;
     }
 
+    /**
+     * 選択肢の追加が許可されているかどうかを取得します。
+     *
+     * @return 選択肢の追加が許可されている場合はtrue、それ以外の場合はfalse
+     */
     public boolean isAllowAddOptions() {
         return allowAddOptions;
     }
 
+    /**
+     * 新しい選択肢を追加します。
+     *
+     * @param newOption 新しい選択肢
+     * @throws IllegalStateException    選択肢の追加が許可されていない場合
+     * @throws IllegalArgumentException 無効な選択肢が指定された場合
+     */
     public void addOption(String newOption) {
         if (!allowAddOptions) {
             throw new IllegalStateException("Adding options is not allowed for this question.");

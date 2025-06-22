@@ -15,6 +15,10 @@ import com.readingshare.state.dto.UpdateUserReadingStateRequest;
 import com.readingshare.state.dto.UserReadingStateResponse;
 import com.readingshare.state.service.RoomReadingStateService;
 
+/**
+ * RoomReadingStateControllerは、部屋の読書状態に関連するAPIエンドポイントを処理します。
+ * このクラスは、読書状態の取得と更新を行うメソッドを提供します。
+ */
 @RestController
 @RequestMapping("/api/rooms/{roomId}/states")
 public class RoomReadingStateController {
@@ -24,6 +28,13 @@ public class RoomReadingStateController {
         this.service = service;
     }
 
+    /**
+     * ユーザーの読書状態を更新します。
+     *
+     * @param roomId  部屋のID
+     * @param request 更新リクエスト
+     * @return レスポンスエンティティ
+     */
     @PostMapping("/{memberId}")
     public ResponseEntity<Void> updateUserReadingState(
             @PathVariable String roomId,
@@ -36,6 +47,12 @@ public class RoomReadingStateController {
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * 部屋の読書状態を取得します。
+     *
+     * @param roomId 部屋のID
+     * @return レスポンスエンティティ（部屋の読書状態）
+     */
     @GetMapping("/{memberId}")
     public ResponseEntity<RoomReadingStateResponse> getRoomReadingState(@PathVariable String roomId) {
         RoomReadingState state = service.getRoomReadingState(roomId);

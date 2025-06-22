@@ -11,7 +11,8 @@ import com.readingshare.room.domain.model.Room;
 
 /**
  * 部屋情報の永続化を担当するリポジトリインターフェース。
- * 担当: 芳岡
+ * 
+ * @author 23004
  */
 public interface IRoomRepository {
 

@@ -24,13 +24,22 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 /**
  * ログイン・会員登録に関するAPIを処理するコントローラー。
- * 担当: 小亀
+ *
+ * @author 003
+ * @componentIdName C02 ログイン・会員登録
+ * @moduleIdName M0201 ログイン・会員登録コントローラー
+ * @dependsOn M0220 ログインサービス
+ * @dependsOn M0221 ログアウトサービス
+ * @dependsOn M0222 新規会員登録サービス
+ * @dependsOn M0215 ログインリクエストDTO
+ * @dependsOn M0216 ログインレスポンスDTO
+ * @dependsOn M0217 新規会員登録リクエストDTO
+ * @dependsOn M0218 ログアウトリクエストDTO
  */
 @RestController
 @RequestMapping("/api/auth")
 @Tag(name = "認証", description = "ユーザー認証関連のAPI")
 public class AuthController {
-
     private final LoginService loginService;
     private final RegisterUserService registerUserService;
     private final LogoutService logoutService;
@@ -43,10 +52,11 @@ public class AuthController {
     }
 
     /**
-     * ユーザーログインを処理する。
+     * ユーザーログインを処理する
      *
      * @param request ログインリクエストデータ
      * @return 認証成功時はベアラートークンとユーザー情報、HTTP 200 OK
+     * @throws RuntimeException 認証失敗時は400 Bad Request
      */
     @PostMapping("/login")
     @Operation(summary = "ユーザーログイン", description = "ユーザー名とパスワードでログインし、Bearer Tokenを取得します")
@@ -64,6 +74,7 @@ public class AuthController {
      *
      * @param request 会員登録リクエストデータ
      * @return 登録成功時は新規ユーザーIDとHTTP 200 OK
+     * @throws RuntimeException 登録失敗時に400 Bad Request
      */
     @PostMapping("/register")
     @Operation(summary = "新規会員登録", description = "新しいユーザーアカウントを作成します")
@@ -97,7 +108,7 @@ public class AuthController {
     }
 
     /**
-     * 全デバイスからログアウトを処理する。
+     * 全デバイスからログアウトを処理する
      *
      * @param authorizationHeader Authorizationヘッダー（Bearer Token）
      * @return ログアウト成功時はHTTP 200 OK

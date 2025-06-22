@@ -4,6 +4,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * SubmitSurveyAnswerRequest は、アンケート回答リクエストを表すDTOクラスです。
+ * 回答者ID、回答内容、匿名フラグを含みます。
+ */
 // W8 アンケート回答画面からのリクエストデータ
 public record SubmitSurveyAnswerRequest(
         UUID userId,
@@ -13,5 +17,32 @@ public record SubmitSurveyAnswerRequest(
     // デフォルトコンストラクタ（下位互換性のため）
     public SubmitSurveyAnswerRequest(UUID userId, Map<String, List<String>> answers) {
         this(userId, answers, false);
+    }
+
+    /**
+     * 回答者IDを取得します。
+     *
+     * @return 回答者ID
+     */
+    public UUID userId() {
+        return userId;
+    }
+
+    /**
+     * 回答内容を取得します。
+     *
+     * @return 回答内容のマップ
+     */
+    public Map<String, List<String>> answers() {
+        return answers;
+    }
+
+    /**
+     * 匿名フラグを取得します。
+     *
+     * @return 匿名回答の場合はtrue、それ以外はfalse
+     */
+    public boolean isAnonymous() {
+        return isAnonymous;
     }
 }

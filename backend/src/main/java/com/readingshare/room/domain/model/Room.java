@@ -11,31 +11,37 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+/**
+ * 部屋を表すエンティティ。
+ */
 @Entity
 @Table(name = "rooms")
 public class Room {
 
     @Id
     @Column(columnDefinition = "UUID")
-    private UUID id;
+    private UUID id; // 部屋ID
 
     @Column(nullable = false, length = 100)
-    private String roomName;
+    private String roomName; // 部屋名
 
     @Column(nullable = false, length = 200)
-    private String bookTitle;
+    private String bookTitle; // 本のタイトル
 
     @Column(nullable = false, columnDefinition = "UUID")
-    private UUID hostUserId;
+    private UUID hostUserId; // ホストユーザーID
 
     @Column(nullable = false)
-    private Instant createdAt;
+    private Instant createdAt; // 作成日時
 
     @JsonIgnore
     @Column(nullable = true)
-    private String roomPasswordHash;
+    private String roomPasswordHash; // 部屋のパスワードハッシュ
 
-    // --- コンストラクタ ---
+    /**
+     * デフォルトコンストラクタ。
+     * JPAの要件により必要です。
+     */
     public Room() {
         // JPA用
     }

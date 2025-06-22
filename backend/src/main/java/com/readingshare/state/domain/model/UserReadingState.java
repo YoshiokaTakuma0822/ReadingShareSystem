@@ -2,25 +2,51 @@ package com.readingshare.state.domain.model;
 
 import java.util.Objects;
 
+/**
+ * ユーザーの読書状態を表すクラスです。
+ * このクラスは、ユーザーID、現在のページ、およびコメントを保持します。
+ */
 public class UserReadingState {
     private final String userId;
     private final int currentPage;
     private final String comment;
 
+    /**
+     * コンストラクタ
+     *
+     * @param userId      ユーザーID
+     * @param currentPage 現在のページ
+     * @param comment     コメント
+     */
     public UserReadingState(String userId, int currentPage, String comment) {
         this.userId = userId;
         this.currentPage = currentPage;
         this.comment = comment;
     }
 
+    /**
+     * ユーザーIDを取得します。
+     *
+     * @return ユーザーID
+     */
     public String getUserId() {
         return userId;
     }
 
+    /**
+     * 現在のページを取得します。
+     *
+     * @return 現在のページ
+     */
     public int getCurrentPage() {
         return currentPage;
     }
 
+    /**
+     * コメントを取得します。
+     *
+     * @return コメント
+     */
     public String getComment() {
         return comment;
     }

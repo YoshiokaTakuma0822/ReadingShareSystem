@@ -20,6 +20,10 @@ import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Bearer Token認証を処理するフィルター。
+ *
+ * @author 003
+ * @componentIdName C05 会員情報管理部
+ * @moduleIdName M0514 Bearer Token認証フィルター
  */
 @Component
 public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
@@ -29,10 +33,24 @@ public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
 
     private final IAuthTokenRepository authTokenRepository;
 
+    /**
+     * コンストラクタ。
+     *
+     * @param authTokenRepository 認証トークンリポジトリ
+     */
     public BearerTokenAuthenticationFilter(IAuthTokenRepository authTokenRepository) {
         this.authTokenRepository = authTokenRepository;
     }
 
+    /**
+     * リクエストをフィルタリングし、Bearer Token認証を処理します。
+     *
+     * @param request     HTTPリクエスト
+     * @param response    HTTPレスポンス
+     * @param filterChain フィルタチェーン
+     * @throws ServletException サーブレット例外が発生した場合
+     * @throws IOException      入出力例外が発生した場合
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {

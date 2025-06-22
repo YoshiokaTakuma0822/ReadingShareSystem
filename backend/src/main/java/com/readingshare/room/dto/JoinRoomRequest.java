@@ -4,6 +4,8 @@ import java.util.UUID;
 
 /**
  * 部屋参加リクエストのDTO。
+ *
+ * @author 23004
  */
 public record JoinRoomRequest(
         UUID roomId,

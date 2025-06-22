@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.readingshare.survey.domain.model.Survey;
@@ -17,8 +18,10 @@ import com.readingshare.survey.dto.SurveyResultResponse;
 import com.readingshare.survey.service.SurveyService;
 
 /**
- * アンケート機能のRESTコントローラー
- * 担当: 成田
+ * SurveyController は、アンケート機能のRESTコントローラーです。
+ * アンケートの作成、回答、結果取得などの操作を提供します。
+ *
+ * @author 23002
  */
 @RestController
 @RequestMapping("/api/surveys")
@@ -31,8 +34,7 @@ public class SurveyController {
     }
 
     /**
-     * W7 アンケート作成画面からのリクエストを処理
-     * 新しいアンケートを作成する。
+     * 新しいアンケートを作成します。
      *
      * @param request アンケート作成リクエスト
      * @return 作成されたアンケートのID
@@ -44,8 +46,7 @@ public class SurveyController {
     }
 
     /**
-     * W8 アンケート回答画面からのリクエストを処理
-     * アンケートの回答を提出する。
+     * アンケートの回答を提出します。
      *
      * @param surveyId アンケートのID
      * @param request  アンケート回答リクエスト
@@ -97,6 +98,21 @@ public class SurveyController {
             @RequestBody AddOptionRequest request) {
         surveyService.addOption(surveyId, request.questionText(), request.newOption());
         return ResponseEntity.ok().build();
+    }
+
+    /**
+     * ユーザーがアンケートに回答済みかどうかを判定する。
+     *
+     * @param surveyId アンケートのID
+     * @param userId   ユーザーのID
+     * @return 回答済みならばHTTP 200 OK と true、未回答ならば false
+     */
+    @GetMapping("/{surveyId}/answered")
+    public ResponseEntity<Boolean> hasUserAnswered(
+            @PathVariable UUID surveyId,
+            @RequestParam UUID userId) {
+        boolean answered = surveyService.hasUserAnswered(surveyId, userId);
+        return ResponseEntity.ok(answered);
     }
 
     /**

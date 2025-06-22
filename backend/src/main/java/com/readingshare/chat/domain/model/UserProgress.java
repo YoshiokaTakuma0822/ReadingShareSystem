@@ -38,10 +38,21 @@ public class UserProgress {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt; // 進捗更新日時
 
-    // デフォルトコンストラクタ
+    /**
+     * デフォルトコンストラクタ。
+     * JPAの要件により必要です。
+     */
     public UserProgress() {
     }
 
+    /**
+     * 部屋ID、ユーザーID、現在のページ数、更新日時を指定してUserProgressを作成します。
+     *
+     * @param roomId      関連する部屋ID
+     * @param userId      進捗を記録するユーザーID
+     * @param currentPage 現在のページ数
+     * @param updatedAt   進捗更新日時
+     */
     public UserProgress(UUID roomId, UUID userId, int currentPage, Instant updatedAt) {
         this.id = UUID.randomUUID();
         this.roomId = roomId;
@@ -50,23 +61,47 @@ public class UserProgress {
         this.updatedAt = updatedAt;
     }
 
-    // Getters
+    /**
+     * 進捗情報IDを取得します。
+     *
+     * @return 進捗情報ID
+     */
     public UUID getId() {
         return id;
     }
 
+    /**
+     * 関連する部屋IDを取得します。
+     *
+     * @return 部屋ID
+     */
     public UUID getRoomId() {
         return roomId;
     }
 
+    /**
+     * 進捗を記録するユーザーIDを取得します。
+     *
+     * @return ユーザーID
+     */
     public UUID getUserId() {
         return userId;
     }
 
+    /**
+     * 現在のページ数を取得します。
+     *
+     * @return 現在のページ数
+     */
     public int getCurrentPage() {
         return currentPage;
     }
 
+    /**
+     * 進捗更新日時を取得します。
+     *
+     * @return 更新日時
+     */
     public Instant getUpdatedAt() {
         return updatedAt;
     }

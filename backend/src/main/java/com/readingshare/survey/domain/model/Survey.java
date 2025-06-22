@@ -13,6 +13,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 /**
+ * Survey は、アンケートを表すエンティティクラスです。
+ * アンケートのタイトル、質問、作成日時などを管理します。
  * アンケート集約のルートエンティティ。
  * 要求仕様書「(3)アンケートを作成する」に対応。
  */
@@ -57,12 +59,17 @@ public class Survey {
         this.createdAt = LocalDateTime.now();
     }
 
-    public void setQuestions(List<Question> questions) {
-        this.questions = questions;
-    }
-
+    /**
+     * アンケートの質問リストを取得します。
+     *
+     * @return 質問リスト
+     */
     public List<Question> getQuestions() {
         return questions;
+    }
+
+    public void setQuestions(List<Question> questions) {
+        this.questions = questions;
     }
 
     public UUID getId() {
@@ -73,6 +80,11 @@ public class Survey {
         return roomId;
     }
 
+    /**
+     * アンケートのタイトルを取得します。
+     *
+     * @return アンケートのタイトル
+     */
     public String getTitle() {
         return title;
     }

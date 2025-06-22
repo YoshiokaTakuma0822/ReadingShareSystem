@@ -14,7 +14,8 @@ import com.readingshare.room.domain.repository.IRoomRepository;
 
 /**
  * チャット履歴取得のアプリケーションサービス。
- * 担当: 榎本
+ * 
+ * @author 23001
  */
 @Service
 public class GetChatHistoryService {

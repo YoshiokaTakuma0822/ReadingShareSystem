@@ -14,6 +14,10 @@ import com.readingshare.auth.domain.model.AuthToken;
 
 /**
  * 認証トークンのJPAリポジトリ。
+ *
+ * @author 003
+ * @componentIdName C05 会員情報管理部
+ * @moduleIdName M0510 認証トークンリポジトリ
  */
 public interface AuthTokenJpaRepository extends JpaRepository<AuthToken, UUID> {
 

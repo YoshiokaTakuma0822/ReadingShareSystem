@@ -20,7 +20,8 @@ import com.readingshare.survey.domain.repository.ISurveyRepository;
 
 /**
  * アンケートに関するドメインロジックを扱うサービス。
- * 担当: 成田
+ *
+ * @author 23002
  */
 @Service
 public class SurveyDomainService {

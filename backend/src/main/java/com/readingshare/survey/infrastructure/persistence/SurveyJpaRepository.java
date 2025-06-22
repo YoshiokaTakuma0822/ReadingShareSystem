@@ -10,8 +10,10 @@ import org.springframework.stereotype.Repository;
 import com.readingshare.survey.domain.model.Survey;
 
 /**
- * アンケート情報のJPAリポジトリインターフェース。
- * 担当: 成田
+ * SurveyJpaRepository は、アンケート情報のJPAリポジトリインターフェースです。
+ * アンケートの検索や保存を行います。
+ *
+ * @author 23002
  */
 @Repository
 public interface SurveyJpaRepository extends JpaRepository<Survey, UUID> {
@@ -26,7 +28,7 @@ public interface SurveyJpaRepository extends JpaRepository<Survey, UUID> {
     Optional<Survey> findById(UUID id);
 
     /**
-     * 特定の部屋のアンケートを取得する。
+     * 部屋IDでアンケートを取得します。
      *
      * @param roomId 部屋ID
      * @return 取得されたアンケートリスト

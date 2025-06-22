@@ -12,7 +12,8 @@ import com.readingshare.room.domain.model.Room;
 
 /**
  * 部屋情報のJPAリポジトリインターフェース。
- * 担当: 芳岡
+ * 
+ * @author 23004
  */
 @Repository
 public interface RoomJpaRepository extends JpaRepository<Room, UUID> {

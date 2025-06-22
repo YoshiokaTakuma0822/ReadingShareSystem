@@ -14,8 +14,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 /**
- * アンケートへの回答を表すエンティティ。
- * 要求仕様書「(4)アンケートに回答する」に対応。
+ * SurveyAnswer は、アンケートへの回答を表すエンティティクラスです。
+ * 回答内容、回答者情報、回答日時などを管理します。
  */
 @Entity
 @Table(name = "survey_answers")
@@ -60,35 +60,75 @@ public class SurveyAnswer {
         this.answeredAt = LocalDateTime.now();
     }
 
-    public void setAnswers(Map<String, List<String>> answers) {
-        this.answers = answers;
-    }
-
+    /**
+     * 回答内容を取得します。
+     *
+     * @return 回答内容のマップ
+     */
     public Map<String, List<String>> getAnswers() {
         return answers;
     }
 
+    /**
+     * 回答内容を設定します。
+     *
+     * @param answers 回答内容のマップ
+     */
+    public void setAnswers(Map<String, List<String>> answers) {
+        this.answers = answers;
+    }
+
     // Getters
+    /**
+     * 回答の一意な識別子を取得します。
+     *
+     * @return 回答のID
+     */
     public UUID getId() {
         return id;
     }
 
+    /**
+     * アンケートのIDを取得します。
+     *
+     * @return アンケートのID
+     */
     public UUID getSurveyId() {
         return surveyId;
     }
 
+    /**
+     * ユーザーのIDを取得します。
+     *
+     * @return ユーザーのID
+     */
     public UUID getUserId() {
         return userId;
     }
 
+    /**
+     * 回答日時を取得します。
+     *
+     * @return 回答日時
+     */
     public LocalDateTime getAnsweredAt() {
         return answeredAt;
     }
 
+    /**
+     * 回答が匿名かどうかを取得します。
+     *
+     * @return 匿名の場合は true、それ以外は false
+     */
     public boolean isAnonymous() {
         return isAnonymous;
     }
 
+    /**
+     * 回答が匿名かどうかを設定します。
+     *
+     * @param anonymous 匿名の場合は true、それ以外は false
+     */
     public void setAnonymous(boolean anonymous) {
         isAnonymous = anonymous;
     }

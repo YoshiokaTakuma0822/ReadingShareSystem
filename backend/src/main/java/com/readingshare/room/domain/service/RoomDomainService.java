@@ -16,7 +16,8 @@ import com.readingshare.room.domain.repository.IRoomRepository;
 
 /**
  * 部屋の作成とメンバー管理に関するドメインロジックを扱うサービス。
- * 担当: 芳岡
+ * 
+ * @author 23004
  */
 @Service
 public class RoomDomainService {

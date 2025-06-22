@@ -23,7 +23,8 @@ import com.readingshare.survey.dto.SubmitSurveyAnswerRequest;
 import com.readingshare.survey.dto.SurveyResultResponse;
 
 /**
- * アンケート関連サービスを1ファイルに統合
+ * SurveyService は、アンケート関連のビジネスロジックを処理するサービスクラスです。
+ * アンケートの作成、回答、結果取得などの機能を提供します。
  */
 @Service
 public class SurveyService {
@@ -36,6 +37,12 @@ public class SurveyService {
     }
 
     // --- アンケート作成 ---
+    /**
+     * 新しいアンケートを作成します。
+     *
+     * @param request アンケート作成リクエスト
+     * @return 作成されたアンケートのID
+     */
     @Transactional
     public UUID createSurvey(CreateSurveyRequest request) {
         try {
@@ -57,6 +64,12 @@ public class SurveyService {
     }
 
     // --- アンケート回答 ---
+    /**
+     * アンケートの回答を保存します。
+     *
+     * @param answer アンケート回答
+     * @return 保存されたアンケート回答
+     */
     @Transactional
     public void submitAnswer(UUID surveyId, SubmitSurveyAnswerRequest request) {
         surveyRepository.findById(surveyId)
@@ -97,6 +110,17 @@ public class SurveyService {
         } catch (IllegalStateException | IllegalArgumentException e) {
             throw new ApplicationException(e.getMessage(), e);
         }
+    }
+
+    /**
+     * 指定されたユーザーが特定のアンケートに回答済みかどうかを判定します。
+     *
+     * @param surveyId アンケートID
+     * @param userId   ユーザーID
+     * @return 回答済みの場合は true、それ以外は false
+     */
+    public boolean hasUserAnswered(UUID surveyId, UUID userId) {
+        return surveyRepository.findBySurveyIdAndUserId(surveyId, userId).isPresent();
     }
 
     private SurveyResultResponse buildResultDto(Survey survey, List<SurveyAnswer> answers) {

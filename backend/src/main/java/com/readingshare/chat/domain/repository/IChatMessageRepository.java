@@ -8,13 +8,14 @@ import com.readingshare.chat.domain.model.ChatMessage;
 
 /**
  * チャットメッセージ情報の永続化を担当するリポジトリインターフェース。
- * 担当: 榎本
+ * 
+ * @author 23001
  */
 public interface IChatMessageRepository {
 
     /**
      * チャットメッセージを保存する。
-     * 
+     *
      * @param chatMessage 保存するチャットメッセージエンティティ
      * @return 保存されたチャットメッセージエンティティ
      */
@@ -22,7 +23,7 @@ public interface IChatMessageRepository {
 
     /**
      * 特定の部屋のチャット履歴を取得する。
-     * 
+     *
      * @param roomId 部屋ID
      * @return チャットメッセージのリスト
      */
@@ -30,7 +31,7 @@ public interface IChatMessageRepository {
 
     /**
      * IDでチャットメッセージを検索する。
-     * 
+     *
      * @param id メッセージID
      * @return チャットメッセージが見つかった場合はOptionalにChatMessage、見つからない場合はOptional.empty()
      */

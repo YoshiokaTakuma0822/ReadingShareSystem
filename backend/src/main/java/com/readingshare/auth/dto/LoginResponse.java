@@ -5,9 +5,9 @@ import java.util.UUID;
 /**
  * ログイン成功時のレスポンスDTO。
  *
- * @param userId   ユーザーID
- * @param token    Bearer Token
- * @param username ユーザー名
+ * @author 003
+ * @componentIdName C02 ログイン・会員登録
+ * @moduleIdName M0216 ログインレスポンスDTO
  */
 public record LoginResponse(
         UUID userId,

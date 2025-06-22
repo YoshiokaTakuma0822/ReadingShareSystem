@@ -16,7 +16,8 @@ import com.readingshare.room.domain.repository.IRoomRepository;
 
 /**
  * チャットメッセージ送信のアプリケーションサービス。
- * 担当: 榎本
+ * 
+ * @author 23001
  */
 @Service
 public class SendChatMessageService {

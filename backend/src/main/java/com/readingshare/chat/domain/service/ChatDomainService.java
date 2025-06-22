@@ -9,7 +9,8 @@ import com.readingshare.common.exception.DomainException;
 
 /**
  * チャットと読書進捗に関するドメインロジックを扱うサービス。
- * 担当: 榎本
+ * 
+ * @author 23001
  */
 @Service
 public class ChatDomainService {

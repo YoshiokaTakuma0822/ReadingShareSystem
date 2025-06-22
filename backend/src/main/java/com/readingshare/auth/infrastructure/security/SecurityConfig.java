@@ -13,6 +13,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 /**
  * Spring Securityの設定クラス。
+ *
+ * @author 003
+ * @componentIdName C05 会員情報管理部
+ * @moduleIdName M0524 セキュリティ設定
+ * @dependsOn M0514 Bearer Token認証フィルター
  */
 @Configuration
 @EnableWebSecurity
@@ -20,10 +25,22 @@ public class SecurityConfig {
 
     private final BearerTokenAuthenticationFilter bearerTokenAuthenticationFilter;
 
+    /**
+     * コンストラクタ。
+     *
+     * @param bearerTokenAuthenticationFilter Bearer Token認証フィルター
+     */
     public SecurityConfig(BearerTokenAuthenticationFilter bearerTokenAuthenticationFilter) {
         this.bearerTokenAuthenticationFilter = bearerTokenAuthenticationFilter;
     }
 
+    /**
+     * セキュリティフィルタチェーンを構成します。
+     *
+     * @param http HttpSecurityオブジェクト
+     * @return 構成されたSecurityFilterChain
+     * @throws Exception 構成中にエラーが発生した場合
+     */
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -46,6 +63,11 @@ public class SecurityConfig {
         return http.build();
     }
 
+    /**
+     * パスワードエンコーダーを提供します。
+     *
+     * @return BCryptPasswordEncoderのインスタンス
+     */
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

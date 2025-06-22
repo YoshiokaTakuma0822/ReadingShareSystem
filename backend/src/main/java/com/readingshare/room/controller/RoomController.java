@@ -17,6 +17,7 @@ import com.readingshare.room.dto.JoinRoomRequest;
 import com.readingshare.room.service.RoomService;
 
 /**
+ * RoomController は、部屋の作成、参加、検索に関するREST APIを提供するコントローラークラスです。
  * REST API コントローラー - 部屋作成 / 参加 / 検索
  */
 @RestController
@@ -32,6 +33,11 @@ public class RoomController {
     /**
      * 部屋作成エンドポイント
      * POST /api/rooms
+     *
+     * 部屋を作成します。
+     *
+     * @param request 部屋作成リクエスト
+     * @return 作成された部屋の情報
      */
     @PostMapping
     public ResponseEntity<Room> createRoom(@RequestBody CreateRoomRequest request) {
@@ -45,6 +51,11 @@ public class RoomController {
     /**
      * 部屋一覧取得エンドポイント
      * GET /api/rooms?limit=10
+     *
+     * 部屋の一覧を取得します。
+     *
+     * @param limit 取得する部屋の最大数
+     * @return 部屋のリスト
      */
     @GetMapping
     public ResponseEntity<List<Room>> getRooms(@RequestParam(value = "limit", defaultValue = "10") int limit) {
@@ -55,6 +66,11 @@ public class RoomController {
     /**
      * 部屋参加エンドポイント
      * POST /api/rooms/join
+     *
+     * 部屋に参加します。
+     *
+     * @param request 部屋参加リクエスト
+     * @return 参加した部屋のメンバー情報
      */
     @PostMapping("/join")
     public ResponseEntity<RoomMember> joinRoom(@RequestBody JoinRoomRequest request) {
@@ -65,6 +81,11 @@ public class RoomController {
     /**
      * 部屋検索エンドポイント
      * GET /api/rooms/search?keyword=xxx
+     *
+     * キーワードで部屋を検索します。
+     *
+     * @param keyword 検索キーワード
+     * @return 検索結果の部屋リスト
      */
     @GetMapping("/search")
     public ResponseEntity<List<Room>> searchRooms(@RequestParam String keyword) {

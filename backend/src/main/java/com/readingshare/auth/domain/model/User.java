@@ -10,7 +10,11 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
 /**
- * F1 会員情報に基くユーザーエンティティ。
+ * 会員情報に基くユーザーエンティティ。
+ *
+ * @author 003
+ * @componentIdName C02 ログイン・会員登録
+ * @moduleIdName M0204 ユーザーエンティティ
  */
 @Entity
 @Table(name = "users") // テーブル名は "users" が一般的
@@ -31,17 +35,33 @@ public class User {
     @Column(name = "joined_at", nullable = false)
     private Instant joinedAt; // アカウント作成時刻
 
-    // デフォルトコンストラクタ (JPAのために必要)
+    /**
+     * デフォルトコンストラクタ。
+     * JPAの要件により必要です。
+     */
     public User() {
     }
 
+    /**
+     * ID、ユーザー名、作成日時を指定してユーザーを作成します。
+     *
+     * @param id       ユーザーID
+     * @param username ユーザー名
+     * @param joinedAt アカウント作成時刻
+     */
     public User(UUID id, String username, Instant joinedAt) {
         this.id = id;
         this.username = username;
         this.joinedAt = joinedAt;
     }
 
-    // パスワードハッシュを設定するためのコンストラクタ
+    /**
+     * ユーザー名、パスワードハッシュ、作成日時を指定してユーザーを作成します。
+     *
+     * @param username     ユーザー名
+     * @param passwordHash パスワードのハッシュ
+     * @param joinedAt     アカウント作成時刻
+     */
     public User(String username, String passwordHash, Instant joinedAt) {
         this.id = UUID.randomUUID(); // 新規作成時はUUIDを自動生成
         this.username = username;
@@ -49,36 +69,74 @@ public class User {
         this.joinedAt = joinedAt;
     }
 
-    // Getters
+    /**
+     * ユーザーIDを取得します。
+     *
+     * @return ユーザーID
+     */
     public UUID getId() {
         return id;
     }
 
+    /**
+     * ユーザー名を取得します。
+     *
+     * @return ユーザー名
+     */
     public String getUsername() {
         return username;
     }
 
+    /**
+     * パスワードハッシュを取得します。
+     *
+     * @return パスワードハッシュ
+     */
     public String getPasswordHash() {
         return passwordHash;
     }
 
+    /**
+     * アカウント作成時刻を取得します。
+     *
+     * @return アカウント作成時刻
+     */
     public Instant getJoinedAt() {
         return joinedAt;
     }
 
-    // Setters (必要なもののみ)
+    /**
+     * ユーザーIDを設定します。
+     *
+     * @param id ユーザーID
+     */
     public void setId(UUID id) {
         this.id = id;
     }
 
+    /**
+     * ユーザー名を設定します。
+     *
+     * @param username ユーザー名
+     */
     public void setUsername(String username) {
         this.username = username;
     }
 
+    /**
+     * パスワードハッシュを設定します。
+     *
+     * @param passwordHash パスワードハッシュ
+     */
     public void setPasswordHash(String passwordHash) {
         this.passwordHash = passwordHash;
     }
 
+    /**
+     * アカウント作成時刻を設定します。
+     *
+     * @param joinedAt アカウント作成時刻
+     */
     public void setJoinedAt(Instant joinedAt) {
         this.joinedAt = joinedAt;
     }

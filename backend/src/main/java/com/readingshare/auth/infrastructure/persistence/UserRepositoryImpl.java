@@ -9,6 +9,14 @@ import org.springframework.transaction.annotation.Transactional;
 import com.readingshare.auth.domain.model.User;
 import com.readingshare.auth.domain.repository.IUserRepository;
 
+/**
+ * ユーザー情報のリポジトリ実装。
+ *
+ * @author 003
+ * @componentIdName C05 会員情報管理部
+ * @moduleIdName M0513 ユーザーリポジトリ実装
+ * @dependsOn M0512 ユーザーリポジトリ
+ */
 @Repository
 @Transactional
 public class UserRepositoryImpl implements IUserRepository {
@@ -18,16 +26,34 @@ public class UserRepositoryImpl implements IUserRepository {
         this.userJpaRepository = userRepository;
     }
 
+    /**
+     * 指定されたユーザー情報を保存します。
+     *
+     * @param user 保存するユーザー情報
+     * @return 保存されたユーザー情報
+     */
     @Override
     public User save(User user) {
         return userJpaRepository.save(user);
     }
 
+    /**
+     * ユーザーIDを基にユーザー情報を検索します。
+     *
+     * @param id 検索するユーザーID
+     * @return 見つかった場合はユーザー情報を含むOptional、見つからない場合は空のOptional
+     */
     @Override
     public Optional<User> findById(UUID id) {
         return userJpaRepository.findById(id);
     }
 
+    /**
+     * ユーザー名を基にユーザー情報を検索します。
+     *
+     * @param username 検索するユーザー名
+     * @return 見つかった場合はユーザー情報を含むOptional、見つからない場合は空のOptional
+     */
     @Override
     public Optional<User> findByUsername(String username) {
         return userJpaRepository.findByUsername(username);

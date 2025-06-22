@@ -20,7 +20,8 @@ import com.readingshare.room.domain.service.RoomDomainService;
 /**
  * 部屋に関する統合アプリケーションサービス。
  * 部屋の作成、検索、参加などの機能を提供する。
- * 担当: 芳岡
+ * 
+ * @author 23004
  */
 @Service
 public class RoomService {

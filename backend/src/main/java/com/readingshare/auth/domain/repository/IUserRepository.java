@@ -7,7 +7,11 @@ import com.readingshare.auth.domain.model.User;
 
 /**
  * ユーザー情報の永続化を担当するリポジトリインターフェース。
- * 担当: 小亀
+ *
+ * @author 003
+ * @componentIdName C02 ログイン・会員登録
+ * @moduleIdName M0212 ユーザーリポジトリ
+ * @dependsOn M0204 ユーザーエンティティ
  */
 public interface IUserRepository {
 

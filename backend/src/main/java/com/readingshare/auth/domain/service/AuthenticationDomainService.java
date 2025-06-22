@@ -14,7 +14,12 @@ import com.readingshare.common.exception.DomainException;
 
 /**
  * 認証とユーザー管理に関するドメインロジックを扱うサービス。
- * 担当: 小亀
+ *
+ * @author 003
+ * @componentIdName C02 ログイン・会員登録
+ * @moduleIdName M0210 認証ドメインサービス
+ * @dependsOn M0211 認証トークンリポジトリ
+ * @dependsOn M0212 ユーザーリポジトリ
  */
 @Service
 public class AuthenticationDomainService {

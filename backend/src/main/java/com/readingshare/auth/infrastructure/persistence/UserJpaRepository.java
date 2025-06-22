@@ -4,15 +4,16 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
 import com.readingshare.auth.domain.model.User;
 
 /**
  * ユーザー情報のJPAリポジトリインターフェース。
- * 担当: 小亀
+ *
+ * @author 003
+ * @componentIdName C05 会員情報管理部
+ * @moduleIdName M0512 ユーザーリポジトリ
  */
-@Repository
 public interface UserJpaRepository extends JpaRepository<User, UUID> {
 
     /**

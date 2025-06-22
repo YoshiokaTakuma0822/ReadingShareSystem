@@ -8,17 +8,25 @@ import com.readingshare.survey.domain.model.Survey;
 import com.readingshare.survey.domain.model.SurveyAnswer;
 
 /**
- * アンケート情報の永続化を担当するリポジトリインターフェース。
- * 担当: 成田
+ * ISurveyRepository は、アンケート情報の永続化を担当するリポジトリインターフェースです。
+ * アンケートの保存、検索、回答の保存などの操作を提供します。
+ *
+ * @author 23002
  */
 public interface ISurveyRepository {
     /**
-     * アンケートを保存する
+     * アンケートを保存します。
+     *
+     * @param survey 保存するアンケート
+     * @return 保存されたアンケート
      */
     Survey save(Survey survey);
 
     /**
-     * アンケート回答を保存する
+     * アンケートの回答を保存します。
+     *
+     * @param answer 保存するアンケート回答
+     * @return 保存されたアンケート回答
      */
     SurveyAnswer saveAnswer(SurveyAnswer answer);
 
@@ -36,4 +44,13 @@ public interface ISurveyRepository {
      * アンケートの回答一覧を取得する
      */
     List<SurveyAnswer> findAnswersBySurveyId(UUID surveyId);
+
+    /**
+     * 特定のアンケートとユーザーの組み合わせで回答を検索します。
+     *
+     * @param surveyId アンケートID
+     * @param userId   ユーザーID
+     * @return 回答が見つかった場合はOptionalにSurveyAnswer、見つからない場合はOptional.empty()
+     */
+    Optional<SurveyAnswer> findBySurveyIdAndUserId(UUID surveyId, UUID userId);
 }

@@ -10,7 +10,8 @@ import com.readingshare.chat.domain.model.ChatMessage;
 
 /**
  * チャットメッセージ情報のJPAリポジトリインターフェース。
- * 担当: 榎本
+ * 
+ * @author 23001
  */
 @Repository
 public interface ChatMessageJpaRepository extends JpaRepository<ChatMessage, UUID> {

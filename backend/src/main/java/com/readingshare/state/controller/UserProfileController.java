@@ -1,10 +1,17 @@
 package com.readingshare.state.controller;
 
-import org.springframework.web.bind.annotation.*;
-import org.springframework.http.ResponseEntity;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+/**
+ * ユーザープロフィールに関するAPI
+ */
 @RestController
 @RequestMapping("/api/user")
 public class UserProfileController {
@@ -16,10 +23,17 @@ public class UserProfileController {
         USERS.put("user3", Map.of("userId", "user3", "displayName", "ユーザー3", "iconUrl", "/icons/user3.png"));
     }
 
+    /**
+     * ユーザープロフィールを取得する
+     *
+     * @param userId ユーザーID
+     * @return ユーザープロフィール
+     */
     @GetMapping("/{userId}/profile")
     public ResponseEntity<Map<String, String>> getProfile(@PathVariable String userId) {
         Map<String, String> profile = USERS.get(userId);
-        if (profile == null) return ResponseEntity.notFound().build();
+        if (profile == null)
+            return ResponseEntity.notFound().build();
         return ResponseEntity.ok(profile);
     }
 }

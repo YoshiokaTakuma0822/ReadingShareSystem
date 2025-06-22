@@ -19,6 +19,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 /**
  * 認証が必要なAPIのサンプルコントローラー。
+ *
+ * @author 003
+ * @componentIdName C02 ログイン・会員登録
+ * @moduleIdName M0202 ユーザーコントローラー
+ * @dependsOn M0217 ユーザー情報DTO
  */
 @RestController
 @RequestMapping("/api/user")
@@ -56,6 +61,10 @@ public class UserController {
 
     /**
      * ユーザー情報のレスポンスDTO。
+     *
+     * @author 003
+     * @componentIdName C02 ログイン・会員登録
+     * @moduleIdName M0217 ユーザー情報DTO
      */
     public record UserInfo(UUID userId, String username) {
     }
