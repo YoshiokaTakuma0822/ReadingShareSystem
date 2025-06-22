@@ -59,8 +59,26 @@ public class SurveyService {
     // --- アンケート回答 ---
     @Transactional
     public void submitAnswer(UUID surveyId, SubmitSurveyAnswerRequest request) {
-        surveyRepository.findById(surveyId)
+        Survey survey = surveyRepository.findById(surveyId)
                 .orElseThrow(() -> new ResourceNotFoundException("Survey not found with id: " + surveyId));
+        // 追加選択肢があればアンケート本体に反映
+        if (request.addedOptions() != null) {
+            for (var entry : request.addedOptions().entrySet()) {
+                String questionText = entry.getKey();
+                List<String> newOptions = entry.getValue();
+                survey.getQuestions().stream()
+                        .filter(q -> q.getQuestionText().equals(questionText) && q.isAllowAddOptions())
+                        .findFirst()
+                        .ifPresent(q -> {
+                            for (String opt : newOptions) {
+                                try {
+                                    q.addOption(opt);
+                                } catch (Exception ignored) {}
+                            }
+                        });
+            }
+            surveyRepository.save(survey); // 選択肢をDBに反映
+        }
         SurveyAnswer answer = new SurveyAnswer(surveyId, request.userId(), request.answers(), request.isAnonymous());
         surveyRepository.saveAnswer(answer);
     }

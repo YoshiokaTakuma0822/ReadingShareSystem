@@ -166,7 +166,7 @@ const HomeScreen: React.FC = () => {
                 <div style={{ color: 'red' }}>{error}</div>
             ) : (
                 <div style={{ border: '2px solid var(--text-main)', padding: 24 }}>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24 }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24, maxHeight: 500, overflowY: 'auto' }}>
                         {rooms.length === 0 ? (
                             <div style={{ color: '#b0b8c9', fontSize: 20, width: '100%', textAlign: 'center', padding: '32px 0' }}>
                                 部屋はありません

@@ -178,15 +178,23 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
     const handleSurveyAnswer = async (survey: Survey) => {
         if (!surveyAnswers[survey.id]) return
         const answerObj: Record<string, string[]> = {};
-        survey.questions.forEach((q) => {
-            const ans = surveyAnswers[survey.id]?.filter(opt => q.options.includes(opt)) || [];
+        survey.questions.forEach((q, qIdx) => {
+            const ans = surveyAnswers[survey.id]?.filter(opt => q.options.includes(opt) || (addedOptions[survey.id + '-' + qIdx] || []).includes(opt)) || [];
             answerObj[q.questionText] = ans;
+        });
+        // 追加: 追加選択肢も送信
+        const added: Record<string, string[]> = {};
+        survey.questions.forEach((q, qIdx) => {
+            if (addedOptions[survey.id + '-' + qIdx] && addedOptions[survey.id + '-' + qIdx].length > 0) {
+                added[q.questionText] = addedOptions[survey.id + '-' + qIdx];
+            }
         });
         try {
             await surveyApi.answerSurvey(survey.id, {
                 surveyId: survey.id,
                 userId: currentUserId!,
                 answers: answerObj,
+                addedOptions: added
             })
             setAnsweringSurveyId(null)
             setAnsweredSurveyIds(prev => [...prev, survey.id])
@@ -212,6 +220,11 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     }, [streamItems, showSurveyResultModal])
+
+    // --- 追加: 各アンケートごとにローカルで追加選択肢を管理 ---
+    const [addedOptions, setAddedOptions] = useState<Record<string, string[]>>({})
+    const [newOptionInput, setNewOptionInput] = useState<Record<string, string>>({})
+    // --- ここまで ---
 
     return (
         <div style={{ border: '4px solid #388e3c', margin: 24, padding: 24, background: 'linear-gradient(135deg, #e0f7ef 0%, #f1fdf6 100%)', borderRadius: 12, maxWidth: 1200, minHeight: 600, marginLeft: 'auto', marginRight: 'auto', display: 'flex', flexDirection: 'column', height: '80vh' }}>
@@ -357,37 +370,65 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                                         >アンケートの結果を表示する</button>
                                     ) : (
                                         <>
-                                            {survey.questions.map((q, qIdx) => (
-                                                <div key={qIdx} style={{ marginBottom: 8 }}>
-                                                    <div>{q.questionText}</div>
-                                                    {q.options.map((opt, oIdx) => (
-                                                        <label key={oIdx} style={{ marginRight: 12 }}>
-                                                            <input
-                                                                type={q.questionType === 'SINGLE_CHOICE' ? 'radio' : 'checkbox'}
-                                                                name={`survey-${survey.id}-q${qIdx}`}
-                                                                value={opt}
-                                                                checked={surveyAnswers[survey.id]?.includes(opt) || false}
-                                                                onChange={e => {
-                                                                    setSurveyAnswers(prev => {
-                                                                        const prevAns = prev[survey.id] || []
-                                                                        if (q.questionType === 'SINGLE_CHOICE') {
-                                                                            return { ...prev, [survey.id]: [opt] }
-                                                                        } else {
-                                                                            if (e.target.checked) {
-                                                                                return { ...prev, [survey.id]: [...prevAns, opt] }
+                                            {survey.questions.map((q, qIdx) => {
+                                                const allOptions = [...q.options, ...(addedOptions[survey.id + '-' + qIdx] || [])]
+                                                return (
+                                                    <div key={qIdx} style={{ marginBottom: 8 }}>
+                                                        <div>{q.questionText}</div>
+                                                        {allOptions.map((opt, oIdx) => (
+                                                            <label key={oIdx} style={{ marginRight: 12 }}>
+                                                                <input
+                                                                    type={q.questionType === 'SINGLE_CHOICE' ? 'radio' : 'checkbox'}
+                                                                    name={`survey-${survey.id}-q${qIdx}`}
+                                                                    value={opt}
+                                                                    checked={surveyAnswers[survey.id]?.includes(opt) || false}
+                                                                    onChange={e => {
+                                                                        setSurveyAnswers(prev => {
+                                                                            const prevAns = prev[survey.id] || []
+                                                                            if (q.questionType === 'SINGLE_CHOICE') {
+                                                                                return { ...prev, [survey.id]: [opt] }
                                                                             } else {
-                                                                                return { ...prev, [survey.id]: prevAns.filter(v => v !== opt) }
+                                                                                if (e.target.checked) {
+                                                                                    return { ...prev, [survey.id]: [...prevAns, opt] }
+                                                                                } else {
+                                                                                    return { ...prev, [survey.id]: prevAns.filter(v => v !== opt) }
+                                                                                }
                                                                             }
-                                                                        }
-                                                                    })
-                                                                }}
-                                                                disabled={answeringSurveyId === survey.id}
-                                                            />
-                                                            {opt}
-                                                        </label>
-                                                    ))}
-                                                </div>
-                                            ))}
+                                                                        })
+                                                                    }}
+                                                                    disabled={answeringSurveyId === survey.id}
+                                                                />
+                                                                {opt}
+                                                            </label>
+                                                        ))}
+                                                        {/* 選択肢の追加を許可している場合のみUI表示 */}
+                                                        {q.allowAddOptions && (
+                                                            <div style={{ marginTop: 8 }}>
+                                                                <input
+                                                                    type="text"
+                                                                    placeholder="新しい選択肢を追加"
+                                                                    value={newOptionInput[survey.id + '-' + qIdx] || ''}
+                                                                    onChange={e => setNewOptionInput(prev => ({ ...prev, [survey.id + '-' + qIdx]: e.target.value }))}
+                                                                    style={{ padding: 4, fontSize: 16, marginRight: 8 }}
+                                                                />
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        const val = (newOptionInput[survey.id + '-' + qIdx] || '').trim()
+                                                                        if (!val) return
+                                                                        setAddedOptions(prev => ({
+                                                                            ...prev,
+                                                                            [survey.id + '-' + qIdx]: [...(prev[survey.id + '-' + qIdx] || []), val]
+                                                                        }))
+                                                                        setNewOptionInput(prev => ({ ...prev, [survey.id + '-' + qIdx]: '' }))
+                                                                    }}
+                                                                    style={{ padding: '4px 12px', borderRadius: 6, background: '#2196f3', color: 'white', border: 'none', cursor: 'pointer' }}
+                                                                >追加</button>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )
+                                            })}
                                             <button
                                                 onClick={() => { setAnsweringSurveyId(survey.id); handleSurveyAnswer(survey) }}
                                                 disabled={answeringSurveyId === survey.id}

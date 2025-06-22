@@ -73,12 +73,14 @@ const SurveyResultModal: React.FC<SurveyResultModalProps> = ({ open, surveyId, o
                             <div key={idx} style={{ marginBottom: 24 }}>
                                 <h3 style={{ marginBottom: 12 }}>{result.questionText}</h3>
                                 {result.votes && Object.entries(result.votes).length > 0 ? (
-                                    Object.entries(result.votes).map(([option, votes]) => (
-                                        <div key={option} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                                            <span>{option}</span>
-                                            <span>{votes}票</span>
-                                        </div>
-                                    ))
+                                    Object.entries(result.votes)
+                                        .sort((a, b) => b[1] - a[1]) // 票数降順
+                                        .map(([option, votes]) => (
+                                            <div key={option} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                                                <span>{option}</span>
+                                                <span>{votes}票</span>
+                                            </div>
+                                        ))
                                 ) : (
                                     <div>回答がありません</div>
                                 )}

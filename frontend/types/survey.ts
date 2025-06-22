@@ -35,6 +35,7 @@ export interface SubmitSurveyAnswerRequest {
     userId: UserId // 追加
     answers: Record<string, string[]> // Map型からRecord型に修正
     isAnonymous?: boolean // 匿名回答かどうか
+    addedOptions?: Record<string, string[]> // 質問ごとの追加選択肢
 }
 
 export interface CreateSurveyRequest {
