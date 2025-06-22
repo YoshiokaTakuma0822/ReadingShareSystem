@@ -84,13 +84,6 @@
                     </dependency>
                 </dependencies>
                 <configuration>
-                    <!-- <encoding>UTF-8</encoding>
-                    <charset>UTF-8</charset> -->
-                    <!-- <locale>ja_JP</locale>
-                    <additionalJOptions>
-                        <additionalJOption>-J-Duser.language=ja</additionalJOption>
-                        <additionalJOption>-J-Duser.country=JP</additionalJOption>
-                    </additionalJOptions> -->
                     <doclet>com.readingshare.common.doclet.JsonDoclet</doclet>
                     <docletArtifact>
                         <groupId>${project.groupId}</groupId>
