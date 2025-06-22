@@ -35,6 +35,11 @@ public class RoomRepositoryImpl implements IRoomRepository {
     }
 
     @Override
+    public List<Room> findByGenre(String genre) {
+        return roomRepository.findByGenre(genre);
+    }
+
+    @Override
     public List<Room> findAll() {
         return roomRepository.findAll();
     }
@@ -42,5 +47,10 @@ public class RoomRepositoryImpl implements IRoomRepository {
     @Override
     public Page<Room> findAll(Pageable pageable) {
         return roomRepository.findAll(pageable);
+    }
+
+    @Override
+    public void deleteById(UUID id) {
+        roomRepository.deleteById(id);
     }
 }

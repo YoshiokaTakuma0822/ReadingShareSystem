@@ -36,7 +36,12 @@ const SurveyCreationModal: React.FC<SurveyCreationModalProps> = ({ open, roomId,
                 questions: [question]
             }
 
-            await surveyApi.createSurvey(request)
+            const survey = await surveyApi.createSurvey(request)
+            console.log('survey作成レスポンス', survey)
+            // Survey作成後、チャット欄にアンケート開始メッセージを送信
+            await import('../../lib/chatApi').then(({ chatApi }) =>
+                chatApi.sendMessage(roomId, { messageContent: `[SURVEY]${survey.id || survey.surveyId}:${survey.title}` })
+            )
             onCreated()
         } catch (e) {
             setError('アンケート作成に失敗しました')

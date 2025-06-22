@@ -44,7 +44,7 @@ public class SendChatMessageService {
      * @throws DatabaseAccessException データベースアクセスエラー時
      */
     @Transactional
-    public ChatMessage sendMessage(UUID roomId, UUID userId, String content) {
+    public ChatMessage sendMessage(UUID roomId, UUID userId, String content, Instant sentAt) {
         // 入力値の検証
         validateInput(roomId, userId, content);
 
@@ -54,8 +54,8 @@ public class SendChatMessageService {
         // メッセージ内容の検証
         MessageContent messageContent = validateAndCreateMessageContent(content);
 
-        // チャットメッセージの作成と送信
-        ChatMessage chatMessage = new ChatMessage(roomId, userId, messageContent, Instant.now());
+        // チャットメッセージの作成と送信（sentAtを利用）
+        ChatMessage chatMessage = new ChatMessage(roomId, userId, messageContent, sentAt != null ? sentAt : Instant.now());
         chatDomainService.sendChatMessage(chatMessage);
 
         return chatMessage;

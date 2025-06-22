@@ -56,6 +56,13 @@ public class SurveyService {
         }
     }
 
+    // Survey取得用メソッドを追加
+    @Transactional(readOnly = true)
+    public Survey getSurvey(UUID surveyId) {
+        return surveyRepository.findById(surveyId)
+            .orElseThrow(() -> new ResourceNotFoundException("Survey not found: " + surveyId));
+    }
+
     // --- アンケート回答 ---
     @Transactional
     public void submitAnswer(UUID surveyId, SubmitSurveyAnswerRequest request) {

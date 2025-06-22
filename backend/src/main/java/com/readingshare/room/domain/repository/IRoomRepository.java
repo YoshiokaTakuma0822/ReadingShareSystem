@@ -41,6 +41,13 @@ public interface IRoomRepository {
     List<Room> findByKeyword(String keyword);
 
     /**
+     * 指定ジャンルの部屋を検索する。
+     * @param genre ジャンル
+     * @return ジャンル一致の部屋リスト
+     */
+    List<Room> findByGenre(String genre);
+
+    /**
      * 全ての部屋を取得する。
      *
      * @return 全ての部屋のリスト
@@ -54,4 +61,10 @@ public interface IRoomRepository {
      * @return ページングされた部屋のリスト
      */
     Page<Room> findAll(Pageable pageable);
+
+    /**
+     * 部屋IDで部屋を削除する。
+     * @param id 部屋ID
+     */
+    void deleteById(UUID id);
 }

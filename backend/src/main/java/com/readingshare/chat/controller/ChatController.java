@@ -21,6 +21,7 @@ import com.readingshare.chat.dto.ChatStreamItemDto;
 import com.readingshare.chat.dto.SendMessageRequest;
 import com.readingshare.chat.service.GetChatHistoryService;
 import com.readingshare.chat.service.SendChatMessageService;
+import com.readingshare.auth.domain.repository.IUserRepository;
 import com.readingshare.common.exception.ApplicationException;
 import com.readingshare.survey.domain.model.Survey;
 import com.readingshare.survey.domain.repository.ISurveyRepository;
@@ -35,13 +36,14 @@ public class ChatController {
 
     private final SendChatMessageService sendChatMessageService;
     private final GetChatHistoryService getChatHistoryService;
+    private final IUserRepository userRepository;
+    private final ISurveyRepository surveyRepository;
 
-    @Autowired
-    private ISurveyRepository surveyRepository;
-
-    public ChatController(SendChatMessageService sendChatMessageService, GetChatHistoryService getChatHistoryService) {
+    public ChatController(SendChatMessageService sendChatMessageService, GetChatHistoryService getChatHistoryService, IUserRepository userRepository, ISurveyRepository surveyRepository) {
         this.sendChatMessageService = sendChatMessageService;
         this.getChatHistoryService = getChatHistoryService;
+        this.userRepository = userRepository;
+        this.surveyRepository = surveyRepository;
     }
 
     /**
@@ -54,7 +56,7 @@ public class ChatController {
     @PostMapping("/{roomId}/message")
     public ResponseEntity<String> sendMessage(@PathVariable UUID roomId, @RequestBody SendMessageRequest request) {
         UUID currentUserId = getCurrentUserId();
-        sendChatMessageService.sendMessage(roomId, currentUserId, request.messageContent());
+        sendChatMessageService.sendMessage(roomId, currentUserId, request.messageContent(), request.sentAt());
         return ResponseEntity.ok("Message sent successfully.");
     }
 
@@ -66,8 +68,8 @@ public class ChatController {
      */
     @GetMapping("/{roomId}/history")
     public ResponseEntity<List<ChatMessage>> getChatHistory(@PathVariable UUID roomId) {
-        List<ChatMessage> chatHistory = getChatHistoryService.getChatHistory(roomId);
-        return ResponseEntity.ok(chatHistory);
+        List<ChatMessage> messages = getChatHistoryService.getChatHistory(roomId);
+        return ResponseEntity.ok(messages);
     }
 
     /**

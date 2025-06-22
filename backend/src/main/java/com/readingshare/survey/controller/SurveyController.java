@@ -36,12 +36,14 @@ public class SurveyController {
      * 新しいアンケートを作成する。
      *
      * @param request アンケート作成リクエスト
-     * @return 作成されたアンケートのID
+     * @return 作成されたアンケート全体（id, title, ...）
      */
     @PostMapping
-    public ResponseEntity<UUID> createSurvey(@RequestBody CreateSurveyRequest request) {
+    public ResponseEntity<Survey> createSurvey(@RequestBody CreateSurveyRequest request) {
         UUID surveyId = surveyService.createSurvey(request);
-        return ResponseEntity.ok(surveyId);
+        // 作成したSurvey全体を返す
+        Survey survey = surveyService.getSurvey(surveyId);
+        return ResponseEntity.ok(survey);
     }
 
     /**

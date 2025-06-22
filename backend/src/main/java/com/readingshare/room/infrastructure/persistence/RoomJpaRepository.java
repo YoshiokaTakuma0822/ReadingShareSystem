@@ -26,4 +26,13 @@ public interface RoomJpaRepository extends JpaRepository<Room, UUID> {
      */
     @Query("SELECT r FROM Room r WHERE r.roomName LIKE %:keyword% OR r.bookTitle LIKE %:keyword%")
     List<Room> findByKeyword(@Param("keyword") String keyword);
+
+    /**
+     * 指定されたジャンルに一致する部屋を検索する。
+     *
+     * @param genre 検索ジャンル
+     * @return 検索結果の部屋リスト
+     */
+    @Query("SELECT r FROM Room r WHERE r.genre = :genre")
+    List<Room> findByGenre(@Param("genre") String genre);
 }

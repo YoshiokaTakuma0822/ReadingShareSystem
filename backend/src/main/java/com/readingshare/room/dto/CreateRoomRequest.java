@@ -1,5 +1,6 @@
 package com.readingshare.room.dto;
 
+import java.time.Instant;
 import java.util.UUID;
 
 /**
@@ -9,5 +10,10 @@ public record CreateRoomRequest(
         String roomName,
         UUID hostUserId,
         String bookTitle,
-        String password) {
+        String password,
+        Integer maxPage,
+        String genre,
+        Instant startTime,
+        Instant endTime,
+        Integer pageSpeed) {
 }
