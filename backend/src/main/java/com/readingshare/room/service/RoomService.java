@@ -169,9 +169,6 @@ public class RoomService {
     public Room updateRoom(String roomId, UpdateRoomRequest request) {
         UUID id = UUID.fromString(roomId);
         Room room = roomRepository.findById(id).orElseThrow(() -> new ApplicationException("部屋が見つかりません"));
-        if (request.maxPage() != null) {
-            room.setMaxPage(request.maxPage());
-        }
         if (request.totalPages() != null) {
             room.setTotalPages(request.totalPages());
         }

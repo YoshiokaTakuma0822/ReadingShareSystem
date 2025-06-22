@@ -42,9 +42,8 @@ public class CreateRoomService {
 
         // ホストユーザーを RoomMember として登録
         RoomMember member = new RoomMember();
-        member.setRoom(savedRoom);
-        member.setUserId(request.getHostUserId()); // Long型で渡す
-        roomMemberRepository.save(member);
+        member.setRoomId(savedRoom.getId());
+        member.setUserId(java.util.UUID.fromString(request.getHostUserId().toString()));  
         // 必要に応じて他の初期化処理をここに追加できます
         return savedRoom;
     }

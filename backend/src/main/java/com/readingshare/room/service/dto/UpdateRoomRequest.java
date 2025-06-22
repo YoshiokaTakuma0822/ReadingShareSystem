@@ -1,3 +1,8 @@
 package com.readingshare.room.service.dto;
 
-public record UpdateRoomRequest(Integer totalPages) {}
+import java.util.UUID;
+
+public record UpdateRoomRequest(
+    Integer maxPage
+) {}
+
