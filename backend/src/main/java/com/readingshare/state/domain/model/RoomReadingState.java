@@ -11,6 +11,7 @@ import java.util.Map;
  * @author 02003
  * @componentId C4
  * @moduleName 部屋読書状態モデル
+ * @see UserReadingState
  */
 public class RoomReadingState {
     private final String roomId;

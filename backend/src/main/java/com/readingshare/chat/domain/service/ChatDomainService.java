@@ -13,6 +13,7 @@ import com.readingshare.common.exception.DomainException;
  * @author 02001
  * @componentId C4
  * @moduleName チャットドメインサービス
+ * @see IChatMessageRepository
  */
 @Service
 public class ChatDomainService {

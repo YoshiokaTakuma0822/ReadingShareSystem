@@ -18,6 +18,7 @@ import jakarta.persistence.Table;
  * @author 02002
  * @componentId C4
  * @moduleName アンケートモデル
+ * @see Question
  */
 @Entity
 @Table(name = "surveys")

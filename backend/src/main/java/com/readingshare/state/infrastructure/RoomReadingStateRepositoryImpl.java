@@ -13,7 +13,7 @@ import com.readingshare.state.domain.repository.RoomReadingStateRepository;
  * データはスレッドセーフな ConcurrentHashMap を使用して管理されます。
  *
  * @author 02003
- * @componentId C4
+ * @componentId C7
  * @moduleName 部屋読書状態リポジトリ実装
  */
 @Repository

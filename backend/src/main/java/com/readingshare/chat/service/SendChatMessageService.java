@@ -20,6 +20,7 @@ import com.readingshare.room.domain.repository.IRoomRepository;
  * @author 02001
  * @componentId C4
  * @moduleName チャットメッセージ送信サービス
+ * @see ChatDomainService
  */
 @Service
 public class SendChatMessageService {

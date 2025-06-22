@@ -8,6 +8,7 @@ import java.util.List;
  * @author 02002
  * @componentId C4
  * @moduleName アンケート質問モデル
+ * @see QuestionType
  */
 public class Question {
     private String questionText;

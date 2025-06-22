@@ -24,6 +24,8 @@ import com.readingshare.survey.domain.repository.ISurveyRepository;
  * @author 02002
  * @componentId C4
  * @moduleName アンケートドメインサービス
+ * @see ISurveyRepository
+ * @see ISurveyAnswerRepository
  */
 @Service
 public class SurveyDomainService {

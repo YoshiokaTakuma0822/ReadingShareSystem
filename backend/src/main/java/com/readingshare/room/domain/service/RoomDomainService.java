@@ -22,7 +22,6 @@ import com.readingshare.room.domain.repository.IRoomRepository;
  * @moduleName ルームドメインサービス
  * @see IRoomRepository
  * @see IRoomMemberRepository
- * @see IPasswordHasher
  */
 @Service
 public class RoomDomainService {

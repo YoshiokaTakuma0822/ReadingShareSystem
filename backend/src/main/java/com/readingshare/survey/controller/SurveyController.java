@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.readingshare.survey.domain.model.Survey;
+import com.readingshare.survey.dto.AddOptionRequest;
 import com.readingshare.survey.dto.CreateSurveyRequest;
 import com.readingshare.survey.dto.SubmitSurveyAnswerRequest;
 import com.readingshare.survey.dto.SurveyResultResponse;
@@ -24,6 +25,11 @@ import com.readingshare.survey.service.SurveyService;
  * @author 02002
  * @componentId C4
  * @moduleName アンケートコントローラー
+ * @see SurveyService
+ * @see AddOptionRequest
+ * @see CreateSurveyRequest
+ * @see SubmitSurveyAnswerRequest
+ * @see SurveyResultResponse
  */
 @RestController
 @RequestMapping("/api/surveys")
@@ -115,11 +121,5 @@ public class SurveyController {
             @RequestParam UUID userId) {
         boolean answered = surveyService.hasUserAnswered(surveyId, userId);
         return ResponseEntity.ok(answered);
-    }
-
-    /**
-     * 選択肢追加リクエストDTO
-     */
-    public record AddOptionRequest(String questionText, String newOption) {
     }
 }

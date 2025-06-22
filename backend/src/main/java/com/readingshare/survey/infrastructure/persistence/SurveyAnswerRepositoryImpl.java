@@ -16,6 +16,7 @@ import com.readingshare.survey.domain.repository.ISurveyAnswerRepository;
  * @author 02002
  * @componentId C8
  * @moduleName アンケート回答リポジトリ実装
+ * @see SurveyAnswerJpaRepository
  */
 @Repository
 public class SurveyAnswerRepositoryImpl implements ISurveyAnswerRepository {

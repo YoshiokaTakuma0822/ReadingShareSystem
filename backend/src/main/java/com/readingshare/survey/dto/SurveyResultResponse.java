@@ -10,6 +10,7 @@ import java.util.UUID;
  * @author 02002
  * @componentId C4
  * @moduleName アンケート結果レスポンスDTO
+ * @see QuestionResultResponse
  */
 public record SurveyResultResponse(
         UUID surveyId,
@@ -19,7 +20,9 @@ public record SurveyResultResponse(
     /**
      * 質問結果を取得します。
      *
-     * @return 質問結果のリスト
+     * @author 02002
+     * @componentId C4
+     * @moduleName 質問結果レスポンスDTO
      */
     public record QuestionResultResponse(
             String questionText,

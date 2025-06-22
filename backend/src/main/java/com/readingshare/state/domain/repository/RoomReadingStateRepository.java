@@ -8,6 +8,7 @@ import com.readingshare.state.domain.model.RoomReadingState;
  * @author 02003
  * @componentId C4
  * @moduleName 部屋読書状態リポジトリ
+ * @see RoomReadingState
  */
 public interface RoomReadingStateRepository {
     /**

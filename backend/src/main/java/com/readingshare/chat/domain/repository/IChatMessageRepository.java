@@ -12,6 +12,7 @@ import com.readingshare.chat.domain.model.ChatMessage;
  * @author 02001
  * @componentId C4
  * @moduleName チャットメッセージリポジトリIF
+ * @see ChatMessage
  */
 public interface IChatMessageRepository {
 

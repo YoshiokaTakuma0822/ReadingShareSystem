@@ -19,7 +19,6 @@ import com.readingshare.room.domain.repository.IRoomRepository;
  * @componentId C4
  * @moduleName チャット履歴取得サービス
  * @see IChatMessageRepository
- * @see IRoomRepository
  */
 @Service
 public class GetChatHistoryService {

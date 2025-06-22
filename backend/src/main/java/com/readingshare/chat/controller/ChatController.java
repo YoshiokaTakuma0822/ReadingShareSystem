@@ -33,6 +33,7 @@ import com.readingshare.survey.domain.repository.ISurveyRepository;
  * @see SendChatMessageService
  * @see GetChatHistoryService
  * @see ISurveyRepository
+ * @see SendMessageRequest
  */
 @RestController
 @RequestMapping("/api/chat")

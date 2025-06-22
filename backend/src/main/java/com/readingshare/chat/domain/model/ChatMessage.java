@@ -16,6 +16,7 @@ import jakarta.validation.constraints.NotNull;
  * @author 02001
  * @componentId C4
  * @moduleName チャットメッセージエンティティ
+ * @see MessageContent
  */
 @Entity
 @Table(name = "chat_messages")

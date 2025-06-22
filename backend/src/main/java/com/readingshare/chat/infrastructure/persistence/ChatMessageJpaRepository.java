@@ -14,7 +14,6 @@ import com.readingshare.chat.domain.model.ChatMessage;
  * @author 02001
  * @componentId C7
  * @moduleName チャットメッセージJPAリポジトリ
- * @see ChatMessage
  */
 @Repository
 public interface ChatMessageJpaRepository extends JpaRepository<ChatMessage, UUID> {

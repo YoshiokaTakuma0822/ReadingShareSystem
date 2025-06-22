@@ -17,7 +17,6 @@ import com.readingshare.chat.domain.repository.IChatMessageRepository;
  * @author 02001
  * @componentId C7
  * @moduleName チャットメッセージリポジトリ実装
- * @see ChatMessage
  * @see ChatMessageJpaRepository
  */
 @Repository
