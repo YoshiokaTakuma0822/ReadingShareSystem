@@ -14,6 +14,7 @@ import com.readingshare.survey.domain.model.Survey;
  *
  * @author 02002
  * @componentId C8
+ * @moduleName アンケートJPAリポジトリ
  */
 @Repository
 public interface SurveyJpaRepository extends JpaRepository<Survey, UUID> {

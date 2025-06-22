@@ -7,6 +7,7 @@ import java.util.List;
  *
  * @author 02003
  * @componentId C4
+ * @moduleName 部屋読書状態レスポンスDTO
  */
 public record RoomReadingStateResponse(
         String roomId,

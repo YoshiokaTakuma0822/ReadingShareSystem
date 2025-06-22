@@ -23,6 +23,7 @@ import com.readingshare.survey.service.SurveyService;
  *
  * @author 02002
  * @componentId C4
+ * @moduleName アンケートコントローラー
  */
 @RestController
 @RequestMapping("/api/surveys")

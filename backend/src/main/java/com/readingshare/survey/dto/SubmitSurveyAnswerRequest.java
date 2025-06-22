@@ -9,6 +9,7 @@ import java.util.UUID;
  *
  * @author 02002
  * @componentId C4
+ * @moduleName アンケート回答送信リクエストDTO
  */
 // W8 アンケート回答画面からのリクエストデータ
 public record SubmitSurveyAnswerRequest(

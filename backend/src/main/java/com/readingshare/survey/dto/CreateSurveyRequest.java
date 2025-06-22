@@ -10,8 +10,8 @@ import com.readingshare.survey.domain.model.QuestionType;
  *
  * @author 02002
  * @componentId C4
+ * @moduleName アンケート作成リクエストDTO
  */
-// W7 アンケート作成画面からのリクエストデータ
 public record CreateSurveyRequest(
         UUID roomId,
         String title,

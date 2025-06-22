@@ -5,6 +5,7 @@ package com.readingshare.state.dto;
  *
  * @author 02003
  * @componentId C4
+ * @moduleName ユーザー読書状態更新リクエストDTO
  */
 public record UpdateUserReadingStateRequest(
         String userId,

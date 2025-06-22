@@ -27,6 +27,7 @@ import com.readingshare.survey.dto.SurveyResultResponse;
  *
  * @author 02002
  * @componentId C4
+ * @moduleName アンケートサービス
  */
 @Service
 public class SurveyService {

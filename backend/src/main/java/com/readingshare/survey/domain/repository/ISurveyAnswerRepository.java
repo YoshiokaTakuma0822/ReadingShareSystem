@@ -11,6 +11,7 @@ import com.readingshare.survey.domain.model.SurveyAnswer;
  *
  * @author 02002
  * @componentId C4
+ * @moduleName アンケート回答リポジトリ
  */
 public interface ISurveyAnswerRepository {
 

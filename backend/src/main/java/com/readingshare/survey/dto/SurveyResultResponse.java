@@ -9,6 +9,7 @@ import java.util.UUID;
  *
  * @author 02002
  * @componentId C4
+ * @moduleName アンケート結果レスポンスDTO
  */
 public record SurveyResultResponse(
         UUID surveyId,

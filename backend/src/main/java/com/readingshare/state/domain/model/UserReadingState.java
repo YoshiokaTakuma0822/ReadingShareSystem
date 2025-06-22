@@ -8,6 +8,7 @@ import java.util.Objects;
  *
  * @author 02003
  * @componentId C4
+ * @moduleName ユーザー読書状態モデル
  */
 public class UserReadingState {
     private final String userId;

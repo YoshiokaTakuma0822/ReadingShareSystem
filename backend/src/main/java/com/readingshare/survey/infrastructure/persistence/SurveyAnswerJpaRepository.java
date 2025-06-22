@@ -15,6 +15,7 @@ import com.readingshare.survey.domain.model.SurveyAnswer;
  *
  * @author 02002
  * @componentId C8
+ * @moduleName アンケート回答JPAリポジトリ
  */
 @Repository
 public interface SurveyAnswerJpaRepository extends JpaRepository<SurveyAnswer, UUID> {

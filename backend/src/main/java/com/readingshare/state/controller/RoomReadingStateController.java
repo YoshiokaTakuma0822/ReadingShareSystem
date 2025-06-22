@@ -21,6 +21,7 @@ import com.readingshare.state.service.RoomReadingStateService;
  *
  * @author 02003
  * @componentId C4
+ * @moduleName 部屋読書状態コントローラー
  */
 @RestController
 @RequestMapping("/api/rooms/{roomId}/states")

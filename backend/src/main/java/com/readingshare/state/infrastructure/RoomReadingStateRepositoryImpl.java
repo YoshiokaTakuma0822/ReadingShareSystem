@@ -14,6 +14,7 @@ import com.readingshare.state.domain.repository.RoomReadingStateRepository;
  *
  * @author 02003
  * @componentId C4
+ * @moduleName 部屋読書状態リポジトリ実装
  */
 @Repository
 public class RoomReadingStateRepositoryImpl implements RoomReadingStateRepository {

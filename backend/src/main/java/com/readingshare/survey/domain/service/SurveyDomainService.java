@@ -23,6 +23,7 @@ import com.readingshare.survey.domain.repository.ISurveyRepository;
  *
  * @author 02002
  * @componentId C4
+ * @moduleName アンケートドメインサービス
  */
 @Service
 public class SurveyDomainService {

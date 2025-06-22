@@ -5,6 +5,7 @@ package com.readingshare.survey.domain.model;
  *
  * @author 02002
  * @componentId C4
+ * @moduleName アンケート質問タイプ
  */
 public enum QuestionType {
     SINGLE_CHOICE, // 単一選択（ラジオボタン）

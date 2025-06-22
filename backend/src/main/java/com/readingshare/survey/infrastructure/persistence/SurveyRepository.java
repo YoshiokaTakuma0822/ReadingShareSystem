@@ -5,6 +5,7 @@ package com.readingshare.survey.infrastructure.persistence;
  *
  * @author 02002
  * @componentId C8
+ * @moduleName アンケートリポジトリ
  */
 public interface SurveyRepository {
     // 既存のメソッド
