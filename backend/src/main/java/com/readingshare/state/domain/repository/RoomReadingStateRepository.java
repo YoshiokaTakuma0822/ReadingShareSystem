@@ -3,8 +3,10 @@ package com.readingshare.state.domain.repository;
 import com.readingshare.state.domain.model.RoomReadingState;
 
 /**
- * RoomReadingStateRepository は、部屋の読書状態を管理するためのリポジトリインターフェースです。
- * 部屋IDを使用して読書状態を検索したり、保存したりする機能を提供します。
+ * RoomReadingStateRepositoryは、部屋の読書状態を管理するリポジトリのインターフェースです。
+ *
+ * @author 02003
+ * @componentId C4
  */
 public interface RoomReadingStateRepository {
     /**

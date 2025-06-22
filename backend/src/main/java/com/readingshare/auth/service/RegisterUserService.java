@@ -12,7 +12,7 @@ import com.readingshare.common.exception.ApplicationException;
 /**
  * 新規会員登録のアプリケーションサービス。
  *
- * @author 003
+ * @author 02003
  * @componentId C2
  * @moduleName 新規会員登録サービス
  * @see AuthenticationDomainService

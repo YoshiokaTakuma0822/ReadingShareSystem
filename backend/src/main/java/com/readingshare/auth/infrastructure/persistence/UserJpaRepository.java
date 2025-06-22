@@ -10,7 +10,7 @@ import com.readingshare.auth.domain.model.User;
 /**
  * ユーザー情報のJPAリポジトリインターフェース。
  *
- * @author 003
+ * @author 02003
  * @componentId C5
  * @moduleName ユーザーリポジトリ
  */

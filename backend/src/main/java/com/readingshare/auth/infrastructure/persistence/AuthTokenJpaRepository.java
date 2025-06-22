@@ -15,7 +15,7 @@ import com.readingshare.auth.domain.model.AuthToken;
 /**
  * 認証トークンのJPAリポジトリ。
  *
- * @author 003
+ * @author 02003
  * @componentId C5
  * @moduleName 認証トークンリポジトリ
  */

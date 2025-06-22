@@ -22,6 +22,7 @@ import com.readingshare.survey.service.SurveyService;
  * アンケートの作成、回答、結果取得などの操作を提供します。
  *
  * @author 02002
+ * @componentId C4
  */
 @RestController
 @RequestMapping("/api/surveys")

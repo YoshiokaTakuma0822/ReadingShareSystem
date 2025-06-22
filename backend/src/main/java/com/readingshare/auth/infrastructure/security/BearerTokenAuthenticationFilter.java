@@ -21,7 +21,7 @@ import jakarta.servlet.http.HttpServletResponse;
 /**
  * Bearer Token認証を処理するフィルター。
  *
- * @author 003
+ * @author 02003
  * @componentId C5
  * @moduleName Token認証フィルター
  */

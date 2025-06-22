@@ -9,6 +9,9 @@ import com.readingshare.state.domain.repository.RoomReadingStateRepository;
 /**
  * RoomReadingStateService は、部屋の読書状態を管理するためのサービスクラスです。
  * ユーザーの読書状態を更新したり、部屋の読書状態を取得する機能を提供します。
+ *
+ * @author 02003
+ * @componentId C4
  */
 @Service
 public class RoomReadingStateService {

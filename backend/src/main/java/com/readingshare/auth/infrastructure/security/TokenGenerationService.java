@@ -13,7 +13,7 @@ import com.readingshare.auth.domain.model.User;
 /**
  * 認証トークンの生成を担当するサービス。
  *
- * @author 003
+ * @author 02003
  * @componentId C5
  * @moduleName 認証トークン生成サービス
  */

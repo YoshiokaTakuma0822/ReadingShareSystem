@@ -14,6 +14,7 @@ import com.readingshare.survey.domain.model.SurveyAnswer;
  * 回答の検索や保存を行います。
  *
  * @author 02002
+ * @componentId C8
  */
 @Repository
 public interface SurveyAnswerJpaRepository extends JpaRepository<SurveyAnswer, UUID> {

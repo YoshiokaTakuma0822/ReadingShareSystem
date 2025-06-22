@@ -7,9 +7,10 @@ import java.util.UUID;
 import com.readingshare.survey.domain.model.SurveyAnswer;
 
 /**
- * アンケート回答情報の永続化を担当するリポジトリインターフェース。
+ * ISurveyAnswerRepositoryは、アンケート回答のリポジトリインターフェースです。
  *
- * @author 02002 (またはアンケート回答の機能に関連する担当者)
+ * @author 02002
+ * @componentId C4
  */
 public interface ISurveyAnswerRepository {
 

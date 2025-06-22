@@ -11,6 +11,9 @@ import com.readingshare.state.domain.repository.RoomReadingStateRepository;
 /**
  * RoomReadingStateRepositoryImpl は、部屋の読書状態を管理するリポジトリの実装クラスです。
  * データはスレッドセーフな ConcurrentHashMap を使用して管理されます。
+ *
+ * @author 02003
+ * @componentId C4
  */
 @Repository
 public class RoomReadingStateRepositoryImpl implements RoomReadingStateRepository {

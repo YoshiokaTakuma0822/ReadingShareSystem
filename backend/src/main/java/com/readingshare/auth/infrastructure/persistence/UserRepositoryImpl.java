@@ -12,7 +12,7 @@ import com.readingshare.auth.domain.repository.IUserRepository;
 /**
  * ユーザー情報のリポジトリ実装。
  *
- * @author 003
+ * @author 02003
  * @componentId C5
  * @moduleName ユーザーリポジトリ実装
  * @see UserJpaRepository

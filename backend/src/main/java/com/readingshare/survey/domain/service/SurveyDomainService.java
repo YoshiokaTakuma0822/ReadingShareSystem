@@ -19,9 +19,10 @@ import com.readingshare.survey.domain.repository.ISurveyAnswerRepository;
 import com.readingshare.survey.domain.repository.ISurveyRepository;
 
 /**
- * アンケートに関するドメインロジックを扱うサービス。
+ * SurveyDomainServiceは、アンケートドメインのビジネスロジックを提供します。
  *
  * @author 02002
+ * @componentId C4
  */
 @Service
 public class SurveyDomainService {

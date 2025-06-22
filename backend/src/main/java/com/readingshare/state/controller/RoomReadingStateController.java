@@ -18,6 +18,9 @@ import com.readingshare.state.service.RoomReadingStateService;
 /**
  * RoomReadingStateControllerは、部屋の読書状態に関連するAPIエンドポイントを処理します。
  * このクラスは、読書状態の取得と更新を行うメソッドを提供します。
+ *
+ * @author 02003
+ * @componentId C4
  */
 @RestController
 @RequestMapping("/api/rooms/{roomId}/states")

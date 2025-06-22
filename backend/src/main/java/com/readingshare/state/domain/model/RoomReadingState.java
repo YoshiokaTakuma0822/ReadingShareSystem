@@ -7,6 +7,9 @@ import java.util.Map;
 /**
  * RoomReadingStateは、特定の部屋における読書の状態を表します。
  * このクラスは、部屋IDとその部屋にいるユーザーの読書状態を管理します。
+ *
+ * @author 02003
+ * @componentId C4
  */
 public class RoomReadingState {
     private final String roomId;

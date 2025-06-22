@@ -8,7 +8,7 @@ import com.readingshare.auth.domain.model.User;
 /**
  * ユーザー情報の永続化を担当するリポジトリインターフェース。
  *
- * @author 003
+ * @author 02003
  * @componentId C2
  * @moduleName ユーザーリポジトリ
  */

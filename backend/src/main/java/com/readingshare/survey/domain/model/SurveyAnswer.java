@@ -16,6 +16,9 @@ import jakarta.persistence.Table;
 /**
  * SurveyAnswer は、アンケートへの回答を表すエンティティクラスです。
  * 回答内容、回答者情報、回答日時などを管理します。
+ *
+ * @author 02002
+ * @componentId C4
  */
 @Entity
 @Table(name = "survey_answers")

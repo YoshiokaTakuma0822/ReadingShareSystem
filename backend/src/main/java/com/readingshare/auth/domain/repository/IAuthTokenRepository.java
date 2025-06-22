@@ -9,7 +9,7 @@ import com.readingshare.auth.domain.model.AuthToken;
 /**
  * 認証トークンのリポジトリインターフェース。
  *
- * @author 003
+ * @author 02003
  * @componentId C2
  * @moduleName 認証トークンリポジトリ
  */

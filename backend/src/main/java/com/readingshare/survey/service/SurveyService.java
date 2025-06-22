@@ -23,8 +23,10 @@ import com.readingshare.survey.dto.SubmitSurveyAnswerRequest;
 import com.readingshare.survey.dto.SurveyResultResponse;
 
 /**
- * SurveyService は、アンケート関連のビジネスロジックを処理するサービスクラスです。
- * アンケートの作成、回答、結果取得などの機能を提供します。
+ * SurveyService は、アンケート機能のサービスクラスです。
+ *
+ * @author 02002
+ * @componentId C4
  */
 @Service
 public class SurveyService {

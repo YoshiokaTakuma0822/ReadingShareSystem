@@ -5,8 +5,10 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * SubmitSurveyAnswerRequest は、アンケート回答リクエストを表すDTOクラスです。
- * 回答者ID、回答内容、匿名フラグを含みます。
+ * SubmitSurveyAnswerRequestは、アンケート回答送信リクエストのDTOです。
+ *
+ * @author 02002
+ * @componentId C4
  */
 // W8 アンケート回答画面からのリクエストデータ
 public record SubmitSurveyAnswerRequest(

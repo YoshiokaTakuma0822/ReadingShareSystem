@@ -12,7 +12,7 @@ import com.readingshare.common.exception.ApplicationException;
 /**
  * ユーザーログアウトのアプリケーションサービス。
  *
- * @author 003
+ * @author 02003
  * @componentId C2
  * @moduleName ログアウトサービス
  * @see IAuthTokenRepository

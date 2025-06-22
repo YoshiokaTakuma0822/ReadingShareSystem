@@ -3,8 +3,10 @@ package com.readingshare.survey.domain.model;
 import java.util.List;
 
 /**
- * Question は、アンケートの質問を表すエンティティクラスです。
- * 質問文、選択肢、質問タイプなどを管理します。
+ * Questionは、アンケートの質問を表すクラスです。
+ *
+ * @author 02002
+ * @componentId C4
  */
 public class Question {
     private String questionText;

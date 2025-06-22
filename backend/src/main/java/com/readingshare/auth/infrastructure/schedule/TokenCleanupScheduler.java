@@ -10,7 +10,7 @@ import com.readingshare.auth.domain.repository.IAuthTokenRepository;
 /**
  * 認証トークンの定期的なクリーンアップを行うスケジュールタスク。
  *
- * @author 003
+ * @author 02003
  * @componentId C5
  * @moduleName 認証トークンクリーンアップスケジューラー
  */

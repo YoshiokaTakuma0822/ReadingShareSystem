@@ -13,10 +13,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 /**
- * Survey は、アンケートを表すエンティティクラスです。
- * アンケートのタイトル、質問、作成日時などを管理します。
- * アンケート集約のルートエンティティ。
- * 要求仕様書「(3)アンケートを作成する」に対応。
+ * Surveyは、アンケートのエンティティクラスです。
+ *
+ * @author 02002
+ * @componentId C4
  */
 @Entity
 @Table(name = "surveys")

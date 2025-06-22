@@ -15,7 +15,7 @@ import jakarta.validation.constraints.NotNull;
  * 認証トークンエンティティ。
  * Bearer Token認証のためのopaqueトークンを管理する。
  *
- * @author 003
+ * @author 02003
  * @componentId C2
  * @moduleName 認証トークンエンティティ
  */

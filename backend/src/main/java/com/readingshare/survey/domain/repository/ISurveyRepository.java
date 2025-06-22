@@ -12,7 +12,7 @@ import com.readingshare.survey.domain.model.SurveyAnswer;
  * アンケートの保存、検索、回答の保存などの操作を提供します。
  *
  * @author 02002
- * @componentId C8
+ * @componentId C4
  * @moduleName アンケートリポジトリ
  * @see Survey
  */

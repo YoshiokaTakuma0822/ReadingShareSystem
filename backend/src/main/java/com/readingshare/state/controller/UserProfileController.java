@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * ユーザープロフィールに関するAPI
+ *
+ * @author 02003
+ * @componentId C4
  */
 @RestController
 @RequestMapping("/api/user")

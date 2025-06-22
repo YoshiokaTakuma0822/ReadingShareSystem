@@ -6,8 +6,10 @@ import java.util.UUID;
 import com.readingshare.survey.domain.model.QuestionType;
 
 /**
- * CreateSurveyRequest は、アンケート作成リクエストを表すDTOクラスです。
- * 部屋ID、タイトル、質問リストを含みます。
+ * CreateSurveyRequestは、アンケート作成リクエストのDTOです。
+ *
+ * @author 02002
+ * @componentId C4
  */
 // W7 アンケート作成画面からのリクエストデータ
 public record CreateSurveyRequest(

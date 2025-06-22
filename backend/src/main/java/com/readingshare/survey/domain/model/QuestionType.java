@@ -1,7 +1,10 @@
 package com.readingshare.survey.domain.model;
 
 /**
- * 質問の種類を表すEnum
+ * QuestionTypeは、アンケートの質問タイプを表す列挙型です。
+ *
+ * @author 02002
+ * @componentId C4
  */
 public enum QuestionType {
     SINGLE_CHOICE, // 単一選択（ラジオボタン）

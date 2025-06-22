@@ -11,8 +11,10 @@ import com.readingshare.survey.domain.model.SurveyAnswer;
 import com.readingshare.survey.domain.repository.ISurveyAnswerRepository;
 
 /**
- * SurveyAnswerRepositoryImpl は、ISurveyAnswerRepository の実装クラスです。
- * データベース操作を通じてアンケート回答情報を管理します。
+ * SurveyAnswerRepositoryImpl は、アンケート回答情報のリポジトリ実装クラスです。
+ *
+ * @author 02002
+ * @componentId C8
  */
 @Repository
 public class SurveyAnswerRepositoryImpl implements ISurveyAnswerRepository {

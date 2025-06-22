@@ -5,8 +5,10 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * SurveyResultResponse は、アンケート結果を表すDTOクラスです。
- * アンケートID、タイトル、回答者数、質問結果を含みます。
+ * SurveyResultResponseは、アンケート結果レスポンスのDTOです。
+ *
+ * @author 02002
+ * @componentId C4
  */
 public record SurveyResultResponse(
         UUID surveyId,

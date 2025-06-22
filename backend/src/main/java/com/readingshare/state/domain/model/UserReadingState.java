@@ -5,6 +5,9 @@ import java.util.Objects;
 /**
  * ユーザーの読書状態を表すクラスです。
  * このクラスは、ユーザーID、現在のページ、およびコメントを保持します。
+ *
+ * @author 02003
+ * @componentId C4
  */
 public class UserReadingState {
     private final String userId;
