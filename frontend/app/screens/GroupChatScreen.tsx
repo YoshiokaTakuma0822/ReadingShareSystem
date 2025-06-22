@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import SurveyCreationModal from './SurveyCreationModal'
 import { chatApi } from '../../lib/chatApi'
 import { ChatMessage, ChatStreamItem } from '../../types/chat'
@@ -34,6 +34,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
     const [showSurveyResultModal, setShowSurveyResultModal] = useState(false)
     const [resultSurveyId, setResultSurveyId] = useState<string | null>(null)
     const [answeredSurveyIds, setAnsweredSurveyIds] = useState<string[]>([])
+    const messagesEndRef = useRef<HTMLDivElement>(null)
 
     // コンポーネントマウント時にユーザーIDを取得
     useEffect(() => {
@@ -170,7 +171,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
 
     const handleSurveyCreated = () => {
         setShowSurveyModal(false)
-        // サーベイ作成後の処理（必要に応じて）
+        loadChatStream() // 作成後に即リロード
     }
 
     // survey回答送信
@@ -206,6 +207,11 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
     const hasAnsweredSurvey = (surveyId: string) => {
         return answeredSurveyIds.includes(surveyId);
     }
+
+    // チャットストリームが更新されたら一番下にスクロール
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }, [streamItems, showSurveyResultModal])
 
     return (
         <div style={{ border: '4px solid #388e3c', margin: 24, padding: 24, background: 'linear-gradient(135deg, #e0f7ef 0%, #f1fdf6 100%)', borderRadius: 12, maxWidth: 1200, minHeight: 600, marginLeft: 'auto', marginRight: 'auto', display: 'flex', flexDirection: 'column', height: '80vh' }}>
@@ -346,7 +352,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                                     <div style={{ fontWeight: 'bold', marginBottom: 8 }}>アンケート: {survey.title}</div>
                                     {answered ? (
                                         <button
-                                            onClick={() => { setResultSurveyId(survey.id); setShowSurveyResultModal(true); }}
+                                            onClick={() => { setResultSurveyId(survey.id); setShowSurveyResultModal(false); setTimeout(() => setShowSurveyResultModal(true), 0); }}
                                             style={{ marginTop: 8, padding: '6px 16px', borderRadius: 6, background: '#388e3c', color: 'white', border: 'none', cursor: 'pointer' }}
                                         >アンケートの結果を表示する</button>
                                     ) : (
@@ -395,6 +401,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                         return null
                     })
                 )}
+                <div ref={messagesEndRef} />
             </div>
             <div style={{ display: 'flex', alignItems: 'center', marginTop: 32 }}>
                 <input
@@ -434,6 +441,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
             {/* アンケート結果モーダル */}
             {showSurveyResultModal && resultSurveyId && (
                 <SurveyResultModal
+                    key={resultSurveyId + '-' + Date.now()}
                     open={showSurveyResultModal}
                     surveyId={resultSurveyId}
                     onClose={() => setShowSurveyResultModal(false)}
