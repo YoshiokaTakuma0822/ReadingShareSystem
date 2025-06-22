@@ -18,8 +18,7 @@ CREATE TABLE rooms (
     genre VARCHAR(100),
     start_time TIMESTAMP,
     end_time TIMESTAMP,
-    page_turn_speed INTEGER,
-    room_id uuid PRIMARY KEY
+    page_speed INTEGER
 );
 
 -- 部屋メンバーテーブル
