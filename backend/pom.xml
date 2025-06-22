@@ -16,6 +16,7 @@
     <description>Demo project for Spring Boot</description>
     <properties>
         <java.version>21</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <dependencies>
         <dependency>
@@ -70,6 +71,39 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.8.0</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.fasterxml.jackson.core</groupId>
+                        <artifactId>jackson-databind</artifactId>
+                        <version>2.19.1</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <!-- <encoding>UTF-8</encoding>
+                    <charset>UTF-8</charset> -->
+                    <!-- <locale>ja_JP</locale>
+                    <additionalJOptions>
+                        <additionalJOption>-J-Duser.language=ja</additionalJOption>
+                        <additionalJOption>-J-Duser.country=JP</additionalJOption>
+                    </additionalJOptions> -->
+                    <doclet>com.readingshare.common.doclet.JsonDoclet</doclet>
+                    <docletArtifact>
+                        <groupId>${project.groupId}</groupId>
+                        <artifactId>${project.artifactId}</artifactId>
+                        <version>${project.version}</version>
+                    </docletArtifact>
+                    <useStandardDocletOptions>false</useStandardDocletOptions>
+                    <additionalOptions>
+                        <additionalOption>-outputFile</additionalOption>
+                        <additionalOption>${project.build.directory}/javadoc.json</additionalOption>
+                    </additionalOptions>
+                    <source>${java.version}</source>
+                </configuration>
             </plugin>
         </plugins>
     </build>
