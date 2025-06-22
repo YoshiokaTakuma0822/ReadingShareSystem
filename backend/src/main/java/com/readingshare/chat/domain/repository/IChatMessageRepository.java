@@ -7,9 +7,11 @@ import java.util.UUID;
 import com.readingshare.chat.domain.model.ChatMessage;
 
 /**
- * チャットメッセージ情報の永続化を担当するリポジトリインターフェース。
- * 
+ * グループチャットのメッセージリポジトリインターフェース。
+ *
  * @author 23001
+ * @componentIdName C04 グループチャット
+ * @moduleIdName M0407 チャットメッセージリポジトリIF
  */
 public interface IChatMessageRepository {
 

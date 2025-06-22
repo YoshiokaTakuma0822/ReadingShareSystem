@@ -15,8 +15,16 @@ import com.readingshare.common.exception.DatabaseAccessException;
 import com.readingshare.room.domain.repository.IRoomRepository;
 
 /**
- * チャットメッセージ送信のアプリケーションサービス。
- * 
+ * グループチャットのメッセージ送信サービス。
+ *
+ * @author 23001
+ * @componentIdName C04 グループチャット
+ * @moduleIdName M0408 チャットメッセージ送信サービス
+ */
+
+/**
+ * チャットメッセセージ送信のアプリケーションサービス。
+ *
  * @author 23001
  */
 @Service

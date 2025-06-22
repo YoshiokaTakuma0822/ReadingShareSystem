@@ -11,7 +11,11 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
 /**
- * チャットメッセージエンティティ。
+ * グループチャットのメッセージエンティティ。
+ *
+ * @author 23001
+ * @componentIdName C04 グループチャット
+ * @moduleIdName M0404 チャットメッセージエンティティ
  */
 @Entity
 @Table(name = "chat_messages")

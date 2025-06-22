@@ -9,9 +9,12 @@ import org.springframework.stereotype.Repository;
 import com.readingshare.chat.domain.model.ChatMessage;
 
 /**
- * チャットメッセージ情報のJPAリポジトリインターフェース。
- * 
+ * チャット情報管理部のJPAリポジトリインターフェース。
+ *
  * @author 23001
+ * @componentIdName C07 チャット情報管理部
+ * @moduleIdName M0702 チャットメッセージJPAリポジトリ
+ * @dependsOn M0704 チャットメッセージエンティティ（インフラ用）
  */
 @Repository
 public interface ChatMessageJpaRepository extends JpaRepository<ChatMessage, UUID> {

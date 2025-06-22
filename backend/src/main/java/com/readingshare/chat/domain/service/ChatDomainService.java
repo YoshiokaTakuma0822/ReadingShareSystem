@@ -8,9 +8,11 @@ import com.readingshare.chat.domain.repository.IChatMessageRepository;
 import com.readingshare.common.exception.DomainException;
 
 /**
- * チャットと読書進捗に関するドメインロジックを扱うサービス。
- * 
+ * グループチャットのドメインサービス。
+ *
  * @author 23001
+ * @componentIdName C04 グループチャット
+ * @moduleIdName M0403 チャットドメインサービス
  */
 @Service
 public class ChatDomainService {

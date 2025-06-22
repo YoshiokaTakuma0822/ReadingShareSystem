@@ -13,8 +13,16 @@ import com.readingshare.common.exception.DatabaseAccessException;
 import com.readingshare.room.domain.repository.IRoomRepository;
 
 /**
+ * グループチャットの履歴取得サービス。
+ *
+ * @author 23001
+ * @componentIdName C04 グループチャット
+ * @moduleIdName M0409 チャット履歴取得サービス
+ */
+
+/**
  * チャット履歴取得のアプリケーションサービス。
- * 
+ *
  * @author 23001
  */
 @Service

@@ -10,6 +10,14 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.readingshare.chat.domain.model.ChatMessage;
 import com.readingshare.survey.domain.model.Survey;
 
+/**
+ * グループチャットのストリームアイテムDTO。
+ *
+ * @author 23001
+ * @componentIdName C04 グループチャット
+ * @moduleIdName M0412 ストリームアイテムDTO
+ * @dependsOn M0417 チャット情報DTO
+ */
 public class ChatStreamItemDto {
     /**
      * チャットストリームアイテムの種類を表す列挙型。

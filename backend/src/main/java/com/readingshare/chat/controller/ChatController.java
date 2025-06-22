@@ -25,9 +25,13 @@ import com.readingshare.survey.domain.model.Survey;
 import com.readingshare.survey.domain.repository.ISurveyRepository;
 
 /**
- * グループチャットに関するAPIを処理するコントローラー。
+ * グループチャットAPIのコントローラー。
  *
  * @author 23001
+ * @componentIdName C04 グループチャット
+ * @moduleIdName M0401 チャットコントローラー
+ * @dependsOn M0411 メッセージ送信リクエストDTO
+ * @dependsOn M0412 ストリームアイテムDTO
  */
 @RestController
 @RequestMapping("/api/chat")

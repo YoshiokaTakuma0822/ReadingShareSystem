@@ -10,6 +10,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.readingshare.chat.dto.ChatStreamItemDto;
 
+/**
+ * グループチャットAPIのストリームコントローラー。
+ *
+ * @author 23001
+ * @componentIdName C04 グループチャット
+ * @moduleIdName M0402 チャットストリームコントローラー
+ * @dependsOn M0412 ストリームアイテムDTO
+ */
 @RestController
 public class ChatStreamController {
     private final ChatController chatController;

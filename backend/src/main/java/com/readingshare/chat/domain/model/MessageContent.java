@@ -7,8 +7,11 @@ import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.NotNull;
 
 /**
- * チャットメッセージの内容を表すバリューオブジェクト。
- * ChatMessageエンティティに埋め込まれる。
+ * グループチャットのメッセージ内容値オブジェクト。
+ *
+ * @author 23001
+ * @componentIdName C04 グループチャット
+ * @moduleIdName M0405 メッセージ内容値オブジェクト
  */
 @Embeddable
 public class MessageContent {

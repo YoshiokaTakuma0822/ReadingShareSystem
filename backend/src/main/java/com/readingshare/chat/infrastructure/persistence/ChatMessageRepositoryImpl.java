@@ -12,8 +12,13 @@ import com.readingshare.chat.domain.model.ChatMessage;
 import com.readingshare.chat.domain.repository.IChatMessageRepository;
 
 /**
- * チャットメッセージリポジトリの実装クラス。
- * データベース操作を担当します。
+ * チャット情報管理部のチャットメッセージリポジトリ実装。
+ *
+ * @author 23001
+ * @componentIdName C07 チャット情報管理部
+ * @moduleIdName M0701 チャットメッセージリポジトリ実装
+ * @dependsOn M0702 チャットメッセージJPAリポジトリ
+ * @dependsOn M0704 チャットメッセージエンティティ（インフラ用）
  */
 @Repository
 public class ChatMessageRepositoryImpl implements IChatMessageRepository {
