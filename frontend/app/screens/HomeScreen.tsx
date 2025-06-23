@@ -270,11 +270,37 @@ const HomeScreen: React.FC = () => {
                                             e.currentTarget.style.background = 'var(--green-light)'
                                             e.currentTarget.style.transform = 'translateY(-2px)'
                                             e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)'
+                                            // ツールチップ生成
+                                            const tooltip = document.createElement('div');
+                                            tooltip.id = `room-tooltip-${room.id}`;
+                                            tooltip.style.position = 'fixed';
+                                            const rect = e.currentTarget.getBoundingClientRect();
+                                            tooltip.style.left = `${rect.left + rect.width / 2}px`;
+                                            tooltip.style.top = `${rect.top - 12}px`;
+                                            tooltip.style.transform = 'translate(-50%, -100%)';
+                                            tooltip.style.background = '#fff';
+                                            tooltip.style.color = '#333';
+                                            tooltip.style.padding = '14px 24px';
+                                            tooltip.style.borderRadius = '12px';
+                                            tooltip.style.boxShadow = '0 2px 12px rgba(0,0,0,0.18)';
+                                            tooltip.style.whiteSpace = 'nowrap';
+                                            tooltip.style.zIndex = '9999';
+                                            tooltip.style.fontSize = '15px';
+                                            tooltip.innerHTML = `
+                                                <b>部屋名:</b> ${room.roomName}<br/>
+                                                <b>本タイトル:</b> ${room.bookTitle}<br/>
+                                                <b>作成日:</b> ${new Date(room.createdAt).toLocaleString()}<br/>
+                                                <b>ページ数:</b> ${room.totalPages ?? '-'}<br/>
+                                                <b>パスワード:</b> ${room.hasPassword ? 'あり' : 'なし'}
+                                            `;
+                                            document.body.appendChild(tooltip);
                                         }}
                                         onMouseLeave={(e) => {
                                             e.currentTarget.style.background = 'var(--white)'
                                             e.currentTarget.style.transform = 'translateY(0)'
                                             e.currentTarget.style.boxShadow = 'none'
+                                            const tooltip = document.getElementById(`room-tooltip-${room.id}`);
+                                            if (tooltip) tooltip.remove();
                                         }}
                                     >
                                         <div>
