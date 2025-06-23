@@ -18,7 +18,7 @@ export const API_BASE_URL = '/api'
  * このクライアントを使用して、APIエンドポイントにアクセスします。
  * Axios instance with default configuration
  */
-const apiClient = axios.create({
+export const apiClient = axios.create({
     baseURL: API_BASE_URL,
     timeout: 10000,
     headers: {
