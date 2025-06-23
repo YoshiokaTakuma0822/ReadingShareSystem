@@ -4,6 +4,7 @@
  * @author 02001
  * @componentId C1
  * @moduleName ルームAPI
+ * @see apiClient
  * @packageDocumentation
  */
 

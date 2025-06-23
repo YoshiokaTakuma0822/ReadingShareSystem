@@ -4,6 +4,7 @@
  * @author 02001
  * @componentId C1
  * @moduleName チャットAPI
+ * @see apiClient
  * @packageDocumentation
  */
 
