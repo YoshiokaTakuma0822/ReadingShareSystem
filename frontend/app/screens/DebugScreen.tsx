@@ -1,10 +1,19 @@
+/**
+ * デバッグ用の画面を表示するReactコンポーネント
+ * 
+ * @author 02001
+ * @componentId C1
+ * @moduleName デバッグ画面
+ * @packageDocumentation
+ */
+
 "use client"
 
 import React from 'react'
 
 /**
- * DebugScreen コンポーネント: デバッグ用画面を表示する Functional Component
- *
+ * デバッグ画面コンポーネント
+ * 
  * @returns JSX.Element デバッグ画面を描画するReact要素
  */
 const DebugScreen: React.FC = () => {
