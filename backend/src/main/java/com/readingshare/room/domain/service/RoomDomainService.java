@@ -4,6 +4,8 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,10 +24,13 @@ public class RoomDomainService {
 
     private final IRoomRepository roomRepository;
     private final IRoomMemberRepository roomMemberRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public RoomDomainService(IRoomRepository roomRepository, IRoomMemberRepository roomMemberRepository) {
+    @Autowired
+    public RoomDomainService(IRoomRepository roomRepository, IRoomMemberRepository roomMemberRepository, PasswordEncoder passwordEncoder) {
         this.roomRepository = roomRepository;
         this.roomMemberRepository = roomMemberRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
@@ -38,15 +43,16 @@ public class RoomDomainService {
      */
     @Transactional
     public Room createRoom(Room room, String rawPassword) {
-        // パスワード処理なし（初期シンプル状態に戻す）
-
-        // 部屋を保存
+        if (rawPassword != null && !rawPassword.isEmpty()) {
+            room.setHasPassword(true);
+            room.setPasswordHash(passwordEncoder.encode(rawPassword));
+        } else {
+            room.setHasPassword(false);
+            room.setPasswordHash(null);
+        }
         Room savedRoom = roomRepository.save(room);
-
-        // --- ホストを部屋のメンバーとして追加 ---
         RoomMember hostMember = new RoomMember(savedRoom, room.getHostUserId(), Instant.now());
         roomMemberRepository.save(hostMember);
-
         return savedRoom;
     }
 
@@ -65,7 +71,15 @@ public class RoomDomainService {
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new DomainException("指定された部屋が見つかりません。"));
 
-        // パスワード検証なし（初期シンプル状態に戻す）
+        // パスワード検証
+        if (room.isHasPassword()) {
+            if (roomPassword == null || roomPassword.isEmpty()) {
+                throw new DomainException("パスワードが必要です。");
+            }
+            if (room.getPasswordHash() == null || !passwordEncoder.matches(roomPassword, room.getPasswordHash())) {
+                throw new DomainException("パスワードが正しくありません。");
+            }
+        }
 
         // ユーザーが既にメンバーでないか確認
         if (roomMemberRepository.findByRoomAndUserId(room, userId).isPresent()) {

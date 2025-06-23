@@ -11,7 +11,7 @@ import SurveyResultModal from './SurveyResultModal'
 import AuthGuard from '../../components/AuthGuard'
 
 const HomeScreen: React.FC = () => {
-    const [tab, setTab] = useState<'create' | 'search'>('search') // 初期表示を検索タブに変更
+    const [tab, setTab] = useState<'create' | 'search'>('create') // デフォルトを部屋作成に変更
     const [searchText, setSearchText] = useState('')
     const [rooms, setRooms] = useState<Room[]>([])
     const [showCreateModal, setShowCreateModal] = useState(false)
@@ -270,6 +270,8 @@ const HomeScreen: React.FC = () => {
                                             e.currentTarget.style.background = 'var(--green-light)'
                                             e.currentTarget.style.transform = 'translateY(-2px)'
                                             e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)'
+                                            // 既存ツールチップを削除
+                                            document.querySelectorAll(`[id^='room-tooltip-']`).forEach(el => el.remove());
                                             // ツールチップ生成
                                             const tooltip = document.createElement('div');
                                             tooltip.id = `room-tooltip-${room.id}`;
@@ -299,8 +301,8 @@ const HomeScreen: React.FC = () => {
                                             e.currentTarget.style.background = 'var(--white)'
                                             e.currentTarget.style.transform = 'translateY(0)'
                                             e.currentTarget.style.boxShadow = 'none'
-                                            const tooltip = document.getElementById(`room-tooltip-${room.id}`);
-                                            if (tooltip) tooltip.remove();
+                                            // すべてのツールチップを確実に削除
+                                            document.querySelectorAll(`[id^='room-tooltip-']`).forEach(el => el.remove());
                                         }}
                                     >
                                         <div>

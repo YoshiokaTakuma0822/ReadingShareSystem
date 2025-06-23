@@ -4,6 +4,8 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -34,6 +36,12 @@ public class Room {
 
     @Column(nullable = false)
     private int totalPages; // 追加: 本のページ数
+
+    private transient boolean hasPassword; // DBには保存しない、APIレスポンス用
+
+    @JsonIgnore
+    @Column(name = "password_hash")
+    private String passwordHash; // パスワードハッシュ（null可）
 
     // --- コンストラクタ ---
     public Room() {
@@ -110,6 +118,22 @@ public class Room {
 
     public void setTotalPages(int totalPages) {
         this.totalPages = totalPages;
+    }
+
+    public boolean isHasPassword() {
+        return hasPassword;
+    }
+
+    public void setHasPassword(boolean hasPassword) {
+        this.hasPassword = hasPassword;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 
     // --- その他のメソッド ---

@@ -21,6 +21,7 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
     const [startTime, setStartTime] = useState('');
     const [endTime, setEndTime] = useState('');
     const [totalPages, setTotalPages] = useState<number>(300); // 追加: 本の全ページ数
+    const [passwordType, setPasswordType] = useState<'none' | 'set'>('none');
 
     const handleCreate = async () => {
         setLoading(true);
@@ -30,7 +31,7 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
                 roomName,
                 bookTitle,
                 hostUserId: userId,
-                password: password || undefined,
+                password: passwordType === 'set' ? password : undefined,
                 genre,
                 startTime: startTime || undefined,
                 endTime: endTime || undefined,
@@ -44,6 +45,35 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
             setLoading(false)
         }
     }
+
+    React.useEffect(() => {
+        if (!open) {
+            setRoomName('');
+            setBookTitle('');
+            setPassword('');
+            setGenre('小説');
+            setStartTime('');
+            setEndTime('');
+            setTotalPages(300);
+            setPasswordType('none');
+            setError(null);
+        }
+    }, [open]);
+
+    // 部屋作成完了時にもリセット
+    React.useEffect(() => {
+        if (!loading && !open) {
+            setRoomName('');
+            setBookTitle('');
+            setPassword('');
+            setGenre('小説');
+            setStartTime('');
+            setEndTime('');
+            setTotalPages(300);
+            setPasswordType('none');
+            setError(null);
+        }
+    }, [loading, open]);
 
     if (!open) return null
 
@@ -107,9 +137,18 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
                             <input type="number" min={1} value={totalPages} onChange={e => setTotalPages(Number(e.target.value))} placeholder="例: 300" style={{ width: '100%', padding: 8, marginTop: 4 }} />
                         </div>
                         <div style={{ marginBottom: 16 }}>
-                            <label>パスワード（オプション）</label>
+                            <label>パスワード設定</label>
+                            <select value={passwordType} onChange={e => setPasswordType(e.target.value as 'none' | 'set')} style={{ width: '100%', padding: 8, marginTop: 4 }}>
+                                <option value="none">パスワードなし（オープン）</option>
+                                <option value="set">パスワードあり</option>
+                            </select>
+                        </div>
+                        {passwordType === 'set' && (
+                        <div style={{ marginBottom: 16 }}>
+                            <label>パスワード</label>
                             <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="パスワードを入力してください" style={{ width: '100%', padding: 8, marginTop: 4 }} />
                         </div>
+                        )}
                     </div>
                     <div style={{ flex: 1, minWidth: 280 }}>
                         <div style={{ marginBottom: 16 }}>

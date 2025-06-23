@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -31,6 +32,7 @@ public class RoomService {
     private final RoomDomainService roomDomainService;
     private final IRoomMemberRepository roomMemberRepository;
 
+    @Autowired
     public RoomService(IRoomRepository roomRepository, RoomDomainService roomDomainService, IRoomMemberRepository roomMemberRepository) {
         this.roomRepository = roomRepository;
         this.roomDomainService = roomDomainService;
@@ -90,11 +92,17 @@ public class RoomService {
      */
     @Transactional(readOnly = true)
     public List<Room> searchRooms(String keyword) {
+        List<Room> result;
         if (keyword == null || keyword.trim().isEmpty()) {
-            return roomRepository.findAll();
+            result = roomRepository.findAll();
         } else {
-            return roomRepository.findByKeyword(keyword);
+            result = roomRepository.findByKeyword(keyword);
         }
+        // パスワード有無をセット
+        for (Room room : result) {
+            room.setHasPassword(room.getPasswordHash() != null && !room.getPasswordHash().isEmpty());
+        }
+        return result;
     }
 
     /**
@@ -106,7 +114,9 @@ public class RoomService {
      */
     @Transactional(readOnly = true)
     public Optional<Room> getRoomById(UUID roomId) {
-        return roomRepository.findById(roomId);
+        Optional<Room> opt = roomRepository.findById(roomId);
+        opt.ifPresent(room -> room.setHasPassword(room.getPasswordHash() != null && !room.getPasswordHash().isEmpty()));
+        return opt;
     }
 
     /**
@@ -117,13 +127,15 @@ public class RoomService {
      */
     @Transactional(readOnly = true)
     public List<Room> getRooms(int limit) {
-        // limitの妥当性チェック
         if (limit <= 0 || limit > 100) {
             limit = 10; // デフォルト値
         }
-
         Pageable pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
-        return roomRepository.findAll(pageable).getContent();
+        List<Room> result = roomRepository.findAll(pageable).getContent();
+        for (Room room : result) {
+            room.setHasPassword(room.getPasswordHash() != null && !room.getPasswordHash().isEmpty());
+        }
+        return result;
     }
 
     // =============== 部屋参加関連 ===============
