@@ -1,0 +1,7 @@
+{
+    "entryPoints": [
+        "./**/*.ts",
+        "./**/*.tsx"
+    ],
+    "json": "docs.json",
+}
