@@ -1,4 +1,14 @@
+/**
+ * アンケート結果サンプル画面コンポーネント
+ *
+ * @author 02001
+ * @componentId C1
+ * @moduleName アンケート結果サンプル画面
+ * @packageDocumentation
+ */
+
 "use client"
+
 import React from "react"
 
 const results = [

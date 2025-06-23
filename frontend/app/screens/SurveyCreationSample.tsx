@@ -1,3 +1,12 @@
+/**
+ * アンケート作成サンプル画面コンポーネント
+ *
+ * @author 02001
+ * @componentId C1
+ * @moduleName アンケート作成サンプル画面
+ * @packageDocumentation
+ */
+
 "use client"
 import React, { useState } from "react"
 

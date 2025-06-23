@@ -1,3 +1,12 @@
+/**
+ * グループチャット画面コンポーネント
+ *
+ * @author 02001
+ * @componentId C1
+ * @moduleName グループチャット画面
+ * @packageDocumentation
+ */
+
 "use client"
 import React, { useEffect, useRef, useState } from 'react'
 import { chatApi } from '../../lib/chatApi'
@@ -7,6 +16,9 @@ import { Survey } from '../../types/survey'
 import SurveyCreationModal from './SurveyCreationModal'
 import SurveyResultModal from './SurveyResultModal'
 
+/**
+ * メッセージの型定義
+ */
 interface Message {
     id: number
     user: string
@@ -14,6 +26,9 @@ interface Message {
     isCurrentUser: boolean
 }
 
+/**
+ * グループチャット画面のプロパティ
+ */
 interface GroupChatScreenProps {
     roomTitle?: string
     currentUser?: string
@@ -21,7 +36,7 @@ interface GroupChatScreenProps {
 }
 
 /**
- * GroupChatScreen コンポーネント: グループチャット画面を表示する Functional Component
+ * グループチャット画面を表示するReactコンポーネント
  *
  * @returns JSX.Element グループチャット画面を描画するReact要素
  */

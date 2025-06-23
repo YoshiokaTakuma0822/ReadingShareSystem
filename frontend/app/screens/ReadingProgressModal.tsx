@@ -1,3 +1,12 @@
+/**
+ * 読書進捗モーダル画面コンポーネント
+ *
+ * @author 02001
+ * @componentId C1
+ * @moduleName 読書進捗モーダル画面
+ * @packageDocumentation
+ */
+
 "use client"
 import React, { useState } from 'react'
 

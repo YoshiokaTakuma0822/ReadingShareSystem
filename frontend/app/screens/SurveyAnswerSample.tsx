@@ -1,4 +1,15 @@
+
+/**
+ * アンケート回答サンプル画面コンポーネント
+ *
+ * @author 02001
+ * @componentId C1
+ * @moduleName アンケート回答サンプル画面
+ * @packageDocumentation
+ */
+
 "use client"
+
 import React, { useState } from "react"
 
 const options = ["芝浦 太郎", "芝浦 次郎", "芝浦 三郎"]

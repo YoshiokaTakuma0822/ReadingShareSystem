@@ -1,3 +1,12 @@
+/**
+ * 読書画面コンポーネント
+ *
+ * @author 02001
+ * @componentId C1
+ * @moduleName 読書画面
+ * @packageDocumentation
+ */
+
 "use client"
 import React, { useEffect, useRef, useState } from 'react'
 import ReadingProgressModal from './ReadingProgressModal' // 同じディレクトリにあると仮定

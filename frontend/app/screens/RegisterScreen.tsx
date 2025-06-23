@@ -1,3 +1,12 @@
+/**
+ * 会員登録画面コンポーネント
+ *
+ * @author 02001
+ * @componentId C1
+ * @moduleName 会員登録画面
+ * @packageDocumentation
+ */
+
 "use client"
 import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'

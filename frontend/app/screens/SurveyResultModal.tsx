@@ -1,3 +1,12 @@
+/**
+ * アンケート結果モーダル画面コンポーネント
+ *
+ * @author 02001
+ * @componentId C1
+ * @moduleName アンケート結果モーダル画面
+ * @packageDocumentation
+ */
+
 "use client"
 import React, { useEffect, useState } from 'react'
 import { surveyApi } from '../../lib/surveyApi'

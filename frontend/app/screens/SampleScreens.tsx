@@ -1,4 +1,14 @@
+/**
+ * サンプル画面集コンポーネント
+ *
+ * @author 02001
+ * @componentId C1
+ * @moduleName サンプル画面集
+ * @packageDocumentation
+ */
+
 "use client"
+
 import React from "react"
 
 const links = [
