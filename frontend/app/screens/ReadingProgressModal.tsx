@@ -17,7 +17,12 @@ const ReadingProgressModal: React.FC<ReadingProgressModalProps> = ({ open, curre
       position: 'fixed', left: 0, top: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.3)', zIndex: 1000,
       display: 'flex', alignItems: 'center', justifyContent: 'center'
     }}>
-      <div style={{ background: '#fff', borderRadius: 12, padding: 32, minWidth: 320, boxShadow: '0 4px 24px rgba(0,0,0,0.2)' }}>
+      <div style={{ background: '#fff', borderRadius: 12, padding: 32, minWidth: 320, boxShadow: '0 4px 24px rgba(0,0,0,0.2)' }}
+        onKeyDown={e => {
+          if (e.key === 'Enter') onSubmit(inputPage);
+        }}
+        tabIndex={0}
+      >
         <h2 style={{ fontSize: 20, marginBottom: 16 }}>進捗ページを入力</h2>
         <input
           type="number"

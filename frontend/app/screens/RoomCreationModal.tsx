@@ -119,7 +119,13 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
                     maxHeight: 'none',
                     gap: 0,
                 }}
-                onClick={(e) => e.stopPropagation()} // モーダル内のクリックで閉じるのを防ぐ
+                onClick={(e) => e.stopPropagation()}
+                onKeyDown={e => {
+                    if (e.key === 'Enter' && !loading && roomName.trim() && bookTitle.trim()) {
+                        handleCreate();
+                    }
+                }}
+                tabIndex={0}
             >
                 <div style={{ display: 'flex', flexDirection: 'row', width: '100%', gap: 32 }}>
                     {/* 左右2カラム */}

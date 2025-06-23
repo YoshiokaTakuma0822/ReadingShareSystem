@@ -92,7 +92,13 @@ const RoomJoinModal: React.FC<RoomJoinModalProps> = ({ open, room, userId, onClo
                 background: '#f1fdf6',
                 boxShadow: '0 8px 32px rgba(0,0,0,0.2)'
             }}
-                onClick={(e) => e.stopPropagation()} // モーダル内のクリックで閉じるのを防ぐ
+                onClick={(e) => e.stopPropagation()}
+                onKeyDown={e => {
+                    if (e.key === 'Enter' && !loading && (!room.hasPassword || password.trim())) {
+                        handleJoin();
+                    }
+                }}
+                tabIndex={0}
             >
                 <h2 style={{ fontWeight: 'bold', fontSize: 24, marginBottom: 24, color: '#388e3c' }}>部屋に参加</h2>
 

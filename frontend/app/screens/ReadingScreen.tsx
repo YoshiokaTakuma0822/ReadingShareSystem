@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from "react";
 import ReadingProgressModal from "./ReadingProgressModal";
 import { roomApi } from '../../lib/roomApi';
+import { readingStateApi } from '../../lib/readingStateApi';
+import { authStorage } from '../../lib/authUtils';
 import { RoomMember } from '../../types/room';
 
 const maxPage = 300;
@@ -18,6 +20,9 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
   const [flipping, setFlipping] = useState<boolean>(false);
   const [flippingPage, setFlippingPage] = useState<number | null>(null);
   const [animating, setAnimating] = useState<boolean>(false);
+
+  // --- 追加: 初期化完了フラグ ---
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // 自動めくり間隔（分単位）をユーザーが自由に入力できる（初期値：3分）
   const [flipIntervalMinutes, setFlipIntervalMinutes] = useState<number>(3);
@@ -85,10 +90,83 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
     roomApi.getRoom(roomId).then((room) => {
       if (room.totalPages) {
         setTotalPages(room.totalPages);
-        setCurrentPage(0); // 部屋切り替え時に初期化
-        setDisplayPage(0);
+        // setCurrentPage(0); // ← ここで初期化しない
+        // setDisplayPage(0); // ← ここで初期化しない
       }
     });
+  }, [roomId]);
+
+  // --- ページ進捗の永続化 ---
+  useEffect(() => {
+    if (!roomId) return;
+    const userId = authStorage.getUserId();
+    if (!userId) return;
+    readingStateApi.getRoomReadingState(roomId, userId).then((res) => {
+      if (res && res.userStates && res.userStates.length > 0) {
+        const myState = res.userStates.find(u => u.userId === userId);
+        if (myState) {
+          setCurrentPage(myState.currentPage);
+          setDisplayPage(myState.currentPage);
+        }
+      }
+      setIsInitialized(true); // 初期化完了
+    }).catch(() => { setIsInitialized(true); });
+  }, [roomId]);
+
+  // ページ進捗を保存し、WebSocketでブロードキャストする関数
+  const saveAndBroadcastProgress = async (page: number) => {
+    if (!roomId) return;
+    const userId = authStorage.getUserId();
+    if (!userId) return;
+    try {
+      await readingStateApi.updateUserReadingState(roomId, userId, { userId, currentPage: page, comment: '' });
+      // 保存成功時のみWebSocket送信
+      const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+      const wsUrl = `${wsProtocol}://${window.location.hostname}:8080/ws/chat`;
+      const ws = new WebSocket(wsUrl);
+      ws.onopen = () => {
+        ws.send(JSON.stringify({
+          type: 'reading-progress',
+          roomId,
+          userId,
+          currentPage: page
+        }));
+        ws.close();
+      };
+    } catch (e) {
+      // 保存失敗時は何もしない（エラー通知は必要なら追加）
+    }
+  };
+
+  // currentPage変更時の保存・WebSocket送信はここで一元化
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    setDisplayPage(page);
+    // 初期化完了後のみ保存・送信
+    if (isInitialized) {
+      saveAndBroadcastProgress(page);
+    }
+  };
+
+  // --- 全メンバーのページ進捗を定期取得 ---
+  useEffect(() => {
+    if (!roomId) return;
+    let timer: NodeJS.Timeout;
+    const fetchStates = async () => {
+      try {
+        // userIdは不要。全メンバー分取得するAPI想定
+        const res = await readingStateApi.getRoomReadingState(roomId, 'all');
+        if (res && res.userStates) {
+          setMembers((prev) => prev.map(m => {
+            const found = res.userStates.find(u => u.userId === m.userId);
+            return found ? { ...m, page: found.currentPage } : m;
+          }));
+        }
+      } catch {}
+      timer = setTimeout(fetchStates, 2000); // 2秒ごとに更新
+    };
+    fetchStates();
+    return () => clearTimeout(timer);
   }, [roomId]);
 
   // 進捗率・メンバーアイコンの配置データ
@@ -102,6 +180,28 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
   useEffect(() => {
     setInputTotalPages(totalPages);
   }, [totalPages]);
+
+  // --- WebSocketで進捗リアルタイム共有 ---
+  useEffect(() => {
+    if (!roomId) return;
+    // WebSocketエンドポイント
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    const wsUrl = `${wsProtocol}://${window.location.hostname}:8080/ws/chat`;
+    const ws = new WebSocket(wsUrl);
+    ws.onopen = () => {
+      // サーバー側でSTOMP等が必要な場合はここでプロトコルに合わせて送信
+      // ここではシンプルなJSON送受信を仮定
+    };
+    ws.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data);
+        if (msg.type === 'reading-progress' && msg.roomId === roomId && msg.userId && typeof msg.currentPage === 'number') {
+          setMembers((prev) => prev.map(m => m.userId === msg.userId ? { ...m, page: msg.currentPage } : m));
+        }
+      } catch {}
+    };
+    return () => ws.close();
+  }, [roomId]);
 
   return (
     <div className="container">
@@ -184,7 +284,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
               className="controlButton"
               style={{ padding: '4px 12px', fontSize: 14, marginLeft: 8 }}
               onClick={() => setEditingTotalPages(true)}
-            >編集</button>
+            >本の最大ページ数を編集</button>
           </>
         )}
       </div>
@@ -203,7 +303,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
           <span> 分に一回</span>
         </label>
         <button className="controlButton" onClick={() => setShowProgressModal(true)}>
-          進捗入力
+          読んだページ数を編集
         </button>
         <button
           className="controlButton"
@@ -236,8 +336,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
           maxPage={maxPage}
           onClose={() => setShowProgressModal(false)}
           onSubmit={(page) => {
-            setCurrentPage(page);
-            setDisplayPage(page);
+            handlePageChange(page);
             setShowProgressModal(false);
           }}
         />
