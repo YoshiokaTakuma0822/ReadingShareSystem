@@ -12,7 +12,7 @@ import com.readingshare.auth.domain.model.User;
  *
  * @author 02003
  * @componentId C5
- * @moduleName ユーザーリポジトリ
+ * @moduleName ユーザーJPAリポジトリ
  */
 public interface UserJpaRepository extends JpaRepository<User, UUID> {
 

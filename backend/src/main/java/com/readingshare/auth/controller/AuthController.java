@@ -33,7 +33,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
  * @see LogoutService
  * @see LoginRequest
  * @see LoginResponse
- * @see LogoutService
  * @see RegisterUserRequest
  */
 @RestController
