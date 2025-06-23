@@ -45,6 +45,7 @@ const RoomJoinModal: React.FC<RoomJoinModalProps> = ({ open, room, userId, onClo
                 onJoined()
                 return
             }
+            // エラー時はonJoinedを絶対に呼ばない
             if (errorMessage.includes('パスワードが正しくありません')) {
                 setError('パスワードが正しくありません')
             } else if (errorMessage.includes('パスワードが必要です')) {
@@ -52,6 +53,7 @@ const RoomJoinModal: React.FC<RoomJoinModalProps> = ({ open, room, userId, onClo
             } else {
                 setError('部屋参加に失敗しました')
             }
+            // モーダルは閉じない
         } finally {
             setLoading(false)
         }

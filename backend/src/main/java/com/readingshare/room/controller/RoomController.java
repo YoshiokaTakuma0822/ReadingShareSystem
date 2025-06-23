@@ -66,9 +66,14 @@ public class RoomController {
      * POST /api/rooms/join
      */
     @PostMapping("/join")
-    public ResponseEntity<RoomMember> joinRoom(@RequestBody JoinRoomRequest request) {
-        RoomMember roomMember = roomService.joinRoom(request.roomId(), request.userId(), request.roomPassword());
-        return ResponseEntity.ok(roomMember);
+    public ResponseEntity<?> joinRoom(@RequestBody JoinRoomRequest request) {
+        try {
+            RoomMember roomMember = roomService.joinRoom(request.roomId(), request.userId(), request.roomPassword());
+            return ResponseEntity.ok(roomMember);
+        } catch (com.readingshare.common.exception.DomainException ex) {
+            // パスワード不一致や既にメンバー等の業務例外は400で返す
+            return ResponseEntity.badRequest().body(java.util.Map.of("message", ex.getMessage()));
+        }
     }
 
     /**
