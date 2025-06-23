@@ -1,13 +1,9 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import ReadingProgressModal from "./ReadingProgressModal";
+import { roomApi } from '../../lib/roomApi';
+import { RoomMember } from '../../types/room';
 
-const members = [
-  { name: "N", page: 126, color: "#222" },
-  { name: "K", page: 180, color: "#222" },
-  { name: "Y", page: 90, color: "#222" },
-  { name: "A", page: 150, color: "#2196f3" } // 自分
-];
 const maxPage = 300;
 const selfName = "A";
 
@@ -26,6 +22,9 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
   // 自動めくり間隔（分単位）をユーザーが自由に入力できる（初期値：3分）
   const [flipIntervalMinutes, setFlipIntervalMinutes] = useState<number>(3);
   const flipIntervalMs = flipIntervalMinutes * 60 * 1000;
+
+  // メンバー一覧
+  const [members, setMembers] = useState<{ name: string; page: number; color: string; userId: string }[]>([]);
 
   // 自動めくり開始時、初回のページを flipIntervalMs 後にキック
   useEffect(() => {
@@ -63,12 +62,26 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
     }
   };
 
+  // 部屋メンバー取得
+  useEffect(() => {
+    if (!roomId) return;
+    roomApi.getRoomMembers(roomId).then((memberList: RoomMember[]) => {
+      // ユーザー名の頭文字1文字目をnameに、userIdも保持
+      setMembers(memberList.map(m => ({
+        name: (m.username || '').charAt(0) || '？',
+        page: 1, // 進捗ページはAPIで取得できる場合はここでセット
+        color: '#222',
+        userId: m.userId
+      })));
+    });
+  }, [roomId]);
+
   // 進捗率・メンバーアイコンの配置データ
   const progressPercent = currentPage / maxPage;
   const memberProgress = members.map((m) => ({
     ...m,
-    percent: m.name === selfName ? currentPage / maxPage : m.page / maxPage,
-    isMe: m.name === selfName,
+    percent: m.userId === localStorage.getItem('reading-share-user-id') ? currentPage / maxPage : m.page / maxPage,
+    isMe: m.userId === localStorage.getItem('reading-share-user-id'),
   }));
 
   return (

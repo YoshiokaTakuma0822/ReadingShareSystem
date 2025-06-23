@@ -34,10 +34,21 @@ public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    protected void doFilterInternal(
+            @org.springframework.lang.NonNull HttpServletRequest request,
+            @org.springframework.lang.NonNull HttpServletResponse response,
+            @org.springframework.lang.NonNull FilterChain filterChain)
             throws ServletException, IOException {
 
         String authorizationHeader = request.getHeader(AUTHORIZATION_HEADER);
+
+        // WebSocket handshakeリクエストの場合は認証をスキップ
+        String upgradeHeader = request.getHeader("Upgrade");
+        if (upgradeHeader != null && "websocket".equalsIgnoreCase(upgradeHeader)) {
+            System.out.println("[BearerTokenAuthenticationFilter] WebSocket handshakeリクエストのため認証スキップ: " + request.getRequestURI());
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         if (authorizationHeader != null && authorizationHeader.startsWith(BEARER_PREFIX)) {
             String token = authorizationHeader.substring(BEARER_PREFIX.length());

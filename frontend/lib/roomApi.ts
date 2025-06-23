@@ -21,4 +21,12 @@ export const roomApi = {
     deleteRoom: async (roomId: string) => {
         await apiClient.delete(`/rooms/${roomId}`);
     },
+    getMyRooms: async (): Promise<Room[]> => {
+        const response = await apiClient.get<Room[]>('/rooms/my-rooms');
+        return response.data;
+    },
+    getRoomMembers: async (roomId: string) => {
+        const response = await apiClient.get(`/rooms/${roomId}/members`);
+        return response.data;
+    },
 }

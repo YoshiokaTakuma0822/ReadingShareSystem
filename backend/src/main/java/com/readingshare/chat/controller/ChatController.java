@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.readingshare.auth.infrastructure.security.UserPrincipal;
 import com.readingshare.chat.domain.model.ChatMessage;
 import com.readingshare.chat.dto.SendMessageRequest;
+import com.readingshare.chat.service.ChatMessageBroadcastService;
 import com.readingshare.chat.service.GetChatHistoryService;
 import com.readingshare.chat.service.SendChatMessageService;
 import com.readingshare.common.exception.ApplicationException;
@@ -30,10 +31,12 @@ public class ChatController {
 
     private final SendChatMessageService sendChatMessageService;
     private final GetChatHistoryService getChatHistoryService;
+    private final ChatMessageBroadcastService chatMessageBroadcastService;
 
-    public ChatController(SendChatMessageService sendChatMessageService, GetChatHistoryService getChatHistoryService) {
+    public ChatController(SendChatMessageService sendChatMessageService, GetChatHistoryService getChatHistoryService, ChatMessageBroadcastService chatMessageBroadcastService) {
         this.sendChatMessageService = sendChatMessageService;
         this.getChatHistoryService = getChatHistoryService;
+        this.chatMessageBroadcastService = chatMessageBroadcastService;
     }
 
     /**
@@ -46,7 +49,9 @@ public class ChatController {
     @PostMapping("/{roomId}/message")
     public ResponseEntity<String> sendMessage(@PathVariable UUID roomId, @RequestBody SendMessageRequest request) {
         UUID currentUserId = getCurrentUserId();
-        sendChatMessageService.sendMessage(roomId, currentUserId, request.messageContent());
+        ChatMessage chatMessage = sendChatMessageService.sendMessage(roomId, currentUserId, request.messageContent());
+        // REST経由の送信でもWebSocketでブロードキャスト
+        chatMessageBroadcastService.broadcastToRoom(roomId.toString(), chatMessage);
         return ResponseEntity.ok("Message sent successfully.");
     }
 

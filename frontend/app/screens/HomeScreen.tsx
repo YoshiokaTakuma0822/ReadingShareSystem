@@ -82,12 +82,78 @@ const HomeScreen: React.FC = () => {
         }
     }
 
+    // ユーザープロフィール情報
+    const [userName, setUserName] = useState<string>('');
+    const [loginTime, setLoginTime] = useState<Date | null>(null);
+
+    // ログイン時刻とユーザー名をlocalStorageから取得
+    React.useEffect(() => {
+        if (typeof window !== 'undefined') {
+            setUserName(localStorage.getItem('reading-share-user-name') || 'ゲスト');
+            const loginTimestamp = localStorage.getItem('reading-share-login-time');
+            if (loginTimestamp) {
+                setLoginTime(new Date(Number(loginTimestamp)));
+            } else {
+                const now = Date.now();
+                localStorage.setItem('reading-share-login-time', String(now));
+                setLoginTime(new Date(now));
+            }
+        }
+    }, []);
+
+    // 経過時間を計算
+    const [elapsed, setElapsed] = useState('');
+    React.useEffect(() => {
+        if (!loginTime) return;
+        const update = () => {
+            const now = new Date();
+            const diff = Math.floor((now.getTime() - loginTime.getTime()) / 1000);
+            const h = Math.floor(diff / 3600);
+            const m = Math.floor((diff % 3600) / 60);
+            const s = diff % 60;
+            setElapsed(`${h}時間${m}分${s}秒`);
+        };
+        update();
+        const timer = setInterval(update, 1000);
+        return () => clearInterval(timer);
+    }, [loginTime]);
+
     return (
         <AuthGuard>
             <div style={{ padding: 32, background: 'var(--green-bg)', minHeight: '100vh' }}>
                 <div style={{ marginBottom: 32 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                         <h1 style={{ color: 'var(--accent)', fontSize: 32, margin: 0 }}>読書共有システム</h1>
+                        {/* ユーザープロフィール表示 */}
+                        <div
+                            style={{
+                                background: '#388e3c', color: '#fff', borderRadius: 24, padding: '8px 20px', fontWeight: 'bold', fontSize: 16, cursor: 'pointer', position: 'relative', marginRight: 16
+                            }}
+                            title={``}
+                            onMouseEnter={e => {
+                                const tooltip = document.createElement('div');
+                                tooltip.id = 'user-profile-tooltip';
+                                tooltip.style.position = 'absolute';
+                                tooltip.style.top = '110%';
+                                tooltip.style.left = '50%';
+                                tooltip.style.transform = 'translateX(-50%)';
+                                tooltip.style.background = '#fff';
+                                tooltip.style.color = '#333';
+                                tooltip.style.padding = '12px 20px';
+                                tooltip.style.borderRadius = '12px';
+                                tooltip.style.boxShadow = '0 2px 8px rgba(0,0,0,0.18)';
+                                tooltip.style.whiteSpace = 'nowrap';
+                                tooltip.style.zIndex = '9999';
+                                tooltip.innerHTML = `<b>ユーザー名:</b> ${userName}<br/><b>ログイン経過:</b> ${elapsed}`;
+                                e.currentTarget.appendChild(tooltip);
+                            }}
+                            onMouseLeave={e => {
+                                const tooltip = document.getElementById('user-profile-tooltip');
+                                if (tooltip) tooltip.remove();
+                            }}
+                        >
+                            {userName}
+                        </div>
                         <button
                             onClick={logout}
                             style={{
@@ -136,20 +202,22 @@ const HomeScreen: React.FC = () => {
                     </div>
                 )}
                 {tab === 'search' && (
-                    <div style={{ marginBottom: 24, display: 'flex', gap: 8 }}>
+                    <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
                         <input
                             type="text"
                             value={searchText}
                             onChange={e => setSearchText(e.target.value)}
-                            placeholder="部屋名で検索"
-                            style={{ flex: 1, padding: 8, fontSize: 16, border: '2px solid black', borderRadius: 4 }}
-                            onKeyPress={(e) => {
-                                if (e.key === 'Enter') {
-                                    handleSearch()
-                                }
-                            }}
+                            placeholder="部屋名・本のタイトルで検索"
+                            style={{ padding: 12, borderRadius: 8, border: '1px solid #ccc', fontSize: 18, flex: 1 }}
                         />
-                        {/* 検索ボタン削除 */}
+                        <button
+                            onClick={handleSearch}
+                            style={{ padding: '12px 24px', borderRadius: 8, border: '1px solid #388e3c', background: '#fff', color: '#388e3c', fontWeight: 'bold', fontSize: 16, cursor: 'pointer' }}
+                        >検索</button>
+                        <button
+                            onClick={handleSearch}
+                            style={{ padding: '12px 24px', borderRadius: 8, border: '1px solid #2196f3', background: '#2196f3', color: '#fff', fontWeight: 'bold', fontSize: 16, cursor: 'pointer' }}
+                        >部屋一覧を更新</button>
                     </div>
                 )}
 
@@ -270,7 +338,7 @@ const HomeScreen: React.FC = () => {
                 )}
             </div>
         </AuthGuard>
-    );
+    )
 }
 
-export default HomeScreen;
+export default HomeScreen

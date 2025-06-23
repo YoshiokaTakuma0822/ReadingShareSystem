@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.readingshare.auth.domain.repository.IUserRepository;
+import com.readingshare.auth.domain.model.User;
 import com.readingshare.room.domain.model.Room;
 import com.readingshare.room.domain.model.RoomMember;
 import com.readingshare.room.dto.CreateRoomRequest;
@@ -27,9 +29,11 @@ import com.readingshare.room.service.RoomService;
 public class RoomController {
 
     private final RoomService roomService;
+    private final IUserRepository userRepository;
 
-    public RoomController(RoomService roomService) {
+    public RoomController(RoomService roomService, IUserRepository userRepository) {
         this.roomService = roomService;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -94,5 +98,34 @@ public class RoomController {
     public ResponseEntity<Void> deleteRoom(@PathVariable("roomId") String roomId) {
         roomService.deleteRoom(roomId);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * 部屋メンバー一覧取得エンドポイント
+     * GET /api/rooms/{roomId}/members
+     */
+    @GetMapping("/{roomId}/members")
+    public ResponseEntity<List<MemberInfoDto>> getRoomMembers(@PathVariable("roomId") String roomId) {
+        List<RoomMember> members = roomService.getRoomMembers(UUID.fromString(roomId));
+        // ユーザー名を取得してDTOに詰める
+        List<MemberInfoDto> result = members.stream().map(member -> {
+            String username = userRepository.findById(member.getUserId())
+                .map(User::getUsername)
+                .orElse("");
+            return new MemberInfoDto(member.getUserId(), username, member.getJoinedAt());
+        }).toList();
+        return ResponseEntity.ok(result);
+    }
+
+    // DTOクラス
+    public static class MemberInfoDto {
+        public UUID userId;
+        public String username;
+        public java.time.Instant joinedAt;
+        public MemberInfoDto(UUID userId, String username, java.time.Instant joinedAt) {
+            this.userId = userId;
+            this.username = username;
+            this.joinedAt = joinedAt;
+        }
     }
 }

@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
 import com.readingshare.auth.domain.model.User;
@@ -22,7 +23,8 @@ public interface UserJpaRepository extends JpaRepository<User, UUID> {
      * @return ユーザーが見つかった場合はOptionalにUser、見つからない場合はOptional.empty()
      */
     @Override
-    Optional<User> findById(UUID id);
+    @NonNull
+    Optional<User> findById(@NonNull UUID id);
 
     /**
      * ユーザー名でユーザーを検索する。

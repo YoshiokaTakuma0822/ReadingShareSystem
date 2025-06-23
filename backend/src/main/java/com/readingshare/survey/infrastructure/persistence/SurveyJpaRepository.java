@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
 import com.readingshare.survey.domain.model.Survey;
@@ -23,7 +24,8 @@ public interface SurveyJpaRepository extends JpaRepository<Survey, UUID> {
      * @return アンケートが見つかった場合はOptionalにSurvey、見つからない場合はOptional.empty()
      */
     @Override
-    Optional<Survey> findById(UUID id);
+    @NonNull
+    Optional<Survey> findById(@NonNull UUID id);
 
     /**
      * 特定の部屋のアンケートを取得する。

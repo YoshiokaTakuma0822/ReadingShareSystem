@@ -41,15 +41,31 @@ const RegisterScreen: React.FC = () => {
             setTimeout(() => {
                 router.push('/login')
             }, 1500)
-        } catch (e) {
-            setError('登録に失敗しました')
+        } catch (e: any) {
+            if (e?.response?.status === 409) {
+                // サーバーからのエラーメッセージを利用
+                const msg = e?.response?.data?.message || e?.response?.data || '';
+                if (typeof msg === 'string' && msg.includes('Username')) {
+                    setError('このユーザー名は既に使われています');
+                } else if (typeof msg === 'string' && (msg.includes('Email') || msg.includes('メール'))) {
+                    setError('このメールアドレスは既に使われています');
+                } else {
+                    setError('同じユーザー情報が既に存在します');
+                }
+            } else {
+                setError('登録に失敗しました')
+            }
         } finally {
             setLoading(false)
         }
     }
 
     return (
-        <div style={{ maxWidth: 900, minWidth: 520, width: '60vw', height: 600, position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', border: '2px solid #388e3c', padding: 48, borderRadius: 20, background: 'linear-gradient(135deg, #e0f7ef 0%, #f1fdf6 100%)', boxShadow: '0 4px 24px #a5d6a7', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+        <div style={{ maxWidth: 900, minWidth: 520, width: '60vw', height: 600, position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', border: '2px solid #388e3c', padding: 48, borderRadius: 20, background: 'linear-gradient(135deg, #e0f7ef 0%, #f1fdf6 100%)', boxShadow: '0 4px 24px #a5d6a7', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
+            onKeyDown={e => {
+                if (e.key === 'Enter') handleRegister();
+            }}
+        >
             <h1 style={{ textAlign: 'center', fontSize: 32, marginBottom: 32, color: '#388e3c' }}>会員登録画面</h1>
             <div style={{ marginBottom: 16 }}>
                 <label>ユーザー名</label>
@@ -66,6 +82,9 @@ const RegisterScreen: React.FC = () => {
             {error && <div style={{ color: 'red', marginBottom: 12 }}>{error}</div>}
             {success && <div style={{ color: 'green', marginBottom: 12 }}>登録が完了しました！</div>}
             <button onClick={handleRegister} disabled={loading} style={{ width: '100%', padding: 12, fontSize: 18, borderRadius: 8, border: '1px solid #222' }}>{loading ? '登録中...' : '登録'}</button>
+            <div style={{ textAlign: 'right', marginTop: 16 }}>
+                <a href="/login">ログイン画面に戻る</a>
+            </div>
         </div>
     )
 }

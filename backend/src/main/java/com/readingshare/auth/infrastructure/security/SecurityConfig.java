@@ -38,6 +38,10 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                         // 健康チェック
                         .requestMatchers("/actuator/health").permitAll()
+                        // WebSocket/STOMP関連のエンドポイントを認証不要に
+                        .requestMatchers("/ws/**").permitAll()
+                        .requestMatchers("/topic/**").permitAll()
+                        .requestMatchers("/app/**").permitAll()
                         // その他のAPIは認証が必要
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll())

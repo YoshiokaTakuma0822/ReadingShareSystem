@@ -25,6 +25,8 @@ export const authApi = {
             // サーバーリクエストの成功/失敗に関わらずローカルトークンを削除
             localStorage.removeItem('authToken')
             localStorage.removeItem('reading-share-user-id')
+            localStorage.removeItem('reading-share-user-name')
+            localStorage.removeItem('reading-share-login-time') // ログイン経過時間もリセット
         }
     },
     isAuthenticated: (): boolean => {

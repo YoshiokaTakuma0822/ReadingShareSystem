@@ -15,6 +15,7 @@ import com.readingshare.common.exception.DatabaseAccessException;
 import com.readingshare.room.domain.model.Room;
 import com.readingshare.room.domain.model.RoomMember;
 import com.readingshare.room.domain.repository.IRoomRepository;
+import com.readingshare.room.domain.repository.IRoomMemberRepository;
 import com.readingshare.room.domain.service.RoomDomainService;
 
 /**
@@ -27,10 +28,12 @@ public class RoomService {
 
     private final IRoomRepository roomRepository;
     private final RoomDomainService roomDomainService;
+    private final IRoomMemberRepository roomMemberRepository;
 
-    public RoomService(IRoomRepository roomRepository, RoomDomainService roomDomainService) {
+    public RoomService(IRoomRepository roomRepository, RoomDomainService roomDomainService, IRoomMemberRepository roomMemberRepository) {
         this.roomRepository = roomRepository;
         this.roomDomainService = roomDomainService;
+        this.roomMemberRepository = roomMemberRepository;
     }
 
     // =============== 部屋作成関連 ===============
@@ -133,5 +136,14 @@ public class RoomService {
      */
     public void deleteRoom(String roomId) {
         roomRepository.deleteById(UUID.fromString(roomId));
+    }
+
+    /**
+     * 指定した部屋の全メンバーを返す
+     */
+    public List<RoomMember> getRoomMembers(UUID roomId) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new ApplicationException("部屋が見つかりません"));
+        return roomMemberRepository.findByRoom(room);
     }
 }

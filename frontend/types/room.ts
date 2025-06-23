@@ -39,4 +39,5 @@ export interface RoomMember {
     roomId: RoomId
     userId: UserId
     joinedAt: string // Instant
+    username: string // ユーザー名を追加
 }

@@ -3,6 +3,9 @@ import React, { useState, useEffect } from 'react'
 import SurveyCreationModal from './SurveyCreationModal'
 import { chatApi } from '../../lib/chatApi'
 import { ChatMessage } from '../../types/chat'
+import ReadingScreenOverlay from './ReadingScreenOverlay'
+import { roomApi } from '../../lib/roomApi';
+import { Room } from '../../types/room';
 
 interface Message {
     id: number;
@@ -18,6 +21,13 @@ interface GroupChatScreenProps {
     roomId?: string
 }
 
+// グローバルwindowに型を追加
+declare global {
+  interface Window {
+    updateGroupChatScreen?: (data: any) => void;
+  }
+}
+
 const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャットルーム", currentUser = "あなた", roomId }) => {
     const [messages, setMessages] = useState<Message[]>([])
     const [input, setInput] = useState("")
@@ -26,6 +36,14 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+    const [showReadingOverlay, setShowReadingOverlay] = useState(false)
+    const [roomName, setRoomName] = useState<string>(roomTitle);
+
+    // 追加: ユーザーID→ユーザー名のマッピングを保持
+    const [userIdToName, setUserIdToName] = useState<Record<string, string>>({});
+
+    // スクロール用ref
+    const messagesEndRef = React.useRef<HTMLDivElement | null>(null);
 
     // コンポーネントマウント時にユーザーIDを取得
     useEffect(() => {
@@ -55,9 +73,12 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                 } else {
                     messageText = String(msg.content || '')
                 }
+                // ここでユーザー名を参照
+                const senderId = msg.senderUserId ?? '';
+                const username = senderId && userIdToName[senderId] ? userIdToName[senderId] : (senderId || '匿名ユーザー');
                 return {
                     id: index + 1,
-                    user: String(msg.senderUserId || '匿名ユーザー'),
+                    user: username,
                     text: messageText,
                     isCurrentUser: msg.senderUserId === currentUserId,
                     sentAt: msg.sentAt // 追加
@@ -84,40 +105,19 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
 
     const handleSend = async () => {
         if (!input.trim() || !roomId) return;
-
         try {
-            // サーバーにメッセージを送信
+            // サーバーにメッセージを送信（WebSocket経由で全員に配信されるのを待つ）
             await chatApi.sendMessage(roomId, { messageContent: input });
-
-            // ローカル状態を更新
-            setMessages([...messages, {
-                id: msgId,
-                user: currentUser,
-                text: input,
-                isCurrentUser: true,
-                sentAt: new Date().toISOString() // 送信時刻を仮で追加
-            }]);
-            setMsgId(msgId + 1);
+            // ローカル状態はWebSocket受信時のみ更新する（ここでは更新しない）
             setInput("");
         } catch (err) {
             console.error('メッセージ送信に失敗しました:', err);
-            // エラーが発生してもローカル状態は更新する（UX向上のため）
-            setMessages([...messages, {
-                id: msgId,
-                user: currentUser,
-                text: input,
-                isCurrentUser: true,
-                sentAt: new Date().toISOString()
-            }]);
-            setMsgId(msgId + 1);
-            setInput("");
+            // エラー時のみローカルに一時的に表示（任意）
         }
     }
 
     const handleGoToReading = () => {
-        if (roomId) {
-            window.location.href = `/rooms/${roomId}/reading`
-        }
+        setShowReadingOverlay(true);
     }
 
     const handleCreateSurvey = () => {
@@ -129,10 +129,71 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
         // サーベイ作成後の処理（必要に応じて）
     }
 
+    // WebSocket受信時に呼ばれるグローバル関数を定義
+    useEffect(() => {
+        window.updateGroupChatScreen = (data: any) => {
+            // ChatMessageDto型のdataをMessage型に変換して追加
+            setMessages(prev => {
+                // 重複防止: すでに同じID・内容のメッセージがあれば追加しない
+                if (prev.some(m => m.sentAt === data.sentAt && m.text === data.content && m.user === data.senderName)) {
+                    return prev;
+                }
+                // ここでユーザー名を参照
+                const username = userIdToName[data.senderId] || data.senderName || data.senderId || '匿名ユーザー';
+                return [
+                    ...prev,
+                    {
+                        id: prev.length + 1,
+                        user: username,
+                        text: data.content,
+                        isCurrentUser: data.senderId === currentUserId,
+                        sentAt: data.sentAt
+                    }
+                ];
+            });
+        };
+        return () => {
+            window.updateGroupChatScreen = undefined;
+        };
+    }, [currentUserId])
+
+    // メッセージ追加時に自動スクロール
+    useEffect(() => {
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [messages]);
+
+    // 部屋名取得
+    useEffect(() => {
+        if (roomId) {
+            roomApi.getRoom(roomId).then((room: Room) => {
+                setRoomName(room.roomName);
+            }).catch(() => {
+                setRoomName(roomTitle); // 取得失敗時はデフォルト
+            });
+        }
+    }, [roomId]);
+
+    // 部屋メンバー一覧を取得してユーザー名マッピングを作成
+    useEffect(() => {
+        if (!roomId) return;
+        roomApi.getRoomMembers(roomId).then((members: any[]) => {
+            const map: Record<string, string> = {};
+            members.forEach(m => {
+                if (m.userId && m.username) map[m.userId] = m.username;
+            });
+            setUserIdToName(map);
+            // チャット履歴も再取得してユーザー名反映
+            loadChatHistory();
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [roomId]);
+
     return (
-        <div style={{ border: '4px solid #388e3c', margin: 24, padding: 24, background: 'linear-gradient(135deg, #e0f7ef 0%, #f1fdf6 100%)', borderRadius: 12, maxWidth: 1200, minHeight: 600, marginLeft: 'auto', marginRight: 'auto', display: 'flex', flexDirection: 'column', height: '80vh' }}>
+        <div style={{ border: '4px solid #388e3c', margin: 24, padding: 24, background: 'linear-gradient(135deg, #e0f7ef 0%, #f1fdf6 100%)', borderRadius: 12, maxWidth: 1200, minHeight: 600, marginLeft: 'auto', marginRight: 'auto', display: 'flex', flexDirection: 'column', height: '80vh', position: 'relative' }}>
             <h2 style={{ textAlign: 'center', fontSize: 28, marginBottom: 16, color: '#388e3c' }}>
-                {String(roomTitle)}
+                {roomName}
             </h2>
 
             {/* ナビゲーションボタン */}
@@ -151,7 +212,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                         boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                     }}
                 >
-                    📖 読書画面へ
+                    📖 読書画面をオーバーレイ表示
                 </button>
                 <button
                     onClick={handleCreateSurvey}
@@ -239,7 +300,8 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                         まだメッセージがありません
                     </div>
                 ) : (
-                    messages.map(msg => {
+                    <>
+                    {messages.map(msg => {
                         const isMine = msg.isCurrentUser
                         return (
                             <div
@@ -253,7 +315,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                             >
                                 {!isMine && (
                                     <span style={{ border: '1px solid #222', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                        {String(msg.user).charAt(0).toUpperCase()}
+                                        {msg.user ? String(msg.user).trim().charAt(0) : '?'}
                                     </span>
                                 )}
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -284,12 +346,14 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                                 </div>
                                 {isMine && (
                                     <span style={{ border: '1px solid #222', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#e0f7fa' }}>
-                                        {String(msg.user).charAt(0).toUpperCase()}
+                                        {msg.user ? String(msg.user).trim().charAt(0) : '?'}
                                     </span>
                                 )}
                             </div>
                         )
-                    })
+                    })}
+                    <div ref={messagesEndRef} />
+                    </>
                 )}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', marginTop: 32 }}>
@@ -326,6 +390,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                     onCreated={handleSurveyCreated}
                 />
             )}
+            <ReadingScreenOverlay roomId={roomId} open={showReadingOverlay} onClose={() => setShowReadingOverlay(false)} />
         </div>
     )
 }
