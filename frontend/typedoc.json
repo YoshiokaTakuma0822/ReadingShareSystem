@@ -3,5 +3,6 @@
         "./**/*.ts",
         "./**/*.tsx"
     ],
-    "json": "docs.json",
+    "json": "tsdocs.json",
+    // "out": "./docs"
 }
