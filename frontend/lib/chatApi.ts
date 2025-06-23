@@ -1,5 +1,14 @@
+/**
+ * チャットの送信、履歴取得、ストリーム機能を提供するAPIです。
+ *
+ * @author 02001
+ * @componentId C1
+ * @moduleName チャットAPI
+ * @packageDocumentation
+ */
+
+import { ChatMessage, ChatStreamItem, SendMessageRequest } from '../types/chat'
 import apiClient from './apiClient'
-import { ChatMessage, SendMessageRequest, ChatStreamItem } from '../types/chat'
 
 export const chatApi = {
     sendMessage: async (roomId: string, request: SendMessageRequest): Promise<void> => {

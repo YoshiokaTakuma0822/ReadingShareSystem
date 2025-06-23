@@ -1,3 +1,12 @@
+/**
+ * 認証関連のローカルストレージ操作およびユーティリティ関数を提供するモジュールです。
+ *
+ * @author 02001
+ * @componentId C1
+ * @moduleName 認証ユーティリティ
+ * @packageDocumentation
+ */
+
 import React from 'react'
 import { UserId } from '../types/auth'
 import { authApi } from './authApi'
@@ -10,6 +19,9 @@ const isBrowser = (): boolean => {
     return typeof window !== 'undefined' && typeof localStorage !== 'undefined'
 }
 
+/**
+ * 認証関連のローカルストレージ操作を提供するオブジェクト
+ */
 export const authStorage = {
     // ユーザーIDをローカルストレージに保存
     setUserId: (userId: UserId): void => {

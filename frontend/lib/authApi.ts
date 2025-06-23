@@ -1,5 +1,14 @@
-import apiClient from './apiClient'
+/**
+ * ユーザーのログイン、登録、ログアウト認証機能を提供するAPIです。
+ *
+ * @author 02001
+ * @componentId C1
+ * @moduleName 認証API
+ * @packageDocumentation
+ */
+
 import { LoginRequest, LoginResponse, RegisterUserRequest, RegisterUserResponse } from '../types/auth'
+import apiClient from './apiClient'
 
 export const authApi = {
     login: async (request: LoginRequest): Promise<LoginResponse> => {

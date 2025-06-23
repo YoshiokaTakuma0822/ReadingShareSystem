@@ -1,3 +1,12 @@
+/**
+ * AxiosベースのHTTPクライアントを設定し、認証トークン付与とエラーハンドリングを行うモジュールです。
+ *
+ * @author 02001
+ * @componentId C1
+ * @moduleName APIクライアント
+ * @packageDocumentation
+ */
+
 import axios from 'axios'
 
 // API Base URL configuration - Next.jsのrewritesを使用して相対パスで統一

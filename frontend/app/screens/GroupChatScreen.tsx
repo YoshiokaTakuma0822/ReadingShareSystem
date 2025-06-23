@@ -4,6 +4,10 @@
  * @author 02001
  * @componentId C1
  * @moduleName グループチャット画面
+ * @see SurveyCreationModal
+ * @see SurveyResultModal
+ * @see chatApi
+ * @see surveyApi
  * @packageDocumentation
  */
 
@@ -16,9 +20,6 @@ import { Survey } from '../../types/survey'
 import SurveyCreationModal from './SurveyCreationModal'
 import SurveyResultModal from './SurveyResultModal'
 
-/**
- * メッセージの型定義
- */
 interface Message {
     id: number
     user: string
@@ -26,9 +27,6 @@ interface Message {
     isCurrentUser: boolean
 }
 
-/**
- * グループチャット画面のプロパティ
- */
 interface GroupChatScreenProps {
     roomTitle?: string
     currentUser?: string

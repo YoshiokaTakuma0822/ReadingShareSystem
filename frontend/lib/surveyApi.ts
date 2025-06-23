@@ -1,5 +1,14 @@
+/**
+ * アンケートの作成、回答、結果取得を行うためのAPIです。
+ *
+ * @author 02001
+ * @componentId C1
+ * @moduleName アンケートAPI
+ * @packageDocumentation
+ */
+
+import { CreateSurveyRequest, SubmitSurveyAnswerRequest, Survey, SurveyResult } from '../types/survey'
 import apiClient from './apiClient'
-import { Survey, CreateSurveyRequest, SubmitSurveyAnswerRequest, SurveyResult } from '../types/survey'
 
 export const surveyApi = {
     createSurvey: async (request: CreateSurveyRequest): Promise<Survey> => {

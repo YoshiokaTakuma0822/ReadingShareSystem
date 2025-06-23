@@ -1,9 +1,17 @@
-import apiClient from './apiClient'
+/**
+ * ルーム内のユーザー読書状態を更新および取得するためのAPIです。
+ *
+ * @author 02001
+ * @componentId C1
+ * @moduleName 読書状態API
+ * @packageDocumentation
+ */
+
 import {
-    RoomReadingState,
-    UpdateUserReadingStateRequest,
-    RoomReadingStateResponse
+    RoomReadingStateResponse,
+    UpdateUserReadingStateRequest
 } from '../types/readingState'
+import apiClient from './apiClient'
 
 export const readingStateApi = {
     updateUserReadingState: async (roomId: string, memberId: string, request: UpdateUserReadingStateRequest): Promise<void> => {

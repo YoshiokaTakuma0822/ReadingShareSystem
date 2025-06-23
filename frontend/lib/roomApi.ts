@@ -1,5 +1,14 @@
+/**
+ * ルームの作成、検索、参加を行うためのAPIです。
+ *
+ * @author 02001
+ * @componentId C1
+ * @moduleName ルームAPI
+ * @packageDocumentation
+ */
+
+import { CreateRoomRequest, JoinRoomRequest, Room } from '../types/room'
 import apiClient from './apiClient'
-import { Room, CreateRoomRequest, SearchRoomResult, JoinRoomRequest } from '../types/room'
 
 export const roomApi = {
     createRoom: async (request: CreateRoomRequest): Promise<Room> => {

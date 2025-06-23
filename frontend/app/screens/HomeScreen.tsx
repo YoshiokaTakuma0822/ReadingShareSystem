@@ -2,7 +2,6 @@
  * ホーム画面コンポーネント
  *
  * @author 02001
- * @author 02002
  * @componentId C1
  * @moduleName ホーム画面
  * @see RoomCreationModal
@@ -10,7 +9,9 @@
  * @see SurveyAnswerModal
  * @see SurveyResultModal
  * @see roomApi
- * @see Room
+ * @see getDummyUserId
+ * @see logout
+ * @see requireAuth
  * @packageDocumentation
  */
 
