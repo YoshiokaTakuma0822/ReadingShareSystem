@@ -32,6 +32,9 @@ public class Room {
     @Column(nullable = true)
     private Instant endTime;
 
+    @Column(nullable = false)
+    private int totalPages; // 追加: 本のページ数
+
     // --- コンストラクタ ---
     public Room() {
         // JPA用
@@ -52,6 +55,15 @@ public class Room {
         this.hostUserId = hostUserId;
         this.createdAt = Instant.now();
         this.endTime = endTime;
+    }
+
+    public Room(String roomName, String bookTitle, UUID hostUserId, int totalPages) {
+        this.id = UUID.randomUUID();
+        this.roomName = roomName;
+        this.bookTitle = bookTitle;
+        this.hostUserId = hostUserId;
+        this.createdAt = Instant.now();
+        this.totalPages = totalPages;
     }
 
     public Room(UUID id, String roomName, String bookTitle, UUID hostUserId, Instant createdAt, Instant endTime) {
@@ -92,6 +104,14 @@ public class Room {
         this.endTime = endTime;
     }
 
+    public int getTotalPages() {
+        return totalPages;
+    }
+
+    public void setTotalPages(int totalPages) {
+        this.totalPages = totalPages;
+    }
+
     // --- その他のメソッド ---
     @Override
     public boolean equals(Object o) {
@@ -117,6 +137,7 @@ public class Room {
                 ", hostUserId=" + hostUserId +
                 ", createdAt=" + createdAt +
                 ", endTime=" + endTime +
+                ", totalPages=" + totalPages +
                 '}';
     }
 }

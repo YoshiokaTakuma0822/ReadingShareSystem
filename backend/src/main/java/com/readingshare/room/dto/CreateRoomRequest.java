@@ -9,5 +9,7 @@ public record CreateRoomRequest(
         String roomName,
         UUID hostUserId,
         String bookTitle,
-        String password) {
+        String password,
+        Integer totalPages // 追加: 本のページ数
+) {
 }

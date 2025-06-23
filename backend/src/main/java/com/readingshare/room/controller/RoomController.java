@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,6 +20,7 @@ import com.readingshare.room.domain.model.Room;
 import com.readingshare.room.domain.model.RoomMember;
 import com.readingshare.room.dto.CreateRoomRequest;
 import com.readingshare.room.dto.JoinRoomRequest;
+import com.readingshare.room.dto.UpdateRoomRequest;
 import com.readingshare.room.service.RoomService;
 
 /**
@@ -44,8 +46,8 @@ public class RoomController {
     public ResponseEntity<Room> createRoom(@RequestBody CreateRoomRequest request) {
         Room createdRoom = request.password() != null
                 ? roomService.createRoomWithPassword(request.roomName(), request.bookTitle(),
-                        request.hostUserId(), request.password())
-                : roomService.createRoom(request.roomName(), request.bookTitle(), request.hostUserId());
+                        request.hostUserId(), request.password(), request.totalPages() != null ? request.totalPages() : 300)
+                : roomService.createRoom(request.roomName(), request.bookTitle(), request.hostUserId(), request.totalPages() != null ? request.totalPages() : 300);
         return ResponseEntity.ok(createdRoom);
     }
 
@@ -98,6 +100,16 @@ public class RoomController {
     public ResponseEntity<Void> deleteRoom(@PathVariable("roomId") String roomId) {
         roomService.deleteRoom(roomId);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * 部屋情報更新エンドポイント
+     * PUT /api/rooms/{roomId}
+     */
+    @PutMapping("/{roomId}")
+    public ResponseEntity<Room> updateRoom(@PathVariable("roomId") String roomId, @RequestBody UpdateRoomRequest request) {
+        Room updatedRoom = roomService.updateRoom(UUID.fromString(roomId), request);
+        return ResponseEntity.ok(updatedRoom);
     }
 
     /**

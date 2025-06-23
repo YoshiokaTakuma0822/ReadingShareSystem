@@ -12,6 +12,7 @@ export interface Room {
     genre?: string // ジャンル
     startTime?: string // ISO8601形式
     endTime?: string // ISO8601形式
+    totalPages?: number // 追加: 本の全ページ数
 }
 
 export interface CreateRoomRequest {
@@ -22,6 +23,7 @@ export interface CreateRoomRequest {
     genre?: string // ジャンル
     startTime?: string // ISO8601形式
     endTime?: string // ISO8601形式
+    totalPages?: number // 追加: 本の全ページ数
 }
 
 export interface JoinRoomRequest {

@@ -20,6 +20,7 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
     const [genre, setGenre] = useState('小説');
     const [startTime, setStartTime] = useState('');
     const [endTime, setEndTime] = useState('');
+    const [totalPages, setTotalPages] = useState<number>(300); // 追加: 本の全ページ数
 
     const handleCreate = async () => {
         setLoading(true);
@@ -33,6 +34,7 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
                 genre,
                 startTime: startTime || undefined,
                 endTime: endTime || undefined,
+                totalPages: totalPages || undefined, // 追加
             };
             await roomApi.createRoom(req);
             onCreated();
@@ -70,20 +72,28 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
         >
             <div
                 style={{
-                    maxWidth: 700,
-                    width: '90%',
+                    maxWidth: 900,
+                    width: '80vw',
+                    minWidth: 600,
                     margin: 'auto',
                     border: '2px solid #388e3c',
                     padding: 32,
-                    borderRadius: 12,
+                    borderRadius: 18,
                     background: '#f1fdf6',
-                    boxShadow: '0 8px 32px rgba(0,0,0,0.2)'
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+                    display: 'flex',
+                    flexDirection: 'column', // カラム方向に戻す
+                    minHeight: 320,
+                    alignItems: 'center',
+                    overflowY: 'visible',
+                    maxHeight: 'none',
+                    gap: 0,
                 }}
                 onClick={(e) => e.stopPropagation()} // モーダル内のクリックで閉じるのを防ぐ
             >
-                <h2 style={{ fontWeight: 'bold', fontSize: 28, marginBottom: 24, color: '#388e3c' }}>詳細設定</h2>
-                <div style={{ display: 'flex', gap: 32 }}>
-                    <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', flexDirection: 'row', width: '100%', gap: 32 }}>
+                    {/* 左右2カラム */}
+                    <div style={{ flex: 1, minWidth: 280 }}>
                         <div style={{ marginBottom: 16 }}>
                             <label>部屋名</label>
                             <input type="text" value={roomName} onChange={e => setRoomName(e.target.value)} placeholder="部屋名を入力してください" style={{ width: '100%', padding: 8, marginTop: 4 }} />
@@ -93,9 +103,15 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
                             <input type="text" value={bookTitle} onChange={e => setBookTitle(e.target.value)} placeholder="本のタイトルを入力してください" style={{ width: '100%', padding: 8, marginTop: 4 }} />
                         </div>
                         <div style={{ marginBottom: 16 }}>
+                            <label>本のページ数</label>
+                            <input type="number" min={1} value={totalPages} onChange={e => setTotalPages(Number(e.target.value))} placeholder="例: 300" style={{ width: '100%', padding: 8, marginTop: 4 }} />
+                        </div>
+                        <div style={{ marginBottom: 16 }}>
                             <label>パスワード（オプション）</label>
                             <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="パスワードを入力してください" style={{ width: '100%', padding: 8, marginTop: 4 }} />
                         </div>
+                    </div>
+                    <div style={{ flex: 1, minWidth: 280 }}>
                         <div style={{ marginBottom: 16 }}>
                             <label>ジャンル</label>
                             <select value={genre} onChange={e => setGenre(e.target.value)} style={{ width: '100%', padding: 8, marginTop: 4 }}>
@@ -137,8 +153,8 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
                         </div>
                     </div>
                 </div>
-                {error && <div style={{ color: 'red', marginTop: 12 }}>{error}</div>}
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 16, marginTop: 32 }}>
+                {/* ボタン類を下部中央に配置 */}
+                <div style={{ width: '100%', display: 'flex', justifyContent: 'center', gap: 24, marginTop: 32 }}>
                     <button
                         onClick={onClose}
                         style={{
@@ -170,6 +186,7 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
                         {loading ? '作成中...' : '部屋を作成'}
                     </button>
                 </div>
+                {error && <div style={{ color: 'red', marginTop: 12, textAlign: 'center' }}>{error}</div>}
             </div>
         </div>
     )

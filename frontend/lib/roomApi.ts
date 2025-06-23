@@ -29,4 +29,8 @@ export const roomApi = {
         const response = await apiClient.get(`/rooms/${roomId}/members`);
         return response.data;
     },
+    updateTotalPages: async (roomId: string, totalPages: number): Promise<Room> => {
+        const response = await apiClient.put<Room>(`/rooms/${roomId}`, { totalPages });
+        return response.data;
+    },
 }

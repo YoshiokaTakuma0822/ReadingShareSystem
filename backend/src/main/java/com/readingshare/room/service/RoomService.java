@@ -17,6 +17,7 @@ import com.readingshare.room.domain.model.RoomMember;
 import com.readingshare.room.domain.repository.IRoomRepository;
 import com.readingshare.room.domain.repository.IRoomMemberRepository;
 import com.readingshare.room.domain.service.RoomDomainService;
+import com.readingshare.room.dto.UpdateRoomRequest;
 
 /**
  * 部屋に関する統合アプリケーションサービス。
@@ -65,6 +66,16 @@ public class RoomService {
      */
     public Room createRoomWithPassword(String roomName, String bookTitle, UUID hostUserId, String roomPassword) {
         Room newRoom = new Room(roomName, bookTitle, hostUserId);
+        return roomDomainService.createRoom(newRoom, roomPassword);
+    }
+
+    public Room createRoom(String roomName, String bookTitle, UUID hostUserId, int totalPages) {
+        Room newRoom = new Room(roomName, bookTitle, hostUserId, totalPages);
+        return roomDomainService.createRoom(newRoom, null);
+    }
+
+    public Room createRoomWithPassword(String roomName, String bookTitle, UUID hostUserId, String roomPassword, int totalPages) {
+        Room newRoom = new Room(roomName, bookTitle, hostUserId, totalPages);
         return roomDomainService.createRoom(newRoom, roomPassword);
     }
 
@@ -145,5 +156,18 @@ public class RoomService {
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new ApplicationException("部屋が見つかりません"));
         return roomMemberRepository.findByRoom(room);
+    }
+
+    /**
+     * 部屋情報を更新する（totalPagesのみ）
+     */
+    @Transactional
+    public Room updateRoom(UUID roomId, UpdateRoomRequest request) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new ApplicationException("部屋が見つかりません"));
+        if (request.totalPages() != null && request.totalPages() > 0) {
+            room.setTotalPages(request.totalPages());
+        }
+        return roomRepository.save(room);
     }
 }

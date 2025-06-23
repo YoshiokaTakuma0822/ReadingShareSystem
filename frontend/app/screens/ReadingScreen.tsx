@@ -13,8 +13,8 @@ interface ReadingScreenProps {
 
 const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
   const [showProgressModal, setShowProgressModal] = useState(false);
-  const [currentPage, setCurrentPage] = useState<number>(150);
-  const [displayPage, setDisplayPage] = useState<number>(150);
+  const [currentPage, setCurrentPage] = useState<number>(0); // 初期値を0に
+  const [displayPage, setDisplayPage] = useState<number>(0); // 初期値を0に
   const [flipping, setFlipping] = useState<boolean>(false);
   const [flippingPage, setFlippingPage] = useState<number | null>(null);
   const [animating, setAnimating] = useState<boolean>(false);
@@ -25,6 +25,9 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
 
   // メンバー一覧
   const [members, setMembers] = useState<{ name: string; page: number; color: string; userId: string }[]>([]);
+  const [totalPages, setTotalPages] = useState<number>(300); // 追加: 本の全ページ数
+  const [editingTotalPages, setEditingTotalPages] = useState(false);
+  const [inputTotalPages, setInputTotalPages] = useState(totalPages);
 
   // 自動めくり開始時、初回のページを flipIntervalMs 後にキック
   useEffect(() => {
@@ -76,13 +79,29 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
     });
   }, [roomId]);
 
+  // 部屋情報取得
+  useEffect(() => {
+    if (!roomId) return;
+    roomApi.getRoom(roomId).then((room) => {
+      if (room.totalPages) {
+        setTotalPages(room.totalPages);
+        setCurrentPage(0); // 部屋切り替え時に初期化
+        setDisplayPage(0);
+      }
+    });
+  }, [roomId]);
+
   // 進捗率・メンバーアイコンの配置データ
-  const progressPercent = currentPage / maxPage;
+  const progressPercent = currentPage / totalPages;
   const memberProgress = members.map((m) => ({
     ...m,
-    percent: m.userId === localStorage.getItem('reading-share-user-id') ? currentPage / maxPage : m.page / maxPage,
+    percent: m.userId === localStorage.getItem('reading-share-user-id') ? currentPage / totalPages : m.page / totalPages,
     isMe: m.userId === localStorage.getItem('reading-share-user-id'),
   }));
+
+  useEffect(() => {
+    setInputTotalPages(totalPages);
+  }, [totalPages]);
 
   return (
     <div className="container">
@@ -110,7 +129,6 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
           </div>
         ))}
       </div>
-
       {/* 本の表示エリア */}
       <div className="bookContainer">
         <div className="leftPage"></div>
@@ -125,10 +143,50 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
           </div>
         )}
       </div>
-
-      {/* ページ数表示 */}
-      <div className="pageCount">
-        {displayPage + 1} / {maxPage}
+      <div style={{ textAlign: 'center', marginTop: 16, fontSize: 20, fontWeight: 'bold' }}>
+        {displayPage} / {editingTotalPages ? (
+          <>
+            <input
+              type="number"
+              min={1}
+              value={inputTotalPages}
+              onChange={e => setInputTotalPages(Number(e.target.value))}
+              style={{ width: 80, fontSize: 18, marginRight: 8 }}
+            />
+            <button
+              className="controlButton"
+              style={{ padding: '4px 12px', fontSize: 14 }}
+              onClick={async () => {
+                if (inputTotalPages > 0 && roomId) {
+                  try {
+                    const updated = await roomApi.updateTotalPages(roomId, inputTotalPages);
+                    setTotalPages(updated.totalPages ?? inputTotalPages);
+                  } catch (e) {
+                    alert('ページ数の更新に失敗しました');
+                  }
+                  setEditingTotalPages(false);
+                }
+              }}
+            >保存</button>
+            <button
+              className="controlButton"
+              style={{ padding: '4px 12px', fontSize: 14, marginLeft: 4 }}
+              onClick={() => {
+                setInputTotalPages(totalPages);
+                setEditingTotalPages(false);
+              }}
+            >キャンセル</button>
+          </>
+        ) : (
+          <>
+            {totalPages}
+            <button
+              className="controlButton"
+              style={{ padding: '4px 12px', fontSize: 14, marginLeft: 8 }}
+              onClick={() => setEditingTotalPages(true)}
+            >編集</button>
+          </>
+        )}
       </div>
 
       {/* 操作エリア */}
