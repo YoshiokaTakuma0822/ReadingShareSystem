@@ -159,12 +159,20 @@ const HomeScreen: React.FC = () => {
                 ) : error ? (
                     <div style={{ color: 'red' }}>{error}</div>
                 ) : (
-                    <div style={{ border: '2px solid var(--text-main)', padding: 24, maxHeight: 400, overflow: 'auto' }}>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24 }}>
+                    <div style={{ border: '2px solid var(--text-main)', padding: '24px 16px', maxHeight: 400, overflow: 'auto' }}>
+                        <div
+                            style={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', // 240pxに調整
+                                gap: 20,
+                                width: '100%',
+                                boxSizing: 'border-box',
+                            }}
+                        >
                             {rooms.length === 0 ? (
                                 <div style={{ color: '#b0b8c9', fontSize: 20, width: '100%', textAlign: 'center', padding: '32px 0' }}>
                                     部屋はありません
-                            </div>
+                                </div>
                             ) : (
                                 rooms.map((room) => (
                                     <div
@@ -172,8 +180,10 @@ const HomeScreen: React.FC = () => {
                                         style={{
                                             border: '1px solid var(--text-main)',
                                             borderRadius: 8,
-                                            width: 280,
-                                            minHeight: 120,
+                                            width: '100%',
+                                            minWidth: 0,
+                                            minHeight: 140,
+                                            maxHeight: 180,
                                             padding: 16,
                                             cursor: 'pointer',
                                             transition: 'all 0.2s ease',
@@ -182,6 +192,8 @@ const HomeScreen: React.FC = () => {
                                             flexDirection: 'column',
                                             justifyContent: 'space-between',
                                             position: 'relative',
+                                            overflowWrap: 'break-word',
+                                            wordBreak: 'break-word',
                                         }}
                                         onClick={() => {
                                             handleRoomClick(room)
@@ -198,10 +210,10 @@ const HomeScreen: React.FC = () => {
                                         }}
                                     >
                                         <div>
-                                            <h3 style={{ color: 'var(--accent)', fontSize: 18, fontWeight: 'bold', marginBottom: 8 }}>
+                                            <h3 style={{ color: 'var(--accent)', fontSize: 18, fontWeight: 'bold', marginBottom: 8, overflowWrap: 'break-word', wordBreak: 'break-word' }}>
                                                 {room.roomName}
                                             </h3>
-                                            <p style={{ color: 'var(--text-main)', fontSize: 14, marginBottom: 8 }}>
+                                            <p style={{ color: 'var(--text-main)', fontSize: 14, marginBottom: 8, overflowWrap: 'break-word', wordBreak: 'break-word' }}>
                                                 本: {room.bookTitle}
                                             </p>
                                         </div>
