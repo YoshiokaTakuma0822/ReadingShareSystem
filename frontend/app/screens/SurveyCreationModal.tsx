@@ -1,7 +1,7 @@
 /**
  * アンケート作成モーダル画面コンポーネント
  *
- * @author 02001
+ * @author 02002
  * @componentId C1
  * @moduleName アンケート作成モーダル画面
  * @see surveyApi

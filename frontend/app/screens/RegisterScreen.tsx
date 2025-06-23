@@ -1,7 +1,7 @@
 /**
  * 会員登録画面コンポーネント
  *
- * @author 02001
+ * @author 02003
  * @componentId C1
  * @moduleName 会員登録画面
  * @see authApi

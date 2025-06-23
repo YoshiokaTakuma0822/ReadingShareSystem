@@ -1,7 +1,7 @@
 /**
  * 読書進捗モーダル画面コンポーネント
  *
- * @author 02001
+ * @author 02005
  * @componentId C1
  * @moduleName 読書進捗モーダル画面
  * @packageDocumentation

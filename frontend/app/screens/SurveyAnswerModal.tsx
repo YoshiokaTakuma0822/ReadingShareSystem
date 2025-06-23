@@ -1,7 +1,7 @@
 /**
  * アンケート回答モーダル画面コンポーネント
  *
- * @author 02001
+ * @author 02002
  * @componentId C1
  * @moduleName アンケート回答モーダル画面
  * @see useUserId
