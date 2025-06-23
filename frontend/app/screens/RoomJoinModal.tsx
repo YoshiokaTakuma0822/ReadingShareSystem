@@ -4,6 +4,7 @@
  * @author 02001
  * @componentId C1
  * @moduleName 部屋参加モーダル画面
+ * @see roomApi
  * @packageDocumentation
  */
 

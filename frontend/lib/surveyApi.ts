@@ -10,6 +10,9 @@
 import { CreateSurveyRequest, SubmitSurveyAnswerRequest, Survey, SurveyResult } from '../types/survey'
 import apiClient from './apiClient'
 
+/**
+ * アンケートAPIを提供するモジュールです。
+ */
 export const surveyApi = {
     createSurvey: async (request: CreateSurveyRequest): Promise<Survey> => {
         const response = await apiClient.post('/surveys', request)

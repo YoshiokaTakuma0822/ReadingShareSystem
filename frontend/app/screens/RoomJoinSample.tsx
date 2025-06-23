@@ -8,8 +8,14 @@
  */
 
 "use client"
+
 import React, { useState } from "react"
 
+/**
+ * RoomJoinSample コンポーネント: 部屋参加サンプル画面を表示する Functional Component
+ *
+ * @returns JSX.Element 部屋参加サンプル画面を描画するReact要素
+ */
 const RoomJoinSample: React.FC = () => {
     const [roomName, setRoomName] = useState("")
     const [genre, setGenre] = useState("")
@@ -66,11 +72,5 @@ const RoomJoinSample: React.FC = () => {
         </div>
     )
 }
-
-/**
- * RoomJoinSample コンポーネント: 部屋参加サンプル画面を表示する Functional Component
- *
- * @returns JSX.Element 部屋参加サンプル画面を描画するReact要素
- */
 
 export default RoomJoinSample

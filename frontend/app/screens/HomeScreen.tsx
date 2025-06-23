@@ -8,10 +8,10 @@
  * @see RoomJoinModal
  * @see SurveyAnswerModal
  * @see SurveyResultModal
- * @see roomApi
  * @see getDummyUserId
  * @see logout
  * @see requireAuth
+ * @see roomApi
  * @packageDocumentation
  */
 

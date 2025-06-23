@@ -4,6 +4,7 @@
  * @author 02001
  * @componentId C1
  * @moduleName アンケート結果モーダル画面
+ * @see surveyApi
  * @packageDocumentation
  */
 

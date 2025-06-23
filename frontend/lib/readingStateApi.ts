@@ -13,6 +13,9 @@ import {
 } from '../types/readingState'
 import apiClient from './apiClient'
 
+/**
+ * 読書状態APIを提供するモジュールです。
+ */
 export const readingStateApi = {
     updateUserReadingState: async (roomId: string, memberId: string, request: UpdateUserReadingStateRequest): Promise<void> => {
         await apiClient.post(`/rooms/${roomId}/states/${memberId}`, request)

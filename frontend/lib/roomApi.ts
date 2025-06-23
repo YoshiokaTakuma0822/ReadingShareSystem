@@ -10,6 +10,9 @@
 import { CreateRoomRequest, JoinRoomRequest, Room } from '../types/room'
 import apiClient from './apiClient'
 
+/**
+ * ルームAPIを提供するモジュールです。
+ */
 export const roomApi = {
     createRoom: async (request: CreateRoomRequest): Promise<Room> => {
         const response = await apiClient.post<Room>('/rooms', request)

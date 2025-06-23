@@ -10,6 +10,10 @@
 import { ChatMessage, ChatStreamItem, SendMessageRequest } from '../types/chat'
 import apiClient from './apiClient'
 
+/**
+ * チャットAPIを提供するモジュールです。
+ * チャットメッセージの送信、チャット履歴の取得、チャットストリームの取得を行います。
+ */
 export const chatApi = {
     sendMessage: async (roomId: string, request: SendMessageRequest): Promise<void> => {
         await apiClient.post(`/chat/${roomId}/message`, request)

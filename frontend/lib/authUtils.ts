@@ -105,13 +105,17 @@ export const getAuthToken = (): string | null => {
 
 /**
  * ログアウト処理を実行する
+ * @returns ログアウト完了後にログインページにリダイレクト
  */
 export const logout = async (): Promise<void> => {
     await authApi.logout()
     window.location.href = '/login'
 }
 
-// ダミーユーザーIDを取得（開発用）
+/**
+ * ダミーユーザーIDを取得（開発用）
+ * @returns ダミーユーザーID
+ */
 export const getDummyUserId = (): UserId => {
     // サーバーサイドでは固定のダミーIDを返す
     if (!isBrowser()) {
@@ -129,7 +133,10 @@ export const getDummyUserId = (): UserId => {
     return dummyUserId
 }
 
-// React Hooks用：クライアントサイドでのみユーザーIDを取得
+/**
+ * React Hooks用：クライアントサイドでのみユーザーIDを取得
+ * @returns 現在のユーザーIDを取得するReact Hook
+ */
 export const useUserId = (): UserId | null => {
     const [userId, setUserId] = React.useState<UserId | null>(null)
 

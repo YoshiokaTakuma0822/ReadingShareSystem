@@ -4,10 +4,12 @@
  * @author 02001
  * @componentId C1
  * @moduleName 会員登録画面
+ * @see authApi
  * @packageDocumentation
  */
 
 "use client"
+
 import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 import { authApi } from '../../lib/authApi'

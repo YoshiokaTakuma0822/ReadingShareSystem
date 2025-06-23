@@ -4,10 +4,13 @@
  * @author 02001
  * @componentId C1
  * @moduleName アンケート回答モーダル画面
+ * @see useUserId
+ * @see surveyApi
  * @packageDocumentation
  */
 
 "use client"
+
 import React, { useEffect, useState } from 'react'
 import { useUserId } from '../../lib/authUtils'
 import { surveyApi } from '../../lib/surveyApi'
@@ -21,6 +24,7 @@ interface SurveyAnswerModalProps {
 }
 
 /**
+ * サーベイ回答モーダル。
  * SurveyAnswerModal component shows a modal dialog for answering a survey.
  *
  * @param {boolean} open - Whether the modal is currently open.

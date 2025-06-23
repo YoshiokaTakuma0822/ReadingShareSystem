@@ -1,5 +1,15 @@
+/**
+ * 認証ガードコンポーネント
+ *
+ * @author 02001
+ * @componentId C1
+ * @moduleName 認証ガード
+ * @packageDocumentation
+ */
+
 "use client"
-import { useEffect, ReactNode } from 'react'
+
+import { ReactNode, useEffect } from 'react'
 import { requireAuth } from '../lib/authUtils'
 
 interface AuthGuardProps {
@@ -8,10 +18,10 @@ interface AuthGuardProps {
 }
 
 /**
- * 認証が必要なページを保護するコンポーネント
+ * 認証が必要なページを保護するコンポーネント。
  * ログインしていない場合、指定されたページにリダイレクトする
  */
-export const AuthGuard: React.FC<AuthGuardProps> = ({ children, redirectTo = '/login' }) => {
+const AuthGuard: React.FC<AuthGuardProps> = ({ children, redirectTo = '/login' }) => {
     useEffect(() => {
         // クライアントサイドでのみ認証チェックを実行
         requireAuth(redirectTo)

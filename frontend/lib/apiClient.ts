@@ -9,10 +9,15 @@
 
 import axios from 'axios'
 
-// API Base URL configuration - Next.jsのrewritesを使用して相対パスで統一
+/**
+ * APIのベースURLです。Next.jsのrewritesを使用して相対パスで統一しています。
+ */
 export const API_BASE_URL = '/api'
 
-// Axios instance with default configuration
+/**
+ * このクライアントを使用して、APIエンドポイントにアクセスします。
+ * Axios instance with default configuration
+ */
 const apiClient = axios.create({
     baseURL: API_BASE_URL,
     timeout: 10000,
