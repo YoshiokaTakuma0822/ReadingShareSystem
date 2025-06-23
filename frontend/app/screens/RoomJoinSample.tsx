@@ -4,7 +4,7 @@
  * @author 02001
  * @componentId C1
  * @moduleName 部屋参加サンプル画面
- * @packageDocumentation
+ * @ packageDocumentation
  */
 
 "use client"

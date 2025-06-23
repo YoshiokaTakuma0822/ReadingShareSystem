@@ -4,7 +4,7 @@
  * @author 02001
  * @componentId C1
  * @moduleName アンケート回答サンプル画面
- * @packageDocumentation
+ * @ packageDocumentation
  */
 
 "use client"
