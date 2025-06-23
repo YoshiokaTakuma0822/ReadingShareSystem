@@ -70,14 +70,29 @@ public class Survey {
         return questions;
     }
 
+    /**
+     * 質問リストを設定します。
+     *
+     * @param questions 設定する質問リスト
+     */
     public void setQuestions(List<Question> questions) {
         this.questions = questions;
     }
 
+    /**
+     * アンケートIDを取得します。
+     *
+     * @return アンケートID
+     */
     public UUID getId() {
         return id;
     }
 
+    /**
+     * アンケートが実施される部屋のIDを取得します。
+     *
+     * @return 部屋ID
+     */
     public UUID getRoomId() {
         return roomId;
     }
@@ -91,6 +106,11 @@ public class Survey {
         return title;
     }
 
+    /**
+     * アンケート作成日時を取得します。
+     *
+     * @return 作成日時
+     */
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }

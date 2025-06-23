@@ -55,6 +55,13 @@ public class UserReadingState {
         return comment;
     }
 
+    /**
+     * このオブジェクトが指定のオブジェクトと等しいかどうかを判定します。
+     * ユーザーIDが同じ場合に等しいとみなします。
+     *
+     * @param o 比較対象のオブジェクト
+     * @return 等しい場合はtrue、それ以外はfalse
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o)
@@ -65,6 +72,12 @@ public class UserReadingState {
         return Objects.equals(userId, that.userId);
     }
 
+    /**
+     * このオブジェクトのハッシュコードを返します。
+     * ユーザーIDに基づいて計算されます。
+     *
+     * @return ハッシュコード
+     */
     @Override
     public int hashCode() {
         return Objects.hash(userId);

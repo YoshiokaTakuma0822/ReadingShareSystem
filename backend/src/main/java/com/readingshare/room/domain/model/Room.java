@@ -68,26 +68,56 @@ public class Room {
     }
 
     // --- ゲッター ---
+    /**
+     * 部屋IDを取得します。
+     *
+     * @return 部屋ID
+     */
     public UUID getId() {
         return id;
     }
 
+    /**
+     * 部屋名を取得します。
+     *
+     * @return 部屋名
+     */
     public String getRoomName() {
         return roomName;
     }
 
+    /**
+     * 本のタイトルを取得します。
+     *
+     * @return 本のタイトル
+     */
     public String getBookTitle() {
         return bookTitle;
     }
 
+    /**
+     * ホストユーザーIDを取得します。
+     *
+     * @return ホストユーザーID
+     */
     public UUID getHostUserId() {
         return hostUserId;
     }
 
+    /**
+     * 作成日時を取得します。
+     *
+     * @return 作成日時
+     */
     public Instant getCreatedAt() {
         return createdAt;
     }
 
+    /**
+     * 部屋のパスワードハッシュを取得します。
+     *
+     * @return パスワードハッシュ
+     */
     public String getRoomPasswordHash() {
         return roomPasswordHash;
     }
@@ -103,11 +133,23 @@ public class Room {
     }
 
     // --- セッター ---
+    /**
+     * 部屋のパスワードハッシュを設定します。
+     *
+     * @param roomPasswordHash パスワードハッシュ
+     */
     public void setRoomPasswordHash(String roomPasswordHash) {
         this.roomPasswordHash = roomPasswordHash;
     }
 
     // --- その他のメソッド ---
+    /**
+     * このオブジェクトが他のオブジェクトと等しいかどうかを判定します。
+     * 部屋IDが同じ場合に等しいとみなします。
+     *
+     * @param o 比較対象のオブジェクト
+     * @return 等しい場合はtrue、そうでない場合はfalse
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o)
@@ -118,11 +160,22 @@ public class Room {
         return Objects.equals(id, room.id);
     }
 
+    /**
+     * このオブジェクトのハッシュコードを返します。
+     * 部屋IDに基づいて計算されます。
+     *
+     * @return ハッシュコード
+     */
     @Override
     public int hashCode() {
         return Objects.hash(id);
     }
 
+    /**
+     * このオブジェクトの文字列表現を返します。
+     *
+     * @return 文字列表現
+     */
     @Override
     public String toString() {
         return "Room{" +

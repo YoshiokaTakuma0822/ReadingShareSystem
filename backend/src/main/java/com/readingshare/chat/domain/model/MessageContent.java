@@ -65,11 +65,21 @@ public class MessageContent {
         return Objects.equals(value, that.value);
     }
 
+    /**
+     * このオブジェクトのハッシュコードを返します。
+     *
+     * @return ハッシュコード
+     */
     @Override
     public int hashCode() {
         return Objects.hash(value);
     }
 
+    /**
+     * このオブジェクトの文字列表現を返します。
+     *
+     * @return 文字列表現
+     */
     @Override
     public String toString() {
         return "MessageContent{" +

@@ -50,21 +50,47 @@ public class SurveyRepositoryImpl implements ISurveyRepository {
         return surveyAnswerRepository.save(answer);
     }
 
+    /**
+     * 指定されたIDのアンケートを取得します。
+     *
+     * @param id アンケートID
+     * @return 指定されたIDのアンケートを含むOptional、存在しない場合は空
+     */
     @Override
     public Optional<Survey> findById(UUID id) {
         return surveyRepository.findById(id);
     }
 
+    /**
+     * 指定された部屋IDに紐づくアンケート一覧を取得します。
+     * 作成日時の降順でソートされます。
+     *
+     * @param roomId 部屋ID
+     * @return アンケートリスト
+     */
     @Override
     public List<Survey> findByRoomId(UUID roomId) {
         return surveyRepository.findByRoomIdOrderByCreatedAtDesc(roomId);
     }
 
+    /**
+     * 指定されたアンケートIDの回答一覧を取得します。
+     *
+     * @param surveyId アンケートID
+     * @return アンケート回答リスト
+     */
     @Override
     public List<SurveyAnswer> findAnswersBySurveyId(UUID surveyId) {
         return surveyAnswerRepository.findBySurveyId(surveyId);
     }
 
+    /**
+     * 指定されたアンケートIDおよびユーザーIDに一致する回答を取得します。
+     *
+     * @param surveyId アンケートID
+     * @param userId   ユーザーID
+     * @return 該当する回答(Optional)
+     */
     @Override
     public Optional<SurveyAnswer> findBySurveyIdAndUserId(UUID surveyId, UUID userId) {
         return surveyAnswerRepository.findBySurveyIdAndUserId(surveyId, userId);

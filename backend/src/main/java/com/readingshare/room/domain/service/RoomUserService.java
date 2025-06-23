@@ -14,6 +14,10 @@ import com.readingshare.room.domain.model.RoomUserProfile;
 public interface RoomUserService {
     /**
      * 部屋IDとユーザIDからユーザプロフィールを取得
+     *
+     * @param roomId 部屋ID
+     * @param userId ユーザID
+     * @return ユーザープロファイル情報
      */
     RoomUserProfile getUserProfile(String roomId, String userId);
 }

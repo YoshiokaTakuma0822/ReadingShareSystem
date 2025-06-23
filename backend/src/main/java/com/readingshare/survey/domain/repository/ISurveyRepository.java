@@ -35,16 +35,25 @@ public interface ISurveyRepository {
 
     /**
      * アンケートを検索する
+     *
+     * @param id アンケートID
+     * @return アンケートが見つかった場合はOptionalにアンケート、見つからない場合はOptional.empty()
      */
     Optional<Survey> findById(UUID id);
 
     /**
      * 特定の部屋のアンケート一覧を取得する
+     *
+     * @param roomId 部屋ID
+     * @return 部屋に紐づくアンケートの一覧
      */
     List<Survey> findByRoomId(UUID roomId);
 
     /**
      * アンケートの回答一覧を取得する
+     *
+     * @param surveyId アンケートID
+     * @return アンケートの回答一覧
      */
     List<SurveyAnswer> findAnswersBySurveyId(UUID surveyId);
 

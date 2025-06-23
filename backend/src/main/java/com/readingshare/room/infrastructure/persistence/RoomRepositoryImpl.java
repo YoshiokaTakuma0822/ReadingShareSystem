@@ -69,6 +69,12 @@ public class RoomRepositoryImpl implements IRoomRepository {
         return roomRepository.findAll();
     }
 
+    /**
+     * ページング情報を用いて部屋のページ一覧を取得します。
+     *
+     * @param pageable ページングおよびソート情報
+     * @return ページ化された部屋リスト
+     */
     @Override
     public Page<Room> findAll(Pageable pageable) {
         return roomRepository.findAll(pageable);

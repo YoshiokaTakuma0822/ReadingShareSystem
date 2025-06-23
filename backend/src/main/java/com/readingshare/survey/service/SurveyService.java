@@ -71,8 +71,8 @@ public class SurveyService {
     /**
      * アンケートの回答を保存します。
      *
-     * @param answer アンケート回答
-     * @return 保存されたアンケート回答
+     * @param surveyId アンケートID
+     * @param request  アンケート回答リクエスト
      */
     @Transactional
     public void submitAnswer(UUID surveyId, SubmitSurveyAnswerRequest request) {
@@ -83,6 +83,12 @@ public class SurveyService {
     }
 
     // --- アンケート結果取得 ---
+    /**
+     * 指定したアンケートの集計結果を取得します。
+     *
+     * @param surveyId アンケートID
+     * @return アンケート集計結果レスポンス
+     */
     @Transactional(readOnly = true)
     public SurveyResultResponse getSurveyResult(UUID surveyId) {
         Survey survey = surveyRepository.findById(surveyId)
@@ -91,12 +97,22 @@ public class SurveyService {
         return buildResultDto(survey, answers);
     }
 
+    /**
+     * 指定したアンケートのフォーマット（設問情報など）を取得します。
+     *
+     * @param surveyId アンケートID
+     * @return アンケート（Optional）
+     */
     public Optional<Survey> getSurveyFormat(UUID surveyId) {
         return surveyRepository.findById(surveyId);
     }
 
     /**
-     * アンケートの質問に新しい選択肢を追加する
+     * アンケートの質問に新しい選択肢を追加します。
+     *
+     * @param surveyId     アンケートID
+     * @param questionText 質問文
+     * @param newOption    新しい選択肢
      */
     @Transactional
     public void addOption(UUID surveyId, String questionText, String newOption) {
@@ -127,6 +143,13 @@ public class SurveyService {
         return surveyRepository.findBySurveyIdAndUserId(surveyId, userId).isPresent();
     }
 
+    /**
+     * アンケート回答リストを集計し、SurveyResultResponseを生成します。
+     *
+     * @param survey  集計対象のアンケート
+     * @param answers 回答リスト
+     * @return アンケート集計結果レスポンス
+     */
     private SurveyResultResponse buildResultDto(Survey survey, List<SurveyAnswer> answers) {
         List<SurveyResultResponse.QuestionResultResponse> questionResults = new ArrayList<>();
         for (Question question : survey.getQuestions()) {

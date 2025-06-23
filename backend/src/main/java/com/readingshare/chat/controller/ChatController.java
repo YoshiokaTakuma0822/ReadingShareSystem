@@ -78,7 +78,11 @@ public class ChatController {
     }
 
     /**
-     * チャット＋アンケート混在ストリームを取得する
+     * チャット＋アンケート混在ストリームを取得する。
+     * 部屋IDに紐づくチャットメッセージとアンケートを取得し、時系列でソートして返す。
+     *
+     * @param roomId 部屋のID
+     * @return チャットメッセージとアンケートのストリーム
      */
     @GetMapping("/room/{roomId}/stream")
     public ResponseEntity<List<ChatStreamItemDto>> getChatStream(@PathVariable UUID roomId) {
@@ -102,12 +106,23 @@ public class ChatController {
         return ResponseEntity.ok(stream);
     }
 
-    // /api/rooms/{roomId}/stream でも同じ処理を提供
+    /**
+     * /api/rooms/{roomId}/streamエンドポイントでも、チャット＋アンケート混在ストリームを取得します。
+     *
+     * @param roomId 部屋のID
+     * @return チャットメッセージとアンケートのストリーム
+     */
     @GetMapping("/api/rooms/{roomId}/stream")
     public ResponseEntity<List<ChatStreamItemDto>> getChatStreamAlias(@PathVariable UUID roomId) {
         return getChatStream(roomId);
     }
 
+    /**
+     * 指定した部屋IDに紐づくアンケート一覧を取得します。
+     *
+     * @param roomId 部屋のID
+     * @return アンケートリスト
+     */
     private List<Survey> getSurveysByRoomId(UUID roomId) {
         return surveyRepository.findByRoomId(roomId);
     }

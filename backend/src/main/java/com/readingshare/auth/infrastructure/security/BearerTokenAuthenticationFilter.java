@@ -24,6 +24,7 @@ import jakarta.servlet.http.HttpServletResponse;
  * @author 02003
  * @componentId C5
  * @moduleName Token認証フィルター
+ * @see UserPrincipal
  */
 @Component
 public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {

@@ -56,39 +56,86 @@ public class RoomMember {
     }
 
     // --- Getter / Setter ---
+    /**
+     * メンバーIDを取得します。
+     *
+     * @return メンバーID
+     */
     public UUID getId() {
         return id;
     }
 
+    /**
+     * メンバーIDを設定します。
+     *
+     * @param id メンバーID
+     */
     public void setId(UUID id) {
         this.id = id;
     }
 
+    /**
+     * 部屋IDを取得します。
+     *
+     * @return 部屋ID
+     */
     public UUID getRoomId() {
         return roomId;
     }
 
+    /**
+     * 部屋IDを設定します。
+     *
+     * @param roomId 部屋ID
+     */
     public void setRoomId(UUID roomId) {
         this.roomId = roomId;
     }
 
+    /**
+     * ユーザーIDを取得します。
+     *
+     * @return ユーザーID
+     */
     public UUID getUserId() {
         return userId;
     }
 
+    /**
+     * ユーザーIDを設定します。
+     *
+     * @param userId ユーザーID
+     */
     public void setUserId(UUID userId) {
         this.userId = userId;
     }
 
+    /**
+     * 参加日時を取得します。
+     *
+     * @return 参加日時
+     */
     public Instant getJoinedAt() {
         return joinedAt;
     }
 
+    /**
+     * 参加日時を設定します。
+     *
+     * @param joinedAt 参加日時
+     */
     public void setJoinedAt(Instant joinedAt) {
         this.joinedAt = joinedAt;
     }
 
     // --- その他のメソッド ---
+    /**
+     * このオブジェクトが他のオブジェクトと等しいかどうかを判定します。
+     * メンバーIDが同じ場合に等しいとみなします。
+     *
+     * @param o 比較対象のオブジェクト
+     * @return 等しい場合はtrue、そうでない場合はfalse
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o)
@@ -99,11 +146,22 @@ public class RoomMember {
         return Objects.equals(id, that.id);
     }
 
+    /**
+     * このオブジェクトのハッシュコードを返します。
+     * メンバーIDに基づいて計算されます。
+     *
+     * @return ハッシュコード
+     */
     @Override
     public int hashCode() {
         return Objects.hash(id);
     }
 
+    /**
+     * このオブジェクトの文字列表現を返します。
+     *
+     * @return 文字列表現
+     */
     @Override
     public String toString() {
         return "RoomMember{" +
