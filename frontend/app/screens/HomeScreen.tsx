@@ -34,12 +34,23 @@ const HomeScreen: React.FC = () => {
 
     const [creatorMap, setCreatorMap] = useState<{ [roomId: string]: string }>({})
 
+    const [roomType, setRoomType] = useState<string>('all'); // 部屋タイプ: all, open, closed
+
+    // ジャンル、ページ数範囲、開始/終了時刻範囲
+    const [genre, setGenre] = useState<string>('');
+    const [minPages, setMinPages] = useState<string>('');
+    const [maxPages, setMaxPages] = useState<string>('');
+    const [startTimeFrom, setStartTimeFrom] = useState<string>('');
+    const [startTimeTo, setStartTimeTo] = useState<string>('');
+    const [endTimeFrom, setEndTimeFrom] = useState<string>('');
+    const [endTimeTo, setEndTimeTo] = useState<string>('');
+
     // 部屋検索API（空文字の場合は全件取得）
     const handleSearch = async () => {
         setLoading(true)
         setError(null)
         try {
-            const result = await roomApi.searchRooms(searchText)
+            const result = await roomApi.searchRooms(searchText, roomType, genre, minPages, maxPages, startTimeFrom, startTimeTo, endTimeFrom, endTimeTo)
             setRooms(result.rooms || [])
             // 部屋ごとに作成者名を取得
             const map: { [roomId: string]: string } = {};
@@ -243,22 +254,140 @@ const HomeScreen: React.FC = () => {
                     </div>
                 )}
                 {tab === 'search' && (
-                    <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <input
-                            type="text"
-                            value={searchText}
-                            onChange={e => setSearchText(e.target.value)}
-                            placeholder="部屋名・本のタイトルで検索"
-                            style={{ padding: 12, borderRadius: 8, border: '1px solid #ccc', fontSize: 18, flex: 1 }}
-                        />
-                        <button
-                            onClick={handleSearch}
-                            style={{ padding: '12px 24px', borderRadius: 8, border: '1px solid #388e3c', background: '#fff', color: '#388e3c', fontWeight: 'bold', fontSize: 16, cursor: 'pointer' }}
-                        >検索</button>
-                        <button
-                            onClick={handleSearch}
-                            style={{ padding: '12px 24px', borderRadius: 8, border: '1px solid #2196f3', background: '#2196f3', color: '#fff', fontWeight: 'bold', fontSize: 16, cursor: 'pointer' }}
-                        >部屋一覧を更新</button>
+                    <div style={{ marginBottom: 24, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        {/* 上段：キーワード・部屋タイプ・ジャンル・ボタン */}
+                        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, flexWrap: 'wrap', justifyContent: 'space-between' }}>
+                            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', minWidth: 180 }}>
+                                    <label style={{ fontSize: 13, color: '#388e3c', marginBottom: 2 }}>部屋名・本のタイトル</label>
+                                    <input
+                                        type="text"
+                                        value={searchText}
+                                        onChange={e => setSearchText(e.target.value)}
+                                        placeholder="部屋名・本のタイトルで検索"
+                                        style={{ padding: 12, borderRadius: 8, border: '1px solid #ccc', fontSize: 18, minWidth: 180 }}
+                                    />
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                    <label style={{ fontSize: 13, color: '#388e3c', marginBottom: 2 }}>部屋の公開範囲</label>
+                                    <select
+                                        value={roomType}
+                                        onChange={e => setRoomType(e.target.value)}
+                                        style={{ padding: 12, borderRadius: 8, border: '1px solid #ccc', fontSize: 16 }}
+                                    >
+                                        <option value="all">すべて</option>
+                                        <option value="open">オープン</option>
+                                        <option value="closed">クローズ</option>
+                                    </select>
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                    <label style={{ fontSize: 13, color: '#388e3c', marginBottom: 2 }}>ジャンル</label>
+                                    <select
+                                        value={genre}
+                                        onChange={e => setGenre(e.target.value)}
+                                        style={{ padding: 12, borderRadius: 8, border: '1px solid #ccc', fontSize: 16 }}
+                                    >
+                                        <option value="">ジャンル指定なし</option>
+                                        <option value="小説">小説</option>
+                                        <option value="ビジネス">ビジネス</option>
+                                        <option value="学習">学習</option>
+                                        <option value="エッセイ">エッセイ</option>
+                                        <option value="漫画">漫画</option>
+                                        <option value="歴史">歴史</option>
+                                        <option value="科学">科学</option>
+                                        <option value="ライトノベル">ライトノベル</option>
+                                        <option value="児童書">児童書</option>
+                                        <option value="技術書">技術書</option>
+                                        <option value="趣味・実用">趣味・実用</option>
+                                        <option value="詩・短歌">詩・短歌</option>
+                                        <option value="自己啓発">自己啓発</option>
+                                        <option value="旅行">旅行</option>
+                                        <option value="料理">料理</option>
+                                        <option value="スポーツ">スポーツ</option>
+                                        <option value="芸術">芸術</option>
+                                        <option value="写真集">写真集</option>
+                                        <option value="伝記">伝記</option>
+                                        <option value="ファンタジー">ファンタジー</option>
+                                        <option value="ミステリー">ミステリー</option>
+                                        <option value="ホラー">ホラー</option>
+                                        <option value="恋愛">恋愛</option>
+                                        <option value="SF">SF</option>
+                                        <option value="ノンフィクション">ノンフィクション</option>
+                                        <option value="その他">その他</option>
+                                    </select>
+                                </div>
+                            </div>
+                            {/* 検索・更新ボタンを右寄せで横並び */}
+                            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', gap: 8, minWidth: 180, alignItems: 'flex-end' }}>
+                                <button
+                                    onClick={handleSearch}
+                                    style={{ padding: '12px 24px', borderRadius: 8, border: '1px solid #388e3c', background: '#fff', color: '#388e3c', fontWeight: 'bold', fontSize: 16, cursor: 'pointer' }}
+                                >検索</button>
+                                <button
+                                    onClick={handleSearch}
+                                    style={{ padding: '12px 24px', borderRadius: 8, border: '1px solid #2196f3', background: '#2196f3', color: '#fff', fontWeight: 'bold', fontSize: 16, cursor: 'pointer' }}
+                                >部屋一覧を更新</button>
+                            </div>
+                        </div>
+                        {/* 下段：範囲指定 */}
+                        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, flexWrap: 'wrap', marginTop: 4 }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', border: '1px solid #388e3c', borderRadius: 8, padding: 8, minWidth: 180 }}>
+                                <label style={{ fontSize: 13, color: '#388e3c', marginBottom: 2 }}>ページ数範囲</label>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                    <input
+                                        type="number"
+                                        value={minPages}
+                                        onChange={e => setMinPages(e.target.value)}
+                                        placeholder="最小"
+                                        style={{ width: 70, padding: 8, borderRadius: 8, border: '1px solid #ccc', fontSize: 16 }}
+                                    />
+                                    <span style={{ color: '#888' }}>～</span>
+                                    <input
+                                        type="number"
+                                        value={maxPages}
+                                        onChange={e => setMaxPages(e.target.value)}
+                                        placeholder="最大"
+                                        style={{ width: 70, padding: 8, borderRadius: 8, border: '1px solid #ccc', fontSize: 16 }}
+                                    />
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', border: '1px solid #388e3c', borderRadius: 8, padding: 8, minWidth: 220 }}>
+                                <label style={{ fontSize: 13, color: '#388e3c', marginBottom: 2 }}>開始時刻範囲</label>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                    <input
+                                        type="datetime-local"
+                                        value={startTimeFrom}
+                                        onChange={e => setStartTimeFrom(e.target.value)}
+                                        style={{ padding: 8, borderRadius: 8, border: '1px solid #ccc', fontSize: 14, minWidth: 90 }}
+                                    />
+                                    <span style={{ color: '#888' }}>～</span>
+                                    <input
+                                        type="datetime-local"
+                                        value={startTimeTo}
+                                        onChange={e => setStartTimeTo(e.target.value)}
+                                        style={{ padding: 8, borderRadius: 8, border: '1px solid #ccc', fontSize: 14, minWidth: 90 }}
+                                    />
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', border: '1px solid #388e3c', borderRadius: 8, padding: 8, minWidth: 220 }}>
+                                <label style={{ fontSize: 13, color: '#388e3c', marginBottom: 2 }}>終了時刻範囲</label>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                    <input
+                                        type="datetime-local"
+                                        value={endTimeFrom}
+                                        onChange={e => setEndTimeFrom(e.target.value)}
+                                        style={{ padding: 8, borderRadius: 8, border: '1px solid #ccc', fontSize: 14, minWidth: 90 }}
+                                    />
+                                    <span style={{ color: '#888' }}>～</span>
+                                    <input
+                                        type="datetime-local"
+                                        value={endTimeTo}
+                                        onChange={e => setEndTimeTo(e.target.value)}
+                                        style={{ padding: 8, borderRadius: 8, border: '1px solid #ccc', fontSize: 14, minWidth: 90 }}
+                                    />
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 )}
 
@@ -419,7 +548,7 @@ const HomeScreen: React.FC = () => {
                         open={showSurveyAnswerModal} 
                         surveyId={dummySurveyId} 
                         onClose={() => setShowSurveyAnswerModal(false)} 
-                        onAnswered={() => { setShowSurveyAnswerModal(false); alert('回答送信完了（ダミー）'); }} 
+                        onAnswered={() => { setShowSurveyAnswerModal(false); alert('回答送信完了（ダミーデータ）'); }}
                     />
                 )}
                 {showSurveyResultModal && (
@@ -429,31 +558,6 @@ const HomeScreen: React.FC = () => {
                         onClose={() => setShowSurveyResultModal(false)} 
                     />
                 )}
-                {/* 履歴表示 */}
-                <div style={{ margin: '32px 0 16px 0', padding: 16, background: '#f7f7f7', borderRadius: 8, border: '1px solid #ccc' }}>
-                    <h2 style={{ fontSize: 18, color: 'var(--accent)', margin: 0, marginBottom: 8 }}>自分が参加したことのある部屋の履歴（最新10件）</h2>
-                    {roomHistory.length === 0 ? (
-                        <div style={{ color: '#888', fontSize: 15 }}>履歴がありません</div>
-                    ) : (
-                        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                            {roomHistory.map((h) => (
-                                <li key={h.roomId} style={{ marginBottom: 8, padding: 8, background: '#fff', borderRadius: 6, border: '1px solid #eee', fontSize: 15 }}>
-                                    {h.deleted || !h.room ? (
-                                        <span style={{ color: '#b71c1c' }}>この部屋は既に削除されています</span>
-                                    ) : (
-                                        <>
-                                            <span style={{ fontWeight: 'bold', color: 'var(--accent)' }}>{h.room.roomName}</span>
-                                            <span style={{ marginLeft: 8, color: '#666' }}>（{h.room.bookTitle}）</span>
-                                            <span style={{ marginLeft: 8, color: '#888', fontSize: 13 }}>作成日: {new Date(h.room.createdAt).toLocaleDateString()}</span>
-                                            <button style={{ marginLeft: 16, padding: '2px 10px', fontSize: 13, borderRadius: 4, border: '1px solid #388e3c', background: '#e8f5e9', color: '#388e3c', cursor: 'pointer' }} onClick={() => window.location.href = `/rooms/${h.roomId}/chat`}>チャットへ</button>
-                                        </>
-                                    )}
-                                    <span style={{ float: 'right', color: '#aaa', fontSize: 12 }}>参加日: {new Date(h.joinedAt).toLocaleDateString()}</span>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                </div>
             </div>
         </AuthGuard>
     )

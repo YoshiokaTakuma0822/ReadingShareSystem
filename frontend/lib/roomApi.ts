@@ -6,8 +6,27 @@ export const roomApi = {
         const response = await apiClient.post<Room>('/rooms', request)
         return response.data
     },
-    searchRooms: async (keyword: string): Promise<{ rooms: Room[] }> => {
-        const response = await apiClient.get<Room[]>('/rooms/search', { params: { keyword } })
+    searchRooms: async (
+        keyword: string,
+        roomType?: string,
+        genre?: string,
+        minPages?: string,
+        maxPages?: string,
+        startTimeFrom?: string,
+        startTimeTo?: string,
+        endTimeFrom?: string,
+        endTimeTo?: string
+    ): Promise<{ rooms: Room[] }> => {
+        const params: any = { keyword };
+        if (roomType && roomType !== 'all') params.roomType = roomType;
+        if (genre) params.genre = genre;
+        if (minPages) params.minPages = minPages;
+        if (maxPages) params.maxPages = maxPages;
+        if (startTimeFrom) params.startTimeFrom = startTimeFrom;
+        if (startTimeTo) params.startTimeTo = startTimeTo;
+        if (endTimeFrom) params.endTimeFrom = endTimeFrom;
+        if (endTimeTo) params.endTimeTo = endTimeTo;
+        const response = await apiClient.get<Room[]>('/rooms/search', { params });
         return { rooms: response.data }
     },
     getRoom: async (roomId: string): Promise<Room> => {
