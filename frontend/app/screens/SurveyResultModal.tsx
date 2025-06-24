@@ -72,20 +72,18 @@ const SurveyResultModal: React.FC<SurveyResultModalProps> = ({ open, surveyId, o
                         {surveyResult.results.map((result, idx) => (
                             <div key={idx} style={{ marginBottom: 24 }}>
                                 <h3 style={{ marginBottom: 12 }}>{result.questionText}</h3>
-                                {typeof result.answers === 'object' && !Array.isArray(result.answers) ? (
-                                    Object.entries(result.answers).map(([option, votes]) => (
-                                        <div key={option} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                                            <span>{option}</span>
-                                            <span>{votes}票</span>
-                                        </div>
-                                    ))
-                                ) : Array.isArray(result.answers) ? (
-                                    result.answers.map((answer, answerIdx) => (
-                                        <div key={answerIdx} style={{ marginBottom: 8 }}>
-                                            <span>{answer}</span>
-                                        </div>
-                                    ))
-                                ) : null}
+                                {result.answers && typeof result.answers === 'object' && !Array.isArray(result.answers) && Object.keys(result.answers).length > 0 ? (
+                                    Object.entries(result.answers as Record<string, number>)
+                                        .sort((a, b) => b[1] - a[1]) // 票数降順
+                                        .map(([option, votes]) => (
+                                            <div key={option} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                                                <span>{option}</span>
+                                                <span>{votes}票</span>
+                                            </div>
+                                        ))
+                                ) : (
+                                    <div>回答がありません</div>
+                                )}
                             </div>
                         ))}
                     </div>

@@ -1,6 +1,7 @@
 "use client"
 import React, { useState, useEffect } from 'react'
 import SurveyCreationModal from './SurveyCreationModal'
+import SurveyAnswerModal from './SurveyAnswerModal'
 import { chatApi } from '../../lib/chatApi'
 import { ChatMessage } from '../../types/chat'
 import ReadingScreenOverlay from './ReadingScreenOverlay'
@@ -346,6 +347,18 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                 ) : (
                     <>
                     {messages.map(msg => {
+                        let surveyId = null;
+                        try {
+                          const parsed = JSON.parse(msg.text);
+                          if (parsed && parsed.surveyId) surveyId = parsed.surveyId;
+                        } catch {}
+                        if (surveyId) {
+                          return (
+                            <div key={msg.id}>
+                              <SurveyAnswerModal open={true} surveyId={surveyId} onClose={() => {}} onAnswered={() => {}} />
+                            </div>
+                          );
+                        }
                         const isMine = msg.isCurrentUser
                         return (
                             <div

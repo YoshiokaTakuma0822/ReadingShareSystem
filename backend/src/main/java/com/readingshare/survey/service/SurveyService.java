@@ -8,9 +8,12 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.readingshare.chat.service.ChatMessageBroadcastService;
+import com.readingshare.chat.service.SendChatMessageService;
 import com.readingshare.common.exception.ApplicationException;
 import com.readingshare.common.exception.ResourceNotFoundException;
 import com.readingshare.room.domain.repository.IRoomRepository;
@@ -29,10 +32,15 @@ import com.readingshare.survey.dto.SurveyResultResponse;
 public class SurveyService {
     private final ISurveyRepository surveyRepository;
     private final IRoomRepository roomRepository;
+    private final SendChatMessageService sendChatMessageService;
+    private final ChatMessageBroadcastService chatMessageBroadcastService;
 
-    public SurveyService(ISurveyRepository surveyRepository, IRoomRepository roomRepository) {
+    @Autowired
+    public SurveyService(ISurveyRepository surveyRepository, IRoomRepository roomRepository, SendChatMessageService sendChatMessageService, ChatMessageBroadcastService chatMessageBroadcastService) {
         this.surveyRepository = surveyRepository;
         this.roomRepository = roomRepository;
+        this.sendChatMessageService = sendChatMessageService;
+        this.chatMessageBroadcastService = chatMessageBroadcastService;
     }
 
     // --- アンケート作成 ---
@@ -50,6 +58,13 @@ public class SurveyService {
                     .collect(Collectors.toList());
             Survey survey = new Survey(request.roomId(), request.title(), questions);
             Survey savedSurvey = surveyRepository.save(survey);
+
+            // --- アンケート作成時にチャットへ通知を送信 ---
+            String surveyMsg = String.format("{\"surveyId\":\"%s\"}", savedSurvey.getId());
+            // 管理者（システム）から送信（userId: null）
+            var chatMessage = sendChatMessageService.sendAnonymousMessage(savedSurvey.getRoomId(), "system", surveyMsg);
+            chatMessageBroadcastService.broadcastToRoom(savedSurvey.getRoomId().toString(), chatMessage);
+
             return savedSurvey.getId();
         } catch (IllegalArgumentException e) {
             throw new ApplicationException(e.getMessage(), e);
