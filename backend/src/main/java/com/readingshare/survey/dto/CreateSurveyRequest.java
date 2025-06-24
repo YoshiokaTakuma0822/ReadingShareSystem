@@ -9,7 +9,8 @@ import com.readingshare.survey.domain.model.QuestionType;
 public record CreateSurveyRequest(
         UUID roomId,
         String title,
-        List<QuestionDto> questions) {
+        List<QuestionDto> questions
+) {
     public record QuestionDto(
             String questionText,
             List<String> options,
