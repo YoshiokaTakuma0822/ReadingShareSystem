@@ -13,6 +13,8 @@ import apiClient from './apiClient'
 
 /**
  * ルームAPIを提供するモジュールです。
+ *
+ * @returns createRoom, searchRooms, joinRoom メソッドを含むオブジェクト
  */
 export const roomApi = {
     createRoom: async (request: CreateRoomRequest): Promise<Room> => {

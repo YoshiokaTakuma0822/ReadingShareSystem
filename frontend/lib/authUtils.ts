@@ -22,6 +22,8 @@ const isBrowser = (): boolean => {
 
 /**
  * 認証関連のローカルストレージ操作を提供するオブジェクト
+ *
+ * @returns setUserId, getUserId, clearUserId, setToken, getToken, clearToken, isLoggedIn メソッドを含むオブジェクト
  */
 export const authStorage = {
     // ユーザーIDをローカルストレージに保存

@@ -14,6 +14,8 @@ import apiClient from './apiClient'
 /**
  * 認証APIを提供するモジュールです。
  * ユーザーのログイン、登録、ログアウト、認証状態の確認を行います。
+ *
+ * @returns login, register, logout, isAuthenticated メソッドを含むオブジェクト
  */
 export const authApi = {
     login: async (request: LoginRequest): Promise<LoginResponse> => {

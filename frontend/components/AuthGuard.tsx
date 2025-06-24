@@ -20,6 +20,8 @@ interface AuthGuardProps {
 /**
  * 認証が必要なページを保護するコンポーネント。
  * ログインしていない場合、指定されたページにリダイレクトする
+ *
+ * @returns 認証済みの子要素を表示するReact要素
  */
 const AuthGuard: React.FC<AuthGuardProps> = ({ children, redirectTo = '/login' }) => {
     useEffect(() => {

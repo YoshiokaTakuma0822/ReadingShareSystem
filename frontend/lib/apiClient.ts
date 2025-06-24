@@ -11,12 +11,16 @@ import axios from 'axios'
 
 /**
  * APIのベースURLです。Next.jsのrewritesを使用して相対パスで統一しています。
+ *
+ * @returns APIのベースURL
  */
 export const API_BASE_URL = '/api'
 
 /**
  * このクライアントを使用して、APIエンドポイントにアクセスします。
  * Axios instance with default configuration
+ *
+ * @returns Axiosインスタンス
  */
 export const apiClient = axios.create({
     baseURL: API_BASE_URL,

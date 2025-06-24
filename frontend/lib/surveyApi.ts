@@ -13,6 +13,8 @@ import apiClient from './apiClient'
 
 /**
  * アンケートAPIを提供するモジュールです。
+ *
+ * @returns createSurvey, getSurvey, answerSurvey, getSurveyResult, hasUserAnswered メソッドを含むオブジェクト
  */
 export const surveyApi = {
     createSurvey: async (request: CreateSurveyRequest): Promise<Survey> => {
