@@ -1,5 +1,6 @@
 package com.readingshare.room.service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -60,8 +61,8 @@ public class RoomService {
      * @return 作成された部屋のエンティティ
      * @throws ApplicationException 部屋作成に失敗した場合
      */
-    public Room createRoom(String roomName, String bookTitle, UUID hostUserId) {
-        Room newRoom = new Room(roomName, bookTitle, hostUserId);
+    public Room createRoom(String roomName, String bookTitle, UUID hostUserId, Integer maxPage, String genre, Instant startTime, Instant endTime, Integer pageSpeed) {
+        Room newRoom = new Room(roomName, bookTitle, hostUserId, maxPage, genre, startTime, endTime, pageSpeed);
         // パスワードはオプションなので、ここではnullを渡す
         return roomDomainService.createRoom(newRoom, null);
     }
@@ -76,8 +77,8 @@ public class RoomService {
      * @return 作成された部屋のエンティティ
      * @throws ApplicationException 部屋作成に失敗した場合
      */
-    public Room createRoomWithPassword(String roomName, String bookTitle, UUID hostUserId, String roomPassword) {
-        Room newRoom = new Room(roomName, bookTitle, hostUserId);
+    public Room createRoomWithPassword(String roomName, String bookTitle, UUID hostUserId, String roomPassword, Integer maxPage, String genre, Instant startTime, Instant endTime, Integer pageSpeed) {
+        Room newRoom = new Room(roomName, bookTitle, hostUserId, maxPage, genre, startTime, endTime, pageSpeed);
         return roomDomainService.createRoom(newRoom, roomPassword);
     }
 

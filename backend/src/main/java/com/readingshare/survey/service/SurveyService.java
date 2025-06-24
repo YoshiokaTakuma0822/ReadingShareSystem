@@ -56,12 +56,37 @@ public class SurveyService {
         }
     }
 
+    // Survey取得用メソッドを追加
+    @Transactional(readOnly = true)
+    public Survey getSurvey(UUID surveyId) {
+        return surveyRepository.findById(surveyId)
+            .orElseThrow(() -> new ResourceNotFoundException("Survey not found: " + surveyId));
+    }
+
     // --- アンケート回答 ---
     @Transactional
     public void submitAnswer(UUID surveyId, SubmitSurveyAnswerRequest request) {
-        surveyRepository.findById(surveyId)
+        Survey survey = surveyRepository.findById(surveyId)
                 .orElseThrow(() -> new ResourceNotFoundException("Survey not found with id: " + surveyId));
-        SurveyAnswer answer = new SurveyAnswer(surveyId, request.userId(), request.answers());
+        // 追加選択肢があればアンケート本体に反映
+        if (request.addedOptions() != null) {
+            for (var entry : request.addedOptions().entrySet()) {
+                String questionText = entry.getKey();
+                List<String> newOptions = entry.getValue();
+                survey.getQuestions().stream()
+                        .filter(q -> q.getQuestionText().equals(questionText) && q.isAllowAddOptions())
+                        .findFirst()
+                        .ifPresent(q -> {
+                            for (String opt : newOptions) {
+                                try {
+                                    q.addOption(opt);
+                                } catch (Exception ignored) {}
+                            }
+                        });
+            }
+            surveyRepository.save(survey); // 選択肢をDBに反映
+        }
+        SurveyAnswer answer = new SurveyAnswer(surveyId, request.userId(), request.answers(), request.isAnonymous());
         surveyRepository.saveAnswer(answer);
     }
 
@@ -97,6 +122,13 @@ public class SurveyService {
         } catch (IllegalStateException | IllegalArgumentException e) {
             throw new ApplicationException(e.getMessage(), e);
         }
+    }
+
+    public boolean hasUserAnswered(UUID surveyId, UUID userId) {
+        if (surveyRepository instanceof com.readingshare.survey.infrastructure.persistence.SurveyRepositoryImpl impl) {
+            return impl.getSurveyAnswerRepository().findBySurveyIdAndUserId(surveyId, userId).isPresent();
+        }
+        return false;
     }
 
     private SurveyResultResponse buildResultDto(Survey survey, List<SurveyAnswer> answers) {

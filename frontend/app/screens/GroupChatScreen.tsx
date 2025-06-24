@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import SurveyCreationModal from './SurveyCreationModal'
 import { chatApi } from '../../lib/chatApi'
 import { ChatMessage } from '../../types/chat'
@@ -64,7 +64,30 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
             setLoading(false)
             return
         }
+        setLoading(true)
+        setError(null)
+        try {
+            // チャット履歴取得
+            const chatHistory = await chatApi.getChatHistory(roomId)
+            setMessages(chatHistory.map((msg, idx) => ({
+                id: idx, // 連番でnumber型に変換
+                user: msg.senderUsername || '匿名', // ユーザー名を表示
+                text: typeof msg.content === 'string' ? msg.content : msg.content.value,
+                isCurrentUser: String(msg.senderUserId) === String(currentUserId),
+            })))
+        } catch (e) {
+            setError('チャット履歴の取得に失敗しました')
+        } finally {
+            setLoading(false)
+        }
+    }
 
+    // チャットストリーム取得
+    const loadChatStream = async () => {
+        if (!roomId) {
+            setLoading(false)
+            return
+        }
         try {
             setLoading(true)
             setError(null)
@@ -98,9 +121,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
             setMessages(convertedMessages)
             setMsgId(convertedMessages.length + 1)
         } catch (err) {
-            console.error('チャット履歴の取得に失敗しました:', err)
-            console.log('エラー詳細:', err)
-            setError('チャット履歴の読み込みに失敗しました')
+            setError('チャットストリームの読み込みに失敗しました')
         } finally {
             setLoading(false)
         }
@@ -109,8 +130,34 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
     // コンポーネントマウント時にチャット履歴を読み込む
     useEffect(() => {
         if (currentUserId !== null) {
-            loadChatHistory()
+            loadChatStream()
         }
+    }, [roomId, currentUserId])
+
+    // チャットストリーム取得時に各アンケートの回答状況も取得
+    useEffect(() => {
+        if (!roomId || !currentUserId) return;
+        const fetchAnswered = async () => {
+            const stream = await chatApi.getChatStream(roomId);
+            setStreamItems(stream);
+            // アンケートID一覧
+            const surveyIds = stream.filter(item => item.type === 'survey').map(item => item.survey.id);
+            // サーバーに問い合わせ
+            const results = await Promise.all(
+                surveyIds.map(sid => surveyApi.hasUserAnswered(sid, currentUserId))
+            );
+            setAnsweredSurveyIds(surveyIds.filter((_, i) => results[i]));
+        };
+        fetchAnswered();
+    }, [roomId, currentUserId])
+
+    // チャット自動更新（5秒ごと）
+    useEffect(() => {
+        if (!roomId || !currentUserId) return;
+        const interval = setInterval(() => {
+            loadChatHistory();
+        }, 5000);
+        return () => clearInterval(interval);
     }, [roomId, currentUserId])
 
     const handleSend = async () => {
@@ -136,7 +183,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
 
     const handleSurveyCreated = () => {
         setShowSurveyModal(false)
-        // サーベイ作成後の処理（必要に応じて）
+        loadChatStream() // 作成後に即リロード
     }
 
     // WebSocket受信時に呼ばれるグローバル関数を定義
@@ -320,19 +367,9 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                 </div>
             )}
 
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 32, minHeight: 200, maxHeight: '60vh', overflowY: 'auto', background: 'rgba(255,255,255,0.7)', borderRadius: 8, padding: 16 }}>
-                {loading ? (
-                    <div style={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        height: '100%',
-                        color: '#666',
-                        fontSize: 16
-                    }}>
-                        チャット履歴を読み込み中...
-                    </div>
-                ) : messages.length === 0 ? (
+            {/* チャット欄 */}
+            <div style={{ flex: 1, overflowY: 'auto', marginBottom: 16, background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #b0b8c9', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {streamItems.length === 0 ? (
                     <div style={{
                         display: 'flex',
                         justifyContent: 'center',
@@ -399,6 +436,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                     <div ref={messagesEndRef} />
                     </>
                 )}
+                <div ref={messagesEndRef} />
             </div>
             <div style={{ display: 'flex', alignItems: 'center', marginTop: 32 }}>
                 <input

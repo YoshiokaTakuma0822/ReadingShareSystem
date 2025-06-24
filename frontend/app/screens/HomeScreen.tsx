@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Room } from '../../types/room'
 import { RoomHistoryDto } from '../../types/room';
 import { roomApi } from '../../lib/roomApi'
@@ -76,23 +76,20 @@ const HomeScreen: React.FC = () => {
     // 初期表示とタブ変更時の部屋取得
     React.useEffect(() => {
         handleSearch() // 初期表示時とタブ変更時に部屋を取得
-    }, [tab])
+    }, [])
 
     // 検索テキスト変更時のリアルタイム検索（デバウンス）
     React.useEffect(() => {
-        if (tab === 'search') {
-            const timeoutId = setTimeout(() => {
-                handleSearch()
-            }, 300) // 300ms後に検索実行
+        const timeoutId = setTimeout(() => {
+            handleSearch()
+        }, 300) // 300ms後に検索実行
 
-            return () => clearTimeout(timeoutId)
-        }
-    }, [searchText, tab])
+        return () => clearTimeout(timeoutId)
+    }, [searchText])
     // 部屋作成後のリスト再取得
     const handleRoomCreated = () => {
         setShowCreateModal(false)
-        setTab('search')
-        handleSearch()
+        handleSearch() // 即時更新
     }
 
     // 部屋クリック時の処理

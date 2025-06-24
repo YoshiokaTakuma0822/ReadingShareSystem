@@ -1,8 +1,10 @@
 package com.readingshare.chat.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,11 +17,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.readingshare.auth.infrastructure.security.UserPrincipal;
 import com.readingshare.chat.domain.model.ChatMessage;
+import com.readingshare.chat.dto.ChatStreamItemDto;
 import com.readingshare.chat.dto.SendMessageRequest;
 import com.readingshare.chat.service.ChatMessageBroadcastService;
 import com.readingshare.chat.service.GetChatHistoryService;
 import com.readingshare.chat.service.SendChatMessageService;
+import com.readingshare.auth.domain.repository.IUserRepository;
 import com.readingshare.common.exception.ApplicationException;
+import com.readingshare.survey.domain.model.Survey;
+import com.readingshare.survey.domain.repository.ISurveyRepository;
 
 /**
  * グループチャットに関するAPIを処理するコントローラー。
@@ -63,8 +69,41 @@ public class ChatController {
      */
     @GetMapping("/{roomId}/history")
     public ResponseEntity<List<ChatMessage>> getChatHistory(@PathVariable UUID roomId) {
-        List<ChatMessage> chatHistory = getChatHistoryService.getChatHistory(roomId);
-        return ResponseEntity.ok(chatHistory);
+        List<ChatMessage> messages = getChatHistoryService.getChatHistory(roomId);
+        return ResponseEntity.ok(messages);
+    }
+
+    /**
+     * チャット＋アンケート混在ストリームを取得する
+     */
+    @GetMapping("/room/{roomId}/stream")
+    public ResponseEntity<List<ChatStreamItemDto>> getChatStream(@PathVariable UUID roomId) {
+        List<ChatMessage> chatMessages = getChatHistoryService.getChatHistory(roomId);
+        List<Survey> surveys = getSurveysByRoomId(roomId);
+        List<ChatStreamItemDto> stream = new ArrayList<>();
+        for (ChatMessage msg : chatMessages) {
+            stream.add(new ChatStreamItemDto(msg));
+        }
+        for (Survey survey : surveys) {
+            stream.add(new ChatStreamItemDto(survey));
+        }
+        // sentAt/createdAtで昇順ソート
+        stream.sort((a, b) -> {
+            java.time.Instant aTime = a.getType() == ChatStreamItemDto.ItemType.MESSAGE ? a.getSentAt() : a.getCreatedAt().atZone(java.time.ZoneId.systemDefault()).toInstant();
+            java.time.Instant bTime = b.getType() == ChatStreamItemDto.ItemType.MESSAGE ? b.getSentAt() : b.getCreatedAt().atZone(java.time.ZoneId.systemDefault()).toInstant();
+            return aTime.compareTo(bTime);
+        });
+        return ResponseEntity.ok(stream);
+    }
+
+    // /api/rooms/{roomId}/stream でも同じ処理を提供
+    @GetMapping("/api/rooms/{roomId}/stream")
+    public ResponseEntity<List<ChatStreamItemDto>> getChatStreamAlias(@PathVariable UUID roomId) {
+        return getChatStream(roomId);
+    }
+
+    private List<Survey> getSurveysByRoomId(UUID roomId) {
+        return surveyRepository.findByRoomId(roomId);
     }
 
     /**

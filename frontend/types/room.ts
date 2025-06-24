@@ -7,6 +7,7 @@ export interface Room {
     roomName: string
     bookTitle: string // バックエンドのエンティティから追加
     hostUserId: UserId // バックエンドのエンティティに合わせてhostUserからhostUserIdに変更
+    hostUsername: string // 部屋作成者のユーザー名を追加
     createdAt: string // 部屋作成時刻 (Instant)
     hasPassword: boolean // パスワード保護されているかどうか
     genre?: string // ジャンル

@@ -43,26 +43,37 @@ public class Room {
     @Column(name = "password_hash")
     private String passwordHash; // パスワードハッシュ（null可）
 
+    @Column(nullable = true)
+    private Integer maxPage;
+
+    @Column(nullable = true, length = 100)
+    private String genre;
+
+    @Column(nullable = true)
+    private Instant startTime;
+
+    @Column(nullable = true)
+    private Instant endTime;
+
+    @Column(nullable = true)
+    private Integer pageSpeed;
+
     // --- コンストラクタ ---
     public Room() {
         // JPA用
     }
 
-    public Room(String roomName, String bookTitle, UUID hostUserId) {
+    public Room(String roomName, String bookTitle, UUID hostUserId, Integer maxPage, String genre, Instant startTime, Instant endTime, Integer pageSpeed) {
         this.id = UUID.randomUUID();
         this.roomName = roomName;
         this.bookTitle = bookTitle;
         this.hostUserId = hostUserId;
         this.createdAt = Instant.now();
-    }
-
-    public Room(String roomName, String bookTitle, UUID hostUserId, Instant endTime) {
-        this.id = UUID.randomUUID();
-        this.roomName = roomName;
-        this.bookTitle = bookTitle;
-        this.hostUserId = hostUserId;
-        this.createdAt = Instant.now();
+        this.maxPage = maxPage;
+        this.genre = genre;
+        this.startTime = startTime;
         this.endTime = endTime;
+        this.pageSpeed = pageSpeed;
     }
 
     public Room(String roomName, String bookTitle, UUID hostUserId, int totalPages) {
@@ -81,11 +92,6 @@ public class Room {
         this.hostUserId = hostUserId;
         this.createdAt = createdAt;
         this.endTime = endTime;
-    }
-
-    // --- ゲッター ---
-    public UUID getId() {
-        return id;
     }
 
     public String getRoomName() {
@@ -108,10 +114,6 @@ public class Room {
         return endTime;
     }
 
-    public void setEndTime(Instant endTime) {
-        this.endTime = endTime;
-    }
-
     public int getTotalPages() {
         return totalPages;
     }
@@ -120,12 +122,46 @@ public class Room {
         this.totalPages = totalPages;
     }
 
-    // --- パスワード有無はpasswordHashの有無で判定する ---
+    public Integer getMaxPage() {
+        return maxPage;
+    }
+
+    public void setMaxPage(Integer maxPage) {
+        this.maxPage = maxPage;
+    }
+
+    public String getGenre() {
+        return genre;
+    }
+
+    public void setGenre(String genre) {
+        this.genre = genre;
+    }
+
+    public Instant getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(Instant startTime) {
+        this.startTime = startTime;
+    }
+
+    public Integer getPageSpeed() {
+        return pageSpeed;
+    }
+
+    public void setPageSpeed(Integer pageSpeed) {
+        this.pageSpeed = pageSpeed;
+    }
+
+    public void setEndTime(Instant endTime) {
+        this.endTime = endTime;
+    }
+
     public boolean isHasPassword() {
         return passwordHash != null && !passwordHash.isEmpty();
     }
 
-    // setHasPasswordはAPIレスポンス用に残す場合はOK（不要なら削除可）
     public void setHasPassword(boolean hasPassword) {
         this.hasPassword = hasPassword;
     }
@@ -136,6 +172,14 @@ public class Room {
 
     public void setPasswordHash(String passwordHash) {
         this.passwordHash = passwordHash;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public void setHostUserId(UUID hostUserId) {
+        this.hostUserId = hostUserId;
     }
 
     // --- その他のメソッド ---

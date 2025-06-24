@@ -13,6 +13,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.readingshare.auth.domain.repository.IUserRepository;
 import com.readingshare.auth.domain.model.User;
@@ -22,6 +26,9 @@ import com.readingshare.room.dto.CreateRoomRequest;
 import com.readingshare.room.dto.JoinRoomRequest;
 import com.readingshare.room.dto.UpdateRoomRequest;
 import com.readingshare.room.service.RoomService;
+import com.readingshare.auth.infrastructure.security.UserPrincipal;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * REST API コントローラー - 部屋作成 / 参加 / 検索
@@ -56,8 +63,8 @@ public class RoomController {
      * GET /api/rooms?limit=10
      */
     @GetMapping
-    public ResponseEntity<List<Room>> getRooms(@RequestParam(value = "limit", defaultValue = "10") int limit) {
-        List<Room> rooms = roomService.getRooms(limit);
+    public ResponseEntity<List<RoomResponse>> getRooms(@RequestParam(value = "limit", defaultValue = "10") int limit) {
+        List<RoomResponse> rooms = roomService.getRooms(limit);
         return ResponseEntity.ok(rooms);
     }
 
@@ -81,8 +88,8 @@ public class RoomController {
      * GET /api/rooms/search?keyword=xxx
      */
     @GetMapping("/search")
-    public ResponseEntity<List<Room>> searchRooms(@RequestParam String keyword) {
-        List<Room> rooms = roomService.searchRooms(keyword);
+    public ResponseEntity<List<RoomResponse>> searchRooms(@RequestParam String keyword) {
+        List<RoomResponse> rooms = roomService.searchRooms(keyword);
         return ResponseEntity.ok(rooms);
     }
 
