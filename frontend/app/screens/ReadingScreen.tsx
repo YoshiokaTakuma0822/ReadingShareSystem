@@ -1,34 +1,63 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import ReadingProgressModal from "./ReadingProgressModal";
+import { readingStateApi } from '../../lib/readingStateApi';
+import { authStorage } from '../../lib/authUtils';
 
-const members = [
-  { name: "N", page: 126, color: "#222" },
-  { name: "K", page: 180, color: "#222" },
-  { name: "Y", page: 90, color: "#222" },
-  { name: "A", page: 150, color: "#2196f3" } // 自分
-];
 const maxPage = 300;
-const selfName = "A";
 
 interface ReadingScreenProps {
   roomId?: string;
 }
 
 const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
-  // 進捗入力モーダル用の状態
   const [showProgressModal, setShowProgressModal] = useState(false);
   const [currentPage, setCurrentPage] = useState<number>(150);
   const [displayPage, setDisplayPage] = useState<number>(150);
   const [flipping, setFlipping] = useState<boolean>(false);
   const [flippingPage, setFlippingPage] = useState<number | null>(null);
   const [animating, setAnimating] = useState<boolean>(false);
-
-  // 自動めくり間隔（分単位）をユーザーが自由に入力できる（初期値：3分）
   const [flipIntervalMinutes, setFlipIntervalMinutes] = useState<number>(3);
   const flipIntervalMs = flipIntervalMinutes * 60 * 1000;
+  const [members, setMembers] = useState<{ name: string; page: number; color: string; userId: string }[]>([]);
+  const [selfName, setSelfName] = useState<string>('');
+  const [userId, setUserId] = useState<string | null>(null);
 
-  // 自動めくり開始時、初回のページを flipIntervalMs 後にキック
+  // ユーザーID取得
+  useEffect(() => {
+    const uid = authStorage.getUserId();
+    setUserId(uid);
+    setSelfName(uid ? uid.substring(0, 1).toUpperCase() : 'A');
+  }, []);
+
+  // 他ユーザーの進捗を定期取得
+  useEffect(() => {
+    if (!roomId || !userId) return;
+    const fetchState = async () => {
+      try {
+        const res = await readingStateApi.getRoomReadingState(roomId, userId);
+        setMembers(
+          res.userStates.map(u => ({
+            name: u.userId.substring(0, 1).toUpperCase(),
+            page: u.currentPage,
+            color: u.userId === userId ? '#2196f3' : '#222',
+            userId: u.userId
+          }))
+        );
+        // 自分の進捗も同期
+        const me = res.userStates.find(u => u.userId === userId);
+        if (me) {
+          setCurrentPage(me.currentPage);
+          setDisplayPage(me.currentPage);
+        }
+      } catch (e) {}
+    };
+    fetchState();
+    const interval = setInterval(fetchState, 5000);
+    return () => clearInterval(interval);
+  }, [roomId, userId]);
+
+  // 自動めくり初回
   useEffect(() => {
     if (flipping && flippingPage === null && displayPage < maxPage) {
       const timer = setTimeout(() => {
@@ -48,17 +77,21 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
   }, [flippingPage]);
 
   // アニメーション終了時のシーケンス
-  const onFlipEnd = () => {
+  const onFlipEnd = async () => {
     setAnimating(false);
     const next = flippingPage!;
     setDisplayPage(next);
     setCurrentPage(next);
     setFlippingPage(null);
+    // サーバーに進捗送信
+    if (roomId && userId) {
+      await readingStateApi.updateUserReadingState(roomId, userId, { userId, currentPage: next, comment: '' });
+    }
     if (flipping && next < maxPage) {
       const timer = setTimeout(() => {
         setFlippingPage(next + 1);
       }, flipIntervalMs);
-      // この timer のクリーンアップは一度だけなので省略
+      // クリーンアップは省略
     } else {
       setFlipping(false);
     }
@@ -68,101 +101,107 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
   const progressPercent = currentPage / maxPage;
   const memberProgress = members.map((m) => ({
     ...m,
-    percent: m.name === selfName ? currentPage / maxPage : m.page / maxPage,
-    isMe: m.name === selfName,
+    percent: m.page / maxPage,
+    isMe: m.userId === userId,
   }));
 
   return (
     <div className="container">
-      {/* 進捗バー＋メンバーアイコン */}
-      <div className="progressWrapper">
-        <div className="progressBar">
-          <div
-            className="progress"
-            style={{ width: `${progressPercent * 100}%` }}
-          ></div>
+      <div className="mainWrapper">
+        {/* 進捗バー＋メンバーアイコン */}
+        <div className="progressWrapper">
+          <div className="progressBar">
+            <div
+              className="progress"
+              style={{ width: `${progressPercent * 100}%` }}
+            ></div>
+          </div>
+          {memberProgress.map((m) => (
+            <div
+              key={m.userId}
+              className="memberIcon"
+              style={{ left: `calc(${320 * m.percent}px - 15px)`, background: m.color }}
+            >
+              {m.name}
+            </div>
+          ))}
         </div>
-        {memberProgress.map((m) => (
-          <div
-            key={m.name}
-            className="memberIcon"
-            style={{ left: `calc(${320 * m.percent}px - 15px)` }}
-          >
-            {m.name}
-          </div>
-        ))}
-      </div>
 
-      {/* 本の表示エリア */}
-      <div className="bookContainer">
-        <div className="leftPage"></div>
-        <div className="rightPage"></div>
-        <div className="spine"></div>
-        {flippingPage !== null && (
-          <div
-            className={`pageFlip ${animating ? "animate" : ""}`}
-            onAnimationEnd={onFlipEnd}
-          >
-            <div className="back"></div>
-          </div>
-        )}
-      </div>
+        {/* 本の表示エリア */}
+        <div className="bookContainer">
+          <div className="leftPage"></div>
+          <div className="rightPage"></div>
+          <div className="spine"></div>
+          {flippingPage !== null && (
+            <div
+              className={`pageFlip ${animating ? "animate" : ""}`}
+              onAnimationEnd={onFlipEnd}
+            >
+              <div className="back"></div>
+            </div>
+          )}
+        </div>
 
-      {/* ページ数表示 */}
-      <div className="pageCount">
-        {displayPage + 1} / {maxPage}
-      </div>
+        {/* ページ数表示 */}
+        <div className="pageCount">
+          {displayPage + 1} / {maxPage}
+        </div>
 
-      {/* 操作エリア ※メッセージ入力欄・送信ボタンは削除 */}
-      <div className="controls">
-        <label className="flipIntervalLabel">
-          <input
-            type="number"
-            min="1"
-            value={flipIntervalMinutes}
-            onChange={(e) => setFlipIntervalMinutes(Number(e.target.value))}
-            placeholder="分単位"
-            className="intervalInput"
-          />
-          <span> 分に一回</span>
-        </label>
-        <button className="controlButton" onClick={() => setShowProgressModal(true)}>
-          進捗入力
-        </button>
-        <button
-          className="controlButton"
-          onClick={() => {
-            setFlipping((f) => {
-              if (f) {
-                setFlippingPage(null);
-                setAnimating(false);
-              }
-              return !f;
-            });
-          }}
-        >
-          {flipping ? "自動めくり停止" : "自動めくり開始"}
-        </button>
-        {roomId && (
+        {/* 操作エリア */}
+        <div className="controls">
+          <label className="flipIntervalLabel">
+            <input
+              type="number"
+              min="1"
+              value={flipIntervalMinutes}
+              onChange={(e) => setFlipIntervalMinutes(Number(e.target.value))}
+              placeholder="分単位"
+              className="intervalInput"
+            />
+            <span> 分に一回</span>
+          </label>
+          <button className="controlButton" onClick={() => setShowProgressModal(true)}>
+            進捗入力
+          </button>
           <button
             className="controlButton"
-            onClick={() => (window.location.href = `/rooms/${roomId}/chat`)}
+            onClick={() => {
+              setFlipping((f) => {
+                if (f) {
+                  setFlippingPage(null);
+                  setAnimating(false);
+                }
+                return !f;
+              });
+            }}
           >
-            💬 チャットに戻る
+            {flipping ? "自動めくり停止" : "自動めくり開始"}
           </button>
-        )}
+          {roomId && (
+            <button
+              className="controlButton"
+              onClick={() => (window.location.href = `/rooms/${roomId}/chat`)}
+            >
+              💬 チャットに戻る
+            </button>
+          )}
+        </div>
       </div>
 
+      {/* 進捗入力モーダル */}
       {showProgressModal && (
         <ReadingProgressModal
           open={showProgressModal}
           currentPage={currentPage}
           maxPage={maxPage}
           onClose={() => setShowProgressModal(false)}
-          onSubmit={(page) => {
+          onSubmit={async (page) => {
             setCurrentPage(page);
             setDisplayPage(page);
             setShowProgressModal(false);
+            if (roomId && userId) {
+              await readingStateApi.updateUserReadingState(roomId, userId, { userId, currentPage: page, comment: '' });
+            }
           }}
         />
       )}
@@ -170,7 +209,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
       <style jsx>{`
         .container {
           width: 100vw;
-          height: 100vh;
+          min-height: 100vh;
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -179,11 +218,22 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
           overflow: hidden;
           text-align: center;
         }
+        .mainWrapper {
+          width: 100%;
+          max-width: 600px;
+          margin: 0 auto;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+        }
         .progressWrapper {
           position: relative;
           width: 320px;
           height: 40px;
           margin-bottom: 16px;
+          margin-left: auto;
+          margin-right: auto;
         }
         .progressBar {
           position: absolute;
@@ -227,6 +277,8 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
           display: flex;
           justify-content: center;
           align-items: center;
+          margin-left: auto;
+          margin-right: auto;
         }
         .leftPage {
           position: absolute;
@@ -306,6 +358,8 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
         .pageCount {
           margin-top: 8px;
           font-size: 1.125rem;
+          width: 100%;
+          text-align: center;
         }
         .controls {
           display: flex;
@@ -314,6 +368,10 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
           gap: 8px;
           flex-wrap: wrap;
           justify-content: center;
+          width: 100%;
+          max-width: 600px;
+          margin-left: auto;
+          margin-right: auto;
         }
         .intervalInput {
           padding: 12px;
