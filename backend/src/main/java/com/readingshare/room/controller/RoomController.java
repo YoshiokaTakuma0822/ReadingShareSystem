@@ -92,9 +92,16 @@ public class RoomController {
      */
     @GetMapping("/{roomId}")
     public ResponseEntity<Room> getRoomById(@PathVariable("roomId") String roomId) {
+        System.out.println("[DEBUG] getRoomById called. roomId=" + roomId);
         return roomService.getRoomById(UUID.fromString(roomId))
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .map(room -> {
+                    System.out.println("[DEBUG] Room found: " + room.getId() + ", hostUserId=" + room.getHostUserId());
+                    return ResponseEntity.ok(room);
+                })
+                .orElseGet(() -> {
+                    System.out.println("[DEBUG] Room not found: " + roomId);
+                    return ResponseEntity.notFound().build();
+                });
     }
 
     /**

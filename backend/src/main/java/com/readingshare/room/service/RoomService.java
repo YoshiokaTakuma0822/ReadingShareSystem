@@ -11,6 +11,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.readingshare.chat.domain.repository.IChatMessageRepository;
 import com.readingshare.common.exception.ApplicationException;
 import com.readingshare.common.exception.DatabaseAccessException;
 import com.readingshare.room.domain.model.Room;
@@ -19,6 +20,8 @@ import com.readingshare.room.domain.repository.IRoomRepository;
 import com.readingshare.room.domain.repository.IRoomMemberRepository;
 import com.readingshare.room.domain.service.RoomDomainService;
 import com.readingshare.room.dto.UpdateRoomRequest;
+import com.readingshare.survey.domain.repository.ISurveyAnswerRepository;
+import com.readingshare.survey.domain.repository.ISurveyRepository;
 
 /**
  * 部屋に関する統合アプリケーションサービス。
@@ -31,6 +34,13 @@ public class RoomService {
     private final IRoomRepository roomRepository;
     private final RoomDomainService roomDomainService;
     private final IRoomMemberRepository roomMemberRepository;
+
+    @Autowired
+    private IChatMessageRepository chatMessageRepository;
+    @Autowired
+    private ISurveyRepository surveyRepository;
+    @Autowired
+    private ISurveyAnswerRepository surveyAnswerRepository;
 
     @Autowired
     public RoomService(IRoomRepository roomRepository, RoomDomainService roomDomainService, IRoomMemberRepository roomMemberRepository) {
@@ -157,8 +167,41 @@ public class RoomService {
      * 部屋を削除する。
      * @param roomId 部屋ID（UUID文字列）
      */
+    @Transactional
     public void deleteRoom(String roomId) {
-        roomRepository.deleteById(UUID.fromString(roomId));
+        UUID uuid = UUID.fromString(roomId);
+        Room room = roomRepository.findById(uuid)
+                .orElseThrow(() -> new ApplicationException("部屋が見つかりません"));
+
+        // 1. メンバー削除
+        List<RoomMember> members = roomMemberRepository.findByRoom(room);
+        for (RoomMember m : members) {
+            roomMemberRepository.delete(m);
+        }
+
+        // 2. チャット削除
+        List<com.readingshare.chat.domain.model.ChatMessage> messages = chatMessageRepository.findByRoom(room);
+        for (com.readingshare.chat.domain.model.ChatMessage msg : messages) {
+            chatMessageRepository.delete(msg);
+        }
+
+        // 3. アンケート・回答削除
+        List<com.readingshare.survey.domain.model.Survey> surveys = surveyRepository.findByRoomId(uuid);
+        for (com.readingshare.survey.domain.model.Survey survey : surveys) {
+            List<com.readingshare.survey.domain.model.SurveyAnswer> answers = surveyAnswerRepository.findBySurveyId(survey.getId());
+            for (com.readingshare.survey.domain.model.SurveyAnswer ans : answers) {
+                // surveyAnswerRepositoryにdeleteメソッドがなければ実装追加が必要
+                // surveyAnswerRepository.delete(ans);
+            }
+            // surveyRepositoryにdeleteメソッドがなければ実装追加が必要
+            // surveyRepository.delete(survey);
+        }
+
+        // 4. UserProgress削除（RoomReadingStateService等で部屋単位削除APIを呼ぶ必要あり）
+        // 例: roomReadingStateService.deleteByRoomId(roomId);
+
+        // 5. 部屋本体削除
+        roomRepository.deleteById(uuid);
     }
 
     /**

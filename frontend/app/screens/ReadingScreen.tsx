@@ -34,6 +34,10 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
   const [editingTotalPages, setEditingTotalPages] = useState(false);
   const [inputTotalPages, setInputTotalPages] = useState(totalPages);
 
+  // 作成者名
+  const [hostUserId, setHostUserId] = useState<string | null>(null);
+  const [creatorName, setCreatorName] = useState<string>("");
+
   // 自動めくり開始時、初回のページを flipIntervalMs 後にキック
   useEffect(() => {
     if (flipping && flippingPage === null && displayPage < maxPage) {
@@ -70,31 +74,33 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
     }
   };
 
-  // 部屋メンバー取得
+  // 部屋情報取得（hostUserIdを保存）
   useEffect(() => {
     if (!roomId) return;
-    roomApi.getRoomMembers(roomId).then((memberList: RoomMember[]) => {
-      // ユーザー名の頭文字1文字目をnameに、userIdも保持
-      setMembers(memberList.map(m => ({
-        name: (m.username || '').charAt(0) || '？',
-        page: 1, // 進捗ページはAPIで取得できる場合はここでセット
-        color: '#222',
-        userId: m.userId
-      })));
-    });
+    roomApi.getRoom(roomId)
+      .then((room) => {
+        setHostUserId(room.hostUserId);
+        if (room.totalPages) setTotalPages(room.totalPages);
+      })
+      .catch((e) => console.error('getRoom error:', e));
   }, [roomId]);
 
-  // 部屋情報取得
+  // 部屋メンバー取得＆作成者名取得
   useEffect(() => {
-    if (!roomId) return;
-    roomApi.getRoom(roomId).then((room) => {
-      if (room.totalPages) {
-        setTotalPages(room.totalPages);
-        // setCurrentPage(0); // ← ここで初期化しない
-        // setDisplayPage(0); // ← ここで初期化しない
-      }
-    });
-  }, [roomId]);
+    if (!roomId || !hostUserId) return;
+    roomApi.getRoomMembers(roomId)
+      .then((memberList: RoomMember[]) => {
+        setMembers(memberList.map(m => ({
+          name: (m.username || '').charAt(0) || '？',
+          page: 1,
+          color: '#222',
+          userId: m.userId
+        })));
+        const creator = memberList.find(m => m.userId.replace(/-/g, '').toLowerCase() === hostUserId.replace(/-/g, '').toLowerCase());
+        setCreatorName(creator ? creator.username : "");
+      })
+      .catch((e) => console.error('getRoomMembers error:', e));
+  }, [roomId, hostUserId]);
 
   // --- ページ進捗の永続化 ---
   useEffect(() => {
@@ -287,6 +293,9 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
             >本の最大ページ数を編集</button>
           </>
         )}
+      </div>
+      <div style={{ textAlign: 'center', marginTop: 8, fontSize: 16, color: '#333' }}>
+        {creatorName && `作成者: ${creatorName}`}
       </div>
 
       {/* 操作エリア */}

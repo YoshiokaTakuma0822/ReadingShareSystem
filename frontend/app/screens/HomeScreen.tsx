@@ -31,6 +31,8 @@ const HomeScreen: React.FC = () => {
         setCurrentUserId(getDummyUserId())
     }, [])
 
+    const [creatorMap, setCreatorMap] = useState<{ [roomId: string]: string }>({})
+
     // 部屋検索API（空文字の場合は全件取得）
     const handleSearch = async () => {
         setLoading(true)
@@ -38,6 +40,20 @@ const HomeScreen: React.FC = () => {
         try {
             const result = await roomApi.searchRooms(searchText)
             setRooms(result.rooms || [])
+            // 部屋ごとに作成者名を取得
+            const map: { [roomId: string]: string } = {};
+            await Promise.all((result.rooms || []).map(async (room) => {
+                try {
+                    const members = await roomApi.getRoomMembers(room.id);
+                    console.log('room:', room, 'members:', members); // デバッグ出力
+                    console.log('members detail:', JSON.stringify(members)); // 詳細デバッグ
+                    const creator = members.find((m: any) => (m.userId || '').replace(/-/g, '').toLowerCase() === (room.hostUserId || '').replace(/-/g, '').toLowerCase());
+                    map[room.id] = creator ? creator.username : '';
+                } catch {
+                    map[room.id] = '';
+                }
+            }));
+            setCreatorMap(map);
         } catch (e) {
             setError('部屋の取得に失敗しました')
         } finally {
@@ -195,10 +211,14 @@ const HomeScreen: React.FC = () => {
                     >検索</button>
                 </div>
                 {tab === 'create' && (
-                    <div style={{ marginBottom: 24 }}>
+                    <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
                         <button onClick={() => setShowCreateModal(true)} style={{ padding: '12px 32px', fontSize: 18, borderRadius: 8, border: '1px solid var(--text-main)', background: 'var(--accent)', color: 'var(--white)', fontWeight: 'bold' }}>
                             新しい部屋を作成する
                         </button>
+                        <button
+                            onClick={handleSearch}
+                            style={{ padding: '12px 24px', borderRadius: 8, border: '1px solid #2196f3', background: '#2196f3', color: '#fff', fontWeight: 'bold', fontSize: 16, cursor: 'pointer' }}
+                        >部屋一覧を更新</button>
                     </div>
                 )}
                 {tab === 'search' && (
@@ -291,6 +311,7 @@ const HomeScreen: React.FC = () => {
                                             tooltip.innerHTML = `
                                                 <b>部屋名:</b> ${room.roomName}<br/>
                                                 <b>本タイトル:</b> ${room.bookTitle}<br/>
+                                                <b>作成者:</b> ${creatorMap[room.id] || '-'}<br/>
                                                 <b>作成日:</b> ${new Date(room.createdAt).toLocaleString()}<br/>
                                                 <b>ページ数:</b> ${room.totalPages ?? '-'}<br/>
                                                 <b>パスワード:</b> ${room.hasPassword ? 'あり' : 'なし'}
@@ -310,33 +331,47 @@ const HomeScreen: React.FC = () => {
                                                 {room.roomName}
                                             </h3>
                                             <p style={{ color: 'var(--text-main)', fontSize: 14, marginBottom: 8, overflowWrap: 'break-word', wordBreak: 'break-word' }}>
-                                                本: {room.bookTitle}
+                                                本: {room.bookTitle}<br />
+                                                作成者: {creatorMap[room.id] || '-'}
                                             </p>
                                         </div>
                                         <div style={{ fontSize: 12, color: '#666', display: 'flex', justifyContent: 'space-between' }}>
                                             <span>作成日: {new Date(room.createdAt).toLocaleDateString()}</span>
                                             <span>{room.hasPassword ? '🔒 パスワード有' : '🔓 オープン'}</span>
                                         </div>
-                                        <button
-                                            style={{
-                                                position: 'absolute',
-                                                top: 8,
-                                                right: 8,
-                                                background: '#dc3545',
-                                                color: 'white',
-                                                border: 'none',
-                                                borderRadius: 4,
-                                                padding: '4px 8px',
-                                                fontSize: 12,
-                                                cursor: 'pointer',
-                                            }}
-                                            onClick={e => {
-                                                e.stopPropagation();
-                                                if (window.confirm('本当にこの部屋を削除しますか？')) {
-                                                    roomApi.deleteRoom(room.id).then(handleSearch);
-                                                }
-                                            }}
-                                        >削除</button>
+                                        {currentUserId && room.hostUserId && currentUserId.replace(/-/g, '').toLowerCase() === room.hostUserId.replace(/-/g, '').toLowerCase() && (
+                                            <button
+                                                style={{
+                                                    position: 'absolute',
+                                                    top: 8,
+                                                    right: 8,
+                                                    background: '#dc3545',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: 4,
+                                                    padding: '4px 8px',
+                                                    fontSize: 12,
+                                                    cursor: 'pointer',
+                                                }}
+                                                onClick={e => {
+                                                    e.stopPropagation();
+                                                    if (window.confirm('本当にこの部屋を削除しますか？')) {
+                                                        roomApi.deleteRoom(room.id)
+                                                            .then(handleSearch)
+                                                            .catch(err => {
+                                                                let msg = '削除に失敗しました';
+                                                                if (err && err.response && err.response.data) {
+                                                                    msg += '\n' + JSON.stringify(err.response.data);
+                                                                } else if (err && err.message) {
+                                                                    msg += '\n' + err.message;
+                                                                }
+                                                                alert(msg);
+                                                                console.error('deleteRoom error:', err);
+                                                            });
+                                                    }
+                                                }}
+                                            >削除</button>
+                                        )}
                                     </div>
                                 ))
                             )}
@@ -359,10 +394,19 @@ const HomeScreen: React.FC = () => {
                     />
                 )}
                 {showSurveyAnswerModal && (
-                    <SurveyAnswerModal open={showSurveyAnswerModal} surveyId={dummySurveyId} onClose={() => setShowSurveyAnswerModal(false)} onAnswered={() => { setShowSurveyAnswerModal(false); alert('回答送信完了（ダミー）'); }} />
+                    <SurveyAnswerModal 
+                        open={showSurveyAnswerModal} 
+                        surveyId={dummySurveyId} 
+                        onClose={() => setShowSurveyAnswerModal(false)} 
+                        onAnswered={() => { setShowSurveyAnswerModal(false); alert('回答送信完了（ダミー）'); }} 
+                    />
                 )}
                 {showSurveyResultModal && (
-                    <SurveyResultModal open={showSurveyResultModal} surveyId={dummySurveyId} onClose={() => setShowSurveyResultModal(false)} />
+                    <SurveyResultModal 
+                        open={showSurveyResultModal} 
+                        surveyId={dummySurveyId} 
+                        onClose={() => setShowSurveyResultModal(false)} 
+                    />
                 )}
             </div>
         </AuthGuard>
