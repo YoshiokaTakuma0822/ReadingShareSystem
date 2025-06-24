@@ -1,5 +1,6 @@
 package com.readingshare.room.dto;
 
+import java.time.Instant;
 import java.util.UUID;
 
 /**
@@ -10,6 +11,9 @@ public record CreateRoomRequest(
         UUID hostUserId,
         String bookTitle,
         String password,
-        Integer totalPages // 追加: 本のページ数
-) {
-}
+        Integer maxPage,
+        String genre,
+        Instant startTime,
+        Instant endTime,
+        Integer pageSpeed
+) {}

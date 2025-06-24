@@ -1,5 +1,6 @@
 package com.readingshare.room.service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -11,7 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.readingshare.chat.domain.repository.IChatMessageRepository;
+import com.readingshare.auth.domain.repository.IUserRepository;
 import com.readingshare.common.exception.ApplicationException;
 import com.readingshare.common.exception.DatabaseAccessException;
 import com.readingshare.room.domain.model.Room;
@@ -19,9 +20,8 @@ import com.readingshare.room.domain.model.RoomMember;
 import com.readingshare.room.domain.repository.IRoomRepository;
 import com.readingshare.room.domain.repository.IRoomMemberRepository;
 import com.readingshare.room.domain.service.RoomDomainService;
+import com.readingshare.room.dto.RoomResponse;
 import com.readingshare.room.dto.UpdateRoomRequest;
-import com.readingshare.survey.domain.repository.ISurveyAnswerRepository;
-import com.readingshare.survey.domain.repository.ISurveyRepository;
 
 /**
  * 部屋に関する統合アプリケーションサービス。
@@ -33,20 +33,32 @@ public class RoomService {
 
     private final IRoomRepository roomRepository;
     private final RoomDomainService roomDomainService;
+    private final IUserRepository userRepository;
     private final IRoomMemberRepository roomMemberRepository;
 
     @Autowired
-    private IChatMessageRepository chatMessageRepository;
-    @Autowired
-    private ISurveyRepository surveyRepository;
-    @Autowired
-    private ISurveyAnswerRepository surveyAnswerRepository;
-
-    @Autowired
-    public RoomService(IRoomRepository roomRepository, RoomDomainService roomDomainService, IRoomMemberRepository roomMemberRepository) {
+    public RoomService(IRoomRepository roomRepository, RoomDomainService roomDomainService, IUserRepository userRepository, IRoomMemberRepository roomMemberRepository) {
         this.roomRepository = roomRepository;
         this.roomDomainService = roomDomainService;
+        this.userRepository = userRepository;
         this.roomMemberRepository = roomMemberRepository;
+    }
+
+    public RoomResponse toRoomResponse(Room room) {
+        String username = userRepository.findById(room.getHostUserId())
+            .map(u -> u.getUsername()).orElse("匿名");
+        return new RoomResponse(
+            room.getId(),
+            room.getRoomName(),
+            room.getBookTitle(),
+            room.getHostUserId(),
+            username,
+            room.getMaxPage(),
+            room.getGenre(),
+            room.getStartTime(),
+            room.getEndTime(),
+            room.getPageSpeed()
+        );
     }
 
     // =============== 部屋作成関連 ===============
@@ -60,8 +72,8 @@ public class RoomService {
      * @return 作成された部屋のエンティティ
      * @throws ApplicationException 部屋作成に失敗した場合
      */
-    public Room createRoom(String roomName, String bookTitle, UUID hostUserId) {
-        Room newRoom = new Room(roomName, bookTitle, hostUserId);
+    public Room createRoom(String roomName, String bookTitle, UUID hostUserId, Integer maxPage, String genre, Instant startTime, Instant endTime, Integer pageSpeed) {
+        Room newRoom = new Room(roomName, bookTitle, hostUserId, maxPage, genre, startTime, endTime, pageSpeed);
         // パスワードはオプションなので、ここではnullを渡す
         return roomDomainService.createRoom(newRoom, null);
     }
@@ -76,8 +88,8 @@ public class RoomService {
      * @return 作成された部屋のエンティティ
      * @throws ApplicationException 部屋作成に失敗した場合
      */
-    public Room createRoomWithPassword(String roomName, String bookTitle, UUID hostUserId, String roomPassword) {
-        Room newRoom = new Room(roomName, bookTitle, hostUserId);
+    public Room createRoomWithPassword(String roomName, String bookTitle, UUID hostUserId, String roomPassword, Integer maxPage, String genre, Instant startTime, Instant endTime, Integer pageSpeed) {
+        Room newRoom = new Room(roomName, bookTitle, hostUserId, maxPage, genre, startTime, endTime, pageSpeed);
         return roomDomainService.createRoom(newRoom, roomPassword);
     }
 
@@ -116,6 +128,14 @@ public class RoomService {
     }
 
     /**
+     * ジャンルで部屋を検索する
+     */
+    @Transactional(readOnly = true)
+    public List<RoomResponse> searchRoomsByGenre(String genre) {
+        return roomRepository.findByGenre(genre).stream().map(this::toRoomResponse).toList();
+    }
+
+    /**
      * 部屋IDに基づいて部屋を検索する。
      *
      * @param roomId 部屋ID
@@ -138,7 +158,7 @@ public class RoomService {
     @Transactional(readOnly = true)
     public List<Room> getRooms(int limit) {
         if (limit <= 0 || limit > 100) {
-            limit = 10; // デフォルト値
+            limit = 10;
         }
         Pageable pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
         List<Room> result = roomRepository.findAll(pageable).getContent();
@@ -164,73 +184,44 @@ public class RoomService {
     }
 
     /**
-     * 部屋を削除する。
-     * @param roomId 部屋ID（UUID文字列）
+     * 部屋の情報を更新する。
+     *
+     * @param roomId  更新する部屋のID
+     * @param request 更新内容を含むリクエスト
+     * @return 更新された部屋のエンティティ
+     * @throws ApplicationException 部屋が見つからない場合
      */
     @Transactional
-    public void deleteRoom(String roomId) {
-        UUID uuid = UUID.fromString(roomId);
-        Room room = roomRepository.findById(uuid)
-                .orElseThrow(() -> new ApplicationException("部屋が見つかりません"));
-
-        // 1. メンバー削除
-        List<RoomMember> members = roomMemberRepository.findByRoom(room);
-        for (RoomMember m : members) {
-            roomMemberRepository.delete(m);
+    public Room updateRoom(String roomId, UpdateRoomRequest request) {
+        UUID id = UUID.fromString(roomId);
+        Room room = roomRepository.findById(id).orElseThrow(() -> new ApplicationException("部屋が見つかりません"));
+        if (request.maxPage() != null) {
+            room.setMaxPage(request.maxPage());
         }
-
-        // 2. チャット削除
-        List<com.readingshare.chat.domain.model.ChatMessage> messages = chatMessageRepository.findByRoom(room);
-        for (com.readingshare.chat.domain.model.ChatMessage msg : messages) {
-            chatMessageRepository.delete(msg);
+        if (request.genre() != null) {
+            room.setGenre(request.genre());
         }
-
-        // 3. アンケート・回答削除
-        List<com.readingshare.survey.domain.model.Survey> surveys = surveyRepository.findByRoomId(uuid);
-        for (com.readingshare.survey.domain.model.Survey survey : surveys) {
-            List<com.readingshare.survey.domain.model.SurveyAnswer> answers = surveyAnswerRepository.findBySurveyId(survey.getId());
-            for (com.readingshare.survey.domain.model.SurveyAnswer ans : answers) {
-                // surveyAnswerRepositoryにdeleteメソッドがなければ実装追加が必要
-                // surveyAnswerRepository.delete(ans);
-            }
-            // surveyRepositoryにdeleteメソッドがなければ実装追加が必要
-            // surveyRepository.delete(survey);
+        if (request.startTime() != null) {
+            room.setStartTime(request.startTime());
         }
-
-        // 4. UserProgress削除（RoomReadingStateService等で部屋単位削除APIを呼ぶ必要あり）
-        // 例: roomReadingStateService.deleteByRoomId(roomId);
-
-        // 5. 部屋本体削除
-        roomRepository.deleteById(uuid);
-    }
-
-    /**
-     * 指定した部屋の全メンバーを返す
-     */
-    public List<RoomMember> getRoomMembers(UUID roomId) {
-        Room room = roomRepository.findById(roomId)
-                .orElseThrow(() -> new ApplicationException("部屋が見つかりません"));
-        return roomMemberRepository.findByRoom(room);
-    }
-
-    /**
-     * 部屋情報を更新する（totalPagesのみ）
-     */
-    @Transactional
-    public Room updateRoom(UUID roomId, UpdateRoomRequest request) {
-        Room room = roomRepository.findById(roomId)
-                .orElseThrow(() -> new ApplicationException("部屋が見つかりません"));
-        if (request.totalPages() != null && request.totalPages() > 0) {
-            room.setTotalPages(request.totalPages());
+        if (request.endTime() != null) {
+            room.setEndTime(request.endTime());
+        }
+        if (request.pageSpeed() != null) {
+            room.setPageSpeed(request.pageSpeed());
         }
         return roomRepository.save(room);
     }
 
     /**
-     * 指定ユーザーが参加したことのある部屋の履歴（最新N件）を返す
+     * 部屋を削除する。
+     *
+     * @param roomId 削除する部屋のID
+     * @throws ApplicationException 部屋が見つからない場合
      */
-    @Transactional(readOnly = true)
-    public List<RoomMember> getRoomHistory(UUID userId, int limit) {
-        return roomMemberRepository.findByUserIdOrderByJoinedAtDesc(userId, PageRequest.of(0, limit));
+    @Transactional
+    public void deleteRoom(String roomId) {
+        UUID id = UUID.fromString(roomId);
+        roomRepository.deleteById(id);
     }
 }

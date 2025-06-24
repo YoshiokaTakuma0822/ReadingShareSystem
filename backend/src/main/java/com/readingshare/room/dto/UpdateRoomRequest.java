@@ -1,11 +1,9 @@
 package com.readingshare.room.dto;
 
-import java.util.UUID;
-
-/**
- * 部屋情報更新APIのリクエストDTO
- */
 public record UpdateRoomRequest(
-        Integer totalPages // 追加: 本のページ数
-) {
-}
+    Integer maxPage,
+    String genre,
+    java.time.Instant startTime,
+    java.time.Instant endTime,
+    Integer pageSpeed
+) {}

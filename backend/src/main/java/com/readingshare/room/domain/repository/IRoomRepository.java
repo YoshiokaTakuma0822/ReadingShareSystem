@@ -41,6 +41,13 @@ public interface IRoomRepository {
     List<Room> findByKeyword(String keyword);
 
     /**
+     * 指定ジャンルの部屋を検索する。
+     * @param genre ジャンル
+     * @return ジャンル一致の部屋リスト
+     */
+    List<Room> findByGenre(String genre);
+
+    /**
      * 全ての部屋を取得する。
      *
      * @return 全ての部屋のリスト

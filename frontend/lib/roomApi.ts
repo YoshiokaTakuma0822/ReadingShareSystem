@@ -37,23 +37,19 @@ export const roomApi = {
         const response = await apiClient.post('/rooms/join', request)
         return response.data
     },
-    deleteRoom: async (roomId: string) => {
-        await apiClient.delete(`/rooms/${roomId}`);
+    deleteRoom: async (roomId: string): Promise<void> => {
+        await apiClient.delete(`/rooms/${roomId}`)
     },
-    getMyRooms: async (): Promise<Room[]> => {
-        const response = await apiClient.get<Room[]>('/rooms/my-rooms');
-        return response.data;
+    updateRoom: async (roomId: string, update: { maxPage?: number }) => {
+        const response = await apiClient.patch<Room>(`/rooms/${roomId}`, update)
+        return response.data
+    },
+    searchRoomsByGenre: async (genre: string): Promise<{ rooms: Room[] }> => {
+        const response = await apiClient.get<Room[]>(`/rooms/genre`, { params: { genre } })
+        return { rooms: response.data }
     },
     getRoomMembers: async (roomId: string) => {
         const response = await apiClient.get(`/rooms/${roomId}/members`);
-        return response.data;
-    },
-    updateTotalPages: async (roomId: string, totalPages: number): Promise<Room> => {
-        const response = await apiClient.put<Room>(`/rooms/${roomId}`, { totalPages });
-        return response.data;
-    },
-    getRoomHistory: async (userId: string, limit: number = 10) => {
-        const response = await apiClient.get(`/rooms/history`, { params: { userId, limit } });
         return response.data;
     },
 }

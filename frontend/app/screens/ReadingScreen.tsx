@@ -359,17 +359,21 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
           currentPage={currentPage}
           maxPage={maxPage}
           onClose={() => setShowProgressModal(false)}
-          onSubmit={(page) => {
-            handlePageChange(page);
+          onSubmit={async (page) => {
+            setCurrentPage(page);
+            setDisplayPage(page);
             setShowProgressModal(false);
+            if (roomId && myUserId) {
+              await readingStateApi.updateUserReadingState(roomId, myUserId, { userId: myUserId, currentPage: page, comment: '' });
+            }
           }}
         />
       )}
 
       <style jsx>{`
         .container {
-          min-height: 100vh;
           width: 100vw;
+          min-height: 100vh;
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -377,21 +381,26 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
           background-color: var(--green-bg);
           overflow: hidden;
           text-align: center;
-          padding-top: 40px;
-          padding-bottom: 40px;
-          box-sizing: border-box;
+        }
+        .mainWrapper {
+          width: 100%;
+          max-width: 600px;
+          margin: 0 auto;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
         }
         .progressWrapper {
           position: relative;
           width: 320px;
           height: 40px;
-          margin: 0 auto 32px auto;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          margin-bottom: 16px;
+          margin-left: auto;
+          margin-right: auto;
         }
         .progressBar {
-          position: relative;
+          position: absolute;
           top: 10px;
           left: 0;
           width: 100%;
@@ -400,7 +409,6 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
           background-color: var(--green-bg);
           overflow: hidden;
           border: 1px solid var(--border);
-          margin: 0 auto;
         }
         .progress {
           height: 100%;
@@ -417,9 +425,13 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
           align-items: center;
           justify-content: center;
           font-weight: bold;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+          z-index: 2;
           font-size: 16px;
           transition: left 0.3s ease-out;
-          z-index: 2;
+          background: var(--white);
+          border: 1px solid var(--border);
+          color: var(--green-dark);
         }
         .bookContainer {
           position: relative;
@@ -429,7 +441,8 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
           display: flex;
           justify-content: center;
           align-items: center;
-          margin: 0 auto 24px auto;
+          margin-left: auto;
+          margin-right: auto;
         }
         .leftPage {
           position: absolute;
@@ -507,18 +520,21 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
           border-radius: 2px 0 0 2px;
         }
         .pageCount {
-          margin-bottom: 24px;
+          margin-top: 8px;
           font-size: 1.125rem;
-          text-align: center;
+          width: 100%;
         }
         .controls {
           display: flex;
           align-items: center;
-          margin-top: 0;
+          margin-top: 32px;
           gap: 8px;
           flex-wrap: wrap;
           justify-content: center;
           width: 100%;
+          max-width: 600px;
+          margin-left: auto;
+          margin-right: auto;
         }
         .intervalInput {
           padding: 12px;
