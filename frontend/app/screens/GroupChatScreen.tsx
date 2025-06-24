@@ -47,8 +47,15 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
 
     // コンポーネントマウント時にユーザーIDを取得
     useEffect(() => {
-        const userId = localStorage.getItem('reading-share-user-id')
-        setCurrentUserId(userId)
+        let userId = localStorage.getItem('reading-share-user-id');
+        if (!userId) {
+            alert('ユーザー情報が見つかりません。再ログインしてください。');
+            window.location.href = '/login'; // ログイン画面へリダイレクト
+            return;
+        }
+        // ハイフン除去・小文字化して保存
+        userId = userId.replace(/-/g, '').toLowerCase();
+        setCurrentUserId(userId);
     }, [])
 
     // チャット履歴を取得する関数
@@ -67,22 +74,25 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
 
             // ChatMessageをMessage形式に変換
             const convertedMessages: Message[] = chatHistory.map((msg, index) => {
-                let messageText = ''
+                let messageText = '';
                 if (typeof msg.content === 'object' && msg.content !== null && 'value' in msg.content) {
-                    messageText = String((msg.content as { value: string }).value || '')
+                    messageText = String((msg.content as { value: string }).value || '');
                 } else {
-                    messageText = String(msg.content || '')
+                    messageText = String(msg.content || '');
                 }
-                // ここでユーザー名を参照
-                const senderId = msg.senderUserId ?? '';
-                const username = senderId && userIdToName[senderId] ? userIdToName[senderId] : (senderId || '匿名ユーザー');
+                // 厳密な自分判定（ハイフン除去・小文字化）
+                const senderId = (msg.senderUserId ?? '').replace(/-/g, '').toLowerCase();
+                // currentUserIdはすでに整形済み
+                const myId = currentUserId ?? '';
+                // msg.senderUserIdがnullの場合は空文字でアクセスしない
+                const username = senderId && msg.senderUserId && userIdToName[msg.senderUserId] ? userIdToName[msg.senderUserId] : (msg.senderUserId || '匿名ユーザー');
                 return {
                     id: index + 1,
                     user: username,
                     text: messageText,
-                    isCurrentUser: msg.senderUserId === currentUserId,
-                    sentAt: msg.sentAt // 追加
-                }
+                    isCurrentUser: !!(senderId && myId && senderId === myId),
+                    sentAt: msg.sentAt
+                };
             })
 
             setMessages(convertedMessages)
@@ -132,13 +142,14 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
     // WebSocket受信時に呼ばれるグローバル関数を定義
     useEffect(() => {
         window.updateGroupChatScreen = (data: any) => {
-            // ChatMessageDto型のdataをMessage型に変換して追加
             setMessages(prev => {
-                // 重複防止: すでに同じID・内容のメッセージがあれば追加しない
                 if (prev.some(m => m.sentAt === data.sentAt && m.text === data.content && m.user === data.senderName)) {
                     return prev;
                 }
-                // ここでユーザー名を参照
+                // 厳密な自分判定（ハイフン除去・小文字化）
+                const senderId = (data.senderId ?? '').replace(/-/g, '').toLowerCase();
+                // currentUserIdはすでに整形済み
+                const myId = currentUserId ?? '';
                 const username = userIdToName[data.senderId] || data.senderName || data.senderId || '匿名ユーザー';
                 return [
                     ...prev,
@@ -146,7 +157,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                         id: prev.length + 1,
                         user: username,
                         text: data.content,
-                        isCurrentUser: data.senderId === currentUserId,
+                        isCurrentUser: senderId && myId && senderId === myId,
                         sentAt: data.sentAt
                     }
                 ];
@@ -184,11 +195,44 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                 if (m.userId && m.username) map[m.userId] = m.username;
             });
             setUserIdToName(map);
-            // チャット履歴も再取得してユーザー名反映
-            loadChatHistory();
         });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [roomId]);
+
+    // userIdToNameまたはcurrentUserIdが更新されたら履歴を再生成
+    useEffect(() => {
+        if (!roomId || !currentUserId || Object.keys(userIdToName).length === 0) return;
+        (async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const chatHistory = await chatApi.getChatHistory(roomId);
+                const convertedMessages: Message[] = chatHistory.map((msg, index) => {
+                    let messageText = '';
+                    if (typeof msg.content === 'object' && msg.content !== null && 'value' in msg.content) {
+                        messageText = String((msg.content as { value: string }).value || '');
+                    } else {
+                        messageText = String(msg.content || '');
+                    }
+                    const senderId = (msg.senderUserId ?? '').replace(/-/g, '').toLowerCase();
+                    const myId = currentUserId ?? '';
+                    const username = senderId && msg.senderUserId && userIdToName[msg.senderUserId] ? userIdToName[msg.senderUserId] : (msg.senderUserId || '匿名ユーザー');
+                    return {
+                        id: index + 1,
+                        user: username,
+                        text: messageText,
+                        isCurrentUser: !!(senderId && myId && senderId === myId),
+                        sentAt: msg.sentAt
+                    };
+                });
+                setMessages(convertedMessages);
+                setMsgId(convertedMessages.length + 1);
+            } catch (err) {
+                setError('チャット履歴の読み込みに失敗しました');
+            } finally {
+                setLoading(false);
+            }
+        })();
+    }, [roomId, currentUserId, userIdToName]);
 
     return (
         <div style={{ border: '4px solid #388e3c', margin: 24, padding: 24, background: 'linear-gradient(135deg, #e0f7ef 0%, #f1fdf6 100%)', borderRadius: 12, maxWidth: 1200, minHeight: 600, marginLeft: 'auto', marginRight: 'auto', display: 'flex', flexDirection: 'column', height: '80vh', position: 'relative' }}>

@@ -176,13 +176,27 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
     return () => clearTimeout(timer);
   }, [roomId]);
 
+  // userIdを一度だけ整形してuseStateで保持
+  const [myUserId, setMyUserId] = useState<string>('');
+  useEffect(() => {
+    const userId = localStorage.getItem('reading-share-user-id');
+    if (!userId) {
+      alert('ユーザー情報が見つかりません。再ログインしてください。');
+      // 必要ならリダイレクト処理を追加
+      return;
+    }
+    setMyUserId(userId.replace(/-/g, '').toLowerCase());
+  }, []);
+
   // 進捗率・メンバーアイコンの配置データ
-  const progressPercent = currentPage / totalPages;
-  const memberProgress = members.map((m) => ({
-    ...m,
-    percent: m.userId === localStorage.getItem('reading-share-user-id') ? currentPage / totalPages : m.page / totalPages,
-    isMe: m.userId === localStorage.getItem('reading-share-user-id'),
-  }));
+  const memberProgress = members.map((m) => {
+    const memberId = (m.userId || '').replace(/-/g, '').toLowerCase();
+    return {
+      ...m,
+      percent: memberId === myUserId ? currentPage / totalPages : m.page / totalPages,
+      isMe: memberId && myUserId && memberId === myUserId,
+    };
+  });
 
   useEffect(() => {
     setInputTotalPages(totalPages);
@@ -217,7 +231,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
         <div className="progressBar">
           <div
             className="progress"
-            style={{ width: `${progressPercent * 100}%` }}
+            style={{ width: `${(totalPages > 0 ? currentPage / totalPages : 0) * 100}%` }}
           ></div>
         </div>
         {memberProgress.map((m) => (
