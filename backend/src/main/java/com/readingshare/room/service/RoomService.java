@@ -225,4 +225,12 @@ public class RoomService {
         }
         return roomRepository.save(room);
     }
+
+    /**
+     * 指定ユーザーが参加したことのある部屋の履歴（最新N件）を返す
+     */
+    @Transactional(readOnly = true)
+    public List<RoomMember> getRoomHistory(UUID userId, int limit) {
+        return roomMemberRepository.findByUserIdOrderByJoinedAtDesc(userId, PageRequest.of(0, limit));
+    }
 }

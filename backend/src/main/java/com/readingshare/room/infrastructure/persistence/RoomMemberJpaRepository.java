@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -33,4 +34,12 @@ public interface RoomMemberJpaRepository extends JpaRepository<RoomMember, UUID>
      * @return メンバーが見つかった場合はOptionalにRoomMember、見つからない場合はOptional.empty()
      */
     Optional<RoomMember> findByRoomAndUserId(Room room, UUID userId);
+
+    /**
+     * 指定ユーザーの部屋参加履歴（joinedAt降順）を取得する。
+     * @param userId ユーザーID
+     * @param pageable ページ情報
+     * @return 参加履歴リスト
+     */
+    List<RoomMember> findByUserIdOrderByJoinedAtDesc(UUID userId, Pageable pageable);
 }

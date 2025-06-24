@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import { Room } from '../../types/room'
+import { RoomHistoryDto } from '../../types/room';
 import { roomApi } from '../../lib/roomApi'
 import { getDummyUserId, logout } from '../../lib/authUtils'
 import RoomCreationModal from './RoomCreationModal'
@@ -90,9 +91,16 @@ const HomeScreen: React.FC = () => {
     }
 
     // 部屋参加後の処理
-    const handleRoomJoined = () => {
+    const handleRoomJoined = async () => {
         setShowJoinModal(false)
         if (selectedRoom) {
+            // 履歴を即時再取得
+            if (currentUserId) {
+                try {
+                    const history = await roomApi.getRoomHistory(currentUserId, 10);
+                    setRoomHistory(history);
+                } catch {}
+            }
             // グループチャット画面へ移動
             window.location.href = `/rooms/${selectedRoom.id}/chat`
         }
@@ -133,6 +141,19 @@ const HomeScreen: React.FC = () => {
         const timer = setInterval(update, 1000);
         return () => clearInterval(timer);
     }, [loginTime]);
+
+    const [roomHistory, setRoomHistory] = useState<RoomHistoryDto[]>([]);
+    // 履歴取得
+    React.useEffect(() => {
+        if (!currentUserId) return;
+        console.log('履歴取得: currentUserId =', currentUserId);
+        roomApi.getRoomHistory(currentUserId, 10)
+            .then((res) => {
+                console.log('roomApi.getRoomHistory response:', res);
+                setRoomHistory(res);
+            })
+            .catch(() => setRoomHistory([]));
+    }, [currentUserId]);
 
     return (
         <AuthGuard>
@@ -408,6 +429,31 @@ const HomeScreen: React.FC = () => {
                         onClose={() => setShowSurveyResultModal(false)} 
                     />
                 )}
+                {/* 履歴表示 */}
+                <div style={{ margin: '32px 0 16px 0', padding: 16, background: '#f7f7f7', borderRadius: 8, border: '1px solid #ccc' }}>
+                    <h2 style={{ fontSize: 18, color: 'var(--accent)', margin: 0, marginBottom: 8 }}>自分が参加したことのある部屋の履歴（最新10件）</h2>
+                    {roomHistory.length === 0 ? (
+                        <div style={{ color: '#888', fontSize: 15 }}>履歴がありません</div>
+                    ) : (
+                        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                            {roomHistory.map((h) => (
+                                <li key={h.roomId} style={{ marginBottom: 8, padding: 8, background: '#fff', borderRadius: 6, border: '1px solid #eee', fontSize: 15 }}>
+                                    {h.deleted || !h.room ? (
+                                        <span style={{ color: '#b71c1c' }}>この部屋は既に削除されています</span>
+                                    ) : (
+                                        <>
+                                            <span style={{ fontWeight: 'bold', color: 'var(--accent)' }}>{h.room.roomName}</span>
+                                            <span style={{ marginLeft: 8, color: '#666' }}>（{h.room.bookTitle}）</span>
+                                            <span style={{ marginLeft: 8, color: '#888', fontSize: 13 }}>作成日: {new Date(h.room.createdAt).toLocaleDateString()}</span>
+                                            <button style={{ marginLeft: 16, padding: '2px 10px', fontSize: 13, borderRadius: 4, border: '1px solid #388e3c', background: '#e8f5e9', color: '#388e3c', cursor: 'pointer' }} onClick={() => window.location.href = `/rooms/${h.roomId}/chat`}>チャットへ</button>
+                                        </>
+                                    )}
+                                    <span style={{ float: 'right', color: '#aaa', fontSize: 12 }}>参加日: {new Date(h.joinedAt).toLocaleDateString()}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
             </div>
         </AuthGuard>
     )

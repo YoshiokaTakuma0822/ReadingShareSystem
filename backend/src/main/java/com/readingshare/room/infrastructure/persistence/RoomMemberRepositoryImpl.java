@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import com.readingshare.room.domain.model.RoomMember;
@@ -35,5 +36,10 @@ public class RoomMemberRepositoryImpl implements IRoomMemberRepository {
     @Override
     public void delete(RoomMember roomMember) {
         roomMemberRepository.delete(roomMember);
+    }
+
+    @Override
+    public List<RoomMember> findByUserIdOrderByJoinedAtDesc(UUID userId, Pageable pageable) {
+        return roomMemberRepository.findByUserIdOrderByJoinedAtDesc(userId, pageable);
     }
 }

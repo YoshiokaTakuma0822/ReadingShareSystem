@@ -91,13 +91,14 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
     roomApi.getRoomMembers(roomId)
       .then((memberList: RoomMember[]) => {
         setMembers(memberList.map(m => ({
-          name: (m.username || '').charAt(0) || '？',
+          name: m.username ? m.username.charAt(0) : '？',
           page: 1,
           color: '#222',
           userId: m.userId
         })));
-        const creator = memberList.find(m => m.userId.replace(/-/g, '').toLowerCase() === hostUserId.replace(/-/g, '').toLowerCase());
-        setCreatorName(creator ? creator.username : "");
+        // userId比較はハイフン除去・小文字化で厳密一致
+        const creator = memberList.find(m => m.userId && hostUserId && m.userId.replace(/-/g, '').toLowerCase() === hostUserId.replace(/-/g, '').toLowerCase());
+        setCreatorName(creator ? creator.username : '');
       })
       .catch((e) => console.error('getRoomMembers error:', e));
   }, [roomId, hostUserId]);

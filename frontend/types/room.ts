@@ -43,3 +43,10 @@ export interface RoomMember {
     joinedAt: string // Instant
     username: string // ユーザー名を追加
 }
+
+export interface RoomHistoryDto {
+    roomId: string;
+    room: Room | null; // nullなら削除済み
+    deleted: boolean;
+    joinedAt: string;
+}

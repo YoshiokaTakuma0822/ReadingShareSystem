@@ -33,4 +33,8 @@ export const roomApi = {
         const response = await apiClient.put<Room>(`/rooms/${roomId}`, { totalPages });
         return response.data;
     },
+    getRoomHistory: async (userId: string, limit: number = 10) => {
+        const response = await apiClient.get(`/rooms/history`, { params: { userId, limit } });
+        return response.data;
+    },
 }

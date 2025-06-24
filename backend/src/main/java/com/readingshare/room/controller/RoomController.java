@@ -141,6 +141,24 @@ public class RoomController {
         return ResponseEntity.ok(result);
     }
 
+    /**
+     * 指定ユーザーが参加したことのある部屋の履歴（最新10件）
+     * GET /api/rooms/history?userId=xxx&limit=10
+     */
+    @GetMapping("/history")
+    public ResponseEntity<List<RoomHistoryDto>> getRoomHistory(
+        @RequestParam("userId") UUID userId,
+        @RequestParam(value = "limit", defaultValue = "10") int limit) {
+
+        List<RoomMember> members = roomService.getRoomHistory(userId, limit);
+        List<RoomHistoryDto> result = members.stream().map(member -> {
+            Room room = roomService.getRoomById(member.getRoom().getId()).orElse(null);
+            boolean deleted = (room == null);
+            return new RoomHistoryDto(member.getRoom().getId(), room, deleted, member.getJoinedAt());
+        }).toList();
+        return ResponseEntity.ok(result);
+    }
+
     // DTOクラス
     public static class MemberInfoDto {
         public UUID userId;
@@ -149,6 +167,20 @@ public class RoomController {
         public MemberInfoDto(UUID userId, String username, java.time.Instant joinedAt) {
             this.userId = userId;
             this.username = username;
+            this.joinedAt = joinedAt;
+        }
+    }
+
+    // 履歴DTO
+    public static class RoomHistoryDto {
+        public UUID roomId;
+        public Room room; // nullなら削除済み
+        public boolean deleted;
+        public java.time.Instant joinedAt;
+        public RoomHistoryDto(UUID roomId, Room room, boolean deleted, java.time.Instant joinedAt) {
+            this.roomId = roomId;
+            this.room = room;
+            this.deleted = deleted;
             this.joinedAt = joinedAt;
         }
     }

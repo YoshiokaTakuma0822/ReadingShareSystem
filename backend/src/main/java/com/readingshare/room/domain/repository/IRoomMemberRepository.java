@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import com.readingshare.room.domain.model.RoomMember;
 import com.readingshare.room.domain.model.Room;
+import org.springframework.data.domain.Pageable;
 
 /**
  * 部屋メンバー情報の永続化を担当するリポジトリインターフェース。
@@ -44,4 +45,12 @@ public interface IRoomMemberRepository {
      * @param roomMember 削除する部屋メンバーエンティティ
      */
     void delete(RoomMember roomMember);
+
+    /**
+     * 指定ユーザーの部屋参加履歴（joinedAt降順）を取得する。
+     * @param userId ユーザーID
+     * @param pageable ページ情報
+     * @return 参加履歴リスト
+     */
+    List<RoomMember> findByUserIdOrderByJoinedAtDesc(UUID userId, Pageable pageable);
 }
