@@ -42,7 +42,8 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
   useEffect(() => {
     if (flipping && flippingPage === null && displayPage < maxPage) {
       const timer = setTimeout(() => {
-        setFlippingPage(displayPage + 1);
+        setFlippingPage(displayPage + 2);
+        setFlipDirection('backward'); // ← 右から左に
       }, flipIntervalMs);
       return () => clearTimeout(timer);
     }
@@ -69,12 +70,11 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
     setCurrentPage(next);
     setFlippingPage(null);
     setFlipDirection(null);
-    if (flipping && next < maxPage && flipDirection === 'forward') {
+    if (flipping && next + 2 <= maxPage) {
       const timer = setTimeout(() => {
-        setFlippingPage(next + 1);
-        setFlipDirection('forward');
+        setFlippingPage(next + 2);
+        setFlipDirection('backward'); // ← 右から左に
       }, flipIntervalMs);
-      // この timer のクリーンアップは一度だけなので省略
     } else {
       setFlipping(false);
     }
@@ -116,12 +116,21 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
     if (!roomId) return;
     const userId = authStorage.getUserId();
     if (!userId) return;
+    // ローカルストレージから進捗を優先的に取得
+    const localKey = `reading-progress-${roomId}-${userId}`;
+    const localPage = localStorage.getItem(localKey);
+    if (localPage && !isNaN(Number(localPage))) {
+      setCurrentPage(Number(localPage));
+      setDisplayPage(Number(localPage));
+    }
     readingStateApi.getRoomReadingState(roomId, userId).then((res) => {
       if (res && res.userStates && res.userStates.length > 0) {
         const myState = res.userStates.find(u => u.userId === userId);
         if (myState) {
           setCurrentPage(myState.currentPage);
           setDisplayPage(myState.currentPage);
+          // サーバー値でローカルも上書き
+          localStorage.setItem(localKey, String(myState.currentPage));
         }
       }
       setIsInitialized(true); // 初期化完了
@@ -133,6 +142,8 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
     if (!roomId) return;
     const userId = authStorage.getUserId();
     if (!userId) return;
+    const localKey = `reading-progress-${roomId}-${userId}`;
+    localStorage.setItem(localKey, String(page)); // ローカルにも保存
     try {
       await readingStateApi.updateUserReadingState(roomId, userId, { userId, currentPage: page, comment: '' });
       // 保存成功時のみWebSocket送信
@@ -150,6 +161,18 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
       };
     } catch (e) {
       // 保存失敗時は何もしない（エラー通知は必要なら追加）
+    }
+  };
+
+  // --- 部屋退出時にローカル進捗を削除 ---
+  const closeReading = () => {
+    if (roomId) {
+      const userId = authStorage.getUserId();
+      if (userId) {
+        const localKey = `reading-progress-${roomId}-${userId}`;
+        localStorage.removeItem(localKey);
+      }
+      window.location.href = `/rooms/${roomId}/chat`;
     }
   };
 
@@ -232,23 +255,35 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
     return () => ws.close();
   }, [roomId]);
 
-  const closeReading = () => {
-    if (roomId) {
-      window.location.href = `/rooms/${roomId}/chat`;
-    }
-  };
-
   // 左右ページクリックハンドラ
   const handleLeftPageClick = () => {
-    if (animating || displayPage <= 0) return;
-    setFlippingPage(displayPage - 1);
-    setFlipDirection('forward'); // ← ここを'forward'に
+    if (animating || displayPage <= 1) return;
+    setFlippingPage(displayPage - 2);
+    setFlipDirection('forward');
   };
   const handleRightPageClick = () => {
-    if (animating || displayPage >= totalPages) return;
-    setFlippingPage(displayPage + 1);
-    setFlipDirection('backward'); // ← ここを'backward'に
+    if (animating || displayPage + 2 > totalPages) return;
+    setFlippingPage(displayPage + 2);
+    setFlipDirection('backward');
   };
+
+  // --- カウントダウン用 ---
+  const [countdown, setCountdown] = useState(flipIntervalMs);
+  useEffect(() => {
+    if (flipping && flippingPage === null) {
+      setCountdown(flipIntervalMs);
+      const start = Date.now();
+      const interval = setInterval(() => {
+        const elapsed = Date.now() - start;
+        const remain = Math.max(flipIntervalMs - elapsed, 0);
+        setCountdown(remain);
+        if (remain <= 0) clearInterval(interval);
+      }, 100);
+      return () => clearInterval(interval);
+    } else {
+      setCountdown(flipIntervalMs);
+    }
+  }, [flipping, flippingPage, flipIntervalMs]);
 
   return (
     <>
@@ -281,7 +316,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
           {/* 本の表示エリア */}
           <div className="bookContainer" style={{ position: 'relative' }}>
             <div style={{ position: 'absolute', left: '-140px', top: '50%', transform: 'translateY(-50%)', width: 120, textAlign: 'right', color: '#388e3c', fontWeight: 'bold', fontSize: 16, pointerEvents: 'none', userSelect: 'none', zIndex: 100 }}>
-              {displayPage > 0 && '← クリックで1ページ戻る'}
+              {displayPage > 0 && '← ページをクリックで1ページ戻る'}
             </div>
             <div className="leftPage" onClick={handleLeftPageClick}>
               <span className="pageNumber left">{displayPage}</span>
@@ -290,7 +325,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
               <span className="pageNumber right">{displayPage + 1 <= totalPages ? displayPage + 1 : ''}</span>
             </div>
             <div style={{ position: 'absolute', right: '-140px', top: '50%', transform: 'translateY(-50%)', width: 120, textAlign: 'left', color: '#388e3c', fontWeight: 'bold', fontSize: 16, pointerEvents: 'none', userSelect: 'none', zIndex: 100 }}>
-              {displayPage < totalPages && 'クリックで1ページ進む →'}
+              {displayPage < totalPages && 'ページをクリックで1ページ進む →'}
             </div>
             <div className="spine"></div>
             {flippingPage !== null && flipDirection && (
@@ -346,6 +381,12 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
 
           {/* 操作エリア */}
           <div className="controls">
+            {/* 残り時間カウントダウン */}
+            {(flipping && flippingPage === null) ? (
+              <div style={{ minWidth: 60, textAlign: 'right', fontSize: 22, fontWeight: 'bold', color: '#388e3c', marginRight: 8 }}>
+                {Math.ceil(countdown / 1000)} 秒
+              </div>
+            ) : null}
             <label className="flipIntervalLabel">
               <input
                 type="number"
@@ -742,6 +783,59 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
               color: #888;
               pointer-events: none;
               user-select: none;
+            }
+            .hourglassWrapper {
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              margin-bottom: 0;
+              margin-right: 16px;
+              height: 110px;
+              min-width: 80px;
+            }
+            .controlHourglass {
+              margin-bottom: 0;
+              margin-right: 24px;
+            }
+            .hourglassSVG {
+              display: block;
+              margin: 0 auto;
+              width: 64px;
+              height: 96px;
+            }
+            .sandTop {
+              transform-origin: 32px 30px;
+              animation: sand-top-fall var(--flip-interval, 3s) linear forwards;
+            }
+            .sandBottom {
+              transform-origin: 32px 66px;
+              transform: scaleY(0);
+              animation: sand-bottom-rise var(--flip-interval, 3s) linear forwards;
+            }
+            .sandFlow {
+              opacity: 1;
+              animation: sand-flow-fall var(--flip-interval, 3s) linear forwards;
+            }
+            .hourglassText {
+              font-size: 15px;
+              color: #888;
+              margin-top: 4px;
+            }
+            @keyframes sand-top-fall {
+              0% { height: 12px; }
+              90% { height: 0px; }
+              100% { height: 0px; }
+            }
+            @keyframes sand-bottom-rise {
+              0% { transform: scaleY(0); }
+              90% { transform: scaleY(1); }
+              100% { transform: scaleY(1); }
+            }
+            @keyframes sand-flow-fall {
+              0% { opacity: 1; }
+              90% { opacity: 1; }
+              100% { opacity: 0; }
             }
           `}</style>
           <style jsx global>{`
