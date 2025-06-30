@@ -57,21 +57,29 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
     }
   }, [flippingPage]);
 
+  // 方向: 'forward' | 'backward' | null
+  const [flipDirection, setFlipDirection] = useState<'forward' | 'backward' | null>(null);
+
   // アニメーション終了時のシーケンス
   const onFlipEnd = () => {
     setAnimating(false);
-    const next = flippingPage!;
+    if (flippingPage === null || !flipDirection) return;
+    let next = flippingPage;
     setDisplayPage(next);
     setCurrentPage(next);
     setFlippingPage(null);
-    if (flipping && next < maxPage) {
+    setFlipDirection(null);
+    if (flipping && next < maxPage && flipDirection === 'forward') {
       const timer = setTimeout(() => {
         setFlippingPage(next + 1);
+        setFlipDirection('forward');
       }, flipIntervalMs);
       // この timer のクリーンアップは一度だけなので省略
     } else {
       setFlipping(false);
     }
+    // ページ進捗保存
+    handlePageChange(next);
   };
 
   // 部屋情報取得（hostUserIdを保存）
@@ -230,6 +238,18 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
     }
   };
 
+  // 左右ページクリックハンドラ
+  const handleLeftPageClick = () => {
+    if (animating || displayPage <= 0) return;
+    setFlippingPage(displayPage - 1);
+    setFlipDirection('forward'); // ← ここを'forward'に
+  };
+  const handleRightPageClick = () => {
+    if (animating || displayPage >= totalPages) return;
+    setFlippingPage(displayPage + 1);
+    setFlipDirection('backward'); // ← ここを'backward'に
+  };
+
   return (
     <>
       <div className="readingOverlay" onClick={closeReading}>
@@ -259,14 +279,25 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
             ))}
           </div>
           {/* 本の表示エリア */}
-          <div className="bookContainer">
-            <div className="leftPage"></div>
-            <div className="rightPage"></div>
+          <div className="bookContainer" style={{ position: 'relative' }}>
+            <div style={{ position: 'absolute', left: '-140px', top: '50%', transform: 'translateY(-50%)', width: 120, textAlign: 'right', color: '#388e3c', fontWeight: 'bold', fontSize: 16, pointerEvents: 'none', userSelect: 'none', zIndex: 100 }}>
+              {displayPage > 0 && '← クリックで1ページ戻る'}
+            </div>
+            <div className="leftPage" onClick={handleLeftPageClick}>
+              <span className="pageNumber left">{displayPage}</span>
+            </div>
+            <div className="rightPage" onClick={handleRightPageClick}>
+              <span className="pageNumber right">{displayPage + 1 <= totalPages ? displayPage + 1 : ''}</span>
+            </div>
+            <div style={{ position: 'absolute', right: '-140px', top: '50%', transform: 'translateY(-50%)', width: 120, textAlign: 'left', color: '#388e3c', fontWeight: 'bold', fontSize: 16, pointerEvents: 'none', userSelect: 'none', zIndex: 100 }}>
+              {displayPage < totalPages && 'クリックで1ページ進む →'}
+            </div>
             <div className="spine"></div>
-            {flippingPage !== null && (
+            {flippingPage !== null && flipDirection && (
               <div
-                className={`pageFlip${animating ? " animate" : ""}`}
+                className={`pageFlip${animating ? (flipDirection === 'forward' ? ' animate-forward' : ' animate-backward') : ''}`}
                 onAnimationEnd={onFlipEnd}
+                style={{ zIndex: 20 }}
               >
                 <div className="back"></div>
               </div>
@@ -546,16 +577,28 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
               transition: box-shadow 0.3s ease-out;
               transform-style: preserve-3d;
             }
-            .animate {
-              animation: pageFlip 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            .animate-forward {
+              animation: pageFlipForward 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
               box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
             }
-            @keyframes pageFlip {
+            .animate-backward {
+              animation: pageFlipBackward 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+              box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            }
+            @keyframes pageFlipForward {
               0% {
                 transform: translate(-100%, -50%) rotateY(0deg);
               }
               100% {
                 transform: translate(-100%, -50%) rotateY(180deg);
+              }
+            }
+            @keyframes pageFlipBackward {
+              0% {
+                transform: translate(-100%, -50%) rotateY(180deg);
+              }
+              100% {
+                transform: translate(-100%, -50%) rotateY(0deg);
               }
             }
             .back {
@@ -681,6 +724,24 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
               justify-content: center;
               background: rgba(0,0,0,0.3);
               z-index: 999;
+            }
+            .pageNumber.left {
+              position: absolute;
+              left: 12px;
+              bottom: 10px;
+              font-size: 15px;
+              color: #888;
+              pointer-events: none;
+              user-select: none;
+            }
+            .pageNumber.right {
+              position: absolute;
+              right: 12px;
+              bottom: 10px;
+              font-size: 15px;
+              color: #888;
+              pointer-events: none;
+              user-select: none;
             }
           `}</style>
           <style jsx global>{`
