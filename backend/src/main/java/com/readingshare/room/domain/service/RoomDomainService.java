@@ -51,8 +51,6 @@ public class RoomDomainService {
             room.setPasswordHash(null);
         }
         Room savedRoom = roomRepository.save(room);
-        RoomMember hostMember = new RoomMember(savedRoom, room.getHostUserId(), Instant.now());
-        roomMemberRepository.save(hostMember);
         return savedRoom;
     }
 
@@ -82,7 +80,14 @@ public class RoomDomainService {
         }
 
         // ユーザーが既にメンバーでないか確認
-        if (roomMemberRepository.findByRoomAndUserId(room, userId).isPresent()) {
+        Optional<RoomMember> existingOpt = roomMemberRepository.findByRoomAndUserId(room, userId);
+        if (existingOpt.isPresent()) {
+            // ホストの場合、明示的参加として参加日時を更新
+            if (room.getHostUserId().equals(userId)) {
+                RoomMember hostMember = existingOpt.get();
+                hostMember.setJoinedAt(Instant.now());
+                return roomMemberRepository.save(hostMember);
+            }
             throw new DomainException("既に部屋のメンバーです。");
         }
 

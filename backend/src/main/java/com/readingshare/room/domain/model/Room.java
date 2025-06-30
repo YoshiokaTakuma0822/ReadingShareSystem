@@ -43,6 +43,12 @@ public class Room {
     @Column(name = "password_hash")
     private String passwordHash; // パスワードハッシュ（null可）
 
+    @Column(nullable = true, length = 100)
+    private String genre; // 追加: 部屋のジャンル
+
+    @Column(nullable = true)
+    private Instant startTime; // 追加: 開始時刻
+
     // --- コンストラクタ ---
     public Room() {
         // JPA用
@@ -118,6 +124,22 @@ public class Room {
 
     public void setTotalPages(int totalPages) {
         this.totalPages = totalPages;
+    }
+
+    public String getGenre() {
+        return genre;
+    }
+
+    public void setGenre(String genre) {
+        this.genre = genre;
+    }
+
+    public Instant getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(Instant startTime) {
+        this.startTime = startTime;
     }
 
     // --- パスワード有無はpasswordHashの有無で判定する ---

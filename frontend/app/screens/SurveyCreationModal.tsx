@@ -7,7 +7,8 @@ interface SurveyCreationModalProps {
     open: boolean
     roomId: string
     onClose: () => void
-    onCreated: () => void
+    // 作成後に新しいアンケートIDを渡すコールバック
+    onCreated: (surveyId: string) => void
 }
 
 const SurveyCreationModal: React.FC<SurveyCreationModalProps> = ({ open, roomId, onClose, onCreated }) => {
@@ -38,8 +39,9 @@ const SurveyCreationModal: React.FC<SurveyCreationModalProps> = ({ open, roomId,
                 questions: [question]
             }
 
-            await surveyApi.createSurvey(request)
-            onCreated()
+            // 新しいアンケートを作成し、IDを取得
+            const createdSurvey = await surveyApi.createSurvey(request)
+            onCreated(createdSurvey.id)
         } catch (e) {
             setError('アンケート作成に失敗しました')
         } finally {
@@ -147,7 +149,7 @@ const SurveyCreationModal: React.FC<SurveyCreationModalProps> = ({ open, roomId,
                     </label>
                 </div>
 
-                <div style={{ display: "flex", justifyContent: "flex-end", gap: 16 }}>
+                <div style={{ display: "flex", justifyContent: "flex-end", gap: 32 }}>
                     <button
                         onClick={onClose}
                         style={{ border: "1.5px solid #388e3c", borderRadius: 4, background: "#fff", fontSize: 16, padding: "8px 24px", cursor: "pointer", color: '#388e3c', fontWeight: 600 }}

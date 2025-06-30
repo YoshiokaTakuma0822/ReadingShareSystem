@@ -31,6 +31,9 @@ public class User {
     @Column(name = "joined_at", nullable = false)
     private Instant joinedAt; // アカウント作成時刻
 
+    @Column(name = "history_reset_at")
+    private Instant historyResetAt;
+
     // デフォルトコンストラクタ (JPAのために必要)
     public User() {
     }
@@ -66,6 +69,10 @@ public class User {
         return joinedAt;
     }
 
+    public Instant getHistoryResetAt() {
+        return historyResetAt;
+    }
+
     // Setters (必要なもののみ)
     public void setId(UUID id) {
         this.id = id;
@@ -81,5 +88,9 @@ public class User {
 
     public void setJoinedAt(Instant joinedAt) {
         this.joinedAt = joinedAt;
+    }
+
+    public void setHistoryResetAt(Instant historyResetAt) {
+        this.historyResetAt = historyResetAt;
     }
 }

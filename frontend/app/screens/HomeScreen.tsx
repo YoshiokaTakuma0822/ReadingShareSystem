@@ -1,8 +1,12 @@
 "use client"
 
 import React, { useState } from 'react'
+import { Client } from '@stomp/stompjs'
+import SockJS from 'sockjs-client'
+// WebSocketエンドポイント設定
+const WS_ENDPOINT = process.env.NODE_ENV === 'development' ? 'http://localhost:8080/ws' : '/ws'
 import { Room } from '../../types/room'
-import { RoomHistoryDto } from '../../types/room';
+import type { RoomHistoryDto } from '../../types/room'
 import { roomApi } from '../../lib/roomApi'
 import { getDummyUserId, logout } from '../../lib/authUtils'
 import RoomCreationModal from './RoomCreationModal'
@@ -15,6 +19,30 @@ const HomeScreen: React.FC = () => {
     const [tab, setTab] = useState<'create' | 'search'>('create') // デフォルトを部屋作成に変更
     const [searchText, setSearchText] = useState('')
     const [rooms, setRooms] = useState<Room[]>([])
+    // リアルタイム 部屋更新
+    React.useEffect(() => {
+        if (typeof window === 'undefined') return
+        const stompClient = new Client({
+            webSocketFactory: () => new SockJS(WS_ENDPOINT),
+            reconnectDelay: 5000
+        })
+        stompClient.onConnect = () => {
+            stompClient.subscribe('/topic/rooms', msg => {
+                const payload = JSON.parse(msg.body)
+                if (payload.type === 'delete') {
+                    setRooms(prev => prev.filter(r => r.id !== payload.roomId))
+                    // 削除イベントで履歴の該当部屋を削除済みフラグに更新
+                    setRoomHistory(prev => prev.map(h => h.roomId === payload.roomId ? { ...h, deleted: true, room: null } : h))
+                } else {
+                    const newRoom: Room = payload
+                    setRooms(prev => [newRoom, ...prev.filter(r => r.id !== newRoom.id)])
+                }
+            })
+        }
+        stompClient.activate()
+        return () => { stompClient.deactivate() }
+    }, [])
+
     const [showCreateModal, setShowCreateModal] = useState(false)
     const [showJoinModal, setShowJoinModal] = useState(false)
     const [selectedRoom, setSelectedRoom] = useState<Room | null>(null)
@@ -50,15 +78,37 @@ const HomeScreen: React.FC = () => {
         setLoading(true)
         setError(null)
         try {
-            const result = await roomApi.searchRooms(searchText, roomType, genre, minPages, maxPages, startTimeFrom, startTimeTo, endTimeFrom, endTimeTo)
-            setRooms(result.rooms || [])
+            // 'create' タブでは全件取得、'search' タブではキーワード検索
+            let roomsList: Room[] = []
+            if (tab === 'create') {
+                roomsList = await roomApi.getRooms(100) // limit 100
+            } else {
+                // 検索タブでは複数条件検索
+                const result = await roomApi.searchRooms(
+                    searchText,
+                    genre,
+                    startTimeFrom,
+                    startTimeTo,
+                    endTimeFrom,
+                    endTimeTo,
+                    minPages,
+                    maxPages
+                )
+                // 部屋タイプによるフィルター
+                let found = result.rooms || []
+                if (roomType === 'open') {
+                    found = found.filter(r => !r.hasPassword)
+                } else if (roomType === 'closed') {
+                    found = found.filter(r => r.hasPassword)
+                }
+                roomsList = found
+            }
+            setRooms(roomsList)
             // 部屋ごとに作成者名を取得
             const map: { [roomId: string]: string } = {};
-            await Promise.all((result.rooms || []).map(async (room) => {
+            await Promise.all(roomsList.map(async (room) => {
                 try {
                     const members = await roomApi.getRoomMembers(room.id);
-                    console.log('room:', room, 'members:', members); // デバッグ出力
-                    console.log('members detail:', JSON.stringify(members)); // 詳細デバッグ
                     const creator = members.find((m: any) => (m.userId || '').replace(/-/g, '').toLowerCase() === (room.hostUserId || '').replace(/-/g, '').toLowerCase());
                     map[room.id] = creator ? creator.username : '';
                 } catch {
@@ -74,8 +124,14 @@ const HomeScreen: React.FC = () => {
     }
 
     // 初期表示とタブ変更時の部屋取得
+    // 初期マウントで全件取得
     React.useEffect(() => {
-        handleSearch() // 初期表示時とタブ変更時に部屋を取得
+        handleSearch()
+    }, [])
+    // タブ変更時の部屋取得
+    React.useEffect(() => {
+        // タブを切り替えたときは常に部屋情報を取得
+        handleSearch()
     }, [tab])
 
     // 検索テキスト変更時のリアルタイム検索（デバウンス）
@@ -83,39 +139,14 @@ const HomeScreen: React.FC = () => {
         if (tab === 'search') {
             const timeoutId = setTimeout(() => {
                 handleSearch()
-            }, 300) // 300ms後に検索実行
-
+            }, 300)
             return () => clearTimeout(timeoutId)
         }
     }, [searchText, tab])
-    // 部屋作成後のリスト再取得
-    const handleRoomCreated = () => {
-        setShowCreateModal(false)
-        setTab('search')
-        handleSearch()
-    }
 
-    // 部屋クリック時の処理
-    const handleRoomClick = (room: Room) => {
-        setSelectedRoom(room)
-        setShowJoinModal(true)
-    }
-
-    // 部屋参加後の処理
-    const handleRoomJoined = async () => {
-        setShowJoinModal(false)
-        if (selectedRoom) {
-            // 履歴を即時再取得
-            if (currentUserId) {
-                try {
-                    const history = await roomApi.getRoomHistory(currentUserId, 10);
-                    setRoomHistory(history);
-                } catch {}
-            }
-            // グループチャット画面へ移動
-            window.location.href = `/rooms/${selectedRoom.id}/chat`
-        }
-    }
+    // --- ここから下の onChange で handleSearch を呼ばないように修正 ---
+    // 検索フォームの各条件の onChange で handleSearch を呼ばず、state のみ更新
+    // 検索ボタン押下時のみ handleSearch を呼ぶ
 
     // ユーザープロフィール情報
     const [userName, setUserName] = useState<string>('');
@@ -153,18 +184,100 @@ const HomeScreen: React.FC = () => {
         return () => clearInterval(timer);
     }, [loginTime]);
 
-    const [roomHistory, setRoomHistory] = useState<RoomHistoryDto[]>([]);
-    // 履歴取得
+    const [roomHistory, setRoomHistory] = useState<RoomHistoryDto[]>([])
+
+    // 履歴リセット状態（localStorageで永続化）
+    const [historyReset, setHistoryReset] = useState(false);
+    // localStorageから初期値を復元
     React.useEffect(() => {
+        if (typeof window !== 'undefined') {
+            setHistoryReset(localStorage.getItem('reading-share-history-reset') === '1');
+        }
+    }, []);
+
+    // 履歴リセットボタン
+    const handleResetHistory = async () => {
         if (!currentUserId) return;
-        console.log('履歴取得: currentUserId =', currentUserId);
+        if (!window.confirm('本当に履歴を削除しますか？')) return;
+        try {
+            await roomApi.resetRoomHistory(currentUserId);
+            setRoomHistory([]);
+            setHistoryReset(true);
+            localStorage.setItem('reading-share-history-reset', '1');
+        } catch {
+            alert('履歴のリセットに失敗しました');
+        }
+    }
+
+    // 履歴リセット状態を初期化（ユーザーIDが変わった時や明示的に解除したい場合）
+    React.useEffect(() => {
+        if (typeof window !== 'undefined' && !historyReset) {
+            localStorage.removeItem('reading-share-history-reset');
+        }
+    }, [currentUserId, historyReset]);
+
+    // 履歴取得（リセット後は取得しない）
+    React.useEffect(() => {
+        if (!currentUserId || historyReset) return;
         roomApi.getRoomHistory(currentUserId, 10)
-            .then((res) => {
-                console.log('roomApi.getRoomHistory response:', res);
-                setRoomHistory(res);
+            .then(setRoomHistory)
+            .catch(() => {});
+    }, [currentUserId, historyReset])
+
+    // 履歴のリアルタイム更新（リセット後は無効化・購読も完全解除）
+    React.useEffect(() => {
+        if (!currentUserId || typeof window === 'undefined' || historyReset) return;
+        let stompClient = new Client({ webSocketFactory: () => new SockJS(WS_ENDPOINT), reconnectDelay: 5000 })
+        stompClient.onConnect = () => {
+            stompClient.subscribe(`/topic/history/${currentUserId}`, msg => {
+                const payload = JSON.parse(msg.body);
+                if (payload.type === 'reset') {
+                    setRoomHistory([]);
+                    setHistoryReset(true);
+                    localStorage.setItem('reading-share-history-reset', '1');
+                    // リセット時は購読も即時解除
+                    stompClient.deactivate();
+                } else if (!historyReset) {
+                    const history: RoomHistoryDto = payload;
+                    setRoomHistory(prev => [history, ...prev.filter(h => h.roomId !== history.roomId)]);
+                }
             })
-            .catch(() => setRoomHistory([]));
-    }, [currentUserId]);
+        }
+        stompClient.activate()
+        return () => { stompClient.deactivate() }
+    }, [currentUserId, historyReset])
+
+    // 部屋クリック時の処理
+    const handleRoomClick = (room: Room) => {
+        setSelectedRoom(room)
+        setShowJoinModal(true)
+    }
+
+    // 部屋作成後のリスト再取得
+    const handleRoomCreated = (_room: Room) => {
+        setShowCreateModal(false)
+        // 作成タブに戻す
+        setTab('create')
+    }
+
+    // 部屋参加後の処理
+    const handleRoomJoined = async () => {
+        setShowJoinModal(false)
+        // 履歴リセット状態なら解除（再参加で履歴を再開）
+        if (historyReset) {
+            setHistoryReset(false);
+            if (typeof window !== 'undefined') {
+                localStorage.removeItem('reading-share-history-reset');
+            }
+        }
+        if (selectedRoom && currentUserId) {
+            try {
+                const history = await roomApi.getRoomHistory(currentUserId, 10);
+                setRoomHistory(history);
+            } catch {}
+            window.location.href = `/rooms/${selectedRoom.id}/chat`
+        }
+    }
 
     return (
         <AuthGuard>
@@ -256,7 +369,7 @@ const HomeScreen: React.FC = () => {
                 {tab === 'search' && (
                     <div style={{ marginBottom: 24, display: 'flex', flexDirection: 'column', gap: 8 }}>
                         {/* 上段：キーワード・部屋タイプ・ジャンル・ボタン */}
-                        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, flexWrap: 'wrap', justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, flexWrap: 'wrap' }}>
                             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
                                 <div style={{ display: 'flex', flexDirection: 'column', minWidth: 180 }}>
                                     <label style={{ fontSize: 13, color: '#388e3c', marginBottom: 2 }}>部屋名・本のタイトル</label>
@@ -280,53 +393,55 @@ const HomeScreen: React.FC = () => {
                                         <option value="closed">クローズ</option>
                                     </select>
                                 </div>
-                                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                    <label style={{ fontSize: 13, color: '#388e3c', marginBottom: 2 }}>ジャンル</label>
-                                    <select
-                                        value={genre}
-                                        onChange={e => setGenre(e.target.value)}
-                                        style={{ padding: 12, borderRadius: 8, border: '1px solid #ccc', fontSize: 16 }}
-                                    >
-                                        <option value="">ジャンル指定なし</option>
-                                        <option value="小説">小説</option>
-                                        <option value="ビジネス">ビジネス</option>
-                                        <option value="学習">学習</option>
-                                        <option value="エッセイ">エッセイ</option>
-                                        <option value="漫画">漫画</option>
-                                        <option value="歴史">歴史</option>
-                                        <option value="科学">科学</option>
-                                        <option value="ライトノベル">ライトノベル</option>
-                                        <option value="児童書">児童書</option>
-                                        <option value="技術書">技術書</option>
-                                        <option value="趣味・実用">趣味・実用</option>
-                                        <option value="詩・短歌">詩・短歌</option>
-                                        <option value="自己啓発">自己啓発</option>
-                                        <option value="旅行">旅行</option>
-                                        <option value="料理">料理</option>
-                                        <option value="スポーツ">スポーツ</option>
-                                        <option value="芸術">芸術</option>
-                                        <option value="写真集">写真集</option>
-                                        <option value="伝記">伝記</option>
-                                        <option value="ファンタジー">ファンタジー</option>
-                                        <option value="ミステリー">ミステリー</option>
-                                        <option value="ホラー">ホラー</option>
-                                        <option value="恋愛">恋愛</option>
-                                        <option value="SF">SF</option>
-                                        <option value="ノンフィクション">ノンフィクション</option>
-                                        <option value="その他">その他</option>
-                                    </select>
+                                {/* ジャンル＋ボタンを横並びでまとめる */}
+                                <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8 }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                        <label style={{ fontSize: 13, color: '#388e3c', marginBottom: 2 }}>ジャンル</label>
+                                        <select
+                                            value={genre}
+                                            onChange={e => setGenre(e.target.value)}
+                                            style={{ padding: 12, borderRadius: 8, border: '1px solid #ccc', fontSize: 16 }}
+                                        >
+                                            <option value="">ジャンル指定なし</option>
+                                            <option value="小説">小説</option>
+                                            <option value="ビジネス">ビジネス</option>
+                                            <option value="学習">学習</option>
+                                            <option value="エッセイ">エッセイ</option>
+                                            <option value="漫画">漫画</option>
+                                            <option value="歴史">歴史</option>
+                                            <option value="科学">科学</option>
+                                            <option value="ライトノベル">ライトノベル</option>
+                                            <option value="児童書">児童書</option>
+                                            <option value="技術書">技術書</option>
+                                            <option value="趣味・実用">趣味・実用</option>
+                                            <option value="詩・短歌">詩・短歌</option>
+                                            <option value="自己啓発">自己啓発</option>
+                                            <option value="旅行">旅行</option>
+                                            <option value="料理">料理</option>
+                                            <option value="スポーツ">スポーツ</option>
+                                            <option value="芸術">芸術</option>
+                                            <option value="写真集">写真集</option>
+                                            <option value="伝記">伝記</option>
+                                            <option value="ファンタジー">ファンタジー</option>
+                                            <option value="ミステリー">ミステリー</option>
+                                            <option value="ホラー">ホラー</option>
+                                            <option value="恋愛">恋愛</option>
+                                            <option value="SF">SF</option>
+                                            <option value="ノンフィクション">ノンフィクション</option>
+                                            <option value="その他">その他</option>
+                                        </select>
+                                    </div>
+                                    {/* 右にスペースを追加（検索ボタン1個分） */}
+                                    <div style={{ width: 120 }} />
+                                    <button
+                                        onClick={handleSearch}
+                                        style={{ padding: '12px 24px', borderRadius: 8, border: '1px solid #388e3c', background: '#fff', color: '#388e3c', fontWeight: 'bold', fontSize: 16, cursor: 'pointer' }}
+                                    >検索</button>
+                                    <button
+                                        onClick={handleSearch}
+                                        style={{ padding: '12px 24px', borderRadius: 8, border: '1px solid #2196f3', background: '#2196f3', color: '#fff', fontWeight: 'bold', fontSize: 16, cursor: 'pointer' }}
+                                    >部屋一覧を更新</button>
                                 </div>
-                            </div>
-                            {/* 検索・更新ボタンを右寄せで横並び */}
-                            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', gap: 8, minWidth: 180, alignItems: 'flex-end' }}>
-                                <button
-                                    onClick={handleSearch}
-                                    style={{ padding: '12px 24px', borderRadius: 8, border: '1px solid #388e3c', background: '#fff', color: '#388e3c', fontWeight: 'bold', fontSize: 16, cursor: 'pointer' }}
-                                >検索</button>
-                                <button
-                                    onClick={handleSearch}
-                                    style={{ padding: '12px 24px', borderRadius: 8, border: '1px solid #2196f3', background: '#2196f3', color: '#fff', fontWeight: 'bold', fontSize: 16, cursor: 'pointer' }}
-                                >部屋一覧を更新</button>
                             </div>
                         </div>
                         {/* 下段：範囲指定 */}
@@ -401,13 +516,18 @@ const HomeScreen: React.FC = () => {
                         <div
                             style={{
                                 display: 'grid',
-                                gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', // 240pxに調整
+                                gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
                                 gap: 20,
                                 width: '100%',
                                 boxSizing: 'border-box',
                             }}
                         >
-                            {rooms.length === 0 ? (
+                            {tab === 'search' &&
+                                !searchText && !genre && !minPages && !maxPages && !startTimeFrom && !startTimeTo && !endTimeFrom && !endTimeTo ? (
+                                <div style={{ color: '#b0b8c9', fontSize: 18, width: '100%', textAlign: 'center', padding: '32px 0' }}>
+                                    検索された部屋はここに表示されます
+                                </div>
+                            ) : rooms.length === 0 ? (
                                 <div style={{ color: '#b0b8c9', fontSize: 20, width: '100%', textAlign: 'center', padding: '32px 0' }}>
                                     部屋はありません
                                 </div>
@@ -528,37 +648,103 @@ const HomeScreen: React.FC = () => {
                         </div>
                     </div>
                 )}
-                {showCreateModal && (
-                    <RoomCreationModal open={showCreateModal} userId={currentUserId} onClose={() => setShowCreateModal(false)} onCreated={handleRoomCreated} />
-                )}
-                {showJoinModal && selectedRoom && (
-                    <RoomJoinModal
-                        open={showJoinModal}
-                        room={selectedRoom}
-                        userId={currentUserId}
-                        onClose={() => {
-                            setShowJoinModal(false)
-                            setSelectedRoom(null)
-                        }}
-                        onJoined={handleRoomJoined}
-                    />
-                )}
-                {showSurveyAnswerModal && (
-                    <SurveyAnswerModal 
-                        open={showSurveyAnswerModal} 
-                        surveyId={dummySurveyId} 
-                        onClose={() => setShowSurveyAnswerModal(false)} 
-                        onAnswered={() => { setShowSurveyAnswerModal(false); alert('回答送信完了（ダミーデータ）'); }}
-                    />
-                )}
-                {showSurveyResultModal && (
-                    <SurveyResultModal 
-                        open={showSurveyResultModal} 
-                        surveyId={dummySurveyId} 
-                        onClose={() => setShowSurveyResultModal(false)} 
-                    />
-                )}
+                {/* 最近参加した部屋（最新10件） */}
+                <div style={{ marginTop: 32, padding: 16, background: 'var(--white)', borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <h2 style={{ margin: '0 0 12px', fontSize: 20, color: 'var(--accent)' }}>最近参加した部屋</h2>
+                        <button
+                            onClick={handleResetHistory}
+                            style={{ padding: '6px 16px', borderRadius: 6, border: '1px solid #dc3545', background: '#fff', color: '#dc3545', fontWeight: 'bold', fontSize: 14, cursor: 'pointer', marginLeft: 12 }}
+                        >履歴をリセット</button>
+                    </div>
+                    {roomHistory.filter(h => {
+                        if (!h.room) return true;
+                        // 作成しただけの部屋: joinedAtとcreatedAtが完全一致かつ自分がホスト
+                        const isHost = (h.room.hostUserId || '').replace(/-/g, '').toLowerCase() === currentUserId.replace(/-/g, '').toLowerCase();
+                        const joined = new Date(h.joinedAt).getTime();
+                        const created = new Date(h.room.createdAt).getTime();
+                        if (isHost && joined === created) return false;
+                        return true;
+                    }).length === 0 ? (
+                        <div style={{ color: '#666' }}>まだ参加した部屋がありません</div>
+                    ) : (
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
+                            {roomHistory.filter(h => {
+                                if (!h.room) return true;
+                                const isHost = (h.room.hostUserId || '').replace(/-/g, '').toLowerCase() === currentUserId.replace(/-/g, '').toLowerCase();
+                                const joined = new Date(h.joinedAt).getTime();
+                                const created = new Date(h.room.createdAt).getTime();
+                                if (isHost && joined === created) return false;
+                                return true;
+                            }).map(h => (
+                                <div
+                                    key={h.roomId}
+                                    style={{ position: 'relative', background: 'var(--white)', padding: 16, borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.1)', cursor: h.deleted ? 'default' : 'pointer', transition: '0.3s', textAlign: 'center', color: h.deleted ? 'red' : 'inherit' }}
+                                    onClick={() => { if (!h.deleted && h.room) { handleRoomClick(h.room); } }}
+                                >
+                                    {h.deleted ? (
+                                        <div style={{ fontSize: 16, fontWeight: 'bold', padding: '32px 0', color: 'red' }}>
+                                            この部屋は既に削除されています
+                                        </div>
+                                    ) : (
+                                        <> 
+                                            <div>
+                                                <h3 style={{ color: 'var(--accent)', fontSize: 18, fontWeight: 'bold', marginBottom: 8, overflowWrap: 'break-word', wordBreak: 'break-word' }}>
+                                                    {h.room!.roomName}
+                                                </h3>
+                                                <p style={{ color: 'var(--text-main)', fontSize: 14, marginBottom: 8, overflowWrap: 'break-word', wordBreak: 'break-word' }}>
+                                                    本: {h.room!.bookTitle}<br />
+                                                    作成者: {creatorMap[h.roomId] || '-'}
+                                                </p>
+                                            </div>
+                                            <div style={{ fontSize: 12, color: '#999', display: 'flex', justifyContent: 'space-between' }}>
+                                                <span>参加: {new Date(h.joinedAt).toLocaleDateString()}</span>
+                                                <span>{h.room!.hasPassword ? '🔒' : '🔓'}</span>
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
             </div>
+
+            {/* モーダル類 */}
+            {showCreateModal && (
+                <RoomCreationModal
+                    open={showCreateModal}
+                    userId={currentUserId}
+                    onClose={() => setShowCreateModal(false)}
+                    onCreated={handleRoomCreated}
+                />
+            )}
+            {showJoinModal && selectedRoom && (
+                <RoomJoinModal
+                    open={showJoinModal}
+                    room={selectedRoom}
+                    userId={currentUserId}
+                    onClose={() => {
+                        setShowJoinModal(false)
+                        setSelectedRoom(null)
+                    }}
+                    onJoined={handleRoomJoined}
+                />
+            )}
+            {showSurveyAnswerModal && (
+                <SurveyAnswerModal
+                    open={showSurveyAnswerModal}
+                    surveyId={dummySurveyId}
+                    onClose={() => setShowSurveyAnswerModal(false)}
+                />
+            )}
+            {showSurveyResultModal && (
+                <SurveyResultModal
+                    open={showSurveyResultModal}
+                    surveyId={dummySurveyId}
+                    onClose={() => setShowSurveyResultModal(false)}
+                />
+            )}
         </AuthGuard>
     )
 }

@@ -36,4 +36,9 @@ public interface ISurveyRepository {
      * アンケートの回答一覧を取得する
      */
     List<SurveyAnswer> findAnswersBySurveyId(UUID surveyId);
+
+    /**
+     * 特定の部屋のアンケートを一括削除する
+     */
+    void deleteByRoomId(UUID roomId);
 }

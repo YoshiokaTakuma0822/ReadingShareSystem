@@ -1,5 +1,6 @@
 package com.readingshare.room.infrastructure.persistence;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,4 +27,26 @@ public interface RoomJpaRepository extends JpaRepository<Room, UUID> {
      */
     @Query("SELECT r FROM Room r WHERE r.roomName LIKE %:keyword% OR r.bookTitle LIKE %:keyword%")
     List<Room> findByKeyword(@Param("keyword") String keyword);
+
+    /**
+     * 複数条件で部屋を検索する。DBレベルでフィルタ
+     */
+    @Query("SELECT r FROM Room r WHERE "
+         + "(COALESCE(:keyword, '') = '' OR r.roomName LIKE CONCAT('%', :keyword, '%') OR r.bookTitle LIKE CONCAT('%', :keyword, '%')) "
+         + "AND (COALESCE(:genre, '') = '' OR r.genre = :genre) "
+         + "AND (COALESCE(:startFrom, r.startTime) <= r.startTime OR r.startTime IS NULL) "
+         + "AND (COALESCE(:startTo, r.startTime) >= r.startTime OR r.startTime IS NULL) "
+         + "AND (COALESCE(:endFrom, r.endTime) <= r.endTime OR r.endTime IS NULL) "
+         + "AND (COALESCE(:endTo, r.endTime) >= r.endTime OR r.endTime IS NULL) "
+         + "AND (COALESCE(:pagesMin, r.totalPages) <= r.totalPages OR r.totalPages IS NULL) "
+         + "AND (COALESCE(:pagesMax, r.totalPages) >= r.totalPages OR r.totalPages IS NULL)")
+    List<Room> findByConditions(
+            @Param("keyword") String keyword,
+            @Param("genre") String genre,
+            @Param("startFrom") Instant startFrom,
+            @Param("startTo") Instant startTo,
+            @Param("endFrom") Instant endFrom,
+            @Param("endTo") Instant endTo,
+            @Param("pagesMin") Integer pagesMin,
+            @Param("pagesMax") Integer pagesMax);
 }

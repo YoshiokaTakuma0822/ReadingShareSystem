@@ -9,6 +9,11 @@ const nextConfig: NextConfig = {
                 destination: process.env.NODE_ENV === 'production' ?
                     'http://app:8080/api/:path*' : 'http://localhost:8080/api/:path*',
             },
+            {
+                source: '/ws/:path*',
+                destination: process.env.NODE_ENV === 'production' ?
+                    'http://app:8080/ws/:path*' : 'http://localhost:8080/ws/:path*',
+            },
         ]
     },
 }

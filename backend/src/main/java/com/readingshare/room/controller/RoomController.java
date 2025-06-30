@@ -1,9 +1,16 @@
 package com.readingshare.room.controller;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.Map;
+import java.util.ArrayList;
+import java.util.Optional;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,10 +38,12 @@ import com.readingshare.room.service.RoomService;
 public class RoomController {
 
     private final RoomService roomService;
+    private final SimpMessagingTemplate messagingTemplate;
     private final IUserRepository userRepository;
 
-    public RoomController(RoomService roomService, IUserRepository userRepository) {
+    public RoomController(RoomService roomService, IUserRepository userRepository, SimpMessagingTemplate messagingTemplate) {
         this.roomService = roomService;
+        this.messagingTemplate = messagingTemplate;
         this.userRepository = userRepository;
     }
 
@@ -44,10 +53,9 @@ public class RoomController {
      */
     @PostMapping
     public ResponseEntity<Room> createRoom(@RequestBody CreateRoomRequest request) {
-        Room createdRoom = request.password() != null
-                ? roomService.createRoomWithPassword(request.roomName(), request.bookTitle(),
-                        request.hostUserId(), request.password(), request.totalPages() != null ? request.totalPages() : 300)
-                : roomService.createRoom(request.roomName(), request.bookTitle(), request.hostUserId(), request.totalPages() != null ? request.totalPages() : 300);
+        Room createdRoom = roomService.createRoom(request);
+        // Broadcast new room
+        messagingTemplate.convertAndSend("/topic/rooms", createdRoom);
         return ResponseEntity.ok(createdRoom);
     }
 
@@ -69,6 +77,10 @@ public class RoomController {
     public ResponseEntity<?> joinRoom(@RequestBody JoinRoomRequest request) {
         try {
             RoomMember roomMember = roomService.joinRoom(request.roomId(), request.userId(), request.roomPassword());
+            // Broadcast join event for user history
+            Room room = roomMember.getRoom();
+            RoomHistoryDto historyDto = new RoomHistoryDto(room.getId(), room, false, roomMember.getJoinedAt());
+            messagingTemplate.convertAndSend("/topic/history/" + request.userId(), historyDto);
             return ResponseEntity.ok(roomMember);
         } catch (com.readingshare.common.exception.DomainException ex) {
             // パスワード不一致や既にメンバー等の業務例外は400で返す
@@ -81,8 +93,21 @@ public class RoomController {
      * GET /api/rooms/search?keyword=xxx
      */
     @GetMapping("/search")
-    public ResponseEntity<List<Room>> searchRooms(@RequestParam String keyword) {
-        List<Room> rooms = roomService.searchRooms(keyword);
+    public ResponseEntity<List<Room>> searchRooms(
+            @RequestParam(value = "keyword", required = false) String keyword,
+            @RequestParam(value = "genre", required = false) String genre,
+            @RequestParam(value = "startFrom", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startFrom,
+            @RequestParam(value = "startTo", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTo,
+            @RequestParam(value = "endFrom", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endFrom,
+            @RequestParam(value = "endTo", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTo,
+            @RequestParam(value = "pagesMin", required = false) Integer pagesMin,
+            @RequestParam(value = "pagesMax", required = false) Integer pagesMax
+    ) {
+        List<Room> rooms = roomService.searchRooms(keyword, genre, startFrom, startTo, endFrom, endTo, pagesMin, pagesMax);
         return ResponseEntity.ok(rooms);
     }
 
@@ -111,6 +136,8 @@ public class RoomController {
     @DeleteMapping("/{roomId}")
     public ResponseEntity<Void> deleteRoom(@PathVariable("roomId") String roomId) {
         roomService.deleteRoom(roomId);
+        // Broadcast room deletion
+        messagingTemplate.convertAndSend("/topic/rooms", Map.of("type", "delete", "roomId", roomId));
         return ResponseEntity.noContent().build();
     }
 
@@ -130,14 +157,26 @@ public class RoomController {
      */
     @GetMapping("/{roomId}/members")
     public ResponseEntity<List<MemberInfoDto>> getRoomMembers(@PathVariable("roomId") String roomId) {
-        List<RoomMember> members = roomService.getRoomMembers(UUID.fromString(roomId));
-        // ユーザー名を取得してDTOに詰める
-        List<MemberInfoDto> result = members.stream().map(member -> {
-            String username = userRepository.findById(member.getUserId())
-                .map(User::getUsername)
-                .orElse("");
-            return new MemberInfoDto(member.getUserId(), username, member.getJoinedAt());
-        }).toList();
+        UUID uuid = UUID.fromString(roomId);
+        // 部屋情報を取得し、存在しなければ404
+        Optional<Room> optRoom = roomService.getRoomById(uuid);
+        if (optRoom.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        Room room = optRoom.get();
+        // RoomMember から参加メンバーを取得
+        List<RoomMember> members = roomService.getRoomMembers(uuid);
+        List<MemberInfoDto> result = new ArrayList<>();
+        // ホストを先頭に追加 (作成時刻を参加時刻として扱う)
+        String hostName = userRepository.findById(room.getHostUserId()).map(User::getUsername).orElse("");
+        result.add(new MemberInfoDto(room.getHostUserId(), hostName, room.getCreatedAt()));
+        // その他参加メンバーを追加
+        for (RoomMember m : members) {
+            if (!m.getUserId().equals(room.getHostUserId())) {
+                String name = userRepository.findById(m.getUserId()).map(User::getUsername).orElse("");
+                result.add(new MemberInfoDto(m.getUserId(), name, m.getJoinedAt()));
+            }
+        }
         return ResponseEntity.ok(result);
     }
 
@@ -150,13 +189,48 @@ public class RoomController {
         @RequestParam("userId") UUID userId,
         @RequestParam(value = "limit", defaultValue = "10") int limit) {
 
-        List<RoomMember> members = roomService.getRoomHistory(userId, limit);
-        List<RoomHistoryDto> result = members.stream().map(member -> {
-            Room room = roomService.getRoomById(member.getRoom().getId()).orElse(null);
-            boolean deleted = (room == null);
-            return new RoomHistoryDto(member.getRoom().getId(), room, deleted, member.getJoinedAt());
-        }).toList();
+        // ユーザーの履歴リセット時刻を取得
+        Optional<User> optUser = userRepository.findById(userId);
+        Instant historyResetAt = optUser.flatMap(u -> Optional.ofNullable(u.getHistoryResetAt())).orElse(Instant.EPOCH);
+
+        List<RoomMember> members = roomService.getRoomHistory(userId, limit + 10); // 余分に取得
+        // フィルタ: ホストの自動参加 (createdAt == joinedAt) を除外 ＆ 履歴リセット時刻より後のみ
+        List<RoomHistoryDto> result = members.stream()
+            .filter(member -> {
+                Optional<Room> optRoom = roomService.getRoomById(member.getRoom().getId());
+                if (optRoom.isEmpty()) return true; // 削除済みは表示
+                Room room = optRoom.get();
+                boolean isHost = room.getHostUserId().equals(member.getUserId());
+                boolean isAuto = isHost && member.getJoinedAt().equals(room.getCreatedAt());
+                boolean afterReset = member.getJoinedAt().isAfter(historyResetAt);
+                return !isAuto && afterReset;
+            })
+            .map(member -> {
+                Room room = roomService.getRoomById(member.getRoom().getId()).orElse(null);
+                boolean deleted = (room == null);
+                return new RoomHistoryDto(member.getRoom().getId(), room, deleted, member.getJoinedAt());
+            })
+            .limit(limit)
+            .toList();
         return ResponseEntity.ok(result);
+    }
+
+    /**
+     * ユーザーの部屋参加履歴を削除（リセット）
+     * DELETE /api/rooms/history?userId=xxx
+     */
+    @DeleteMapping("/history")
+    public ResponseEntity<Void> deleteRoomHistory(@RequestParam("userId") UUID userId) {
+        // Delete user's room join history
+        roomService.deleteRoomHistory(userId);
+        // 履歴リセット時刻を記録
+        userRepository.findById(userId).ifPresent(user -> {
+            user.setHistoryResetAt(Instant.now());
+            userRepository.save(user);
+        });
+        // Broadcast reset event for real-time history clearing
+        messagingTemplate.convertAndSend("/topic/history/" + userId, Map.of("type", "reset"));
+        return ResponseEntity.noContent().build();
     }
 
     // DTOクラス

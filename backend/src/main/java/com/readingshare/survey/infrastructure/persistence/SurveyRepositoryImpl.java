@@ -45,4 +45,9 @@ public class SurveyRepositoryImpl implements ISurveyRepository {
     public List<SurveyAnswer> findAnswersBySurveyId(UUID surveyId) {
         return surveyAnswerRepository.findBySurveyId(surveyId);
     }
+
+    @Override
+    public void deleteByRoomId(UUID roomId) {
+        surveyRepository.deleteByRoomId(roomId);
+    }
 }

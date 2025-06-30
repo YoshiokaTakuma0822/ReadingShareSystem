@@ -1,5 +1,6 @@
 package com.readingshare.room.infrastructure.persistence;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -47,5 +48,19 @@ public class RoomRepositoryImpl implements IRoomRepository {
     @Override
     public void deleteById(UUID id) {
         roomRepository.deleteById(id);
+    }
+
+    @Override
+    public List<Room> findByConditions(
+            String keyword,
+            String genre,
+            Instant startFrom,
+            Instant startTo,
+            Instant endFrom,
+            Instant endTo,
+            Integer pagesMin,
+            Integer pagesMax
+    ) {
+        return roomRepository.findByConditions(keyword, genre, startFrom, startTo, endFrom, endTo, pagesMin, pagesMax);
     }
 }

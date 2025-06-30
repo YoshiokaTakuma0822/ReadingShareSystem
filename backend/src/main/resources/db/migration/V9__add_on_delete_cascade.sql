@@ -1,0 +1,3 @@
+-- V9__add_on_delete_cascade.sql
+-- 旧V2__add_on_delete_cascade.sqlの内容をここに移動してください。
+-- 例: ALTER TABLE ... ADD CONSTRAINT ... ON DELETE CASCADE;

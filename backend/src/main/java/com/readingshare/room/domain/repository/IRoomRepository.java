@@ -1,5 +1,6 @@
 package com.readingshare.room.domain.repository;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -60,4 +61,18 @@ public interface IRoomRepository {
      * @param id 部屋ID
      */
     void deleteById(UUID id);
+
+    /**
+     * 複数条件で部屋を検索する。
+     */
+    List<Room> findByConditions(
+            String keyword,
+            String genre,
+            Instant startFrom,
+            Instant startTo,
+            Instant endFrom,
+            Instant endTo,
+            Integer pagesMin,
+            Integer pagesMax
+    );
 }

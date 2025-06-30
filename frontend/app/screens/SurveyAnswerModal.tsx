@@ -7,10 +7,9 @@ interface SurveyAnswerModalProps {
     open: boolean
     surveyId: string
     onClose: () => void
-    onAnswered: () => void
 }
 
-const SurveyAnswerModal: React.FC<SurveyAnswerModalProps> = ({ open, surveyId, onClose, onAnswered }) => {
+const SurveyAnswerModal: React.FC<SurveyAnswerModalProps> = ({ open, surveyId, onClose }) => {
     const [survey, setSurvey] = useState<Survey | null>(null)
     const [selected, setSelected] = useState<string | null>(null)
     const [loading, setLoading] = useState(false)
@@ -20,7 +19,7 @@ const SurveyAnswerModal: React.FC<SurveyAnswerModalProps> = ({ open, surveyId, o
         if (!open) return
         setLoading(true)
         setError(null)
-        surveyApi.getSurvey(surveyId)
+        surveyApi.getSurveyFormat(surveyId)
             .then(data => {
                 setSurvey(data)
             })
@@ -39,7 +38,7 @@ const SurveyAnswerModal: React.FC<SurveyAnswerModalProps> = ({ open, surveyId, o
                 isAnonymous: false
             }
             await surveyApi.answerSurvey(surveyId, request)
-            onAnswered()
+            onClose()
         } catch (e) {
             setError('回答送信に失敗しました')
         } finally {

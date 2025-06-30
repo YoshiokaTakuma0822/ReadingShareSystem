@@ -31,10 +31,11 @@ const RoomJoinModal: React.FC<RoomJoinModalProps> = ({ open, room, userId, onClo
         setLoading(true)
         setError(null)
         try {
+            // パスワードが必要な場合のみroomPasswordを設定
             const request: JoinRoomRequest = {
                 roomId: room.id,
                 userId,
-                roomPassword: password || undefined
+                roomPassword: password.trim() || undefined
             }
             await roomApi.joinRoom(request)
             onJoined()

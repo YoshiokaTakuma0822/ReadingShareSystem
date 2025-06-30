@@ -1,11 +1,15 @@
 "use client"
 import React, { useState, useEffect } from 'react'
 import SurveyCreationModal from './SurveyCreationModal'
+import SurveyAnswerModal from './SurveyAnswerModal'
 import { chatApi } from '../../lib/chatApi'
 import { ChatMessage } from '../../types/chat'
 import ReadingScreenOverlay from './ReadingScreenOverlay'
 import { roomApi } from '../../lib/roomApi';
 import { Room } from '../../types/room';
+import { surveyApi } from '../../lib/surveyApi'
+import { Survey } from '../../types/survey'
+import { useRouter } from 'next/navigation';
 
 interface Message {
     id: number;
@@ -29,6 +33,7 @@ declare global {
 }
 
 const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャットルーム", currentUser = "あなた", roomId }) => {
+    const router = useRouter()
     const [messages, setMessages] = useState<Message[]>([])
     const [input, setInput] = useState("")
     const [msgId, setMsgId] = useState(1); // 追加
@@ -38,6 +43,11 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
     const [currentUserId, setCurrentUserId] = useState<string | null>(null)
     const [showReadingOverlay, setShowReadingOverlay] = useState(false)
     const [roomName, setRoomName] = useState<string>(roomTitle);
+    // アンケート回答モーダル制御
+    const [showAnswerModal, setShowAnswerModal] = useState(false);
+    const [answerSurveyId, setAnswerSurveyId] = useState<string | null>(null);
+    // アンケートフォーマット表示用
+    const [surveyFormat, setSurveyFormat] = useState<Survey | null>(null);
 
     // 追加: ユーザーID→ユーザー名のマッピングを保持
     const [userIdToName, setUserIdToName] = useState<Record<string, string>>({});
@@ -134,11 +144,23 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
         setShowSurveyModal(true)
     }
 
-    const handleSurveyCreated = () => {
+    // アンケート作成後はモーダルを閉ち、回答モーダルを開く
+    const handleSurveyCreated = (surveyId: string) => {
         setShowSurveyModal(false)
-        // サーベイ作成後の処理（必要に応じて）
+        setAnswerSurveyId(surveyId)
+        setShowAnswerModal(true)
     }
 
+    // アンケートフォーマット取得
+    useEffect(() => {
+        if (answerSurveyId) {
+            surveyApi.getSurveyFormat(answerSurveyId)
+                .then(data => setSurveyFormat(data))
+                .catch(() => setSurveyFormat(null));
+        } else {
+            setSurveyFormat(null);
+        }
+    }, [answerSurveyId]);
     // WebSocket受信時に呼ばれるグローバル関数を定義
     useEffect(() => {
         window.updateGroupChatScreen = (data: any) => {
@@ -242,6 +264,15 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
 
             {/* ナビゲーションボタン */}
             <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginBottom: 16, flexWrap: 'wrap' }}>
+                {/* アンケート回答ボタン（作成後に表示） */}
+                {answerSurveyId && (
+                    <button
+                        onClick={() => setShowAnswerModal(true)}
+                        style={{ padding: '12px 24px', fontSize: 16, background: '#ff9800', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}
+                    >
+                        📝 アンケートに回答する
+                    </button>
+                )}
                 <button
                     onClick={handleGoToReading}
                     style={{
@@ -317,6 +348,67 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                     >
                         再試行
                     </button>
+                </div>
+            )}
+
+            {/* アンケートブロック */}
+            {surveyFormat && (
+                <div style={{
+                    background: '#e8f5e9',
+                    border: '1px solid #c8e6c9',
+                    borderRadius: 8,
+                    padding: 16,
+                    marginBottom: 16,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 8
+                }}>
+                    <h3 style={{ margin: 0, color: '#2e7d32' }}>新しいアンケートが作成されました</h3>
+                    <div style={{ fontSize: 16, color: '#555' }}>
+                        <strong>タイトル:</strong> {surveyFormat.title}
+                    </div>
+                    <div style={{ fontSize: 16, color: '#555' }}>
+                        <strong>選択肢:</strong>
+                        <ul style={{ paddingLeft: 20, margin: 0 }}>
+                            {surveyFormat.options.map((option, index) => (
+                                <li key={index} style={{ marginBottom: 4 }}>{option}</li>
+                            ))}
+                        </ul>
+                    </div>
+                    <button
+                        onClick={() => setShowAnswerModal(true)}
+                        style={{
+                            marginTop: 8,
+                            padding: '12px 24px',
+                            borderRadius: 8,
+                            border: '1px solid #2e7d32',
+                            fontSize: 16,
+                            background: '#c8e6c9',
+                            color: '#2e7d32',
+                            cursor: 'pointer',
+                            fontWeight: 'bold',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                        }}
+                    >
+                        アンケートに回答する
+                    </button>
+                </div>
+            )}
+
+            {/* アンケート内容表示 */}
+            {surveyFormat && (
+                <div style={{ margin: '16px 0', padding: 16, background: '#f9f9f9', border: '1px solid #ccc', borderRadius: 8 }}>
+                    <h3 style={{ marginBottom: 8, color: '#1976d2' }}>{surveyFormat.title}</h3>
+                    {surveyFormat.questions.map((q, qi) => (
+                        <div key={qi} style={{ marginBottom: 8 }}>
+                            <p style={{ margin: '4px 0', fontWeight: 'bold' }}>{q.questionText}</p>
+                            <ul style={{ margin: 0, paddingLeft: 16 }}>
+                                {q.options.map((opt, oi) => (
+                                    <li key={oi} style={{ listStyleType: 'disc' }}>{opt}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    ))}
                 </div>
             )}
 
@@ -435,8 +527,17 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                 />
             )}
             <ReadingScreenOverlay roomId={roomId} open={showReadingOverlay} onClose={() => setShowReadingOverlay(false)} />
-        </div>
-    )
-}
+            {/* アンケート回答モーダル */}
+            {showAnswerModal && answerSurveyId && (
+                <SurveyAnswerModal
+                    open={showAnswerModal}
+                    surveyId={answerSurveyId!}
+                    onClose={() => setShowAnswerModal(false)}
+                />
+            )}
+         </div>
+     )
+
+} // GroupChatScreen 関数を閉じる
 
 export default GroupChatScreen

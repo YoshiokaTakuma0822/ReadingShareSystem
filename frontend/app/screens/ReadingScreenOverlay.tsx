@@ -14,7 +14,6 @@ const ReadingScreenOverlay: React.FC<ReadingScreenOverlayProps> = ({ roomId, ope
   const [badgeSenders, setBadgeSenders] = useState<string[]>([]);
   const [badgeSenderCounts, setBadgeSenderCounts] = useState<{ [sender: string]: number }>({}); // 送信者ごとの件数を管理
   const [visible, setVisible] = useState(false);
-  const [inputValue, setInputValue] = useState("");
   const [showNewMessageBanner, setShowNewMessageBanner] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
   const userIdRef = useRef<string | null>(null);
@@ -41,9 +40,11 @@ const ReadingScreenOverlay: React.FC<ReadingScreenOverlayProps> = ({ roomId, ope
 
   // WebSocketでリアルタイム通知
   useEffect(() => {
-    clientRef.current = null;
-    connectedRef.current = false;
-    // CDNからstompjsを動的import
+      clientRef.current = null;
+      connectedRef.current = false;
+     // roomIdが未設定の場合は接続しない
+     if (!roomId) return;
+      // CDNからstompjsを動的import
     const loadStompAndConnect = async () => {
       if (typeof window === "undefined") return;
       // @ts-ignore
@@ -169,7 +170,7 @@ const ReadingScreenOverlay: React.FC<ReadingScreenOverlayProps> = ({ roomId, ope
 
   if (!open) return null;
   return (
-    <div style={{
+    <div onClick={handleClose} style={{
       position: 'fixed',
       top: 0,
       left: 0,
@@ -233,47 +234,22 @@ const ReadingScreenOverlay: React.FC<ReadingScreenOverlayProps> = ({ roomId, ope
       )}
       {/* 通知表示 */}
       <ChatNotification message={notification || ''} visible={visible} onClose={() => setNotification(null)} />
-      <div style={{
+      <div onClick={e => e.stopPropagation()} style={{
         background: '#fff',
         borderRadius: 16,
         boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
         padding: '16px 24px',
-        minWidth: 320,
-        minHeight: 320,
-        maxWidth: '98vw',
+        width: '60vw',
+        maxWidth: '90vw',
         maxHeight: '98vh',
-        overflow: 'auto',
+        /* 横スクロールを隠して縦スクロールのみ許可 */
+        overflowY: 'auto',
+        overflowX: 'hidden',
         position: 'relative',
         display: 'flex',
         flexDirection: 'column',
       }}>
-        <button onClick={handleClose} style={{ position: 'absolute', top: 12, right: 12, zIndex: 10, background: '#388e3c', color: '#fff', border: 'none', borderRadius: 8, padding: '6px 16px', fontWeight: 'bold', cursor: 'pointer' }}>閉じる</button>
         <ReadingScreen roomId={roomId} />
-        {/* 送信UI追加（臨時：ボタンのonClickで直接送信） */}
-        <div style={{ marginTop: 16, display: "flex", gap: 8 }}>
-          <input
-            type="text"
-            name="message"
-            value={inputValue}
-            onChange={e => setInputValue(e.target.value)}
-            placeholder="メッセージを入力"
-            style={{ flex: 1, padding: 8, borderRadius: 4, border: "1px solid #ccc" }}
-          />
-          <button
-            type="button"
-            style={{ padding: "8px 16px", borderRadius: 4, background: "#1976d2", color: "#fff", border: "none" }}
-            onClick={() => {
-              console.log("送信ボタンクリック", inputValue);
-              if (inputValue.trim()) {
-                sendMessage(inputValue);
-                setInputValue("");
-              }
-            }}
-          >
-            送信
-          </button>
-        </div>
-        {/* 送信UIここまで */}
       </div>
     </div>
   );

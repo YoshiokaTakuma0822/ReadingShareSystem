@@ -1,14 +1,14 @@
 "use client"
 
 import React, { useState } from 'react'
-import { CreateRoomRequest } from '../../types/room'
+import { CreateRoomRequest, Room } from '../../types/room'
 import { roomApi } from '../../lib/roomApi'
 
 interface RoomCreationModalProps {
     open: boolean
     userId: string // 追加: ホストユーザーID
     onClose: () => void
-    onCreated: () => void
+    onCreated: (room: Room) => void
 }
 
 const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onClose, onCreated }) => {
@@ -37,8 +37,8 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
                 endTime: endTime || undefined,
                 totalPages: totalPages || undefined, // 追加
             };
-            await roomApi.createRoom(req);
-            onCreated();
+            const createdRoom: Room = await roomApi.createRoom(req);
+            onCreated(createdRoom);
         } catch (e) {
             setError('部屋作成に失敗しました')
         } finally {

@@ -8,24 +8,26 @@ export const roomApi = {
     },
     searchRooms: async (
         keyword: string,
-        roomType?: string,
         genre?: string,
-        minPages?: string,
-        maxPages?: string,
-        startTimeFrom?: string,
-        startTimeTo?: string,
-        endTimeFrom?: string,
-        endTimeTo?: string
+        startFrom?: string,
+        startTo?: string,
+        endFrom?: string,
+        endTo?: string,
+        pagesMin?: string,
+        pagesMax?: string
     ): Promise<{ rooms: Room[] }> => {
         const params: any = { keyword };
-        if (roomType && roomType !== 'all') params.roomType = roomType;
-        if (genre) params.genre = genre;
-        if (minPages) params.minPages = minPages;
-        if (maxPages) params.maxPages = maxPages;
-        if (startTimeFrom) params.startTimeFrom = startTimeFrom;
-        if (startTimeTo) params.startTimeTo = startTimeTo;
-        if (endTimeFrom) params.endTimeFrom = endTimeFrom;
-        if (endTimeTo) params.endTimeTo = endTimeTo;
+        // ジャンル
+        if (genre && genre !== '') params.genre = genre;
+        // 開始日時範囲
+        if (startFrom && startFrom !== '') params.startFrom = startFrom;
+        if (startTo && startTo !== '') params.startTo = startTo;
+        // 終了日時範囲
+        if (endFrom && endFrom !== '') params.endFrom = endFrom;
+        if (endTo && endTo !== '') params.endTo = endTo;
+        // ページ数範囲（数値型で送信）
+        if (pagesMin && pagesMin !== '') params.pagesMin = Number(pagesMin);
+        if (pagesMax && pagesMax !== '') params.pagesMax = Number(pagesMax);
         const response = await apiClient.get<Room[]>('/rooms/search', { params });
         return { rooms: response.data }
     },
@@ -55,5 +57,12 @@ export const roomApi = {
     getRoomHistory: async (userId: string, limit: number = 10) => {
         const response = await apiClient.get(`/rooms/history`, { params: { userId, limit } });
         return response.data;
+    },
+    getRooms: async (limit: number = 10): Promise<Room[]> => {
+        const response = await apiClient.get<Room[]>('/rooms', { params: { limit } });
+        return response.data;
+    },
+    resetRoomHistory: async (userId: string) => {
+        await fetch(`/api/rooms/history?userId=${userId}`, { method: 'DELETE' });
     },
 }

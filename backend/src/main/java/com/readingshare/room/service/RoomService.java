@@ -3,6 +3,9 @@ package com.readingshare.room.service;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.Instant;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -19,6 +22,7 @@ import com.readingshare.room.domain.model.RoomMember;
 import com.readingshare.room.domain.repository.IRoomRepository;
 import com.readingshare.room.domain.repository.IRoomMemberRepository;
 import com.readingshare.room.domain.service.RoomDomainService;
+import com.readingshare.room.dto.CreateRoomRequest;
 import com.readingshare.room.dto.UpdateRoomRequest;
 import com.readingshare.survey.domain.repository.ISurveyAnswerRepository;
 import com.readingshare.survey.domain.repository.ISurveyRepository;
@@ -91,6 +95,24 @@ public class RoomService {
         return roomDomainService.createRoom(newRoom, roomPassword);
     }
 
+    /**
+     * 部屋作成(CreateRoomRequest) - ジャンルと開始時刻を含む
+     */
+    public Room createRoom(CreateRoomRequest request) {
+        // デフォルトページ数
+        int pages = request.totalPages() != null ? request.totalPages() : 300;
+        Room newRoom = new Room(request.roomName(), request.bookTitle(), request.hostUserId(), pages);
+        newRoom.setGenre(request.genre());
+        if (request.startTime() != null) {
+            newRoom.setStartTime(request.startTime().atZone(ZoneId.systemDefault()).toInstant());
+        }
+        if (request.endTime() != null) {
+            newRoom.setEndTime(request.endTime().atZone(ZoneId.systemDefault()).toInstant());
+        }
+        String password = request.password();
+        return roomDomainService.createRoom(newRoom, password);
+    }
+
     // =============== 部屋検索・取得関連 ===============
 
     /**
@@ -113,6 +135,36 @@ public class RoomService {
             room.setHasPassword(room.getPasswordHash() != null && !room.getPasswordHash().isEmpty());
         }
         return result;
+    }
+
+    /**
+     * 複数条件で部屋を検索する。
+     */
+    @Transactional(readOnly = true)
+    public List<Room> searchRooms(
+            String keyword,
+            String genre,
+            LocalDateTime startFrom,
+            LocalDateTime startTo,
+            LocalDateTime endFrom,
+            LocalDateTime endTo,
+            Integer pagesMin,
+            Integer pagesMax
+    ) {
+        // パラメータをInstantに変換
+        Instant startFromI = (startFrom != null) ? startFrom.atZone(ZoneId.systemDefault()).toInstant() : null;
+        Instant startToI = (startTo != null) ? startTo.atZone(ZoneId.systemDefault()).toInstant() : null;
+        Instant endFromI = (endFrom != null) ? endFrom.atZone(ZoneId.systemDefault()).toInstant() : null;
+        Instant endToI = (endTo != null) ? endTo.atZone(ZoneId.systemDefault()).toInstant() : null;
+        // DBレベルで条件検索
+        List<Room> rooms = roomRepository.findByConditions(
+                keyword, genre, startFromI, startToI, endFromI, endToI, pagesMin, pagesMax
+        );
+        // パスワード有無をセット
+        for (Room room : rooms) {
+            room.setHasPassword(room.getPasswordHash() != null && !room.getPasswordHash().isEmpty());
+        }
+        return rooms;
     }
 
     /**
@@ -186,16 +238,7 @@ public class RoomService {
         }
 
         // 3. アンケート・回答削除
-        List<com.readingshare.survey.domain.model.Survey> surveys = surveyRepository.findByRoomId(uuid);
-        for (com.readingshare.survey.domain.model.Survey survey : surveys) {
-            List<com.readingshare.survey.domain.model.SurveyAnswer> answers = surveyAnswerRepository.findBySurveyId(survey.getId());
-            for (com.readingshare.survey.domain.model.SurveyAnswer ans : answers) {
-                // surveyAnswerRepositoryにdeleteメソッドがなければ実装追加が必要
-                // surveyAnswerRepository.delete(ans);
-            }
-            // surveyRepositoryにdeleteメソッドがなければ実装追加が必要
-            // surveyRepository.delete(survey);
-        }
+        surveyRepository.deleteByRoomId(uuid);
 
         // 4. UserProgress削除（RoomReadingStateService等で部屋単位削除APIを呼ぶ必要あり）
         // 例: roomReadingStateService.deleteByRoomId(roomId);
@@ -223,6 +266,15 @@ public class RoomService {
         if (request.totalPages() != null && request.totalPages() > 0) {
             room.setTotalPages(request.totalPages());
         }
+        if (request.genre() != null) {
+            room.setGenre(request.genre());
+        }
+        if (request.startTime() != null) {
+            room.setStartTime(request.startTime().atZone(ZoneId.systemDefault()).toInstant());
+        }
+        if (request.endTime() != null) {
+            room.setEndTime(request.endTime().atZone(ZoneId.systemDefault()).toInstant());
+        }
         return roomRepository.save(room);
     }
 
@@ -232,5 +284,17 @@ public class RoomService {
     @Transactional(readOnly = true)
     public List<RoomMember> getRoomHistory(UUID userId, int limit) {
         return roomMemberRepository.findByUserIdOrderByJoinedAtDesc(userId, PageRequest.of(0, limit));
+    }
+
+    /**
+     * 指定ユーザーの全参加履歴を削除する（履歴リセット）
+     */
+    @Transactional
+    public void deleteRoomHistory(UUID userId) {
+        // ユーザーの参加履歴を全件取得して削除
+        List<RoomMember> members = roomMemberRepository.findByUserIdOrderByJoinedAtDesc(userId, PageRequest.of(0, Integer.MAX_VALUE));
+        for (RoomMember m : members) {
+            roomMemberRepository.delete(m);
+        }
     }
 }

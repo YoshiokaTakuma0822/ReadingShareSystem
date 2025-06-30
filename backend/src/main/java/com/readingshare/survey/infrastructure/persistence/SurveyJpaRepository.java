@@ -34,4 +34,11 @@ public interface SurveyJpaRepository extends JpaRepository<Survey, UUID> {
      * @return 取得されたアンケートリスト
      */
     List<Survey> findByRoomIdOrderByCreatedAtDesc(UUID roomId);
+
+    /**
+     * 部屋IDでアンケートを一括削除する。
+     *
+     * @param roomId 部屋ID
+     */
+    void deleteByRoomId(UUID roomId);
 }

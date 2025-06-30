@@ -42,13 +42,15 @@ export interface CreateSurveyRequest {
     questions: Question[] // バックエンドのエンティティに合わせて変更
 }
 
+// New DTO types for survey results
+export interface QuestionResult {
+    questionText: string
+    votes: Record<string, number>
+}
+
 export interface SurveyResult {
     surveyId: SurveyId
     title: string
-    results: {
-        questionText: string // バックエンドに合わせてquestionIdからquestionTextに変更
-        answers: {
-            [key: string]: number // 例: "選択肢A": 10 (回答数)
-        } | string[] // テキスト回答の場合は文字列の配列
-    }[]
+    totalRespondents: number
+    results: QuestionResult[]
 }
