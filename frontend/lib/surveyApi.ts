@@ -15,7 +15,12 @@ export const surveyApi = {
     },
     // 回答提出
     answerSurvey: async (surveyId: string, request: SubmitSurveyAnswerRequest): Promise<void> => {
-        await apiClient.post(`/api/surveys/${surveyId}/answers`, request, { baseURL: '' })
+        // answersがMapの場合はobjectに変換
+        let req = request;
+        if (request.answers instanceof Map) {
+            req = { ...request, answers: Object.fromEntries(request.answers) };
+        }
+        await apiClient.post(`/api/surveys/${surveyId}/answers`, req, { baseURL: '' })
     },
     // 結果取得
     getSurveyResult: async (surveyId: string): Promise<SurveyResult> => {

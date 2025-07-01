@@ -25,14 +25,14 @@ export interface SurveyAnswer {
     id: string // UUID
     surveyId: SurveyId
     userId: UserId
-    answers: Map<string, string[]> // バックエンドのエンティティに合わせて変更
+    answers: Record<string, string[]> // Map→object
     isAnonymous: boolean // 匿名回答かどうか (バックエンドから追加)
     answeredAt: string // 回答時刻 (LocalDateTime)
 }
 
 export interface SubmitSurveyAnswerRequest {
     surveyId: SurveyId
-    answers: Map<string, string[]> // バックエンドのエンティティに合わせて変更
+    answers: Record<string, string[]> // Map→object
     isAnonymous?: boolean // 匿名回答かどうか
 }
 

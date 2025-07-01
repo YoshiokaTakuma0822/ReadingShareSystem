@@ -59,9 +59,45 @@ public class SurveyService {
     // --- アンケート回答 ---
     @Transactional
     public void submitAnswer(UUID surveyId, SubmitSurveyAnswerRequest request) {
-        surveyRepository.findById(surveyId)
+        Survey survey = surveyRepository.findById(surveyId)
                 .orElseThrow(() -> new ResourceNotFoundException("Survey not found with id: " + surveyId));
-        SurveyAnswer answer = new SurveyAnswer(surveyId, request.userId(), request.answers());
+
+        boolean surveyModified = false;
+        // 質問テキスト→QuestionのMap
+        Map<String, Question> questionMap = survey.getQuestions().stream()
+                .collect(Collectors.toMap(Question::getQuestionText, q -> q));
+
+        for (Map.Entry<String, List<String>> entry : request.answers().entrySet()) {
+            String questionText = entry.getKey();
+            List<String> selectedOptions = entry.getValue();
+            Question question = questionMap.get(questionText);
+            if (question == null) {
+                throw new ApplicationException("Invalid question: " + questionText);
+            }
+            // 複数選択可否チェック
+            if (question.getQuestionType() == null) {
+                throw new ApplicationException("Question type is not set for: " + questionText);
+            }
+            if (question.getQuestionType().name().equals("SINGLE_CHOICE") && selectedOptions.size() > 1) {
+                throw new ApplicationException("Only one option can be selected for: " + questionText);
+            }
+            // 新規選択肢追加チェック
+            for (String option : selectedOptions) {
+                if (!question.getOptions().contains(option)) {
+                    if (question.isAllowAddOptions()) {
+                        question.addOption(option);
+                        surveyModified = true;
+                    } else {
+                        throw new ApplicationException("Adding new options is not allowed for: " + questionText);
+                    }
+                }
+            }
+        }
+        // Question.optionsが増えた場合はSurveyを保存
+        if (surveyModified) {
+            surveyRepository.save(survey);
+        }
+        SurveyAnswer answer = new SurveyAnswer(surveyId, request.userId(), request.answers(), request.isAnonymous());
         surveyRepository.saveAnswer(answer);
     }
 

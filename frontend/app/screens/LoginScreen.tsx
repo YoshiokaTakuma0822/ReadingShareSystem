@@ -33,6 +33,10 @@ const LoginScreen: React.FC = () => {
             if (response && response.username) {
                 localStorage.setItem('reading-share-user-name', response.username)
             }
+            // トークンをcookieにも保存（認証ガード用）
+            if (response && response.token) {
+                document.cookie = `authToken=${response.token}; path=/;`;
+            }
             // ログイン成功後、ホーム画面にリダイレクト
             console.log('Login successful:', response)
             window.location.href = '/'
