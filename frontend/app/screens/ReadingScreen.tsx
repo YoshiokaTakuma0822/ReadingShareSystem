@@ -477,6 +477,10 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                     className="controlButton"
                     onClick={async () => {
                       if (inputTotalPages > 0 && currentPage > 0 && roomId) {
+                        if (currentPage > inputTotalPages) {
+                          alert("上限ページを超えています。正しいページ数を入力してください。");
+                          return; // 入力を再度求める（モーダルは閉じない）
+                        }
                         try {
                           const updated = await roomApi.updateTotalPages(roomId, inputTotalPages);
                           setTotalPages(updated.totalPages ?? inputTotalPages);
