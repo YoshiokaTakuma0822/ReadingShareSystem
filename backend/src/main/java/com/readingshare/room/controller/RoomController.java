@@ -2,11 +2,11 @@ package com.readingshare.room.controller;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
-import java.util.Map;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -21,8 +21,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.readingshare.auth.domain.repository.IUserRepository;
 import com.readingshare.auth.domain.model.User;
+import com.readingshare.auth.domain.repository.IUserRepository;
 import com.readingshare.room.domain.model.Room;
 import com.readingshare.room.domain.model.RoomMember;
 import com.readingshare.room.dto.CreateRoomRequest;
@@ -41,7 +41,8 @@ public class RoomController {
     private final SimpMessagingTemplate messagingTemplate;
     private final IUserRepository userRepository;
 
-    public RoomController(RoomService roomService, IUserRepository userRepository, SimpMessagingTemplate messagingTemplate) {
+    public RoomController(RoomService roomService, IUserRepository userRepository,
+            SimpMessagingTemplate messagingTemplate) {
         this.roomService = roomService;
         this.messagingTemplate = messagingTemplate;
         this.userRepository = userRepository;
@@ -94,20 +95,16 @@ public class RoomController {
      */
     @GetMapping("/search")
     public ResponseEntity<List<Room>> searchRooms(
-            @RequestParam(value = "keyword", required = false) String keyword,
-            @RequestParam(value = "genre", required = false) String genre,
-            @RequestParam(value = "startFrom", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startFrom,
-            @RequestParam(value = "startTo", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTo,
-            @RequestParam(value = "endFrom", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endFrom,
-            @RequestParam(value = "endTo", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTo,
-            @RequestParam(value = "pagesMin", required = false) Integer pagesMin,
-            @RequestParam(value = "pagesMax", required = false) Integer pagesMax
-    ) {
-        List<Room> rooms = roomService.searchRooms(keyword, genre, startFrom, startTo, endFrom, endTo, pagesMin, pagesMax);
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String genre,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startFrom,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTo,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endFrom,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTo,
+            @RequestParam(required = false) Integer pagesMin,
+            @RequestParam(required = false) Integer pagesMax) {
+        List<Room> rooms = roomService.searchRooms(keyword, genre, startFrom, startTo, endFrom, endTo, pagesMin,
+                pagesMax);
         return ResponseEntity.ok(rooms);
     }
 
@@ -146,7 +143,8 @@ public class RoomController {
      * PUT /api/rooms/{roomId}
      */
     @PutMapping("/{roomId}")
-    public ResponseEntity<Room> updateRoom(@PathVariable("roomId") String roomId, @RequestBody UpdateRoomRequest request) {
+    public ResponseEntity<Room> updateRoom(@PathVariable("roomId") String roomId,
+            @RequestBody UpdateRoomRequest request) {
         Room updatedRoom = roomService.updateRoom(UUID.fromString(roomId), request);
         return ResponseEntity.ok(updatedRoom);
     }
@@ -186,8 +184,8 @@ public class RoomController {
      */
     @GetMapping("/history")
     public ResponseEntity<List<RoomHistoryDto>> getRoomHistory(
-        @RequestParam("userId") UUID userId,
-        @RequestParam(value = "limit", defaultValue = "10") int limit) {
+            @RequestParam UUID userId,
+            @RequestParam(defaultValue = "10") int limit) {
 
         // ユーザーの履歴リセット時刻を取得
         Optional<User> optUser = userRepository.findById(userId);
@@ -196,22 +194,23 @@ public class RoomController {
         List<RoomMember> members = roomService.getRoomHistory(userId, limit + 10); // 余分に取得
         // フィルタ: ホストの自動参加 (createdAt == joinedAt) を除外 ＆ 履歴リセット時刻より後のみ
         List<RoomHistoryDto> result = members.stream()
-            .filter(member -> {
-                Optional<Room> optRoom = roomService.getRoomById(member.getRoom().getId());
-                if (optRoom.isEmpty()) return true; // 削除済みは表示
-                Room room = optRoom.get();
-                boolean isHost = room.getHostUserId().equals(member.getUserId());
-                boolean isAuto = isHost && member.getJoinedAt().equals(room.getCreatedAt());
-                boolean afterReset = member.getJoinedAt().isAfter(historyResetAt);
-                return !isAuto && afterReset;
-            })
-            .map(member -> {
-                Room room = roomService.getRoomById(member.getRoom().getId()).orElse(null);
-                boolean deleted = (room == null);
-                return new RoomHistoryDto(member.getRoom().getId(), room, deleted, member.getJoinedAt());
-            })
-            .limit(limit)
-            .toList();
+                .filter(member -> {
+                    Optional<Room> optRoom = roomService.getRoomById(member.getRoom().getId());
+                    if (optRoom.isEmpty())
+                        return true; // 削除済みは表示
+                    Room room = optRoom.get();
+                    boolean isHost = room.getHostUserId().equals(member.getUserId());
+                    boolean isAuto = isHost && member.getJoinedAt().equals(room.getCreatedAt());
+                    boolean afterReset = member.getJoinedAt().isAfter(historyResetAt);
+                    return !isAuto && afterReset;
+                })
+                .map(member -> {
+                    Room room = roomService.getRoomById(member.getRoom().getId()).orElse(null);
+                    boolean deleted = (room == null);
+                    return new RoomHistoryDto(member.getRoom().getId(), room, deleted, member.getJoinedAt());
+                })
+                .limit(limit)
+                .toList();
         return ResponseEntity.ok(result);
     }
 
@@ -238,6 +237,7 @@ public class RoomController {
         public UUID userId;
         public String username;
         public java.time.Instant joinedAt;
+
         public MemberInfoDto(UUID userId, String username, java.time.Instant joinedAt) {
             this.userId = userId;
             this.username = username;
@@ -251,6 +251,7 @@ public class RoomController {
         public Room room; // nullなら削除済み
         public boolean deleted;
         public java.time.Instant joinedAt;
+
         public RoomHistoryDto(UUID roomId, Room room, boolean deleted, java.time.Instant joinedAt) {
             this.roomId = roomId;
             this.room = room;
