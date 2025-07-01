@@ -1,13 +1,12 @@
 package com.readingshare.room.service;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.Instant;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -19,12 +18,11 @@ import com.readingshare.common.exception.ApplicationException;
 import com.readingshare.common.exception.DatabaseAccessException;
 import com.readingshare.room.domain.model.Room;
 import com.readingshare.room.domain.model.RoomMember;
-import com.readingshare.room.domain.repository.IRoomRepository;
 import com.readingshare.room.domain.repository.IRoomMemberRepository;
+import com.readingshare.room.domain.repository.IRoomRepository;
 import com.readingshare.room.domain.service.RoomDomainService;
 import com.readingshare.room.dto.CreateRoomRequest;
 import com.readingshare.room.dto.UpdateRoomRequest;
-import com.readingshare.survey.domain.repository.ISurveyAnswerRepository;
 import com.readingshare.survey.domain.repository.ISurveyRepository;
 
 /**
@@ -38,19 +36,17 @@ public class RoomService {
     private final IRoomRepository roomRepository;
     private final RoomDomainService roomDomainService;
     private final IRoomMemberRepository roomMemberRepository;
-
-    @Autowired
-    private IChatMessageRepository chatMessageRepository;
-    @Autowired
-    private ISurveyRepository surveyRepository;
-    @Autowired
-    private ISurveyAnswerRepository surveyAnswerRepository;
+    private final IChatMessageRepository chatMessageRepository;
+    private final ISurveyRepository surveyRepository;
 
     public RoomService(IRoomRepository roomRepository, RoomDomainService roomDomainService,
-            IRoomMemberRepository roomMemberRepository) {
+            IRoomMemberRepository roomMemberRepository, IChatMessageRepository chatMessageRepository,
+            ISurveyRepository surveyRepository) {
         this.roomRepository = roomRepository;
         this.roomDomainService = roomDomainService;
         this.roomMemberRepository = roomMemberRepository;
+        this.chatMessageRepository = chatMessageRepository;
+        this.surveyRepository = surveyRepository;
     }
 
     // =============== 部屋作成関連 ===============
