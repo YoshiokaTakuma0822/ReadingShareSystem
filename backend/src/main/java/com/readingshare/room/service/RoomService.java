@@ -127,10 +127,6 @@ public class RoomService {
         } else {
             result = roomRepository.findByKeyword(keyword);
         }
-        // パスワード有無をセット
-        for (Room room : result) {
-            room.setHasPassword(room.getPasswordHash() != null && !room.getPasswordHash().isEmpty());
-        }
         return result;
     }
 
@@ -155,10 +151,6 @@ public class RoomService {
         // DBレベルで条件検索
         List<Room> rooms = roomRepository.findByConditions(
                 keyword, genre, startFromI, startToI, endFromI, endToI, pagesMin, pagesMax);
-        // パスワード有無をセット
-        for (Room room : rooms) {
-            room.setHasPassword(room.getPasswordHash() != null && !room.getPasswordHash().isEmpty());
-        }
         return rooms;
     }
 
@@ -172,7 +164,6 @@ public class RoomService {
     @Transactional(readOnly = true)
     public Optional<Room> getRoomById(UUID roomId) {
         Optional<Room> opt = roomRepository.findById(roomId);
-        opt.ifPresent(room -> room.setHasPassword(room.getPasswordHash() != null && !room.getPasswordHash().isEmpty()));
         return opt;
     }
 
@@ -189,9 +180,6 @@ public class RoomService {
         }
         Pageable pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
         List<Room> result = roomRepository.findAll(pageable).getContent();
-        for (Room room : result) {
-            room.setHasPassword(room.getPasswordHash() != null && !room.getPasswordHash().isEmpty());
-        }
         return result;
     }
 

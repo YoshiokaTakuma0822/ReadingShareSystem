@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.Optional;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -35,9 +36,9 @@ public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(
-            @org.springframework.lang.NonNull HttpServletRequest request,
-            @org.springframework.lang.NonNull HttpServletResponse response,
-            @org.springframework.lang.NonNull FilterChain filterChain)
+            @NonNull HttpServletRequest request,
+            @NonNull HttpServletResponse response,
+            @NonNull FilterChain filterChain)
             throws ServletException, IOException {
 
         String authorizationHeader = request.getHeader(AUTHORIZATION_HEADER);
@@ -45,7 +46,8 @@ public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
         // WebSocket handshakeリクエストの場合は認証をスキップ
         String upgradeHeader = request.getHeader("Upgrade");
         if (upgradeHeader != null && "websocket".equalsIgnoreCase(upgradeHeader)) {
-            System.out.println("[BearerTokenAuthenticationFilter] WebSocket handshakeリクエストのため認証スキップ: " + request.getRequestURI());
+            System.out.println(
+                    "[BearerTokenAuthenticationFilter] WebSocket handshakeリクエストのため認証スキップ: " + request.getRequestURI());
             filterChain.doFilter(request, response);
             return;
         }

@@ -37,8 +37,6 @@ public class Room {
     @Column(nullable = false)
     private int totalPages; // 追加: 本のページ数
 
-    private transient boolean hasPassword; // DBには保存しない、APIレスポンス用
-
     @JsonIgnore
     @Column(name = "password_hash")
     private String passwordHash; // パスワードハッシュ（null可）
@@ -145,11 +143,6 @@ public class Room {
     // --- パスワード有無はpasswordHashの有無で判定する ---
     public boolean isHasPassword() {
         return passwordHash != null && !passwordHash.isEmpty();
-    }
-
-    // setHasPasswordはAPIレスポンス用に残す場合はOK（不要なら削除可）
-    public void setHasPassword(boolean hasPassword) {
-        this.hasPassword = hasPassword;
     }
 
     public String getPasswordHash() {

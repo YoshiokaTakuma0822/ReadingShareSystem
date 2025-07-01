@@ -43,10 +43,8 @@ public class RoomDomainService {
     @Transactional
     public Room createRoom(Room room, String rawPassword) {
         if (rawPassword != null && !rawPassword.isEmpty()) {
-            room.setHasPassword(true);
             room.setPasswordHash(passwordEncoder.encode(rawPassword));
         } else {
-            room.setHasPassword(false);
             room.setPasswordHash(null);
         }
         Room savedRoom = roomRepository.save(room);
