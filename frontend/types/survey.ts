@@ -31,8 +31,8 @@ export interface SurveyAnswer {
 }
 
 export interface SubmitSurveyAnswerRequest {
-    surveyId: SurveyId
-    answers: Map<string, string[]> // バックエンドのエンティティに合わせて変更
+    userId: UserId
+    answers: Record<string, string[]> // Map<questionText, selectedOptionTexts> serialized as object
     isAnonymous?: boolean // 匿名回答かどうか
 }
 
