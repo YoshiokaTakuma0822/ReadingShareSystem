@@ -13,17 +13,47 @@ class ChatMessageDTO {
     private String senderName;
     private String content;
     private String sentAt;
+
     // getter/setter
-    public String getRoomId() { return roomId; }
-    public void setRoomId(String roomId) { this.roomId = roomId; }
-    public String getSenderId() { return senderId; }
-    public void setSenderId(String senderId) { this.senderId = senderId; }
-    public String getSenderName() { return senderName; }
-    public void setSenderName(String senderName) { this.senderName = senderName; }
-    public String getContent() { return content; }
-    public void setContent(String content) { this.content = content; }
-    public String getSentAt() { return sentAt; }
-    public void setSentAt(String sentAt) { this.sentAt = sentAt; }
+    public String getRoomId() {
+        return roomId;
+    }
+
+    public void setRoomId(String roomId) {
+        this.roomId = roomId;
+    }
+
+    public String getSenderId() {
+        return senderId;
+    }
+
+    public void setSenderId(String senderId) {
+        this.senderId = senderId;
+    }
+
+    public String getSenderName() {
+        return senderName;
+    }
+
+    public void setSenderName(String senderName) {
+        this.senderName = senderName;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public String getSentAt() {
+        return sentAt;
+    }
+
+    public void setSentAt(String sentAt) {
+        this.sentAt = sentAt;
+    }
 }
 
 @Controller
@@ -31,14 +61,15 @@ public class ChatWebSocketController {
     @MessageMapping("/chat.sendMessage")
     @SendTo("/topic/chat/{roomId}")
     public ChatMessageDTO sendMessage(@Payload ChatMessageDTO chatMessage) {
-        System.out.println("[WebSocket受信] content=" + chatMessage.getContent() + ", roomId=" + chatMessage.getRoomId() + ", sender=" + chatMessage.getSenderName());
+        System.out.println("[WebSocket受信] content=" + chatMessage.getContent() + ", roomId=" + chatMessage.getRoomId()
+                + ", sender=" + chatMessage.getSenderName());
         // 追加: すべてのフィールドを出力
         System.out.println("[WebSocket受信:全フィールド] " +
-            "roomId=" + chatMessage.getRoomId() +
-            ", senderId=" + chatMessage.getSenderId() +
-            ", senderName=" + chatMessage.getSenderName() +
-            ", content=" + chatMessage.getContent() +
-            ", sentAt=" + chatMessage.getSentAt());
+                "roomId=" + chatMessage.getRoomId() +
+                ", senderId=" + chatMessage.getSenderId() +
+                ", senderName=" + chatMessage.getSenderName() +
+                ", content=" + chatMessage.getContent() +
+                ", sentAt=" + chatMessage.getSentAt());
         return chatMessage;
     }
 
