@@ -1,7 +1,7 @@
 /**
  * ホーム画面コンポーネント
  *
- * @author 02005
+ * @author 02001
  * @componentId C1
  * @moduleName ホーム画面
  * @see RoomCreationModal

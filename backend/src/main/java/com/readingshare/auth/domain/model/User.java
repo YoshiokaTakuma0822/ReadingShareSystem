@@ -12,7 +12,7 @@ import jakarta.validation.constraints.NotNull;
 /**
  * 会員情報に基くユーザーエンティティ。
  *
- * @author 02003
+ * @author 02005
  * @componentId C2
  * @moduleName ユーザーエンティティ
  */

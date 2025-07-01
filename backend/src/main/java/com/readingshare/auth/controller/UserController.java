@@ -19,7 +19,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 /**
  * 認証が必要なAPIのサンプルコントローラー。
  *
- * @author 02003
+ * @author 02005
  * @componentId C2
  * @moduleName ユーザーコントローラー
  * @see UserInfo

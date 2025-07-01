@@ -1,7 +1,7 @@
 /**
  * 読書画面コンポーネント
  *
- * @author 02005
+ * @author 02001
  * @componentId C1
  * @moduleName 読書画面
  * @see ReadingProgressModal

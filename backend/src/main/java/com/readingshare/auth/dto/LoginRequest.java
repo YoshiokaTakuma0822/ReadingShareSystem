@@ -3,7 +3,7 @@ package com.readingshare.auth.dto;
 /**
  * ログインリクエストのDTO。
  *
- * @author 02003
+ * @author 02005
  * @componentId C2
  * @moduleName ログインリクエストDTO
  */

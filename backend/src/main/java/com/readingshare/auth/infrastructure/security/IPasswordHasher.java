@@ -3,7 +3,7 @@ package com.readingshare.auth.infrastructure.security;
 /**
  * パスワードのハッシュ化と検証を行うインターフェース。
  *
- * @author 02003
+ * @author 02005
  * @componentId C5
  * @moduleName パスワードハッシュ化インターフェース
  */

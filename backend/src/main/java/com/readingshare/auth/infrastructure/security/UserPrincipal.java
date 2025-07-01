@@ -13,7 +13,7 @@ import com.readingshare.auth.domain.model.User;
 /**
  * Spring SecurityのUserDetailsを実装するユーザープリンシパル。
  *
- * @author 02003
+ * @author 02005
  * @componentId C5
  * @moduleName ユーザープリンシパル
  */
