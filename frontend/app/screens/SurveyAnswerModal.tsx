@@ -63,6 +63,14 @@ const SurveyAnswerModal: React.FC<SurveyAnswerModalProps> = ({ open, surveyId, o
         setLoading(true)
         setError(null)
         try {
+            // userId取得
+            let userId = localStorage.getItem('reading-share-user-id');
+            if (!userId) {
+                setError('ユーザー情報が見つかりません。再ログインしてください。')
+                setLoading(false)
+                return;
+            }
+            // そのままuserIdを使う
             // 必須チェック
             for (const q of survey.questions) {
                 if ((selected[q.questionText]?.length || 0) === 0) {
@@ -78,6 +86,7 @@ const SurveyAnswerModal: React.FC<SurveyAnswerModalProps> = ({ open, surveyId, o
             }
             const request: SubmitSurveyAnswerRequest = {
                 surveyId,
+                userId,
                 answers: selected,
                 isAnonymous
             }

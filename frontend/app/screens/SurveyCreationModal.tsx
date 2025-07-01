@@ -25,18 +25,16 @@ const SurveyCreationModal: React.FC<SurveyCreationModalProps> = ({ open, roomId,
         setLoading(true)
         setError(null)
         try {
-            // roomIdをUUID形式（ハイフンあり小文字）で送信
-            const normalizedRoomId = roomId.replace(/[^a-fA-F0-9-]/g, '').toLowerCase();
             const question: Question = {
                 questionText: title,
                 options: options.filter(opt => opt.trim() !== ''),
                 questionType: multi ? 'MULTIPLE_CHOICE' : 'SINGLE_CHOICE',
-                allowAnonymous: !!anonymous,
-                allowAddOptions: !!allowAdd
+                allowAnonymous: anonymous,
+                allowAddOptions: allowAdd
             }
 
             const request: CreateSurveyRequest = {
-                roomId: normalizedRoomId,
+                roomId,
                 title,
                 questions: [question]
             }

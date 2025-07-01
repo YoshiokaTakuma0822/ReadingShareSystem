@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react'
 import SurveyCreationModal from './SurveyCreationModal'
 import SurveyAnswerModal from './SurveyAnswerModal'
+import SurveyResultModal from './SurveyResultModal'
 import { chatApi } from '../../lib/chatApi'
 import { ChatMessage } from '../../types/chat'
 import ReadingScreenOverlay from './ReadingScreenOverlay'
@@ -51,6 +52,12 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
     // アンケートフォーマット表示用
     const [surveyFormat, setSurveyFormat] = useState<Survey | null>(null);
 
+    // --- 追加: アンケート結果モーダル制御 ---
+    const [showResultModal, setShowResultModal] = useState(false);
+
+    // --- 追加: アンケート回答済み判定 ---
+    const [answeredSurveyIds, setAnsweredSurveyIds] = useState<string[]>([]);
+
     // 追加: ユーザーID→ユーザー名のマッピングを保持
     const [userIdToName, setUserIdToName] = useState<Record<string, string>>({});
 
@@ -70,6 +77,14 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
         setCurrentUserId(userId);
     }, [])
 
+    // --- アンケートメッセージのみlocalStorageで永続化・復元 ---
+    useEffect(() => {
+        const surveyMessages = messages.filter(m => m.type === 'survey');
+        if (surveyMessages.length > 0) {
+            localStorage.setItem('surveyMessages', JSON.stringify(surveyMessages));
+        }
+    }, [messages]);
+
     // チャット履歴を取得する関数
     const loadChatHistory = async () => {
         if (!roomId) {
@@ -82,36 +97,73 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
             setError(null)
             const chatHistory = await chatApi.getChatHistory(roomId)
 
-            console.log('取得したチャット履歴:', chatHistory)
-
             // ChatMessageをMessage形式に変換
             const convertedMessages: Message[] = chatHistory.map((msg, index) => {
                 let messageText = '';
-                if (typeof msg.content === 'object' && msg.content !== null && 'value' in msg.content) {
+                let surveyObj = undefined;
+                let type: 'chat' | 'survey' = 'chat';
+                // サーバーからのcontentがJSON文字列でtype: 'survey'ならパース
+                if (typeof msg.content === 'string') {
+                    try {
+                        const parsed = JSON.parse(msg.content);
+                        if (parsed && parsed.type === 'survey' && parsed.survey) {
+                            type = 'survey';
+                            surveyObj = parsed.survey;
+                        } else {
+                            messageText = msg.content;
+                        }
+                    } catch {
+                        messageText = msg.content;
+                    }
+                } else if (typeof msg.content === 'object' && msg.content !== null && 'value' in msg.content) {
                     messageText = String((msg.content as { value: string }).value || '');
                 } else {
                     messageText = String(msg.content || '');
                 }
-                // 厳密な自分判定（ハイフン除去・小文字化）
                 const senderId = (msg.senderUserId ?? '').replace(/-/g, '').toLowerCase();
-                // currentUserIdはすでに整形済み
                 const myId = currentUserId ?? '';
-                // msg.senderUserIdがnullの場合は空文字でアクセスしない
                 const username = senderId && msg.senderUserId && userIdToName[msg.senderUserId] ? userIdToName[msg.senderUserId] : (msg.senderUserId || '匿名ユーザー');
                 return {
                     id: index + 1,
                     user: username,
                     text: messageText,
                     isCurrentUser: !!(senderId && myId && senderId === myId),
-                    sentAt: msg.sentAt
+                    sentAt: msg.sentAt,
+                    type,
+                    survey: surveyObj
                 };
-            })
+            });
 
-            setMessages(convertedMessages)
-            setMsgId(convertedMessages.length + 1)
+            // --- localStorageのアンケートメッセージ（type: 'survey'）とマージ ---
+            let mergedMessages = [...convertedMessages];
+            const saved = localStorage.getItem('surveyMessages');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    if (Array.isArray(parsed)) {
+                        // id重複を避けてマージ
+                        const existingIds = new Set(mergedMessages.map(m => m.id));
+                        const toAdd = parsed.filter((m: any) => m.type === 'survey' && !existingIds.has(m.id));
+                        mergedMessages = [...mergedMessages, ...toAdd];
+                    }
+                } catch {}
+            }
+            setMessages(mergedMessages)
+            setMsgId(mergedMessages.length + 1)
         } catch (err) {
-            console.error('チャット履歴の取得に失敗しました:', err)
-            console.log('エラー詳細:', err)
+            // サーバー取得失敗時のみlocalStorageから復元
+            const saved = localStorage.getItem('surveyMessages');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    if (Array.isArray(parsed)) {
+                        setMessages(parsed);
+                        setMsgId(parsed.length + 1);
+                        setLoading(false);
+                        return;
+                    }
+                } catch {}
+            }
             setError('チャット履歴の読み込みに失敗しました')
         } finally {
             setLoading(false)
@@ -147,24 +199,29 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
     }
 
     // アンケート作成後はモーダルを閉ち、回答モーダルを開く＋ストリームに追加
-    const handleSurveyCreated = (surveyId: string) => {
+    const handleSurveyCreated = async (surveyId: string) => {
         setShowSurveyModal(false)
         setAnswerSurveyId(surveyId)
         setShowAnswerModal(true)
         // アンケート内容を取得してストリームに追加
-        surveyApi.getSurveyFormat(surveyId).then(survey => {
-            setMessages(prev => [
-                ...prev,
-                {
-                    id: prev.length + 1,
-                    user: 'システム',
-                    isCurrentUser: false,
-                    type: 'survey',
-                    survey,
-                    sentAt: new Date().toISOString(),
-                }
-            ]);
-        })
+        const survey = await surveyApi.getSurveyFormat(surveyId);
+        setMessages(prev => [
+            ...prev,
+            {
+                id: prev.length + 1,
+                user: 'システム',
+                isCurrentUser: false,
+                type: 'survey',
+                survey,
+                sentAt: new Date().toISOString(),
+            }
+        ]);
+        // --- サーバーにもtype: 'survey'のメッセージを送信（暫定: JSON文字列で送信） ---
+        try {
+            await chatApi.sendMessage(roomId!, { messageContent: JSON.stringify({ type: 'survey', survey }) });
+        } catch (e) {
+            // サーバー送信失敗時もローカルには残す
+        }
     }
 
     // アンケートフォーマット取得
@@ -262,8 +319,21 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                         sentAt: msg.sentAt
                     };
                 });
-                setMessages(convertedMessages);
-                setMsgId(convertedMessages.length + 1);
+                // --- localStorageのアンケートメッセージ（type: 'survey'）とマージ ---
+                let mergedMessages = [...convertedMessages];
+                const saved = localStorage.getItem('surveyMessages');
+                if (saved) {
+                    try {
+                        const parsed = JSON.parse(saved);
+                        if (Array.isArray(parsed)) {
+                            const existingIds = new Set(mergedMessages.map(m => m.id));
+                            const toAdd = parsed.filter((m: any) => m.type === 'survey' && !existingIds.has(m.id));
+                            mergedMessages = [...mergedMessages, ...toAdd];
+                        }
+                    } catch {}
+                }
+                setMessages(mergedMessages);
+                setMsgId(mergedMessages.length + 1);
             } catch (err) {
                 setError('チャット履歴の読み込みに失敗しました');
             } finally {
@@ -271,6 +341,63 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
             }
         })();
     }, [roomId, currentUserId, userIdToName]);
+
+    const handleAnswered = () => {
+        if (answerSurveyId) {
+            setAnsweredSurveyIds(prev => [...prev, answerSurveyId]);
+            setShowAnswerModal(false);
+            setShowResultModal(true);
+        }
+    };
+
+    // --- 追加: アンケート回答済みID・選択中アンケートIDの永続化 ---
+    // 保存
+    useEffect(() => {
+        if (answeredSurveyIds.length > 0) {
+            localStorage.setItem('answeredSurveyIds', JSON.stringify(answeredSurveyIds));
+        }
+    }, [answeredSurveyIds]);
+    useEffect(() => {
+        if (answerSurveyId) {
+            localStorage.setItem('answerSurveyId', answerSurveyId);
+        }
+    }, [answerSurveyId]);
+    // 復元
+    useEffect(() => {
+        const savedAnswered = localStorage.getItem('answeredSurveyIds');
+        if (savedAnswered) {
+            try {
+                setAnsweredSurveyIds(JSON.parse(savedAnswered));
+            } catch {}
+        }
+        const savedAnswerSurveyId = localStorage.getItem('answerSurveyId');
+        if (savedAnswerSurveyId) {
+            setAnswerSurveyId(savedAnswerSurveyId);
+        }
+    }, []);
+
+    // --- 修正版: messages全体をlocalStorageで永続化（復元はloadChatHistory内でのみ） ---
+    useEffect(() => {
+        if (messages.length > 0) {
+            localStorage.setItem('chatMessages', JSON.stringify(messages));
+        }
+    }, [messages]);
+    useEffect(() => {
+        const saved = localStorage.getItem('chatMessages');
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                if (Array.isArray(parsed)) {
+                    setMessages(prev => {
+                        // id重複を避けてマージ
+                        const existingIds = new Set(prev.map(m => m.id));
+                        const toAdd = parsed.filter((m: any) => !existingIds.has(m.id));
+                        return [...prev, ...toAdd];
+                    });
+                }
+            } catch {}
+        }
+    }, []);
 
     return (
         <div style={{ border: '4px solid #388e3c', margin: 24, padding: 24, background: 'linear-gradient(135deg, #e0f7ef 0%, #f1fdf6 100%)', borderRadius: 12, maxWidth: 1200, minHeight: 600, marginLeft: 'auto', marginRight: 'auto', display: 'flex', flexDirection: 'column', height: '80vh', position: 'relative' }}>
@@ -280,15 +407,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
 
             {/* ナビゲーションボタン */}
             <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginBottom: 16, flexWrap: 'wrap' }}>
-                {/* アンケート回答ボタン（作成後に表示） */}
-                {answerSurveyId && (
-                    <button
-                        onClick={() => setShowAnswerModal(true)}
-                        style={{ padding: '12px 24px', fontSize: 16, background: '#ff9800', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}
-                    >
-                        📝 アンケートに回答する
-                    </button>
-                )}
+                {/* アンケート回答・結果ボタンは完全に非表示に */}
                 <button
                     onClick={handleGoToReading}
                     style={{
@@ -394,7 +513,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                     <>
                     {messages.map(msg => {
                         if (msg.type === 'survey' && msg.survey) {
-                            // アンケートメッセージ用UI
+                            const isAnswered = answeredSurveyIds.includes(msg.survey.id);
                             return (
                                 <div key={msg.id} style={{ background: '#e8f5e9', border: '1px solid #c8e6c9', borderRadius: 8, padding: 16, margin: '8px 0', maxWidth: 600 }}>
                                     <h3 style={{ margin: 0, color: '#2e7d32' }}>新しいアンケートが作成されました</h3>
@@ -409,12 +528,21 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                                             ))}
                                         </ul>
                                     </div>
-                                    <button
-                                        onClick={() => { setAnswerSurveyId(msg.survey?.id ?? null); setShowAnswerModal(true); }}
-                                        style={{ marginTop: 8, padding: '12px 24px', borderRadius: 8, border: '1px solid #2e7d32', fontSize: 16, background: '#c8e6c9', color: '#2e7d32', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}
-                                    >
-                                        アンケートに回答する
-                                    </button>
+                                    {isAnswered ? (
+                                        <button
+                                            onClick={() => { setAnswerSurveyId(msg.survey?.id ?? null); setShowResultModal(true); }}
+                                            style={{ marginTop: 8, padding: '12px 24px', borderRadius: 8, border: '1px solid #2e7d32', fontSize: 16, background: '#4caf50', color: 'white', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}
+                                        >
+                                            📊 アンケート結果を見る
+                                        </button>
+                                    ) : (
+                                        <button
+                                            onClick={() => { setAnswerSurveyId(msg.survey?.id ?? null); setShowAnswerModal(true); }}
+                                            style={{ marginTop: 8, padding: '12px 24px', borderRadius: 8, border: '1px solid #2e7d32', fontSize: 16, background: '#c8e6c9', color: '#2e7d32', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}
+                                        >
+                                            アンケートに回答する
+                                        </button>
+                                    )}
                                 </div>
                             );
                         }
@@ -513,6 +641,15 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                     open={showAnswerModal}
                     surveyId={answerSurveyId!}
                     onClose={() => setShowAnswerModal(false)}
+                    onAnswered={handleAnswered}
+                />
+            )}
+            {/* アンケート結果モーダル */}
+            {showResultModal && answerSurveyId && (
+                <SurveyResultModal
+                    open={showResultModal}
+                    surveyId={answerSurveyId!}
+                    onClose={() => setShowResultModal(false)}
                 />
             )}
          </div>

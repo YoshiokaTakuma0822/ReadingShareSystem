@@ -14,9 +14,9 @@ public record CreateRoomRequest(
         String password,
         Integer totalPages,      // 追加: 本のページ数
         String genre,            // 追加: 部屋のジャンル
-        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm[:ss]")
         LocalDateTime startTime, // 追加: 部屋の開始時刻
-        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm[:ss]")
         LocalDateTime endTime    // 追加: 部屋の終了時刻
 ) {
 }

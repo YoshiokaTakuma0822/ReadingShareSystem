@@ -32,6 +32,7 @@ export interface SurveyAnswer {
 
 export interface SubmitSurveyAnswerRequest {
     surveyId: SurveyId
+    userId: string // 追加
     answers: Record<string, string[]> // Map→object
     isAnonymous?: boolean // 匿名回答かどうか
 }
