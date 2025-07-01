@@ -15,7 +15,7 @@ import com.readingshare.room.domain.model.Room;
  *
  * @author 02004
  * @componentId C3
- * @moduleName Roomリポジトリ
+ * @moduleName ルームリポジトリ
  * @see Room
  */
 public interface IRoomRepository {

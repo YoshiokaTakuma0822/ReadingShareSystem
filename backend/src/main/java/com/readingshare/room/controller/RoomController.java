@@ -21,7 +21,7 @@ import com.readingshare.room.service.RoomService;
  *
  * @author 02004
  * @componentId C3
- * @moduleName Roomコントローラ
+ * @moduleName ルームコントローラー
  * @see RoomService
  * @see CreateRoomRequest
  * @see JoinRoomRequest
