@@ -100,7 +100,22 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
             // ChatMessageをMessage形式に変換
             const convertedMessages: Message[] = chatHistory.map((msg, index) => {
                 let messageText = '';
-                if (typeof msg.content === 'object' && msg.content !== null && 'value' in msg.content) {
+                let type: 'chat' | 'survey' = 'chat';
+                let survey: Survey | undefined = undefined;
+                if (typeof msg.content === 'string') {
+                    try {
+                        const parsed = JSON.parse(msg.content);
+                        if (parsed && parsed.type === 'survey' && parsed.survey) {
+                            type = 'survey';
+                            survey = parsed.survey;
+                            messageText = '';
+                        } else {
+                            messageText = msg.content;
+                        }
+                    } catch {
+                        messageText = msg.content;
+                    }
+                } else if (typeof msg.content === 'object' && msg.content !== null && 'value' in msg.content) {
                     messageText = String((msg.content as { value: string }).value || '');
                 } else {
                     messageText = String(msg.content || '');
@@ -111,9 +126,11 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                 return {
                     id: index + 1,
                     user: username,
-                    text: messageText,
+                    text: type === 'survey' ? '' : messageText,
                     isCurrentUser: !!(senderId && myId && senderId === myId),
-                    sentAt: msg.sentAt
+                    sentAt: msg.sentAt,
+                    type,
+                    survey
                 };
             });
 
@@ -182,24 +199,26 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
     }
 
     // アンケート作成後はモーダルを閉ち、回答モーダルを開く＋ストリームに追加
-    const handleSurveyCreated = (surveyId: string) => {
+    const handleSurveyCreated = async (surveyId: string) => {
         setShowSurveyModal(false)
         setAnswerSurveyId(surveyId)
         setShowAnswerModal(true)
-        // アンケート内容を取得してストリームに追加
-        surveyApi.getSurveyFormat(surveyId).then(survey => {
-            setMessages(prev => [
-                ...prev,
-                {
-                    id: prev.length + 1,
-                    user: 'システム',
-                    isCurrentUser: false,
-                    type: 'survey',
-                    survey,
-                    sentAt: new Date().toISOString(),
-                }
-            ]);
-        })
+        // アンケート内容を取得
+        const survey = await surveyApi.getSurveyFormat(surveyId);
+        // サーバーのチャット履歴にもtype: 'survey'メッセージを送信
+        await chatApi.sendMessage(roomId!, { messageContent: JSON.stringify({ type: 'survey', survey }) });
+        // ローカルにも即時反映
+        setMessages(prev => [
+            ...prev,
+            {
+                id: prev.length + 1,
+                user: 'システム',
+                isCurrentUser: false,
+                type: 'survey',
+                survey,
+                sentAt: new Date().toISOString(),
+            }
+        ]);
     }
 
     // アンケートフォーマット取得
@@ -281,7 +300,22 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                 const chatHistory = await chatApi.getChatHistory(roomId);
                 const convertedMessages: Message[] = chatHistory.map((msg, index) => {
                     let messageText = '';
-                    if (typeof msg.content === 'object' && msg.content !== null && 'value' in msg.content) {
+                    let type: 'chat' | 'survey' = 'chat';
+                    let survey: Survey | undefined = undefined;
+                    if (typeof msg.content === 'string') {
+                        try {
+                            const parsed = JSON.parse(msg.content);
+                            if (parsed && parsed.type === 'survey' && parsed.survey) {
+                                type = 'survey';
+                                survey = parsed.survey;
+                                messageText = '';
+                            } else {
+                                messageText = msg.content;
+                            }
+                        } catch {
+                            messageText = msg.content;
+                        }
+                    } else if (typeof msg.content === 'object' && msg.content !== null && 'value' in msg.content) {
                         messageText = String((msg.content as { value: string }).value || '');
                     } else {
                         messageText = String(msg.content || '');
@@ -292,9 +326,11 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                     return {
                         id: index + 1,
                         user: username,
-                        text: messageText,
+                        text: type === 'survey' ? '' : messageText,
                         isCurrentUser: !!(senderId && myId && senderId === myId),
-                        sentAt: msg.sentAt
+                        sentAt: msg.sentAt,
+                        type,
+                        survey
                     };
                 });
                 // --- localStorageのアンケートメッセージ（type: 'survey'）とマージ ---
