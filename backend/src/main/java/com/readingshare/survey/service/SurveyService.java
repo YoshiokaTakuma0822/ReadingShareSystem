@@ -138,13 +138,26 @@ public class SurveyService {
     private SurveyResultResponse buildResultDto(Survey survey, List<SurveyAnswer> answers) {
         List<SurveyResultResponse.QuestionResultResponse> questionResults = new ArrayList<>();
         for (Question question : survey.getQuestions()) {
+            // まず元の選択肢で初期化
             Map<String, Long> votes = question.getOptions().stream()
                     .collect(Collectors.toMap(Function.identity(), option -> 0L));
+            // 回答に現れた全ての選択肢も追加（追加選択肢対応）
             for (SurveyAnswer answer : answers) {
                 List<String> selectedOptions = answer.getAnswers().get(question.getQuestionText());
                 if (selectedOptions != null) {
                     for (String selectedOption : selectedOptions) {
-                        if (selectedOption != null && question.getOptions().contains(selectedOption)) {
+                        if (selectedOption != null && !votes.containsKey(selectedOption)) {
+                            votes.put(selectedOption, 0L);
+                        }
+                    }
+                }
+            }
+            // 票数集計
+            for (SurveyAnswer answer : answers) {
+                List<String> selectedOptions = answer.getAnswers().get(question.getQuestionText());
+                if (selectedOptions != null) {
+                    for (String selectedOption : selectedOptions) {
+                        if (selectedOption != null && votes.containsKey(selectedOption)) {
                             votes.computeIfPresent(selectedOption, (key, value) -> value + 1);
                         }
                     }

@@ -100,22 +100,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
             // ChatMessageをMessage形式に変換
             const convertedMessages: Message[] = chatHistory.map((msg, index) => {
                 let messageText = '';
-                let surveyObj = undefined;
-                let type: 'chat' | 'survey' = 'chat';
-                // サーバーからのcontentがJSON文字列でtype: 'survey'ならパース
-                if (typeof msg.content === 'string') {
-                    try {
-                        const parsed = JSON.parse(msg.content);
-                        if (parsed && parsed.type === 'survey' && parsed.survey) {
-                            type = 'survey';
-                            surveyObj = parsed.survey;
-                        } else {
-                            messageText = msg.content;
-                        }
-                    } catch {
-                        messageText = msg.content;
-                    }
-                } else if (typeof msg.content === 'object' && msg.content !== null && 'value' in msg.content) {
+                if (typeof msg.content === 'object' && msg.content !== null && 'value' in msg.content) {
                     messageText = String((msg.content as { value: string }).value || '');
                 } else {
                     messageText = String(msg.content || '');
@@ -128,9 +113,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                     user: username,
                     text: messageText,
                     isCurrentUser: !!(senderId && myId && senderId === myId),
-                    sentAt: msg.sentAt,
-                    type,
-                    survey: surveyObj
+                    sentAt: msg.sentAt
                 };
             });
 
@@ -199,29 +182,24 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
     }
 
     // アンケート作成後はモーダルを閉ち、回答モーダルを開く＋ストリームに追加
-    const handleSurveyCreated = async (surveyId: string) => {
+    const handleSurveyCreated = (surveyId: string) => {
         setShowSurveyModal(false)
         setAnswerSurveyId(surveyId)
         setShowAnswerModal(true)
         // アンケート内容を取得してストリームに追加
-        const survey = await surveyApi.getSurveyFormat(surveyId);
-        setMessages(prev => [
-            ...prev,
-            {
-                id: prev.length + 1,
-                user: 'システム',
-                isCurrentUser: false,
-                type: 'survey',
-                survey,
-                sentAt: new Date().toISOString(),
-            }
-        ]);
-        // --- サーバーにもtype: 'survey'のメッセージを送信（暫定: JSON文字列で送信） ---
-        try {
-            await chatApi.sendMessage(roomId!, { messageContent: JSON.stringify({ type: 'survey', survey }) });
-        } catch (e) {
-            // サーバー送信失敗時もローカルには残す
-        }
+        surveyApi.getSurveyFormat(surveyId).then(survey => {
+            setMessages(prev => [
+                ...prev,
+                {
+                    id: prev.length + 1,
+                    user: 'システム',
+                    isCurrentUser: false,
+                    type: 'survey',
+                    survey,
+                    sentAt: new Date().toISOString(),
+                }
+            ]);
+        })
     }
 
     // アンケートフォーマット取得
@@ -512,10 +490,13 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                 ) : (
                     <>
                     {messages.map(msg => {
-                        if (msg.type === 'survey' && msg.survey) {
+                        // 一意なkeyを生成（id+type+sentAt）
+                        const uniqueKey = `${msg.id}_${msg.type || 'chat'}_${msg.sentAt || ''}`;
+                        if (msg.type === 'survey') {
+                            if (!msg.survey) return null; // サーベイ情報がなければ表示しない
                             const isAnswered = answeredSurveyIds.includes(msg.survey.id);
                             return (
-                                <div key={msg.id} style={{ background: '#e8f5e9', border: '1px solid #c8e6c9', borderRadius: 8, padding: 16, margin: '8px 0', maxWidth: 600 }}>
+                                <div key={uniqueKey} style={{ background: '#e8f5e9', border: '1px solid #c8e6c9', borderRadius: 8, padding: 16, margin: '8px 0', maxWidth: 600 }}>
                                     <h3 style={{ margin: 0, color: '#2e7d32' }}>新しいアンケートが作成されました</h3>
                                     <div style={{ fontSize: 16, color: '#555' }}>
                                         <strong>タイトル:</strong> {msg.survey.title}
@@ -550,7 +531,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                         const isMine = msg.isCurrentUser
                         return (
                             <div
-                                key={msg.id}
+                                key={uniqueKey}
                                 style={{
                                     display: 'flex',
                                     alignItems: 'center',
