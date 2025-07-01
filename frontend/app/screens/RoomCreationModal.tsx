@@ -20,14 +20,8 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
     const [genre, setGenre] = useState('小説');
     const [startTime, setStartTime] = useState('');
     const [endTime, setEndTime] = useState('');
-    const [totalPages, setTotalPages] = useState(''); // 追加: 本の全ページ数
+    const [maxPage, setMaxPage] = useState(''); // 追加: 本の全ページ数
     const [passwordType, setPasswordType] = useState<'open' | 'closed'>('open');
-
-    // 部屋作成カテゴリ（ジャンル・開始終了時刻・ページ数）追加
-    const [genre, setGenre] = useState('')
-    const [startTime, setStartTime] = useState('')
-    const [endTime, setEndTime] = useState('')
-    const [maxPage, setMaxPage] = useState('')
 
     // ジャンル選択肢（例）
     const genreOptions = [
@@ -37,7 +31,6 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
     // ジャンル・パスワード有無の2段階プルダウンUI用state
     const [mainFilter, setMainFilter] = useState<'genre' | 'password'>('genre');
     const [selectedGenre, setSelectedGenre] = useState('');
-    const [passwordType, setPasswordType] = useState<'open' | 'closed'>('open');
 
     const toIsoStringWithSeconds = (s: string) => {
         if (!s) return undefined;
@@ -61,8 +54,7 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
                 genre: mainFilter === 'genre' ? selectedGenre : '',
                 startTime: toIsoStringWithSeconds(startTime),
                 endTime: toIsoStringWithSeconds(endTime),
-                totalPages: totalPages ? Number(totalPages) : undefined,
-                // pageSpeed: 60, // 型定義に無いので削除
+                maxPage: maxPage ? Number(maxPage) : undefined,
             }
             await roomApi.createRoom(req)
             onCreated()
@@ -79,11 +71,8 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
             setRoomName('');
             setBookTitle('');
             setPassword('');
-            setGenre('小説');
-            setStartTime('');
-            setEndTime('');
-            setTotalPages('');
-            setPasswordType('open'); // 型に合わせて修正
+            setMaxPage('');
+            setPasswordType('open');
             setError(null);
         }
     }, [open]);
@@ -94,11 +83,8 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
             setRoomName('');
             setBookTitle('');
             setPassword('');
-            setGenre('小説');
-            setStartTime('');
-            setEndTime('');
-            setTotalPages('');
-            setPasswordType('open'); // 型に合わせて修正
+            setMaxPage('');
+            setPasswordType('open');
             setError(null);
         }
     }, [loading, open]);
@@ -199,7 +185,7 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
                         </div>
                         <div style={{ marginBottom: 8 }}>
                             <label>本のページ数</label>
-                            <input type="number" value={totalPages} onChange={e => setTotalPages(e.target.value)} style={{ width: '100%', padding: 6, border: '1px solid #888', borderRadius: 6 }} />
+                            <input type="number" value={maxPage} onChange={e => setMaxPage(e.target.value)} style={{ width: '100%', padding: 6, border: '1px solid #888', borderRadius: 6 }} />
                         </div>
                     </div>
                 </div>

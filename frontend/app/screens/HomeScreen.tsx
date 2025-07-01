@@ -36,8 +36,7 @@ const HomeScreen: React.FC = () => {
 
     const [roomType, setRoomType] = useState<'all' | 'open' | 'closed'>('all'); // 部屋タイプ: all, open, closed
 
-    // ジャンル、ページ数範囲、開始/終了時刻範囲
-    const [genre, setGenre] = useState<string>('');
+    // ページ数範囲、開始/終了時刻範囲
     const [minPages, setMinPages] = useState<string>('');
     const [maxPages, setMaxPages] = useState<string>('');
     const [startTimeFrom, setStartTimeFrom] = useState<string>('');
@@ -50,15 +49,13 @@ const HomeScreen: React.FC = () => {
         setLoading(true)
         setError(null)
         try {
-            const result = await roomApi.searchRooms(searchText, roomType, genre, minPages, maxPages, startTimeFrom, startTimeTo, endTimeFrom, endTimeTo)
+            const result = await roomApi.searchRooms(searchText, roomType, searchGenre, minPages, maxPages, startTimeFrom, startTimeTo, endTimeFrom, endTimeTo)
             setRooms(result.rooms || [])
             // 部屋ごとに作成者名を取得
             const map: { [roomId: string]: string } = {};
             await Promise.all((result.rooms || []).map(async (room) => {
                 try {
                     const members = await roomApi.getRoomMembers(room.id);
-                    console.log('room:', room, 'members:', members); // デバッグ出力
-                    console.log('members detail:', JSON.stringify(members)); // 詳細デバッグ
                     const creator = members.find((m: any) => (m.userId || '').replace(/-/g, '').toLowerCase() === (room.hostUserId || '').replace(/-/g, '').toLowerCase());
                     map[room.id] = creator ? creator.username : '';
                 } catch {
@@ -138,8 +135,6 @@ const HomeScreen: React.FC = () => {
         }
     }
 
-    // 部屋一覧の特徴ごとにプルダウンで絞り込み
-    const [roomType, setRoomType] = useState<'all' | 'open' | 'closed'>('all')
     // ジャンル選択肢（RoomCreationModalと共通化推奨）
     const genreOptions = [
         '小説', 'ビジネス', '漫画', 'エッセイ', '専門書', 'ライトノベル', '児童書', 'その他'
