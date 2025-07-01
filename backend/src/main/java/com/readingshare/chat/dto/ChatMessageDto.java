@@ -6,6 +6,8 @@ public class ChatMessageDto {
     private String senderName;
     private String content;
     private String sentAt;
+    private String messageType; // "TEXT", "SURVEY", "SYSTEM" など
+    private String surveyId; // アンケートメッセージの場合のアンケートID
 
     public ChatMessageDto() {
     }
@@ -50,6 +52,22 @@ public class ChatMessageDto {
         this.sentAt = sentAt;
     }
 
+    public String getMessageType() {
+        return messageType;
+    }
+
+    public void setMessageType(String messageType) {
+        this.messageType = messageType;
+    }
+
+    public String getSurveyId() {
+        return surveyId;
+    }
+
+    public void setSurveyId(String surveyId) {
+        this.surveyId = surveyId;
+    }
+
     @Override
     public String toString() {
         return "ChatMessageDto{" +
@@ -58,6 +76,8 @@ public class ChatMessageDto {
                 ", senderName='" + senderName + '\'' +
                 ", content='" + content + '\'' +
                 ", sentAt='" + sentAt + '\'' +
+                ", messageType='" + messageType + '\'' +
+                ", surveyId='" + surveyId + '\'' +
                 '}';
     }
 }

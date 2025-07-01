@@ -15,7 +15,9 @@ interface Message {
     user: string
     text: string
     isCurrentUser: boolean
-    sentAt?: string // 追加
+    sentAt?: string
+    messageType?: string // 追加: メッセージタイプ
+    surveyId?: string // 追加: アンケートID
 }
 
 interface GroupChatScreenProps {
@@ -100,7 +102,9 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                     user: username,
                     text: messageText,
                     isCurrentUser: !!(senderId && myId && senderId === myId),
-                    sentAt: msg.sentAt
+                    sentAt: msg.sentAt,
+                    messageType: msg.messageType || 'TEXT', // 追加: メッセージタイプ
+                    surveyId: msg.surveyId // 追加: アンケートID
                 }
             })
 
@@ -202,6 +206,135 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
         })
     }, [roomId])
 
+    // メッセージ表示コンポーネント
+    const renderMessage = (msg: Message) => {
+        const isMine = msg.isCurrentUser
+
+        // アンケートメッセージの場合
+        if (msg.messageType === 'SURVEY') {
+            return (
+                <div
+                    key={msg.id}
+                    style={{
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: 8,
+                        justifyContent: isMine ? 'flex-end' : 'flex-start',
+                        marginBottom: 12
+                    }}
+                >
+                    {!isMine && (
+                        <span style={{ border: '1px solid #222', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {msg.user ? String(msg.user).trim().charAt(0) : '?'}
+                        </span>
+                    )}
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: isMine ? 'flex-end' : 'flex-start', gap: 4 }}>
+                        {/* タイムスタンプとユーザー名 */}
+                        <div style={{ fontSize: '0.8em', color: '#888', display: 'flex', gap: 8 }}>
+                            <span>{msg.user}</span>
+                            {msg.sentAt && <span>{new Date(msg.sentAt).toLocaleTimeString()}</span>}
+                        </div>
+                        {/* アンケートカード */}
+                        <div
+                            style={{
+                                border: '2px solid #2196f3',
+                                borderRadius: 12,
+                                padding: 16,
+                                background: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)',
+                                maxWidth: 400,
+                                minWidth: 250,
+                                boxShadow: '0 2px 8px rgba(33, 150, 243, 0.2)'
+                            }}
+                        >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                                <span style={{ fontSize: 20 }}>📊</span>
+                                <span style={{ fontWeight: 'bold', color: '#1976d2' }}>アンケート</span>
+                            </div>
+                            <p style={{ margin: 0, color: '#333', lineHeight: 1.4 }}>{msg.text}</p>
+                            {msg.surveyId && (
+                                <button
+                                    onClick={() => {
+                                        setAnswerSurveyId(msg.surveyId!)
+                                        setShowAnswerModal(true)
+                                    }}
+                                    style={{
+                                        marginTop: 12,
+                                        padding: '8px 16px',
+                                        borderRadius: 6,
+                                        border: 'none',
+                                        fontSize: 14,
+                                        background: '#2196f3',
+                                        color: 'white',
+                                        cursor: 'pointer',
+                                        fontWeight: 'bold',
+                                        boxShadow: '0 2px 4px rgba(33, 150, 243, 0.3)'
+                                    }}
+                                >
+                                    回答する
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                    {isMine && (
+                        <span style={{ border: '1px solid #222', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#e0f7fa' }}>
+                            {msg.user ? String(msg.user).trim().charAt(0) : '?'}
+                        </span>
+                    )}
+                </div>
+            )
+        }
+
+        // 通常のテキストメッセージ
+        return (
+            <div
+                key={msg.id}
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    justifyContent: isMine ? 'flex-end' : 'flex-start',
+                }}
+            >
+                {!isMine && (
+                    <span style={{ border: '1px solid #222', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {msg.user ? String(msg.user).trim().charAt(0) : '?'}
+                    </span>
+                )}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    {/* 自分のメッセージはタイムスタンプを左側に */}
+                    {isMine && msg.sentAt && (
+                        <span style={{ fontSize: '0.8em', color: '#888', minWidth: 60, textAlign: 'right' }}>
+                            {new Date(msg.sentAt).toLocaleTimeString()}
+                        </span>
+                    )}
+                    <div
+                        style={{
+                            border: '1px solid #222',
+                            borderRadius: 16,
+                            padding: 8,
+                            background: isMine ? '#e0f7fa' : '#fff',
+                            maxWidth: 600,
+                            wordBreak: 'break-word',
+                        }}
+                    >
+                        {String(msg.text)}
+                    </div>
+                    {/* 他人のメッセージはタイムスタンプを右側に */}
+                    {!isMine && msg.sentAt && (
+                        <span style={{ fontSize: '0.8em', color: '#888', minWidth: 60, textAlign: 'left' }}>
+                            {new Date(msg.sentAt).toLocaleTimeString()}
+                        </span>
+                    )}
+                </div>
+                {isMine && (
+                    <span style={{ border: '1px solid #222', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#e0f7fa' }}>
+                        {msg.user ? String(msg.user).trim().charAt(0) : '?'}
+                    </span>
+                )}
+            </div>
+        )
+    }
+
     // userIdToNameまたはcurrentUserIdが更新されたら履歴を再生成
     useEffect(() => {
         if (!roomId || !currentUserId || Object.keys(userIdToName).length === 0) return;
@@ -225,7 +358,9 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                         user: username,
                         text: messageText,
                         isCurrentUser: !!(senderId && myId && senderId === myId),
-                        sentAt: msg.sentAt
+                        sentAt: msg.sentAt,
+                        messageType: msg.messageType || 'TEXT', // 追加: メッセージタイプ
+                        surveyId: msg.surveyId // 追加: アンケートID
                     }
                 })
                 setMessages(convertedMessages)

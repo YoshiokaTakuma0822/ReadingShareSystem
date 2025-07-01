@@ -29,15 +29,18 @@ import com.readingshare.survey.dto.SurveyResultResponse;
 public class SurveyService {
     private final ISurveyRepository surveyRepository;
     private final IRoomRepository roomRepository;
+    private final SurveyNotificationService surveyNotificationService;
 
-    public SurveyService(ISurveyRepository surveyRepository, IRoomRepository roomRepository) {
+    public SurveyService(ISurveyRepository surveyRepository, IRoomRepository roomRepository,
+            SurveyNotificationService surveyNotificationService) {
         this.surveyRepository = surveyRepository;
         this.roomRepository = roomRepository;
+        this.surveyNotificationService = surveyNotificationService;
     }
 
     // --- アンケート作成 ---
     @Transactional
-    public UUID createSurvey(CreateSurveyRequest request) {
+    public UUID createSurvey(CreateSurveyRequest request, UUID creatorUserId) {
         try {
             // roomIdが存在するかチェック
             if (!roomRepository.findById(request.roomId()).isPresent()) {
@@ -50,6 +53,10 @@ public class SurveyService {
                     .collect(Collectors.toList());
             Survey survey = new Survey(request.roomId(), request.title(), questions);
             Survey savedSurvey = surveyRepository.save(survey);
+
+            // チャット通知を送信
+            surveyNotificationService.sendSurveyCreatedNotification(savedSurvey, creatorUserId);
+
             return savedSurvey.getId();
         } catch (IllegalArgumentException e) {
             throw new ApplicationException(e.getMessage(), e);

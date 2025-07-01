@@ -38,16 +38,36 @@ public class ChatMessage {
     @Column(name = "sent_at", nullable = false)
     private Instant sentAt; // 送信日時
 
+    @Column(name = "message_type", nullable = false, columnDefinition = "VARCHAR(20) DEFAULT 'TEXT'")
+    private String messageType = MessageType.TEXT; // メッセージタイプ
+
+    @Column(name = "survey_id", columnDefinition = "UUID")
+    private UUID surveyId; // アンケートメッセージの場合のアンケートID
+
     // デフォルトコンストラクタ
     public ChatMessage() {
     }
 
-    public ChatMessage(com.readingshare.room.domain.model.Room room, UUID senderUserId, MessageContent content, Instant sentAt) {
+    public ChatMessage(com.readingshare.room.domain.model.Room room, UUID senderUserId, MessageContent content,
+            Instant sentAt) {
         this.id = UUID.randomUUID();
         this.room = room;
         this.senderUserId = senderUserId;
         this.content = content;
         this.sentAt = sentAt;
+        this.messageType = MessageType.TEXT;
+    }
+
+    // アンケートメッセージ用のコンストラクタ
+    public ChatMessage(com.readingshare.room.domain.model.Room room, UUID senderUserId, MessageContent content,
+            Instant sentAt, UUID surveyId) {
+        this.id = UUID.randomUUID();
+        this.room = room;
+        this.senderUserId = senderUserId;
+        this.content = content;
+        this.sentAt = sentAt;
+        this.messageType = MessageType.SURVEY;
+        this.surveyId = surveyId;
     }
 
     // --- Getter / Setter ---
@@ -91,6 +111,22 @@ public class ChatMessage {
         this.sentAt = sentAt;
     }
 
+    public String getMessageType() {
+        return messageType;
+    }
+
+    public void setMessageType(String messageType) {
+        this.messageType = messageType;
+    }
+
+    public UUID getSurveyId() {
+        return surveyId;
+    }
+
+    public void setSurveyId(UUID surveyId) {
+        this.surveyId = surveyId;
+    }
+
     @Override
     public String toString() {
         return "ChatMessage{" +
@@ -99,6 +135,8 @@ public class ChatMessage {
                 ", senderUserId=" + senderUserId +
                 ", content=" + content +
                 ", sentAt=" + sentAt +
+                ", messageType='" + messageType + '\'' +
+                ", surveyId=" + surveyId +
                 '}';
     }
 }

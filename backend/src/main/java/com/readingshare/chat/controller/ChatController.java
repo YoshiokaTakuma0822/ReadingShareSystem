@@ -2,6 +2,7 @@ package com.readingshare.chat.controller;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -13,8 +14,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.readingshare.auth.domain.repository.IUserRepository;
 import com.readingshare.auth.infrastructure.security.UserPrincipal;
 import com.readingshare.chat.domain.model.ChatMessage;
+import com.readingshare.chat.dto.ChatMessageDto;
 import com.readingshare.chat.dto.SendMessageRequest;
 import com.readingshare.chat.service.ChatMessageBroadcastService;
 import com.readingshare.chat.service.GetChatHistoryService;
@@ -32,11 +35,14 @@ public class ChatController {
     private final SendChatMessageService sendChatMessageService;
     private final GetChatHistoryService getChatHistoryService;
     private final ChatMessageBroadcastService chatMessageBroadcastService;
+    private final IUserRepository userRepository;
 
-    public ChatController(SendChatMessageService sendChatMessageService, GetChatHistoryService getChatHistoryService, ChatMessageBroadcastService chatMessageBroadcastService) {
+    public ChatController(SendChatMessageService sendChatMessageService, GetChatHistoryService getChatHistoryService,
+            ChatMessageBroadcastService chatMessageBroadcastService, IUserRepository userRepository) {
         this.sendChatMessageService = sendChatMessageService;
         this.getChatHistoryService = getChatHistoryService;
         this.chatMessageBroadcastService = chatMessageBroadcastService;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -59,12 +65,15 @@ public class ChatController {
      * チャット履歴を取得する。
      *
      * @param roomId 部屋のID
-     * @return チャットメッセージのリスト
+     * @return チャットメッセージのリスト（DTO形式）
      */
     @GetMapping("/{roomId}/history")
-    public ResponseEntity<List<ChatMessage>> getChatHistory(@PathVariable UUID roomId) {
+    public ResponseEntity<List<ChatMessageDto>> getChatHistory(@PathVariable UUID roomId) {
         List<ChatMessage> chatHistory = getChatHistoryService.getChatHistory(roomId);
-        return ResponseEntity.ok(chatHistory);
+        List<ChatMessageDto> chatHistoryDto = chatHistory.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(chatHistoryDto);
     }
 
     /**
@@ -82,5 +91,29 @@ public class ChatController {
         }
 
         throw new ApplicationException("User not authenticated");
+    }
+
+    /**
+     * ChatMessageエンティティをChatMessageDTOに変換する。
+     *
+     * @param chatMessage 変換元のエンティティ
+     * @return 変換されたDTO
+     */
+    private ChatMessageDto convertToDto(ChatMessage chatMessage) {
+        ChatMessageDto dto = new ChatMessageDto();
+        dto.setRoomId(chatMessage.getRoom() != null ? chatMessage.getRoom().getId().toString() : null);
+        dto.setSenderId(chatMessage.getSenderUserId() != null ? chatMessage.getSenderUserId().toString() : null);
+
+        // ユーザー名取得
+        String senderName = chatMessage.getSenderUserId() != null
+                ? userRepository.findById(chatMessage.getSenderUserId()).map(u -> u.getUsername()).orElse("Unknown")
+                : "Anonymous";
+        dto.setSenderName(senderName);
+
+        dto.setContent(chatMessage.getContent() != null ? chatMessage.getContent().getValue() : null);
+        dto.setSentAt(chatMessage.getSentAt() != null ? chatMessage.getSentAt().toString() : null);
+        dto.setMessageType(chatMessage.getMessageType() != null ? chatMessage.getMessageType() : "TEXT");
+        dto.setSurveyId(chatMessage.getSurveyId() != null ? chatMessage.getSurveyId().toString() : null);
+        return dto;
     }
 }

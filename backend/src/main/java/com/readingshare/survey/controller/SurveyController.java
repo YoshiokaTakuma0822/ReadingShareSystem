@@ -3,6 +3,8 @@ package com.readingshare.survey.controller;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -10,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.readingshare.auth.infrastructure.security.UserPrincipal;
+import com.readingshare.common.exception.ApplicationException;
 import com.readingshare.survey.domain.model.Survey;
 import com.readingshare.survey.dto.CreateSurveyRequest;
 import com.readingshare.survey.dto.SubmitSurveyAnswerRequest;
@@ -39,7 +43,8 @@ public class SurveyController {
      */
     @PostMapping
     public ResponseEntity<UUID> createSurvey(@RequestBody CreateSurveyRequest request) {
-        UUID surveyId = surveyService.createSurvey(request);
+        UUID currentUserId = getCurrentUserId();
+        UUID surveyId = surveyService.createSurvey(request, currentUserId);
         return ResponseEntity.ok(surveyId);
     }
 
@@ -103,5 +108,22 @@ public class SurveyController {
      * 選択肢追加リクエストDTO
      */
     public record AddOptionRequest(String questionText, String newOption) {
+    }
+
+    /**
+     * 現在認証されているユーザーのIDを取得する。
+     *
+     * @return 現在のユーザーID
+     * @throws ApplicationException 認証されていない場合
+     */
+    private UUID getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null && authentication.getPrincipal() instanceof UserPrincipal) {
+            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+            return userPrincipal.getUserId();
+        }
+
+        throw new ApplicationException("User not authenticated");
     }
 }

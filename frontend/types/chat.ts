@@ -1,4 +1,4 @@
-import { UserId, Username, User } from './auth'
+import { UserId } from './auth'
 import { RoomId } from './room'
 
 export type MessageContent = string | { value: string } // チャットメッセージの内容（バックエンドではオブジェクト形式）
@@ -9,6 +9,8 @@ export interface ChatMessage {
     senderUserId: UserId | null // バックエンドのエンティティに合わせてsenderからsenderUserIdに変更、匿名ユーザーの場合null
     content: MessageContent // バックエンドではMessageContentオブジェクト
     sentAt: string // 送信時刻 (Instant)
+    messageType?: string // メッセージタイプ ("TEXT", "SURVEY", "SYSTEM")
+    surveyId?: string // アンケートメッセージの場合のアンケートID
 }
 
 export interface UserProgress {

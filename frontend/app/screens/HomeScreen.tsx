@@ -1,19 +1,17 @@
 "use client"
 
 import React, { useState } from 'react'
-import { Client } from '@stomp/stompjs'
-import SockJS from 'sockjs-client'
-// WebSocketエンドポイント設定
-const WS_ENDPOINT = process.env.NODE_ENV === 'development' ? 'http://localhost:8080/ws' : '/ws'
-import { Room } from '../../types/room'
-import type { RoomHistoryDto } from '../../types/room'
-import { roomApi } from '../../lib/roomApi'
+import AuthGuard from '../../components/AuthGuard'
 import { getDummyUserId, logout } from '../../lib/authUtils'
+import { roomApi } from '../../lib/roomApi'
+import type { RoomHistoryDto } from '../../types/room'
+import { Room } from '../../types/room'
 import RoomCreationModal from './RoomCreationModal'
 import RoomJoinModal from './RoomJoinModal'
 import SurveyAnswerModal from './SurveyAnswerModal'
 import SurveyResultModal from './SurveyResultModal'
-import AuthGuard from '../../components/AuthGuard'
+// WebSocketエンドポイント設定
+const WS_ENDPOINT = process.env.NODE_ENV === 'development' ? 'ws://localhost:8080/room-updates' : '/room-updates'
 
 const HomeScreen: React.FC = () => {
     const [tab, setTab] = useState<'create' | 'search'>('create') // デフォルトを部屋作成に変更
@@ -22,25 +20,61 @@ const HomeScreen: React.FC = () => {
     // リアルタイム 部屋更新
     React.useEffect(() => {
         if (typeof window === 'undefined') return
-        const stompClient = new Client({
-            webSocketFactory: () => new SockJS(WS_ENDPOINT),
-            reconnectDelay: 5000
-        })
-        stompClient.onConnect = () => {
-            stompClient.subscribe('/topic/rooms', msg => {
-                const payload = JSON.parse(msg.body)
-                if (payload.type === 'delete') {
-                    setRooms(prev => prev.filter(r => r.id !== payload.roomId))
-                    // 削除イベントで履歴の該当部屋を削除済みフラグに更新
-                    setRoomHistory(prev => prev.map(h => h.roomId === payload.roomId ? { ...h, deleted: true, room: null } : h))
-                } else {
-                    const newRoom: Room = payload
-                    setRooms(prev => [newRoom, ...prev.filter(r => r.id !== newRoom.id)])
+
+        let ws: WebSocket | null = null
+        let reconnectTimeout: NodeJS.Timeout | null = null
+
+        const connect = () => {
+            try {
+                ws = new WebSocket(WS_ENDPOINT)
+
+                ws.onopen = () => {
+                    console.log('Room updates WebSocket connected')
+                    // バックエンドからの通知を受信するのみ（購読メッセージは不要）
                 }
-            })
+
+                ws.onmessage = (event) => {
+                    try {
+                        const payload = JSON.parse(event.data)
+                        if (payload.type === 'delete') {
+                            setRooms(prev => prev.filter(r => r.id !== payload.roomId))
+                            // 削除イベントで履歴の該当部屋を削除済みフラグに更新
+                            setRoomHistory(prev => prev.map(h => h.roomId === payload.roomId ? { ...h, deleted: true, room: null } : h))
+                        } else if (payload.type === 'update' || payload.type === 'create') {
+                            const newRoom: Room = payload.room || payload
+                            setRooms(prev => [newRoom, ...prev.filter(r => r.id !== newRoom.id)])
+                        }
+                    } catch (error) {
+                        console.error('Failed to parse room update message:', error)
+                    }
+                }
+
+                ws.onclose = () => {
+                    console.log('Room updates WebSocket disconnected, attempting to reconnect...')
+                    // 5秒後に再接続を試行
+                    reconnectTimeout = setTimeout(connect, 5000)
+                }
+
+                ws.onerror = (error) => {
+                    console.error('Room updates WebSocket error:', error)
+                }
+            } catch (error) {
+                console.error('Failed to create WebSocket connection:', error)
+                // 接続失敗時も再試行
+                reconnectTimeout = setTimeout(connect, 5000)
+            }
         }
-        stompClient.activate()
-        return () => { stompClient.deactivate() }
+
+        connect()
+
+        return () => {
+            if (reconnectTimeout) {
+                clearTimeout(reconnectTimeout)
+            }
+            if (ws) {
+                ws.close()
+            }
+        }
     }, [])
 
     const [showCreateModal, setShowCreateModal] = useState(false)
@@ -62,16 +96,16 @@ const HomeScreen: React.FC = () => {
 
     const [creatorMap, setCreatorMap] = useState<{ [roomId: string]: string }>({})
 
-    const [roomType, setRoomType] = useState<string>('all'); // 部屋タイプ: all, open, closed
+    const [roomType, setRoomType] = useState<string>('all') // 部屋タイプ: all, open, closed
 
     // ジャンル、ページ数範囲、開始/終了時刻範囲
-    const [genre, setGenre] = useState<string>('');
-    const [minPages, setMinPages] = useState<string>('');
-    const [maxPages, setMaxPages] = useState<string>('');
-    const [startTimeFrom, setStartTimeFrom] = useState<string>('');
-    const [startTimeTo, setStartTimeTo] = useState<string>('');
-    const [endTimeFrom, setEndTimeFrom] = useState<string>('');
-    const [endTimeTo, setEndTimeTo] = useState<string>('');
+    const [genre, setGenre] = useState<string>('')
+    const [minPages, setMinPages] = useState<string>('')
+    const [maxPages, setMaxPages] = useState<string>('')
+    const [startTimeFrom, setStartTimeFrom] = useState<string>('')
+    const [startTimeTo, setStartTimeTo] = useState<string>('')
+    const [endTimeFrom, setEndTimeFrom] = useState<string>('')
+    const [endTimeTo, setEndTimeTo] = useState<string>('')
 
     // 部屋検索API（空文字の場合は全件取得）
     const handleSearch = async () => {
@@ -105,17 +139,17 @@ const HomeScreen: React.FC = () => {
             }
             setRooms(roomsList)
             // 部屋ごとに作成者名を取得
-            const map: { [roomId: string]: string } = {};
+            const map: { [roomId: string]: string } = {}
             await Promise.all(roomsList.map(async (room) => {
                 try {
-                    const members = await roomApi.getRoomMembers(room.id);
-                    const creator = members.find((m: any) => (m.userId || '').replace(/-/g, '').toLowerCase() === (room.hostUserId || '').replace(/-/g, '').toLowerCase());
-                    map[room.id] = creator ? creator.username : '';
+                    const members = await roomApi.getRoomMembers(room.id)
+                    const creator = members.find((m: any) => (m.userId || '').replace(/-/g, '').toLowerCase() === (room.hostUserId || '').replace(/-/g, '').toLowerCase())
+                    map[room.id] = creator ? creator.username : ''
                 } catch {
-                    map[room.id] = '';
+                    map[room.id] = ''
                 }
-            }));
-            setCreatorMap(map);
+            }))
+            setCreatorMap(map)
         } catch (e) {
             setError('部屋の取得に失敗しました')
         } finally {
@@ -149,102 +183,149 @@ const HomeScreen: React.FC = () => {
     // 検索ボタン押下時のみ handleSearch を呼ぶ
 
     // ユーザープロフィール情報
-    const [userName, setUserName] = useState<string>('');
-    const [loginTime, setLoginTime] = useState<Date | null>(null);
+    const [userName, setUserName] = useState<string>('')
+    const [loginTime, setLoginTime] = useState<Date | null>(null)
 
     // ログイン時刻とユーザー名をlocalStorageから取得
     React.useEffect(() => {
         if (typeof window !== 'undefined') {
-            setUserName(localStorage.getItem('reading-share-user-name') || 'ゲスト');
-            const loginTimestamp = localStorage.getItem('reading-share-login-time');
+            setUserName(localStorage.getItem('reading-share-user-name') || 'ゲスト')
+            const loginTimestamp = localStorage.getItem('reading-share-login-time')
             if (loginTimestamp) {
-                setLoginTime(new Date(Number(loginTimestamp)));
+                setLoginTime(new Date(Number(loginTimestamp)))
             } else {
-                const now = Date.now();
-                localStorage.setItem('reading-share-login-time', String(now));
-                setLoginTime(new Date(now));
+                const now = Date.now()
+                localStorage.setItem('reading-share-login-time', String(now))
+                setLoginTime(new Date(now))
             }
         }
-    }, []);
+    }, [])
 
     // 経過時間を計算
-    const [elapsed, setElapsed] = useState('');
+    const [elapsed, setElapsed] = useState('')
     React.useEffect(() => {
-        if (!loginTime) return;
+        if (!loginTime) return
         const update = () => {
-            const now = new Date();
-            const diff = Math.floor((now.getTime() - loginTime.getTime()) / 1000);
-            const h = Math.floor(diff / 3600);
-            const m = Math.floor((diff % 3600) / 60);
-            const s = diff % 60;
-            setElapsed(`${h}時間${m}分${s}秒`);
-        };
-        update();
-        const timer = setInterval(update, 1000);
-        return () => clearInterval(timer);
-    }, [loginTime]);
+            const now = new Date()
+            const diff = Math.floor((now.getTime() - loginTime.getTime()) / 1000)
+            const h = Math.floor(diff / 3600)
+            const m = Math.floor((diff % 3600) / 60)
+            const s = diff % 60
+            setElapsed(`${h}時間${m}分${s}秒`)
+        }
+        update()
+        const timer = setInterval(update, 1000)
+        return () => clearInterval(timer)
+    }, [loginTime])
 
     const [roomHistory, setRoomHistory] = useState<RoomHistoryDto[]>([])
 
     // 履歴リセット状態（localStorageで永続化）
-    const [historyReset, setHistoryReset] = useState(false);
+    const [historyReset, setHistoryReset] = useState(false)
     // localStorageから初期値を復元
     React.useEffect(() => {
         if (typeof window !== 'undefined') {
-            setHistoryReset(localStorage.getItem('reading-share-history-reset') === '1');
+            setHistoryReset(localStorage.getItem('reading-share-history-reset') === '1')
         }
-    }, []);
+    }, [])
 
     // 履歴リセットボタン
     const handleResetHistory = async () => {
-        if (!currentUserId) return;
-        if (!window.confirm('本当に履歴を削除しますか？')) return;
+        if (!currentUserId) return
+        if (!window.confirm('本当に履歴を削除しますか？')) return
         try {
-            await roomApi.resetRoomHistory(currentUserId);
-            setRoomHistory([]);
-            setHistoryReset(true);
-            localStorage.setItem('reading-share-history-reset', '1');
+            await roomApi.resetRoomHistory(currentUserId)
+            setRoomHistory([])
+            setHistoryReset(true)
+            localStorage.setItem('reading-share-history-reset', '1')
         } catch {
-            alert('履歴のリセットに失敗しました');
+            alert('履歴のリセットに失敗しました')
         }
     }
 
     // 履歴リセット状態を初期化（ユーザーIDが変わった時や明示的に解除したい場合）
     React.useEffect(() => {
         if (typeof window !== 'undefined' && !historyReset) {
-            localStorage.removeItem('reading-share-history-reset');
+            localStorage.removeItem('reading-share-history-reset')
         }
-    }, [currentUserId, historyReset]);
+    }, [currentUserId, historyReset])
 
     // 履歴取得（リセット後は取得しない）
     React.useEffect(() => {
-        if (!currentUserId || historyReset) return;
+        if (!currentUserId || historyReset) return
         roomApi.getRoomHistory(currentUserId, 10)
             .then(setRoomHistory)
-            .catch(() => {});
+            .catch(() => { })
     }, [currentUserId, historyReset])
 
     // 履歴のリアルタイム更新（リセット後は無効化・購読も完全解除）
     React.useEffect(() => {
-        if (!currentUserId || typeof window === 'undefined' || historyReset) return;
-        let stompClient = new Client({ webSocketFactory: () => new SockJS(WS_ENDPOINT), reconnectDelay: 5000 })
-        stompClient.onConnect = () => {
-            stompClient.subscribe(`/topic/history/${currentUserId}`, msg => {
-                const payload = JSON.parse(msg.body);
-                if (payload.type === 'reset') {
-                    setRoomHistory([]);
-                    setHistoryReset(true);
-                    localStorage.setItem('reading-share-history-reset', '1');
-                    // リセット時は購読も即時解除
-                    stompClient.deactivate();
-                } else if (!historyReset) {
-                    const history: RoomHistoryDto = payload;
-                    setRoomHistory(prev => [history, ...prev.filter(h => h.roomId !== history.roomId)]);
+        if (!currentUserId || typeof window === 'undefined' || historyReset) return
+
+        let ws: WebSocket | null = null
+        let reconnectTimeout: NodeJS.Timeout | null = null
+
+        const connect = () => {
+            try {
+                // 履歴更新用の別のWebSocketエンドポイント
+                const historyWsEndpoint = process.env.NODE_ENV === 'development'
+                    ? `ws://localhost:8080/history-updates`
+                    : '/history-updates'
+
+                ws = new WebSocket(historyWsEndpoint)
+
+                ws.onopen = () => {
+                    console.log('History updates WebSocket connected')
+                    // バックエンドからの通知を受信するのみ（購読メッセージは不要）
                 }
-            })
+
+                ws.onmessage = (event) => {
+                    try {
+                        const payload = JSON.parse(event.data)
+                        if (payload.type === 'reset') {
+                            setRoomHistory([])
+                            setHistoryReset(true)
+                            localStorage.setItem('reading-share-history-reset', '1')
+                            // リセット時は接続も閉じる
+                            ws?.close()
+                        } else if (!historyReset) {
+                            const history: RoomHistoryDto = payload
+                            setRoomHistory(prev => [history, ...prev.filter(h => h.roomId !== history.roomId)])
+                        }
+                    } catch (error) {
+                        console.error('Failed to parse history update message:', error)
+                    }
+                }
+
+                ws.onclose = () => {
+                    console.log('History updates WebSocket disconnected')
+                    if (!historyReset) {
+                        console.log('Attempting to reconnect...')
+                        reconnectTimeout = setTimeout(connect, 5000)
+                    }
+                }
+
+                ws.onerror = (error) => {
+                    console.error('History updates WebSocket error:', error)
+                }
+            } catch (error) {
+                console.error('Failed to create history WebSocket connection:', error)
+                if (!historyReset) {
+                    reconnectTimeout = setTimeout(connect, 5000)
+                }
+            }
         }
-        stompClient.activate()
-        return () => { stompClient.deactivate() }
+
+        connect()
+
+        return () => {
+            if (reconnectTimeout) {
+                clearTimeout(reconnectTimeout)
+            }
+            if (ws) {
+                ws.close()
+            }
+        }
     }, [currentUserId, historyReset])
 
     // 部屋クリック時の処理
@@ -265,16 +346,16 @@ const HomeScreen: React.FC = () => {
         setShowJoinModal(false)
         // 履歴リセット状態なら解除（再参加で履歴を再開）
         if (historyReset) {
-            setHistoryReset(false);
+            setHistoryReset(false)
             if (typeof window !== 'undefined') {
-                localStorage.removeItem('reading-share-history-reset');
+                localStorage.removeItem('reading-share-history-reset')
             }
         }
         if (selectedRoom && currentUserId) {
             try {
-                const history = await roomApi.getRoomHistory(currentUserId, 10);
-                setRoomHistory(history);
-            } catch {}
+                const history = await roomApi.getRoomHistory(currentUserId, 10)
+                setRoomHistory(history)
+            } catch { }
             window.location.href = `/rooms/${selectedRoom.id}/chat`
         }
     }
@@ -292,25 +373,25 @@ const HomeScreen: React.FC = () => {
                             }}
                             title={``}
                             onMouseEnter={e => {
-                                const tooltip = document.createElement('div');
-                                tooltip.id = 'user-profile-tooltip';
-                                tooltip.style.position = 'absolute';
-                                tooltip.style.top = '110%';
-                                tooltip.style.left = '50%';
-                                tooltip.style.transform = 'translateX(-50%)';
-                                tooltip.style.background = '#fff';
-                                tooltip.style.color = '#333';
-                                tooltip.style.padding = '12px 20px';
-                                tooltip.style.borderRadius = '12px';
-                                tooltip.style.boxShadow = '0 2px 8px rgba(0,0,0,0.18)';
-                                tooltip.style.whiteSpace = 'nowrap';
-                                tooltip.style.zIndex = '9999';
-                                tooltip.innerHTML = `<b>ユーザー名:</b> ${userName}<br/><b>ログイン経過:</b> ${elapsed}`;
-                                e.currentTarget.appendChild(tooltip);
+                                const tooltip = document.createElement('div')
+                                tooltip.id = 'user-profile-tooltip'
+                                tooltip.style.position = 'absolute'
+                                tooltip.style.top = '110%'
+                                tooltip.style.left = '50%'
+                                tooltip.style.transform = 'translateX(-50%)'
+                                tooltip.style.background = '#fff'
+                                tooltip.style.color = '#333'
+                                tooltip.style.padding = '12px 20px'
+                                tooltip.style.borderRadius = '12px'
+                                tooltip.style.boxShadow = '0 2px 8px rgba(0,0,0,0.18)'
+                                tooltip.style.whiteSpace = 'nowrap'
+                                tooltip.style.zIndex = '9999'
+                                tooltip.innerHTML = `<b>ユーザー名:</b> ${userName}<br/><b>ログイン経過:</b> ${elapsed}`
+                                e.currentTarget.appendChild(tooltip)
                             }}
                             onMouseLeave={e => {
-                                const tooltip = document.getElementById('user-profile-tooltip');
-                                if (tooltip) tooltip.remove();
+                                const tooltip = document.getElementById('user-profile-tooltip')
+                                if (tooltip) tooltip.remove()
                             }}
                         >
                             {userName}
@@ -561,23 +642,23 @@ const HomeScreen: React.FC = () => {
                                             e.currentTarget.style.transform = 'translateY(-2px)'
                                             e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)'
                                             // 既存ツールチップを削除
-                                            document.querySelectorAll(`[id^='room-tooltip-']`).forEach(el => el.remove());
+                                            document.querySelectorAll(`[id^='room-tooltip-']`).forEach(el => el.remove())
                                             // ツールチップ生成
-                                            const tooltip = document.createElement('div');
-                                            tooltip.id = `room-tooltip-${room.id}`;
-                                            tooltip.style.position = 'fixed';
-                                            const rect = e.currentTarget.getBoundingClientRect();
-                                            tooltip.style.left = `${rect.left + rect.width / 2}px`;
-                                            tooltip.style.top = `${rect.top - 12}px`;
-                                            tooltip.style.transform = 'translate(-50%, -100%)';
-                                            tooltip.style.background = '#fff';
-                                            tooltip.style.color = '#333';
-                                            tooltip.style.padding = '14px 24px';
-                                            tooltip.style.borderRadius = '12px';
-                                            tooltip.style.boxShadow = '0 2px 12px rgba(0,0,0,0.18)';
-                                            tooltip.style.whiteSpace = 'nowrap';
-                                            tooltip.style.zIndex = '9999';
-                                            tooltip.style.fontSize = '15px';
+                                            const tooltip = document.createElement('div')
+                                            tooltip.id = `room-tooltip-${room.id}`
+                                            tooltip.style.position = 'fixed'
+                                            const rect = e.currentTarget.getBoundingClientRect()
+                                            tooltip.style.left = `${rect.left + rect.width / 2}px`
+                                            tooltip.style.top = `${rect.top - 12}px`
+                                            tooltip.style.transform = 'translate(-50%, -100%)'
+                                            tooltip.style.background = '#fff'
+                                            tooltip.style.color = '#333'
+                                            tooltip.style.padding = '14px 24px'
+                                            tooltip.style.borderRadius = '12px'
+                                            tooltip.style.boxShadow = '0 2px 12px rgba(0,0,0,0.18)'
+                                            tooltip.style.whiteSpace = 'nowrap'
+                                            tooltip.style.zIndex = '9999'
+                                            tooltip.style.fontSize = '15px'
                                             tooltip.innerHTML = `
                                                 <b>部屋名:</b> ${room.roomName}<br/>
                                                 <b>本タイトル:</b> ${room.bookTitle}<br/>
@@ -585,15 +666,15 @@ const HomeScreen: React.FC = () => {
                                                 <b>作成日:</b> ${new Date(room.createdAt).toLocaleString()}<br/>
                                                 <b>ページ数:</b> ${room.totalPages ?? '-'}<br/>
                                                 <b>パスワード:</b> ${room.hasPassword ? 'あり' : 'なし'}
-                                            `;
-                                            document.body.appendChild(tooltip);
+                                            `
+                                            document.body.appendChild(tooltip)
                                         }}
                                         onMouseLeave={(e) => {
                                             e.currentTarget.style.background = 'var(--white)'
                                             e.currentTarget.style.transform = 'translateY(0)'
                                             e.currentTarget.style.boxShadow = 'none'
                                             // すべてのツールチップを確実に削除
-                                            document.querySelectorAll(`[id^='room-tooltip-']`).forEach(el => el.remove());
+                                            document.querySelectorAll(`[id^='room-tooltip-']`).forEach(el => el.remove())
                                         }}
                                     >
                                         <div>
@@ -624,20 +705,20 @@ const HomeScreen: React.FC = () => {
                                                     cursor: 'pointer',
                                                 }}
                                                 onClick={e => {
-                                                    e.stopPropagation();
+                                                    e.stopPropagation()
                                                     if (window.confirm('本当にこの部屋を削除しますか？')) {
                                                         roomApi.deleteRoom(room.id)
                                                             .then(handleSearch)
                                                             .catch(err => {
-                                                                let msg = '削除に失敗しました';
+                                                                let msg = '削除に失敗しました'
                                                                 if (err && err.response && err.response.data) {
-                                                                    msg += '\n' + JSON.stringify(err.response.data);
+                                                                    msg += '\n' + JSON.stringify(err.response.data)
                                                                 } else if (err && err.message) {
-                                                                    msg += '\n' + err.message;
+                                                                    msg += '\n' + err.message
                                                                 }
-                                                                alert(msg);
-                                                                console.error('deleteRoom error:', err);
-                                                            });
+                                                                alert(msg)
+                                                                console.error('deleteRoom error:', err)
+                                                            })
                                                     }
                                                 }}
                                             >削除</button>
@@ -658,36 +739,36 @@ const HomeScreen: React.FC = () => {
                         >履歴をリセット</button>
                     </div>
                     {roomHistory.filter(h => {
-                        if (!h.room) return true;
+                        if (!h.room) return true
                         // 作成しただけの部屋: joinedAtとcreatedAtが完全一致かつ自分がホスト
-                        const isHost = (h.room.hostUserId || '').replace(/-/g, '').toLowerCase() === currentUserId.replace(/-/g, '').toLowerCase();
-                        const joined = new Date(h.joinedAt).getTime();
-                        const created = new Date(h.room.createdAt).getTime();
-                        if (isHost && joined === created) return false;
-                        return true;
+                        const isHost = (h.room.hostUserId || '').replace(/-/g, '').toLowerCase() === currentUserId.replace(/-/g, '').toLowerCase()
+                        const joined = new Date(h.joinedAt).getTime()
+                        const created = new Date(h.room.createdAt).getTime()
+                        if (isHost && joined === created) return false
+                        return true
                     }).length === 0 ? (
                         <div style={{ color: '#666' }}>まだ参加した部屋がありません</div>
                     ) : (
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
                             {roomHistory.filter(h => {
-                                if (!h.room) return true;
-                                const isHost = (h.room.hostUserId || '').replace(/-/g, '').toLowerCase() === currentUserId.replace(/-/g, '').toLowerCase();
-                                const joined = new Date(h.joinedAt).getTime();
-                                const created = new Date(h.room.createdAt).getTime();
-                                if (isHost && joined === created) return false;
-                                return true;
+                                if (!h.room) return true
+                                const isHost = (h.room.hostUserId || '').replace(/-/g, '').toLowerCase() === currentUserId.replace(/-/g, '').toLowerCase()
+                                const joined = new Date(h.joinedAt).getTime()
+                                const created = new Date(h.room.createdAt).getTime()
+                                if (isHost && joined === created) return false
+                                return true
                             }).map(h => (
                                 <div
                                     key={h.roomId}
                                     style={{ position: 'relative', background: 'var(--white)', padding: 16, borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.1)', cursor: h.deleted ? 'default' : 'pointer', transition: '0.3s', textAlign: 'center', color: h.deleted ? 'red' : 'inherit' }}
-                                    onClick={() => { if (!h.deleted && h.room) { handleRoomClick(h.room); } }}
+                                    onClick={() => { if (!h.deleted && h.room) { handleRoomClick(h.room) } }}
                                 >
                                     {h.deleted ? (
                                         <div style={{ fontSize: 16, fontWeight: 'bold', padding: '32px 0', color: 'red' }}>
                                             この部屋は既に削除されています
                                         </div>
                                     ) : (
-                                        <> 
+                                        <>
                                             <div>
                                                 <h3 style={{ color: 'var(--accent)', fontSize: 18, fontWeight: 'bold', marginBottom: 8, overflowWrap: 'break-word', wordBreak: 'break-word' }}>
                                                     {h.room!.roomName}
