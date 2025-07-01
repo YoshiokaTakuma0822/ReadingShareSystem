@@ -32,10 +32,14 @@ public class Room {
     private Instant createdAt;
 
     @Column(nullable = true)
-    private Instant endTime;
+    private Instant endTime; // 終了時刻
+
+    // --- フィールド ---
+    @Column(nullable = true)
+    private Integer maxPage; // dev_al23060_merge_test: 最大ページ数
 
     @Column(nullable = false)
-    private int totalPages; // 追加: 本のページ数
+    private int totalPages; // 本のページ数
 
     private transient boolean hasPassword; // DBには保存しない、APIレスポンス用
 
@@ -44,31 +48,30 @@ public class Room {
     private String passwordHash; // パスワードハッシュ（null可）
 
     @Column(nullable = true, length = 100)
-    private String genre; // 追加: 部屋のジャンル
+    private String genre; // 部屋のジャンル
 
     @Column(nullable = true)
-    private Instant startTime; // 追加: 開始時刻
+    private Instant startTime; // 開始時刻
+
+    @Column(nullable = true)
+    private Integer pageSpeed; // dev_al23060_merge_test: ページめくり速度
 
     // --- コンストラクタ ---
     public Room() {
         // JPA用
     }
 
-    public Room(String roomName, String bookTitle, UUID hostUserId) {
+    public Room(String roomName, String bookTitle, UUID hostUserId, Integer maxPage, String genre, Instant startTime, Instant endTime, Integer pageSpeed) {
         this.id = UUID.randomUUID();
         this.roomName = roomName;
         this.bookTitle = bookTitle;
         this.hostUserId = hostUserId;
         this.createdAt = Instant.now();
-    }
-
-    public Room(String roomName, String bookTitle, UUID hostUserId, Instant endTime) {
-        this.id = UUID.randomUUID();
-        this.roomName = roomName;
-        this.bookTitle = bookTitle;
-        this.hostUserId = hostUserId;
-        this.createdAt = Instant.now();
+        this.maxPage = maxPage;
+        this.genre = genre;
+        this.startTime = startTime;
         this.endTime = endTime;
+        this.pageSpeed = pageSpeed;
     }
 
     public Room(String roomName, String bookTitle, UUID hostUserId, int totalPages) {
@@ -87,11 +90,6 @@ public class Room {
         this.hostUserId = hostUserId;
         this.createdAt = createdAt;
         this.endTime = endTime;
-    }
-
-    // --- ゲッター ---
-    public UUID getId() {
-        return id;
     }
 
     public String getRoomName() {
@@ -114,16 +112,20 @@ public class Room {
         return endTime;
     }
 
-    public void setEndTime(Instant endTime) {
-        this.endTime = endTime;
-    }
-
     public int getTotalPages() {
         return totalPages;
     }
 
     public void setTotalPages(int totalPages) {
         this.totalPages = totalPages;
+    }
+
+    public Integer getMaxPage() {
+        return maxPage;
+    }
+
+    public void setMaxPage(Integer maxPage) {
+        this.maxPage = maxPage;
     }
 
     public String getGenre() {
@@ -142,12 +144,23 @@ public class Room {
         this.startTime = startTime;
     }
 
+    public Integer getPageSpeed() {
+        return pageSpeed;
+    }
+
+    public void setPageSpeed(Integer pageSpeed) {
+        this.pageSpeed = pageSpeed;
+    }
+
+    public void setEndTime(Instant endTime) {
+        this.endTime = endTime;
+    }
+
     // --- パスワード有無はpasswordHashの有無で判定する ---
     public boolean isHasPassword() {
         return passwordHash != null && !passwordHash.isEmpty();
     }
 
-    // setHasPasswordはAPIレスポンス用に残す場合はOK（不要なら削除可）
     public void setHasPassword(boolean hasPassword) {
         this.hasPassword = hasPassword;
     }
@@ -158,6 +171,18 @@ public class Room {
 
     public void setPasswordHash(String passwordHash) {
         this.passwordHash = passwordHash;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public void setHostUserId(UUID hostUserId) {
+        this.hostUserId = hostUserId;
+    }
+
+    public UUID getId() {
+        return id;
     }
 
     // --- その他のメソッド ---

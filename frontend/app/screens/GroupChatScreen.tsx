@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import SurveyCreationModal from './SurveyCreationModal'
 import SurveyAnswerModal from './SurveyAnswerModal'
 import { chatApi } from '../../lib/chatApi'
@@ -74,7 +74,30 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
             setLoading(false)
             return
         }
+        setLoading(true)
+        setError(null)
+        try {
+            // チャット履歴取得
+            const chatHistory = await chatApi.getChatHistory(roomId)
+            setMessages(chatHistory.map((msg, idx) => ({
+                id: idx, // 連番でnumber型に変換
+                user: msg.senderUsername || '匿名', // ユーザー名を表示
+                text: typeof msg.content === 'string' ? msg.content : msg.content.value,
+                isCurrentUser: String(msg.senderUserId) === String(currentUserId),
+            })))
+        } catch (e) {
+            setError('チャット履歴の取得に失敗しました')
+        } finally {
+            setLoading(false)
+        }
+    }
 
+    // チャットストリーム取得
+    const loadChatStream = async () => {
+        if (!roomId) {
+            setLoading(false)
+            return
+        }
         try {
             setLoading(true)
             setError(null)
@@ -108,9 +131,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
             setMessages(convertedMessages)
             setMsgId(convertedMessages.length + 1)
         } catch (err) {
-            console.error('チャット履歴の取得に失敗しました:', err)
-            console.log('エラー詳細:', err)
-            setError('チャット履歴の読み込みに失敗しました')
+            setError('チャットストリームの読み込みに失敗しました')
         } finally {
             setLoading(false)
         }
@@ -119,20 +140,37 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
     // コンポーネントマウント時にチャット履歴を読み込む
     useEffect(() => {
         if (currentUserId !== null) {
-            loadChatHistory()
+            loadChatStream()
         }
     }, [roomId, currentUserId])
 
+    // チャットストリーム取得時のアンケート回答状況取得部分を簡略化（setStreamItems, setAnsweredSurveyIdsを削除）
+    useEffect(() => {
+        if (!roomId || !currentUserId) return;
+        const fetchAnswered = async () => {
+            // 必要ならここでアンケート回答状況取得処理を追加
+        };
+        fetchAnswered();
+    }, [roomId, currentUserId])
+
+    // チャット自動更新（5秒ごと）
+    useEffect(() => {
+        if (!roomId || !currentUserId) return;
+        const interval = setInterval(() => {
+            loadChatHistory();
+        }, 5000);
+        return () => clearInterval(interval);
+    }, [roomId, currentUserId])
+
+    // メッセージ送信
     const handleSend = async () => {
         if (!input.trim() || !roomId) return;
         try {
-            // サーバーにメッセージを送信（WebSocket経由で全員に配信されるのを待つ）
-            await chatApi.sendMessage(roomId, { messageContent: input });
-            // ローカル状態はWebSocket受信時のみ更新する（ここでは更新しない）
+            // sentAtを付与して型エラーを回避
+            await chatApi.sendMessage(roomId, { messageContent: input, sentAt: new Date().toISOString() });
             setInput("");
         } catch (err) {
             console.error('メッセージ送信に失敗しました:', err);
-            // エラー時のみローカルに一時的に表示（任意）
         }
     }
 
@@ -256,15 +294,13 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
         })();
     }, [roomId, currentUserId, userIdToName]);
 
+    // JSX返却部
     return (
         <div style={{ border: '4px solid #388e3c', margin: 24, padding: 24, background: 'linear-gradient(135deg, #e0f7ef 0%, #f1fdf6 100%)', borderRadius: 12, maxWidth: 1200, minHeight: 600, marginLeft: 'auto', marginRight: 'auto', display: 'flex', flexDirection: 'column', height: '80vh', position: 'relative' }}>
             <h2 style={{ textAlign: 'center', fontSize: 28, marginBottom: 16, color: '#388e3c' }}>
                 {roomName}
             </h2>
-
-            {/* ナビゲーションボタン */}
             <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginBottom: 16, flexWrap: 'wrap' }}>
-                {/* アンケート回答ボタン（作成後に表示） */}
                 {answerSurveyId && (
                     <button
                         onClick={() => setShowAnswerModal(true)}
@@ -322,8 +358,6 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                     🏠 ホームへ
                 </button>
             </div>
-
-            {/* エラー表示 */}
             {error && (
                 <div style={{
                     background: '#ffebee',
@@ -350,31 +384,17 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                     </button>
                 </div>
             )}
-
-            {/* アンケートブロック */}
+            {/* アンケート内容表示（例: 直近作成アンケート） */}
             {surveyFormat && (
-                <div style={{
-                    background: '#e8f5e9',
-                    border: '1px solid #c8e6c9',
-                    borderRadius: 8,
-                    padding: 16,
-                    marginBottom: 16,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 8
-                }}>
-                    <h3 style={{ margin: 0, color: '#2e7d32' }}>新しいアンケートが作成されました</h3>
-                    <div style={{ fontSize: 16, color: '#555' }}>
-                        <strong>タイトル:</strong> {surveyFormat.title}
-                    </div>
-                    <div style={{ fontSize: 16, color: '#555' }}>
-                        <strong>選択肢:</strong>
+                <div style={{ margin: '16px 0', padding: 16, background: '#f9f9f9', border: '1px solid #ccc', borderRadius: 8 }}>
+                    <h3 style={{ marginBottom: 8, color: '#1976d2' }}>{surveyFormat.title}</h3>
+                    {surveyFormat.questions && surveyFormat.questions.length > 0 && (
                         <ul style={{ paddingLeft: 20, margin: 0 }}>
-                            {surveyFormat.options.map((option, index) => (
-                                <li key={index} style={{ marginBottom: 4 }}>{option}</li>
+                            {surveyFormat.questions[0].options.map((opt, i) => (
+                                <li key={i} style={{ marginBottom: 4 }}>{opt}</li>
                             ))}
                         </ul>
-                    </div>
+                    )}
                     <button
                         onClick={() => setShowAnswerModal(true)}
                         style={{
@@ -394,25 +414,8 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                     </button>
                 </div>
             )}
-
-            {/* アンケート内容表示 */}
-            {surveyFormat && (
-                <div style={{ margin: '16px 0', padding: 16, background: '#f9f9f9', border: '1px solid #ccc', borderRadius: 8 }}>
-                    <h3 style={{ marginBottom: 8, color: '#1976d2' }}>{surveyFormat.title}</h3>
-                    {surveyFormat.questions.map((q, qi) => (
-                        <div key={qi} style={{ marginBottom: 8 }}>
-                            <p style={{ margin: '4px 0', fontWeight: 'bold' }}>{q.questionText}</p>
-                            <ul style={{ margin: 0, paddingLeft: 16 }}>
-                                {q.options.map((opt, oi) => (
-                                    <li key={oi} style={{ listStyleType: 'disc' }}>{opt}</li>
-                                ))}
-                            </ul>
-                        </div>
-                    ))}
-                </div>
-            )}
-
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 32, minHeight: 200, maxHeight: '60vh', overflowY: 'auto', background: 'rgba(255,255,255,0.7)', borderRadius: 8, padding: 16 }}>
+            {/* チャット欄 */}
+            <div style={{ flex: 1, overflowY: 'auto', marginBottom: 16, background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #b0b8c9', display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {loading ? (
                     <div style={{
                         display: 'flex',
@@ -491,6 +494,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                     <div ref={messagesEndRef} />
                     </>
                 )}
+                <div ref={messagesEndRef} />
             </div>
             <div style={{ display: 'flex', alignItems: 'center', marginTop: 32 }}>
                 <input
@@ -516,7 +520,6 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                     disabled={loading}
                 >送信</button>
             </div>
-
             {/* アンケート作成モーダル */}
             {showSurveyModal && roomId && (
                 <SurveyCreationModal
@@ -535,9 +538,8 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                     onClose={() => setShowAnswerModal(false)}
                 />
             )}
-         </div>
-     )
-
-} // GroupChatScreen 関数を閉じる
+        </div>
+    )
+}
 
 export default GroupChatScreen

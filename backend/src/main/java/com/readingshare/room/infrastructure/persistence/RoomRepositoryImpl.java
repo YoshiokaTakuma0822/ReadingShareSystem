@@ -36,6 +36,11 @@ public class RoomRepositoryImpl implements IRoomRepository {
     }
 
     @Override
+    public List<Room> findByGenre(String genre) {
+        return roomRepository.findByGenre(genre);
+    }
+
+    @Override
     public List<Room> findAll() {
         return roomRepository.findAll();
     }

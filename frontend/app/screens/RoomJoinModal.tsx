@@ -81,7 +81,7 @@ const RoomJoinModal: React.FC<RoomJoinModalProps> = ({ open, room, userId, onClo
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                zIndex: 1000
+                zIndex: 1000,
             }}
             onClick={handleBackgroundClick}
         >
@@ -132,59 +132,21 @@ const RoomJoinModal: React.FC<RoomJoinModalProps> = ({ open, room, userId, onClo
                         <strong>作成日:</strong> {new Date(room.createdAt).toLocaleDateString()}
                     </p>
                 </div>
-
-                {room.hasPassword && (
-                    <div style={{ marginBottom: 16 }}>
-                        <label style={{ color: '#2e7d32', fontWeight: 'bold' }}>パスワード</label>
+                {/* ...既存のパスワード入力・参加ボタン... */}
+                <div style={{ marginBottom: 16 }}>
+                    {room.hasPassword && (
                         <input
                             type="password"
                             value={password}
                             onChange={e => setPassword(e.target.value)}
+                            placeholder="パスワード"
                             style={inputStyle}
-                            placeholder="パスワードを入力してください"
                         />
-                    </div>
-                )}
-
-                {!room.hasPassword && (
-                    <div style={{ marginBottom: 16, color: '#388e3c', fontSize: 14 }}>
-                        ✓ この部屋はパスワード保護されていません
-                    </div>
-                )}
-
-                {error && <div style={{ color: 'red', marginBottom: 12, padding: 8, background: '#ffebee', borderRadius: 4 }}>{error}</div>}
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 16, marginTop: 24 }}>
-                    <button
-                        onClick={onClose}
-                        style={{
-                            padding: '12px 24px',
-                            border: '2px solid #666',
-                            borderRadius: 8,
-                            background: 'transparent',
-                            color: '#666',
-                            fontSize: 16,
-                            cursor: 'pointer'
-                        }}
-                    >
-                        キャンセル
-                    </button>
-                    <button
-                        onClick={handleJoin}
-                        disabled={loading || (room.hasPassword && !password.trim())}
-                        style={{
-                            padding: '12px 24px',
-                            border: '2px solid #388e3c',
-                            borderRadius: 8,
-                            background: '#388e3c',
-                            color: 'white',
-                            fontSize: 16,
-                            cursor: loading || (room.hasPassword && !password.trim()) ? 'not-allowed' : 'pointer',
-                            opacity: loading || (room.hasPassword && !password.trim()) ? 0.6 : 1
-                        }}
-                    >
-                        {loading ? '参加中...' : '部屋に参加'}
-                    </button>
+                    )}
                 </div>
+                {error && <div style={{ color: 'red', marginBottom: 12 }}>{error}</div>}
+                <button onClick={handleJoin} disabled={loading} style={{ width: '100%', padding: 12, fontSize: 18, borderRadius: 8, border: '1px solid #222', background: '#388e3c', color: '#fff', fontWeight: 'bold' }}>{loading ? '参加中...' : '参加'}</button>
+                <button onClick={onClose} style={{ position: 'absolute', top: 16, right: 16, background: '#888', color: '#fff', border: 'none', borderRadius: 8, padding: '6px 16px', cursor: 'pointer' }}>閉じる</button>
             </div>
         </div>
     )

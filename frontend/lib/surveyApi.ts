@@ -3,9 +3,8 @@ import { Survey, CreateSurveyRequest, SubmitSurveyAnswerRequest, SurveyResult } 
 
 export const surveyApi = {
     // アンケート作成：作成されたアンケートID(UUID文字列)を返す
-    createSurvey: async (request: CreateSurveyRequest): Promise<string> => {
-        // baseURLを空文字で上書きして、重複した '/api' を防止
-        const response = await apiClient.post<string>('/api/surveys', request, { baseURL: '' })
+    createSurvey: async (request: CreateSurveyRequest): Promise<{ id: string }> => {
+        const response = await apiClient.post<{ id: string }>('/api/surveys', request, { baseURL: '' })
         return response.data
     },
     // アンケートフォーマット取得
@@ -20,6 +19,11 @@ export const surveyApi = {
     // 結果取得
     getSurveyResult: async (surveyId: string): Promise<SurveyResult> => {
         const response = await apiClient.get<SurveyResult>(`/api/surveys/${surveyId}/results`, { baseURL: '' })
+        return response.data
+    },
+    // 回答済み判定
+    hasUserAnswered: async (surveyId: string, userId: string): Promise<boolean> => {
+        const response = await apiClient.get(`/api/surveys/${surveyId}/answered`, { params: { userId } })
         return response.data
     },
 }

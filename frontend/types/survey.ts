@@ -32,8 +32,10 @@ export interface SurveyAnswer {
 
 export interface SubmitSurveyAnswerRequest {
     surveyId: SurveyId
-    answers: Map<string, string[]> // バックエンドのエンティティに合わせて変更
+    userId: UserId // 追加
+    answers: Record<string, string[]> // Map型からRecord型に修正
     isAnonymous?: boolean // 匿名回答かどうか
+    addedOptions?: Record<string, string[]> // 質問ごとの追加選択肢
 }
 
 export interface CreateSurveyRequest {
@@ -51,6 +53,6 @@ export interface QuestionResult {
 export interface SurveyResult {
     surveyId: SurveyId
     title: string
-    totalRespondents: number
+    totalRespondents?: number // 回答者数（あれば）
     results: QuestionResult[]
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Client } from '@stomp/stompjs'
 import SockJS from 'sockjs-client'
 // WebSocketエンドポイント設定
@@ -126,16 +126,12 @@ const HomeScreen: React.FC = () => {
     // 初期表示とタブ変更時の部屋取得
     // 初期マウントで全件取得
     React.useEffect(() => {
-        handleSearch()
+        handleSearch() // 初期表示時とタブ変更時に部屋を取得
     }, [])
-    // タブ変更時の部屋取得
-    React.useEffect(() => {
-        // タブを切り替えたときは常に部屋情報を取得
+    useEffect(() => {
         handleSearch()
     }, [tab])
-
-    // 検索テキスト変更時のリアルタイム検索（デバウンス）
-    React.useEffect(() => {
+    useEffect(() => {
         if (tab === 'search') {
             const timeoutId = setTimeout(() => {
                 handleSearch()

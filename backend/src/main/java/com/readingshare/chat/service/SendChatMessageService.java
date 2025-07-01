@@ -44,7 +44,7 @@ public class SendChatMessageService {
      * @throws DatabaseAccessException データベースアクセスエラー時
      */
     @Transactional
-    public ChatMessage sendMessage(UUID roomId, UUID userId, String content) {
+    public ChatMessage sendMessage(UUID roomId, UUID userId, String content, Instant sentAt) {
         // 入力値の検証
         validateInput(roomId, userId, content);
 

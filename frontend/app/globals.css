@@ -1,18 +1,22 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f7fafc;
+  --foreground: #22223b;
   /* グリーン＆白基調カラーパレット */
-  --green-main: #4CAF50;
-  --green-dark: #388E3C;
-  --green-light: #A5D6A7;
-  --green-bg: #e0f7ef;
+  --green-main: #43aa8b;
+  --green-dark: #2d6a4f;
+  --green-light: #b7efc5;
+  --green-bg: #e9f5ee;
   --white: #fff;
-  --border: #81c784;
-  --accent: #388e3c;
-  --text-main: #222;
-  --text-accent: #388e3c;
+  --border: #b5c9c3;
+  --accent: #3a86ff;
+  --accent2: #ffbe0b;
+  --accent3: #ff006e;
+  --text-main: #22223b;
+  --text-accent: #43aa8b;
+  --card-bg: #f1f3f8;
+  --card-shadow: 0 4px 24px rgba(67,170,139,0.08);
 }
 
 @theme inline {
@@ -24,16 +28,18 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #181a1b;
     --foreground: #ededed;
     --green-bg: #1a2b1a;
     --white: #222;
     --text-main: #ededed;
+    --card-bg: #23272e;
+    --card-shadow: 0 4px 24px rgba(67,170,139,0.16);
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Segoe UI', Arial, Helvetica, sans-serif;
 }

@@ -50,4 +50,8 @@ public class SurveyRepositoryImpl implements ISurveyRepository {
     public void deleteByRoomId(UUID roomId) {
         surveyRepository.deleteByRoomId(roomId);
     }
+
+    public SurveyAnswerJpaRepository getSurveyAnswerRepository() {
+        return surveyAnswerRepository;
+    }
 }

@@ -1,6 +1,7 @@
 package com.readingshare.room.dto;
 
 import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -12,11 +13,13 @@ public record CreateRoomRequest(
         UUID hostUserId,
         String bookTitle,
         String password,
-        Integer totalPages,      // 追加: 本のページ数
-        String genre,            // 追加: 部屋のジャンル
+        Integer totalPages,      // 本のページ数
+        Integer maxPage,         // 最大ページ数（dev_al23060_merge_test）
+        String genre,            // 部屋のジャンル
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
-        LocalDateTime startTime, // 追加: 部屋の開始時刻
+        LocalDateTime startTime, // 開始時刻
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
-        LocalDateTime endTime    // 追加: 部屋の終了時刻
+        LocalDateTime endTime,   // 終了時刻
+        Integer pageSpeed        // ページめくり速度（dev_al23060_merge_test）
 ) {
 }

@@ -22,6 +22,26 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
     const [endTime, setEndTime] = useState('');
     const [totalPages, setTotalPages] = useState<number>(300); // 追加: 本の全ページ数
     const [passwordType, setPasswordType] = useState<'none' | 'set'>('none');
+    const [maxPage, setMaxPage] = useState('')
+
+    // ジャンル選択肢（例）
+    const genreOptions = [
+        '小説', 'ビジネス', '漫画', 'エッセイ', '専門書', 'ライトノベル', '児童書', 'その他'
+    ];
+
+    // ジャンル・パスワード有無の2段階プルダウンUI用state
+    const [mainFilter, setMainFilter] = useState<'genre' | 'password'>('genre');
+    const [selectedGenre, setSelectedGenre] = useState('');
+
+    const toIsoStringWithSeconds = (s: string) => {
+        if (!s) return undefined;
+        // 例: "2025-06-21T10:56" → "2025-06-21T10:56:00+09:00"（ローカルタイムゾーン）
+        if (s.length === 16) {
+            const date = new Date(s + ':00');
+            return date.toISOString();
+        }
+        return s;
+    };
 
     const handleCreate = async () => {
         setLoading(true);
@@ -132,11 +152,11 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
                     <div style={{ flex: 1, minWidth: 280 }}>
                         <div style={{ marginBottom: 16 }}>
                             <label>部屋名</label>
-                            <input type="text" value={roomName} onChange={e => setRoomName(e.target.value)} placeholder="部屋名を入力してください" style={{ width: '100%', padding: 8, marginTop: 4 }} />
+                            <input type="text" value={roomName} onChange={e => setRoomName(e.target.value)} placeholder="部屋名を入力してください" style={{ width: '100%', padding: 6, marginTop: 4 }} />
                         </div>
-                        <div style={{ marginBottom: 16 }}>
+                        <div style={{ marginBottom: 10 }}>
                             <label>本のタイトル</label>
-                            <input type="text" value={bookTitle} onChange={e => setBookTitle(e.target.value)} placeholder="本のタイトルを入力してください" style={{ width: '100%', padding: 8, marginTop: 4 }} />
+                            <input type="text" value={bookTitle} onChange={e => setBookTitle(e.target.value)} placeholder="本のタイトルを入力してください" style={{ width: '100%', padding: 6, marginTop: 4 }} />
                         </div>
                         <div style={{ marginBottom: 16 }}>
                             <label>本のページ数</label>

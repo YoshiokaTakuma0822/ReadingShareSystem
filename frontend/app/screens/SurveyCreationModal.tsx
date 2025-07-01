@@ -16,7 +16,6 @@ const SurveyCreationModal: React.FC<SurveyCreationModalProps> = ({ open, roomId,
     const [options, setOptions] = useState(["第1章", "第2章"])
     const [endDate, setEndDate] = useState("2026-01-01T12:00")
     const [multi, setMulti] = useState(false)
-    const [anonymous, setAnonymous] = useState(false)
     const [allowAdd, setAllowAdd] = useState(false)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
@@ -29,7 +28,6 @@ const SurveyCreationModal: React.FC<SurveyCreationModalProps> = ({ open, roomId,
                 questionText: title,
                 options: options.filter(opt => opt.trim() !== ''),
                 questionType: multi ? 'MULTIPLE_CHOICE' : 'SINGLE_CHOICE',
-                allowAnonymous: anonymous,
                 allowAddOptions: allowAdd
             }
 
@@ -140,9 +138,6 @@ const SurveyCreationModal: React.FC<SurveyCreationModalProps> = ({ open, roomId,
                 <div style={{ display: "flex", gap: 24, marginBottom: 24, marginLeft: 90 }}>
                     <label style={{ color: '#388e3c', fontWeight: 500 }}>
                         <input type="checkbox" checked={multi} onChange={e => setMulti(e.target.checked)} /> 複数選択可
-                    </label>
-                    <label style={{ color: '#388e3c', fontWeight: 500 }}>
-                        <input type="checkbox" checked={anonymous} onChange={e => setAnonymous(e.target.checked)} /> 匿名投票
                     </label>
                     <label style={{ color: '#388e3c', fontWeight: 500 }}>
                         <input type="checkbox" checked={allowAdd} onChange={e => setAllowAdd(e.target.checked)} /> 選択肢の追加を許可

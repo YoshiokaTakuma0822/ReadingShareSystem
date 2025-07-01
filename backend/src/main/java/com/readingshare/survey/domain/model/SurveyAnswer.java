@@ -57,17 +57,17 @@ public class SurveyAnswer {
         this.answeredAt = LocalDateTime.now();
     }
 
-    // public SurveyAnswer(UUID surveyId, UUID userId, Map<String, List<String>> answers, boolean isAnonymous) {
-    //     if (surveyId == null || userId == null || answers == null || answers.isEmpty()) {
-    //         throw new IllegalArgumentException("Survey ID, User ID, and answers cannot be null or empty.");
-    //     }
-    //     this.id = UUID.randomUUID();
-    //     this.surveyId = surveyId;
-    //     this.userId = userId;
-    //     this.answers = answers;
-    //     this.isAnonymous = isAnonymous;
-    //     this.answeredAt = LocalDateTime.now();
-    // }
+    public SurveyAnswer(UUID surveyId, UUID userId, Map<String, List<String>> answers, boolean isAnonymous) {
+        if (surveyId == null || userId == null || answers == null || answers.isEmpty()) {
+            throw new IllegalArgumentException("Survey ID, User ID, and answers cannot be null or empty.");
+        }
+        this.id = UUID.randomUUID();
+        this.surveyId = surveyId;
+        this.userId = userId;
+        this.answers = answers;
+        // this.isAnonymous = isAnonymous; // 必要なら有効化
+        this.answeredAt = LocalDateTime.now();
+    }
 
     public void setAnswers(Map<String, List<String>> answers) {
         this.answers = answers;

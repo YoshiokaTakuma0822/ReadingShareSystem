@@ -1,5 +1,6 @@
 package com.readingshare.room.service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -64,8 +65,8 @@ public class RoomService {
      * @return 作成された部屋のエンティティ
      * @throws ApplicationException 部屋作成に失敗した場合
      */
-    public Room createRoom(String roomName, String bookTitle, UUID hostUserId) {
-        Room newRoom = new Room(roomName, bookTitle, hostUserId);
+    public Room createRoom(String roomName, String bookTitle, UUID hostUserId, Integer maxPage, String genre, Instant startTime, Instant endTime, Integer pageSpeed) {
+        Room newRoom = new Room(roomName, bookTitle, hostUserId, maxPage, genre, startTime, endTime, pageSpeed);
         // パスワードはオプションなので、ここではnullを渡す
         return roomDomainService.createRoom(newRoom, null);
     }
@@ -80,8 +81,8 @@ public class RoomService {
      * @return 作成された部屋のエンティティ
      * @throws ApplicationException 部屋作成に失敗した場合
      */
-    public Room createRoomWithPassword(String roomName, String bookTitle, UUID hostUserId, String roomPassword) {
-        Room newRoom = new Room(roomName, bookTitle, hostUserId);
+    public Room createRoomWithPassword(String roomName, String bookTitle, UUID hostUserId, String roomPassword, Integer maxPage, String genre, Instant startTime, Instant endTime, Integer pageSpeed) {
+        Room newRoom = new Room(roomName, bookTitle, hostUserId, maxPage, genre, startTime, endTime, pageSpeed);
         return roomDomainService.createRoom(newRoom, roomPassword);
     }
 
@@ -101,14 +102,16 @@ public class RoomService {
     public Room createRoom(CreateRoomRequest request) {
         // デフォルトページ数
         int pages = request.totalPages() != null ? request.totalPages() : 300;
-        Room newRoom = new Room(request.roomName(), request.bookTitle(), request.hostUserId(), pages);
-        newRoom.setGenre(request.genre());
-        if (request.startTime() != null) {
-            newRoom.setStartTime(request.startTime().atZone(ZoneId.systemDefault()).toInstant());
-        }
-        if (request.endTime() != null) {
-            newRoom.setEndTime(request.endTime().atZone(ZoneId.systemDefault()).toInstant());
-        }
+        Room newRoom = new Room(
+            request.roomName(),
+            request.bookTitle(),
+            request.hostUserId(),
+            request.maxPage() != null ? request.maxPage() : pages, // maxPage優先、なければtotalPages
+            request.genre(),
+            request.startTime() != null ? request.startTime().atZone(ZoneId.systemDefault()).toInstant() : null,
+            request.endTime() != null ? request.endTime().atZone(ZoneId.systemDefault()).toInstant() : null,
+            request.pageSpeed()
+        );
         String password = request.password();
         return roomDomainService.createRoom(newRoom, password);
     }
