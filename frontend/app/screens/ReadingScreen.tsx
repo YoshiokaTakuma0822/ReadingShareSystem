@@ -457,7 +457,10 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                     type="number"
                     min={1}
                     value={currentPage}
-                    onChange={(e) => setCurrentPage(Number(e.target.value))}
+                    onChange={(e) => {
+                      setCurrentPage(Number(e.target.value));
+                      setDisplayPage(Number(e.target.value)); // 追加: 編集時に中央表示も更新
+                    }}
                   />
                 </div>
                 <div className="inputGroup">
