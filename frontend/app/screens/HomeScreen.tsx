@@ -84,6 +84,10 @@ const HomeScreen: React.FC = () => {
                 roomsList = await roomApi.getRooms(100) // limit 100
             } else {
                 // 検索タブでは複数条件検索
+                let openOnly: boolean | undefined = undefined;
+                let closedOnly: boolean | undefined = undefined;
+                if (roomType === 'open') openOnly = true;
+                if (roomType === 'closed') closedOnly = true;
                 const result = await roomApi.searchRooms(
                     searchText,
                     genre,
@@ -92,30 +96,43 @@ const HomeScreen: React.FC = () => {
                     endTimeFrom,
                     endTimeTo,
                     minPages,
-                    maxPages
+                    maxPages,
+                    openOnly,
+                    closedOnly
                 )
-                // 部屋タイプによるフィルター
+                // 部屋タイプによるフィルター（APIで絞るので不要なら削除可）
                 let found = result.rooms || []
-                if (roomType === 'open') {
-                    found = found.filter(r => !r.hasPassword)
-                } else if (roomType === 'closed') {
-                    found = found.filter(r => r.hasPassword)
-                }
                 roomsList = found
             }
             setRooms(roomsList)
-            // 部屋ごとに作成者名を取得
-            const map: { [roomId: string]: string } = {};
-            await Promise.all(roomsList.map(async (room) => {
+            // --- ここから作成者名マップ構築のロジックを修正 ---
+            // roomsListとroomHistory両方の部屋IDを対象にcreatorMapを構築
+            const allRoomIds = new Set<string>();
+            roomsList.forEach(r => allRoomIds.add(r.id));
+            roomHistory.forEach(h => {
+                if (h.roomId) allRoomIds.add(h.roomId);
+            });
+            // すでに取得済みのcreatorMapは再利用し、未取得分のみAPIで取得
+            const idsToFetch = Array.from(allRoomIds).filter(id => !(id in creatorMap));
+            const newMap: { [roomId: string]: string } = { ...creatorMap };
+            await Promise.all(idsToFetch.map(async (roomId) => {
                 try {
-                    const members = await roomApi.getRoomMembers(room.id);
+                    // roomsListまたはroomHistoryからRoom情報を取得
+                    const room = roomsList.find(r => r.id === roomId) || roomHistory.find(h => h.roomId === roomId)?.room;
+                    if (!room) return;
+                    const members = await roomApi.getRoomMembers(roomId);
                     const creator = members.find((m: any) => (m.userId || '').replace(/-/g, '').toLowerCase() === (room.hostUserId || '').replace(/-/g, '').toLowerCase());
-                    map[room.id] = creator ? creator.username : '';
+                    newMap[roomId] = creator ? creator.username : '';
                 } catch {
-                    map[room.id] = '';
+                    newMap[roomId] = '';
                 }
             }));
-            setCreatorMap(map);
+            setCreatorMap(newMap);
+            // --- デバッグ出力 ---
+            console.log('[handleSearch] roomsList:', roomsList);
+            console.log('[handleSearch] roomHistory:', roomHistory);
+            console.log('[handleSearch] idsToFetch:', idsToFetch);
+            console.log('[handleSearch] creatorMap:', newMap);
         } catch (e) {
             setError('部屋の取得に失敗しました')
         } finally {
@@ -522,8 +539,9 @@ const HomeScreen: React.FC = () => {
                                 boxSizing: 'border-box',
                             }}
                         >
+                            {/* 検索条件が全て空で、かつ検索タブの時のみ「検索された部屋はここに表示されます」を表示 */}
                             {tab === 'search' &&
-                                !searchText && !genre && !minPages && !maxPages && !startTimeFrom && !startTimeTo && !endTimeFrom && !endTimeTo ? (
+                                !searchText && !genre && !minPages && !maxPages && !startTimeFrom && !startTimeTo && !endTimeFrom && !endTimeTo && rooms.length === 0 ? (
                                 <div style={{ color: '#b0b8c9', fontSize: 18, width: '100%', textAlign: 'center', padding: '32px 0' }}>
                                     検索された部屋はここに表示されます
                                 </div>

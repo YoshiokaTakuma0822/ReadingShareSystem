@@ -14,7 +14,9 @@ export const roomApi = {
         endFrom?: string,
         endTo?: string,
         pagesMin?: string,
-        pagesMax?: string
+        pagesMax?: string,
+        openOnly?: boolean,
+        closedOnly?: boolean
     ): Promise<{ rooms: Room[] }> => {
         const params: any = { keyword };
         // ジャンル
@@ -28,6 +30,9 @@ export const roomApi = {
         // ページ数範囲（数値型で送信）
         if (pagesMin && pagesMin !== '') params.pagesMin = Number(pagesMin);
         if (pagesMax && pagesMax !== '') params.pagesMax = Number(pagesMax);
+        // オープン・クローズ条件
+        if (openOnly !== undefined) params.openOnly = openOnly;
+        if (closedOnly !== undefined) params.closedOnly = closedOnly;
         const response = await apiClient.get<Room[]>('/rooms/search', { params });
         return { rooms: response.data }
     },

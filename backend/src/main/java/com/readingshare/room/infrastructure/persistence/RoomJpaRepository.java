@@ -30,6 +30,7 @@ public interface RoomJpaRepository extends JpaRepository<Room, UUID> {
 
     /**
      * 複数条件で部屋を検索する。DBレベルでフィルタ
+     * openOnly/closedOnlyは両方trueの場合はopenOnly優先、両方falseまたはnullなら全件
      */
     @Query("SELECT r FROM Room r WHERE "
          + "(COALESCE(:keyword, '') = '' OR r.roomName LIKE CONCAT('%', :keyword, '%') OR r.bookTitle LIKE CONCAT('%', :keyword, '%')) "
@@ -39,7 +40,10 @@ public interface RoomJpaRepository extends JpaRepository<Room, UUID> {
          + "AND (COALESCE(:endFrom, r.endTime) <= r.endTime OR r.endTime IS NULL) "
          + "AND (COALESCE(:endTo, r.endTime) >= r.endTime OR r.endTime IS NULL) "
          + "AND (COALESCE(:pagesMin, r.totalPages) <= r.totalPages OR r.totalPages IS NULL) "
-         + "AND (COALESCE(:pagesMax, r.totalPages) >= r.totalPages OR r.totalPages IS NULL)")
+         + "AND (COALESCE(:pagesMax, r.totalPages) >= r.totalPages OR r.totalPages IS NULL) "
+         + "AND ( (:openOnly = true AND (r.endTime IS NULL OR r.endTime > :now)) "
+         + "   OR (:closedOnly = true AND r.endTime IS NOT NULL AND r.endTime <= :now) "
+         + "   OR ((:openOnly IS NULL OR :openOnly = false) AND (:closedOnly IS NULL OR :closedOnly = false)) )")
     List<Room> findByConditions(
             @Param("keyword") String keyword,
             @Param("genre") String genre,
@@ -48,5 +52,9 @@ public interface RoomJpaRepository extends JpaRepository<Room, UUID> {
             @Param("endFrom") Instant endFrom,
             @Param("endTo") Instant endTo,
             @Param("pagesMin") Integer pagesMin,
-            @Param("pagesMax") Integer pagesMax);
+            @Param("pagesMax") Integer pagesMax,
+            @Param("openOnly") Boolean openOnly,
+            @Param("closedOnly") Boolean closedOnly,
+            @Param("now") Instant now
+    );
 }

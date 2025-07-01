@@ -105,9 +105,13 @@ public class RoomController {
             @RequestParam(value = "endTo", required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTo,
             @RequestParam(value = "pagesMin", required = false) Integer pagesMin,
-            @RequestParam(value = "pagesMax", required = false) Integer pagesMax
+            @RequestParam(value = "pagesMax", required = false) Integer pagesMax,
+            @RequestParam(value = "openOnly", required = false) Boolean openOnly,
+            @RequestParam(value = "closedOnly", required = false) Boolean closedOnly
     ) {
-        List<Room> rooms = roomService.searchRooms(keyword, genre, startFrom, startTo, endFrom, endTo, pagesMin, pagesMax);
+        System.out.println("[DEBUG] /rooms/search called: keyword=" + keyword + ", openOnly=" + openOnly + ", closedOnly=" + closedOnly);
+        List<Room> rooms = roomService.searchRooms(keyword, genre, startFrom, startTo, endFrom, endTo, pagesMin, pagesMax, openOnly, closedOnly);
+        System.out.println("[DEBUG] /rooms/search result count: " + rooms.size());
         return ResponseEntity.ok(rooms);
     }
 

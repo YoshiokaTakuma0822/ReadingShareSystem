@@ -149,17 +149,25 @@ public class RoomService {
             LocalDateTime endFrom,
             LocalDateTime endTo,
             Integer pagesMin,
-            Integer pagesMax
+            Integer pagesMax,
+            Boolean openOnly,
+            Boolean closedOnly
     ) {
         // パラメータをInstantに変換
         Instant startFromI = (startFrom != null) ? startFrom.atZone(ZoneId.systemDefault()).toInstant() : null;
         Instant startToI = (startTo != null) ? startTo.atZone(ZoneId.systemDefault()).toInstant() : null;
         Instant endFromI = (endFrom != null) ? endFrom.atZone(ZoneId.systemDefault()).toInstant() : null;
         Instant endToI = (endTo != null) ? endTo.atZone(ZoneId.systemDefault()).toInstant() : null;
+        Instant now = Instant.now();
+        System.out.println("[DEBUG] searchRooms called: keyword=" + keyword + ", genre=" + genre + ", openOnly=" + openOnly + ", closedOnly=" + closedOnly + ", now=" + now);
         // DBレベルで条件検索
         List<Room> rooms = roomRepository.findByConditions(
-                keyword, genre, startFromI, startToI, endFromI, endToI, pagesMin, pagesMax
+                keyword, genre, startFromI, startToI, endFromI, endToI, pagesMin, pagesMax, openOnly, closedOnly, now
         );
+        System.out.println("[DEBUG] searchRooms result count: " + rooms.size());
+        for (Room r : rooms) {
+            System.out.println("[DEBUG] Room: id=" + r.getId() + ", name=" + r.getRoomName() + ", hostUserId=" + r.getHostUserId() + ", endTime=" + r.getEndTime());
+        }
         // パスワード有無をセット
         for (Room room : rooms) {
             room.setHasPassword(room.getPasswordHash() != null && !room.getPasswordHash().isEmpty());

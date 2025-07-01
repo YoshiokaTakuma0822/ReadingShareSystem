@@ -59,8 +59,11 @@ public class RoomRepositoryImpl implements IRoomRepository {
             Instant endFrom,
             Instant endTo,
             Integer pagesMin,
-            Integer pagesMax
+            Integer pagesMax,
+            Boolean openOnly,
+            Boolean closedOnly,
+            Instant now
     ) {
-        return roomRepository.findByConditions(keyword, genre, startFrom, startTo, endFrom, endTo, pagesMin, pagesMax);
+        return roomRepository.findByConditions(keyword, genre, startFrom, startTo, endFrom, endTo, pagesMin, pagesMax, openOnly, closedOnly, now);
     }
 }
