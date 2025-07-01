@@ -46,8 +46,8 @@ public class RoomService {
     @Autowired
     private ISurveyAnswerRepository surveyAnswerRepository;
 
-    @Autowired
-    public RoomService(IRoomRepository roomRepository, RoomDomainService roomDomainService, IRoomMemberRepository roomMemberRepository) {
+    public RoomService(IRoomRepository roomRepository, RoomDomainService roomDomainService,
+            IRoomMemberRepository roomMemberRepository) {
         this.roomRepository = roomRepository;
         this.roomDomainService = roomDomainService;
         this.roomMemberRepository = roomMemberRepository;
@@ -90,7 +90,8 @@ public class RoomService {
         return roomDomainService.createRoom(newRoom, null);
     }
 
-    public Room createRoomWithPassword(String roomName, String bookTitle, UUID hostUserId, String roomPassword, int totalPages) {
+    public Room createRoomWithPassword(String roomName, String bookTitle, UUID hostUserId, String roomPassword,
+            int totalPages) {
         Room newRoom = new Room(roomName, bookTitle, hostUserId, totalPages);
         return roomDomainService.createRoom(newRoom, roomPassword);
     }
@@ -149,8 +150,7 @@ public class RoomService {
             LocalDateTime endFrom,
             LocalDateTime endTo,
             Integer pagesMin,
-            Integer pagesMax
-    ) {
+            Integer pagesMax) {
         // パラメータをInstantに変換
         Instant startFromI = (startFrom != null) ? startFrom.atZone(ZoneId.systemDefault()).toInstant() : null;
         Instant startToI = (startTo != null) ? startTo.atZone(ZoneId.systemDefault()).toInstant() : null;
@@ -158,8 +158,7 @@ public class RoomService {
         Instant endToI = (endTo != null) ? endTo.atZone(ZoneId.systemDefault()).toInstant() : null;
         // DBレベルで条件検索
         List<Room> rooms = roomRepository.findByConditions(
-                keyword, genre, startFromI, startToI, endFromI, endToI, pagesMin, pagesMax
-        );
+                keyword, genre, startFromI, startToI, endFromI, endToI, pagesMin, pagesMax);
         // パスワード有無をセット
         for (Room room : rooms) {
             room.setHasPassword(room.getPasswordHash() != null && !room.getPasswordHash().isEmpty());
@@ -217,6 +216,7 @@ public class RoomService {
 
     /**
      * 部屋を削除する。
+     *
      * @param roomId 部屋ID（UUID文字列）
      */
     @Transactional
@@ -292,7 +292,8 @@ public class RoomService {
     @Transactional
     public void deleteRoomHistory(UUID userId) {
         // ユーザーの参加履歴を全件取得して削除
-        List<RoomMember> members = roomMemberRepository.findByUserIdOrderByJoinedAtDesc(userId, PageRequest.of(0, Integer.MAX_VALUE));
+        List<RoomMember> members = roomMemberRepository.findByUserIdOrderByJoinedAtDesc(userId,
+                PageRequest.of(0, Integer.MAX_VALUE));
         for (RoomMember m : members) {
             roomMemberRepository.delete(m);
         }

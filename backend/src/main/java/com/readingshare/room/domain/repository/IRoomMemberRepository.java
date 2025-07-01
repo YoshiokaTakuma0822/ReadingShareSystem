@@ -4,9 +4,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.readingshare.room.domain.model.RoomMember;
-import com.readingshare.room.domain.model.Room;
 import org.springframework.data.domain.Pageable;
+
+import com.readingshare.room.domain.model.Room;
+import com.readingshare.room.domain.model.RoomMember;
 
 /**
  * 部屋メンバー情報の永続化を担当するリポジトリインターフェース。
@@ -33,7 +34,7 @@ public interface IRoomMemberRepository {
     /**
      * 特定の部屋とユーザーの組み合わせでメンバーを検索する。
      *
-     * @param room 部屋エンティティ
+     * @param room   部屋エンティティ
      * @param userId ユーザーID
      * @return メンバーが見つかった場合はOptionalにRoomMember、見つからない場合はOptional.empty()
      */
@@ -48,7 +49,8 @@ public interface IRoomMemberRepository {
 
     /**
      * 指定ユーザーの部屋参加履歴（joinedAt降順）を取得する。
-     * @param userId ユーザーID
+     *
+     * @param userId   ユーザーID
      * @param pageable ページ情報
      * @return 参加履歴リスト
      */
