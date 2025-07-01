@@ -7,9 +7,10 @@ interface SurveyAnswerModalProps {
     open: boolean
     surveyId: string
     onClose: () => void
+    onAnswered?: () => void // 回答完了時のコールバックを追加
 }
 
-const SurveyAnswerModal: React.FC<SurveyAnswerModalProps> = ({ open, surveyId, onClose }) => {
+const SurveyAnswerModal: React.FC<SurveyAnswerModalProps> = ({ open, surveyId, onClose, onAnswered }) => {
     const [survey, setSurvey] = useState<Survey | null>(null)
     const [selected, setSelected] = useState<string | null>(null)
     const [loading, setLoading] = useState(false)
@@ -39,6 +40,7 @@ const SurveyAnswerModal: React.FC<SurveyAnswerModalProps> = ({ open, surveyId, o
             }
             await surveyApi.answerSurvey(surveyId, request)
             onClose()
+            if (onAnswered) onAnswered(); // 回答完了時にコールバックを呼ぶ
         } catch (e) {
             setError('回答送信に失敗しました')
         } finally {

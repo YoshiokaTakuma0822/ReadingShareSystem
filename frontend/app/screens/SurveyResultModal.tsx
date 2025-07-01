@@ -76,7 +76,7 @@ const SurveyResultModal: React.FC<SurveyResultModalProps> = ({ open, surveyId, o
                                     Object.entries(result.answers).map(([option, votes]) => (
                                         <div key={option} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
                                             <span>{option}</span>
-                                            <span>{votes}票</span>
+                                            <span>{votes as number}票</span>
                                         </div>
                                     ))
                                 ) : Array.isArray(result.answers) ? (

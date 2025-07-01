@@ -41,7 +41,7 @@ const SurveyCreationModal: React.FC<SurveyCreationModalProps> = ({ open, roomId,
 
             // 新しいアンケートを作成し、IDを取得
             const createdSurvey = await surveyApi.createSurvey(request)
-            onCreated(createdSurvey.id)
+            onCreated(createdSurvey)
         } catch (e) {
             setError('アンケート作成に失敗しました')
         } finally {

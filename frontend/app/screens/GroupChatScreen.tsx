@@ -370,7 +370,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                     <div style={{ fontSize: 16, color: '#555' }}>
                         <strong>選択肢:</strong>
                         <ul style={{ paddingLeft: 20, margin: 0 }}>
-                            {surveyFormat.options.map((option, index) => (
+                            {surveyFormat.questions[0]?.options.map((option, index) => (
                                 <li key={index} style={{ marginBottom: 4 }}>{option}</li>
                             ))}
                         </ul>

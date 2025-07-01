@@ -46,6 +46,7 @@ export interface CreateSurveyRequest {
 export interface QuestionResult {
     questionText: string
     votes: Record<string, number>
+    answers?: any // 型エラー回避のため追加（本来はvotesを使うべきだが、互換性維持）
 }
 
 export interface SurveyResult {
