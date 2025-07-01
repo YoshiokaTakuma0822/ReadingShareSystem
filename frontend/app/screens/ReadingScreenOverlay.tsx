@@ -67,7 +67,7 @@ const ReadingScreenOverlay: React.FC<ReadingScreenOverlayProps> = ({ roomId, ope
         });
       }
       // @ts-ignore
-      const socket = new window.SockJS("http://localhost:8080/ws/chat");
+      const socket = new window.SockJS("http://localhost:8080/ws");
       // @ts-ignore
       const Stomp = window.Stomp;
       clientRef.current = Stomp.over(socket);

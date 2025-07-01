@@ -148,7 +148,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
       await readingStateApi.updateUserReadingState(roomId, userId, { userId, currentPage: page, comment: '' });
       // 保存成功時のみWebSocket送信
       const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-      const wsUrl = `${wsProtocol}://${window.location.hostname}:8080/ws/chat`;
+      const wsUrl = `${wsProtocol}://${window.location.hostname}:8080/ws`;
       const ws = new WebSocket(wsUrl);
       ws.onopen = () => {
         ws.send(JSON.stringify({
@@ -238,7 +238,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
     if (!roomId) return;
     // WebSocketエンドポイント
     const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-    const wsUrl = `${wsProtocol}://${window.location.hostname}:8080/ws/chat`;
+    const wsUrl = `${wsProtocol}://${window.location.hostname}:8080/ws`;
     const ws = new WebSocket(wsUrl);
     ws.onopen = () => {
       // サーバー側でSTOMP等が必要な場合はここでプロトコルに合わせて送信
