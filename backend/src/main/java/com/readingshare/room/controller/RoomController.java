@@ -4,13 +4,11 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.readingshare.auth.domain.model.User;
 import com.readingshare.auth.domain.repository.IUserRepository;
+import com.readingshare.chat.websocket.NotificationWebSocketHandler;
 import com.readingshare.room.domain.model.Room;
 import com.readingshare.room.domain.model.RoomMember;
 import com.readingshare.room.dto.CreateRoomRequest;
@@ -38,13 +37,13 @@ import com.readingshare.room.service.RoomService;
 public class RoomController {
 
     private final RoomService roomService;
-    private final SimpMessagingTemplate messagingTemplate;
+    private final NotificationWebSocketHandler notificationHandler;
     private final IUserRepository userRepository;
 
     public RoomController(RoomService roomService, IUserRepository userRepository,
-            SimpMessagingTemplate messagingTemplate) {
+            NotificationWebSocketHandler notificationHandler) {
         this.roomService = roomService;
-        this.messagingTemplate = messagingTemplate;
+        this.notificationHandler = notificationHandler;
         this.userRepository = userRepository;
     }
 
@@ -55,8 +54,8 @@ public class RoomController {
     @PostMapping
     public ResponseEntity<Room> createRoom(@RequestBody CreateRoomRequest request) {
         Room createdRoom = roomService.createRoom(request);
-        // Broadcast new room
-        messagingTemplate.convertAndSend("/topic/rooms", createdRoom);
+        // TODO: Broadcast new room via WebSocket if needed
+        // notificationHandler.broadcastNewRoom(createdRoom);
         return ResponseEntity.ok(createdRoom);
     }
 
@@ -78,10 +77,12 @@ public class RoomController {
     public ResponseEntity<?> joinRoom(@RequestBody JoinRoomRequest request) {
         try {
             RoomMember roomMember = roomService.joinRoom(request.roomId(), request.userId(), request.roomPassword());
-            // Broadcast join event for user history
-            Room room = roomMember.getRoom();
-            RoomHistoryDto historyDto = new RoomHistoryDto(room.getId(), room, false, roomMember.getJoinedAt());
-            messagingTemplate.convertAndSend("/topic/history/" + request.userId(), historyDto);
+            // TODO: Broadcast join event for user history via WebSocket if needed
+            // Room room = roomMember.getRoom();
+            // RoomHistoryDto historyDto = new RoomHistoryDto(room.getId(), room, false,
+            // roomMember.getJoinedAt());
+            // notificationHandler.broadcastUserHistory(request.userId().toString(),
+            // historyDto);
             return ResponseEntity.ok(roomMember);
         } catch (com.readingshare.common.exception.DomainException ex) {
             // パスワード不一致や既にメンバー等の業務例外は400で返す
@@ -133,8 +134,8 @@ public class RoomController {
     @DeleteMapping("/{roomId}")
     public ResponseEntity<Void> deleteRoom(@PathVariable("roomId") String roomId) {
         roomService.deleteRoom(roomId);
-        // Broadcast room deletion
-        messagingTemplate.convertAndSend("/topic/rooms", Map.of("type", "delete", "roomId", roomId));
+        // TODO: Broadcast room deletion via WebSocket if needed
+        // notificationHandler.broadcastRoomDeletion(roomId);
         return ResponseEntity.noContent().build();
     }
 
@@ -227,8 +228,9 @@ public class RoomController {
             user.setHistoryResetAt(Instant.now());
             userRepository.save(user);
         });
-        // Broadcast reset event for real-time history clearing
-        messagingTemplate.convertAndSend("/topic/history/" + userId, Map.of("type", "reset"));
+        // TODO: Broadcast reset event for real-time history clearing via WebSocket if
+        // needed
+        // notificationHandler.broadcastHistoryReset(userId.toString());
         return ResponseEntity.noContent().build();
     }
 
