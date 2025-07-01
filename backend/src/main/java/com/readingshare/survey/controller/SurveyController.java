@@ -105,6 +105,19 @@ public class SurveyController {
     }
 
     /**
+     * 現在のユーザーがアンケートに回答済みかどうかをチェックする。
+     *
+     * @param surveyId アンケートのID
+     * @return 回答済みの場合true、未回答の場合false
+     */
+    @GetMapping("/{surveyId}/has-answered")
+    public ResponseEntity<Boolean> hasAnswered(@PathVariable UUID surveyId) {
+        UUID currentUserId = getCurrentUserId();
+        boolean hasAnswered = surveyService.hasAnswered(surveyId, currentUserId);
+        return ResponseEntity.ok(hasAnswered);
+    }
+
+    /**
      * 選択肢追加リクエストDTO
      */
     public record AddOptionRequest(String questionText, String newOption) {

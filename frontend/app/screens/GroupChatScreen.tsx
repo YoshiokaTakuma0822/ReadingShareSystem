@@ -9,6 +9,7 @@ import { Survey } from '../../types/survey'
 import ReadingScreenOverlay from './ReadingScreenOverlay'
 import SurveyAnswerModal from './SurveyAnswerModal'
 import SurveyCreationModal from './SurveyCreationModal'
+import SurveyResultModal from './SurveyResultModal'
 
 interface Message {
     id: number
@@ -24,6 +25,165 @@ interface GroupChatScreenProps {
     roomTitle?: string
     currentUser?: string
     roomId?: string
+}
+
+// SurveyMessageCardコンポーネント
+interface SurveyMessageCardProps {
+    msg: Message
+    isMine: boolean
+    currentUserId: string | null
+    onAnswerClick: (surveyId: string) => void
+    onResultClick: (surveyId: string) => void
+}
+
+const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, currentUserId, onAnswerClick, onResultClick }) => {
+    const [surveyData, setSurveyData] = useState<Survey | null>(null)
+    const [loading, setLoading] = useState(true)
+    const [hasAnswered, setHasAnswered] = useState(false)
+    const [error, setError] = useState<string | null>(null)
+
+    // アンケート情報を取得
+    useEffect(() => {
+        if (msg.surveyId) {
+            surveyApi.getSurveyFormat(msg.surveyId)
+                .then(data => {
+                    setSurveyData(data)
+                    setLoading(false)
+                })
+                .catch(() => {
+                    setError('アンケート情報の取得に失敗しました')
+                    setLoading(false)
+                })
+        }
+    }, [msg.surveyId])
+
+    // 回答状態を確認
+    useEffect(() => {
+        if (msg.surveyId && currentUserId) {
+            surveyApi.hasAnswered(msg.surveyId, currentUserId)
+                .then(answered => {
+                    setHasAnswered(answered)
+                })
+                .catch(() => {
+                    setHasAnswered(false)
+                })
+        }
+    }, [msg.surveyId, currentUserId])
+
+    return (
+        <div
+            style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: 8,
+                justifyContent: isMine ? 'flex-end' : 'flex-start',
+                marginBottom: 12
+            }}
+        >
+            {!isMine && (
+                <span style={{ border: '1px solid #222', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {msg.user ? String(msg.user).trim().charAt(0) : '?'}
+                </span>
+            )}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: isMine ? 'flex-end' : 'flex-start', gap: 4 }}>
+                {/* タイムスタンプとユーザー名 */}
+                <div style={{ fontSize: '0.8em', color: '#888', display: 'flex', gap: 8 }}>
+                    <span>{msg.user}</span>
+                    {msg.sentAt && <span>{new Date(msg.sentAt).toLocaleTimeString()}</span>}
+                </div>
+                {/* アンケートカード */}
+                <div
+                    style={{
+                        border: '2px solid #2196f3',
+                        borderRadius: 12,
+                        padding: 16,
+                        background: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)',
+                        maxWidth: 500,
+                        minWidth: 300,
+                        boxShadow: '0 2px 8px rgba(33, 150, 243, 0.2)'
+                    }}
+                >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                        <span style={{ fontSize: 20 }}>📊</span>
+                        <span style={{ fontWeight: 'bold', color: '#1976d2' }}>新しいアンケート</span>
+                    </div>
+
+                    {loading ? (
+                        <div style={{ color: '#666', fontStyle: 'italic' }}>アンケート情報を読み込み中...</div>
+                    ) : error ? (
+                        <div style={{ color: '#d32f2f' }}>{error}</div>
+                    ) : surveyData ? (
+                        <div>
+                            <div style={{ marginBottom: 12 }}>
+                                <strong style={{ color: '#1976d2' }}>タイトル:</strong> {surveyData.title}
+                            </div>
+                            {surveyData.questions.map((q, qi) => (
+                                <div key={qi} style={{ marginBottom: 12 }}>
+                                    <div style={{ fontWeight: 'bold', marginBottom: 4, color: '#333' }}>{q.questionText}</div>
+                                    <div style={{ fontSize: '0.9em', color: '#555' }}>
+                                        <strong>選択肢:</strong>
+                                        <ul style={{ margin: '4px 0', paddingLeft: 20 }}>
+                                            {q.options.map((opt, oi) => (
+                                                <li key={oi} style={{ marginBottom: 2 }}>{opt}</li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                </div>
+                            ))}
+                            {msg.surveyId && (
+                                <div style={{ display: 'flex', gap: 8, width: '100%' }}>
+                                    {hasAnswered ? (
+                                        <button
+                                            onClick={() => onResultClick(msg.surveyId!)}
+                                            style={{
+                                                flex: 1,
+                                                padding: '12px 24px',
+                                                borderRadius: 8,
+                                                border: 'none',
+                                                fontSize: 16,
+                                                background: '#4caf50',
+                                                color: 'white',
+                                                cursor: 'pointer',
+                                                fontWeight: 'bold',
+                                                boxShadow: '0 2px 4px rgba(76, 175, 80, 0.3)'
+                                            }}
+                                        >
+                                            📊 結果を表示
+                                        </button>
+                                    ) : (
+                                        <button
+                                            onClick={() => onAnswerClick(msg.surveyId!)}
+                                            style={{
+                                                flex: 1,
+                                                padding: '12px 24px',
+                                                borderRadius: 8,
+                                                border: 'none',
+                                                fontSize: 16,
+                                                background: '#2196f3',
+                                                color: 'white',
+                                                cursor: 'pointer',
+                                                fontWeight: 'bold',
+                                                boxShadow: '0 2px 4px rgba(33, 150, 243, 0.3)'
+                                            }}
+                                        >
+                                            📝 アンケートに回答する
+                                        </button>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <div style={{ color: '#666', fontStyle: 'italic' }}>アンケート情報がありません</div>
+                    )}
+                </div>
+            </div>
+            {isMine && (
+                <span style={{ border: '1px solid #222', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#e0f7fa' }}>
+                    {msg.user ? String(msg.user).trim().charAt(0) : '?'}
+                </span>
+            )}
+        </div>
+    )
 }
 
 // グローバルwindowに型を追加
@@ -47,8 +207,9 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
     // アンケート回答モーダル制御
     const [showAnswerModal, setShowAnswerModal] = useState(false)
     const [answerSurveyId, setAnswerSurveyId] = useState<string | null>(null)
-    // アンケートフォーマット表示用
-    const [surveyFormat, setSurveyFormat] = useState<Survey | null>(null)
+    // アンケート結果モーダル制御
+    const [showResultModal, setShowResultModal] = useState(false)
+    const [resultSurveyId, setResultSurveyId] = useState<string | null>(null)
 
     // 追加: ユーザーID→ユーザー名のマッピングを保持
     const [userIdToName, setUserIdToName] = useState<Record<string, string>>({})
@@ -86,11 +247,18 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
             // ChatMessageをMessage形式に変換
             const convertedMessages: Message[] = chatHistory.map((msg, index) => {
                 let messageText = ''
-                if (typeof msg.content === 'object' && msg.content !== null && 'value' in msg.content) {
-                    messageText = String((msg.content as { value: string }).value || '')
+
+                // SUVEYタイプのメッセージの場合は、textを空文字にする（カードで表示するため）
+                if (msg.messageType === 'SURVEY') {
+                    messageText = ''
                 } else {
-                    messageText = String(msg.content || '')
+                    if (typeof msg.content === 'object' && msg.content !== null && 'value' in msg.content) {
+                        messageText = String((msg.content as { value: string }).value || '')
+                    } else {
+                        messageText = String(msg.content || '')
+                    }
                 }
+
                 // 厳密な自分判定（ハイフン除去・小文字化）
                 const senderId = (msg.senderUserId ?? '').replace(/-/g, '').toLowerCase()
                 // currentUserIdはすでに整形済み
@@ -154,16 +322,12 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
         setShowAnswerModal(true)
     }
 
-    // アンケートフォーマット取得
-    useEffect(() => {
-        if (answerSurveyId) {
-            surveyApi.getSurveyFormat(answerSurveyId)
-                .then(data => setSurveyFormat(data))
-                .catch(() => setSurveyFormat(null))
-        } else {
-            setSurveyFormat(null)
-        }
-    }, [answerSurveyId])
+    // アンケート回答後のコールバック
+    const handleSurveyAnswered = () => {
+        setShowAnswerModal(false)
+        // チャット履歴を再読み込みして回答状態を更新
+        loadChatHistory()
+    }
 
     // 通知受信時にチャット履歴を再取得して更新
     useEffect(() => {
@@ -212,76 +376,20 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
 
         // アンケートメッセージの場合
         if (msg.messageType === 'SURVEY') {
-            return (
-                <div
-                    key={msg.id}
-                    style={{
-                        display: 'flex',
-                        alignItems: 'flex-start',
-                        gap: 8,
-                        justifyContent: isMine ? 'flex-end' : 'flex-start',
-                        marginBottom: 12
-                    }}
-                >
-                    {!isMine && (
-                        <span style={{ border: '1px solid #222', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            {msg.user ? String(msg.user).trim().charAt(0) : '?'}
-                        </span>
-                    )}
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: isMine ? 'flex-end' : 'flex-start', gap: 4 }}>
-                        {/* タイムスタンプとユーザー名 */}
-                        <div style={{ fontSize: '0.8em', color: '#888', display: 'flex', gap: 8 }}>
-                            <span>{msg.user}</span>
-                            {msg.sentAt && <span>{new Date(msg.sentAt).toLocaleTimeString()}</span>}
-                        </div>
-                        {/* アンケートカード */}
-                        <div
-                            style={{
-                                border: '2px solid #2196f3',
-                                borderRadius: 12,
-                                padding: 16,
-                                background: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)',
-                                maxWidth: 400,
-                                minWidth: 250,
-                                boxShadow: '0 2px 8px rgba(33, 150, 243, 0.2)'
-                            }}
-                        >
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                                <span style={{ fontSize: 20 }}>📊</span>
-                                <span style={{ fontWeight: 'bold', color: '#1976d2' }}>アンケート</span>
-                            </div>
-                            <p style={{ margin: 0, color: '#333', lineHeight: 1.4 }}>{msg.text}</p>
-                            {msg.surveyId && (
-                                <button
-                                    onClick={() => {
-                                        setAnswerSurveyId(msg.surveyId!)
-                                        setShowAnswerModal(true)
-                                    }}
-                                    style={{
-                                        marginTop: 12,
-                                        padding: '8px 16px',
-                                        borderRadius: 6,
-                                        border: 'none',
-                                        fontSize: 14,
-                                        background: '#2196f3',
-                                        color: 'white',
-                                        cursor: 'pointer',
-                                        fontWeight: 'bold',
-                                        boxShadow: '0 2px 4px rgba(33, 150, 243, 0.3)'
-                                    }}
-                                >
-                                    回答する
-                                </button>
-                            )}
-                        </div>
-                    </div>
-                    {isMine && (
-                        <span style={{ border: '1px solid #222', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#e0f7fa' }}>
-                            {msg.user ? String(msg.user).trim().charAt(0) : '?'}
-                        </span>
-                    )}
-                </div>
-            )
+            return <SurveyMessageCard
+                key={msg.id}
+                msg={msg}
+                isMine={isMine}
+                currentUserId={currentUserId}
+                onAnswerClick={(surveyId: string) => {
+                    setAnswerSurveyId(surveyId)
+                    setShowAnswerModal(true)
+                }}
+                onResultClick={(surveyId: string) => {
+                    setResultSurveyId(surveyId)
+                    setShowResultModal(true)
+                }}
+            />
         }
 
         // 通常のテキストメッセージ
@@ -350,6 +458,12 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                     } else {
                         messageText = String(msg.content || '')
                     }
+
+                    // SURVEYメッセージの場合はテキストを空にする（カードで表示するため）
+                    if (msg.messageType === 'SURVEY') {
+                        messageText = ''
+                    }
+
                     const senderId = (msg.senderUserId ?? '').replace(/-/g, '').toLowerCase()
                     const myId = currentUserId ?? ''
                     const username = senderId && msg.senderUserId && userIdToName[msg.senderUserId] ? userIdToName[msg.senderUserId] : (msg.senderUserId || '匿名ユーザー')
@@ -381,15 +495,6 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
 
             {/* ナビゲーションボタン */}
             <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginBottom: 16, flexWrap: 'wrap' }}>
-                {/* アンケート回答ボタン（作成後に表示） */}
-                {answerSurveyId && (
-                    <button
-                        onClick={() => setShowAnswerModal(true)}
-                        style={{ padding: '12px 24px', fontSize: 16, background: '#ff9800', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}
-                    >
-                        📝 アンケートに回答する
-                    </button>
-                )}
                 <button
                     onClick={handleGoToReading}
                     style={{
@@ -468,67 +573,6 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                 </div>
             )}
 
-            {/* アンケートブロック */}
-            {surveyFormat && (
-                <div style={{
-                    background: '#e8f5e9',
-                    border: '1px solid #c8e6c9',
-                    borderRadius: 8,
-                    padding: 16,
-                    marginBottom: 16,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 8
-                }}>
-                    <h3 style={{ margin: 0, color: '#2e7d32' }}>新しいアンケートが作成されました</h3>
-                    <div style={{ fontSize: 16, color: '#555' }}>
-                        <strong>タイトル:</strong> {surveyFormat.title}
-                    </div>
-                    <div style={{ fontSize: 16, color: '#555' }}>
-                        <strong>選択肢:</strong>
-                        <ul style={{ paddingLeft: 20, margin: 0 }}>
-                            {surveyFormat.questions[0]?.options.map((option, index) => (
-                                <li key={index} style={{ marginBottom: 4 }}>{option}</li>
-                            ))}
-                        </ul>
-                    </div>
-                    <button
-                        onClick={() => setShowAnswerModal(true)}
-                        style={{
-                            marginTop: 8,
-                            padding: '12px 24px',
-                            borderRadius: 8,
-                            border: '1px solid #2e7d32',
-                            fontSize: 16,
-                            background: '#c8e6c9',
-                            color: '#2e7d32',
-                            cursor: 'pointer',
-                            fontWeight: 'bold',
-                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                        }}
-                    >
-                        アンケートに回答する
-                    </button>
-                </div>
-            )}
-
-            {/* アンケート内容表示 */}
-            {surveyFormat && (
-                <div style={{ margin: '16px 0', padding: 16, background: '#f9f9f9', border: '1px solid #ccc', borderRadius: 8 }}>
-                    <h3 style={{ marginBottom: 8, color: '#1976d2' }}>{surveyFormat.title}</h3>
-                    {surveyFormat.questions.map((q, qi) => (
-                        <div key={qi} style={{ marginBottom: 8 }}>
-                            <p style={{ margin: '4px 0', fontWeight: 'bold' }}>{q.questionText}</p>
-                            <ul style={{ margin: 0, paddingLeft: 16 }}>
-                                {q.options.map((opt, oi) => (
-                                    <li key={oi} style={{ listStyleType: 'disc' }}>{opt}</li>
-                                ))}
-                            </ul>
-                        </div>
-                    ))}
-                </div>
-            )}
-
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 32, minHeight: 200, maxHeight: '60vh', overflowY: 'auto', background: 'rgba(255,255,255,0.7)', borderRadius: 8, padding: 16 }}>
                 {loading ? (
                     <div style={{
@@ -556,6 +600,28 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                     <>
                         {messages.map(msg => {
                             const isMine = msg.isCurrentUser
+
+                            // アンケートメッセージの場合は専用のカードコンポーネントを表示
+                            if (msg.messageType === 'SURVEY') {
+                                return (
+                                    <SurveyMessageCard
+                                        key={msg.id}
+                                        msg={msg}
+                                        isMine={isMine}
+                                        currentUserId={currentUserId}
+                                        onAnswerClick={(surveyId) => {
+                                            setAnswerSurveyId(surveyId)
+                                            setShowAnswerModal(true)
+                                        }}
+                                        onResultClick={(surveyId) => {
+                                            setResultSurveyId(surveyId)
+                                            setShowResultModal(true)
+                                        }}
+                                    />
+                                )
+                            }
+
+                            // 通常のテキストメッセージの場合
                             return (
                                 <div
                                     key={msg.id}
@@ -650,6 +716,16 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                     open={showAnswerModal}
                     surveyId={answerSurveyId!}
                     onClose={() => setShowAnswerModal(false)}
+                    onAnswered={handleSurveyAnswered}
+                />
+            )}
+
+            {/* アンケート結果モーダル */}
+            {showResultModal && resultSurveyId && (
+                <SurveyResultModal
+                    open={showResultModal}
+                    surveyId={resultSurveyId!}
+                    onClose={() => setShowResultModal(false)}
                 />
             )}
         </div>

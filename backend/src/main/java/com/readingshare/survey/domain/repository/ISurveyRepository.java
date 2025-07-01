@@ -38,6 +38,11 @@ public interface ISurveyRepository {
     List<SurveyAnswer> findAnswersBySurveyId(UUID surveyId);
 
     /**
+     * 特定のユーザーがアンケートに回答済みかどうかを確認する
+     */
+    Optional<SurveyAnswer> findAnswerBySurveyIdAndUserId(UUID surveyId, UUID userId);
+
+    /**
      * 特定の部屋のアンケートを一括削除する
      */
     void deleteByRoomId(UUID roomId);

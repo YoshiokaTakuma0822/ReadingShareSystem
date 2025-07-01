@@ -32,7 +32,7 @@ public class SurveyNotificationService {
 
     /**
      * アンケート作成通知をチャットメッセージとして送信
-     * 
+     *
      * @param survey        作成されたアンケート
      * @param creatorUserId アンケート作成者のユーザーID
      */
@@ -41,8 +41,8 @@ public class SurveyNotificationService {
         var room = roomRepository.findById(survey.getRoomId())
                 .orElseThrow(() -> new RuntimeException("Room not found: " + survey.getRoomId()));
 
-        // アンケート作成通知のメッセージ内容
-        String notificationContent = String.format("📊 新しいアンケート「%s」が作成されました", survey.getTitle());
+        // アンケート作成通知のメッセージ内容（シンプルな通知メッセージ）
+        String notificationContent = "survey-created";
         MessageContent messageContent = new MessageContent(notificationContent);
 
         // アンケートメッセージを作成

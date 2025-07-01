@@ -106,6 +106,11 @@ public class SurveyService {
         }
     }
 
+    // --- 回答確認 ---
+    public boolean hasAnswered(UUID surveyId, UUID userId) {
+        return surveyRepository.findAnswerBySurveyIdAndUserId(surveyId, userId).isPresent();
+    }
+
     private SurveyResultResponse buildResultDto(Survey survey, List<SurveyAnswer> answers) {
         List<SurveyResultResponse.QuestionResultResponse> questionResults = new ArrayList<>();
         for (Question question : survey.getQuestions()) {

@@ -1,5 +1,5 @@
+import { CreateSurveyRequest, SubmitSurveyAnswerRequest, Survey, SurveyResult } from '../types/survey'
 import apiClient from './apiClient'
-import { Survey, CreateSurveyRequest, SubmitSurveyAnswerRequest, SurveyResult } from '../types/survey'
 
 export const surveyApi = {
     // アンケート作成：作成されたアンケートID(UUID文字列)を返す
@@ -21,5 +21,15 @@ export const surveyApi = {
     getSurveyResult: async (surveyId: string): Promise<SurveyResult> => {
         const response = await apiClient.get<SurveyResult>(`/api/surveys/${surveyId}/results`, { baseURL: '' })
         return response.data
+    },
+    // 回答済みかどうかを確認（専用エンドポイントを使用）
+    hasAnswered: async (surveyId: string, userId: string): Promise<boolean> => {
+        try {
+            const response = await apiClient.get<boolean>(`/api/surveys/${surveyId}/has-answered`, { baseURL: '' })
+            return response.data
+        } catch (error) {
+            // エラーの場合（例：認証エラー、サーバーエラー等）は未回答として扱う
+            return false
+        }
     },
 }
