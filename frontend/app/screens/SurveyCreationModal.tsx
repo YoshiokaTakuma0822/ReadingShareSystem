@@ -12,8 +12,8 @@ interface SurveyCreationModalProps {
 }
 
 const SurveyCreationModal: React.FC<SurveyCreationModalProps> = ({ open, roomId, onClose, onCreated }) => {
-    const [title, setTitle] = useState("今日はどこの章まで読むか")
-    const [options, setOptions] = useState(["第1章", "第2章"])
+    const [title, setTitle] = useState("")
+    const [options, setOptions] = useState(["", ""])
     const [endDate, setEndDate] = useState("2026-01-01T12:00")
     const [multi, setMulti] = useState(false)
     const [anonymous, setAnonymous] = useState(false)
@@ -90,6 +90,7 @@ const SurveyCreationModal: React.FC<SurveyCreationModalProps> = ({ open, roomId,
                     <input
                         value={title}
                         onChange={e => setTitle(e.target.value)}
+                        placeholder="タイトルを入力してください"
                         style={{ flex: 1, padding: 6, fontSize: 18, border: "1px solid #ccc", marginLeft: 8, color: '#222' }}
                     />
                 </div>
@@ -103,6 +104,7 @@ const SurveyCreationModal: React.FC<SurveyCreationModalProps> = ({ open, roomId,
                                 <input
                                     value={opt}
                                     onChange={e => setOptions(options.map((o, j) => j === i ? e.target.value : o))}
+                                    placeholder="選択肢を入力してください"
                                     style={{ flex: 1, padding: 6, fontSize: 18, border: "1px solid #ccc", color: '#222' }}
                                 />
                                 {options.length > 2 && (
@@ -133,6 +135,7 @@ const SurveyCreationModal: React.FC<SurveyCreationModalProps> = ({ open, roomId,
                         type="datetime-local"
                         value={endDate}
                         onChange={e => setEndDate(e.target.value)}
+                        placeholder="投票終了日時を選択してください"
                         style={{ flex: 1, padding: 6, fontSize: 18, border: "1px solid #ccc", marginLeft: 8, color: '#222' }}
                     />
                 </div>
