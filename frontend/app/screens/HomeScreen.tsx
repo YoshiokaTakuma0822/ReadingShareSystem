@@ -10,72 +10,11 @@ import RoomCreationModal from './RoomCreationModal'
 import RoomJoinModal from './RoomJoinModal'
 import SurveyAnswerModal from './SurveyAnswerModal'
 import SurveyResultModal from './SurveyResultModal'
-// WebSocketエンドポイント設定
-const WS_ENDPOINT = process.env.NODE_ENV === 'development' ? 'ws://localhost:8080/room-updates' : '/room-updates'
 
 const HomeScreen: React.FC = () => {
     const [tab, setTab] = useState<'create' | 'search'>('create') // デフォルトを部屋作成に変更
     const [searchText, setSearchText] = useState('')
     const [rooms, setRooms] = useState<Room[]>([])
-    // リアルタイム 部屋更新
-    React.useEffect(() => {
-        if (typeof window === 'undefined') return
-
-        let ws: WebSocket | null = null
-        let reconnectTimeout: NodeJS.Timeout | null = null
-
-        const connect = () => {
-            try {
-                ws = new WebSocket(WS_ENDPOINT)
-
-                ws.onopen = () => {
-                    console.log('Room updates WebSocket connected')
-                    // バックエンドからの通知を受信するのみ（購読メッセージは不要）
-                }
-
-                ws.onmessage = (event) => {
-                    try {
-                        const payload = JSON.parse(event.data)
-                        if (payload.type === 'delete') {
-                            setRooms(prev => prev.filter(r => r.id !== payload.roomId))
-                            // 削除イベントで履歴の該当部屋を削除済みフラグに更新
-                            setRoomHistory(prev => prev.map(h => h.roomId === payload.roomId ? { ...h, deleted: true, room: null } : h))
-                        } else if (payload.type === 'update' || payload.type === 'create') {
-                            const newRoom: Room = payload.room || payload
-                            setRooms(prev => [newRoom, ...prev.filter(r => r.id !== newRoom.id)])
-                        }
-                    } catch (error) {
-                        console.error('Failed to parse room update message:', error)
-                    }
-                }
-
-                ws.onclose = () => {
-                    console.log('Room updates WebSocket disconnected, attempting to reconnect...')
-                    // 5秒後に再接続を試行
-                    reconnectTimeout = setTimeout(connect, 5000)
-                }
-
-                ws.onerror = (error) => {
-                    console.error('Room updates WebSocket error:', error)
-                }
-            } catch (error) {
-                console.error('Failed to create WebSocket connection:', error)
-                // 接続失敗時も再試行
-                reconnectTimeout = setTimeout(connect, 5000)
-            }
-        }
-
-        connect()
-
-        return () => {
-            if (reconnectTimeout) {
-                clearTimeout(reconnectTimeout)
-            }
-            if (ws) {
-                ws.close()
-            }
-        }
-    }, [])
 
     const [showCreateModal, setShowCreateModal] = useState(false)
     const [showJoinModal, setShowJoinModal] = useState(false)
@@ -256,76 +195,6 @@ const HomeScreen: React.FC = () => {
         roomApi.getRoomHistory(currentUserId, 10)
             .then(setRoomHistory)
             .catch(() => { })
-    }, [currentUserId, historyReset])
-
-    // 履歴のリアルタイム更新（リセット後は無効化・購読も完全解除）
-    React.useEffect(() => {
-        if (!currentUserId || typeof window === 'undefined' || historyReset) return
-
-        let ws: WebSocket | null = null
-        let reconnectTimeout: NodeJS.Timeout | null = null
-
-        const connect = () => {
-            try {
-                // 履歴更新用の別のWebSocketエンドポイント
-                const historyWsEndpoint = process.env.NODE_ENV === 'development'
-                    ? `ws://localhost:8080/history-updates`
-                    : '/history-updates'
-
-                ws = new WebSocket(historyWsEndpoint)
-
-                ws.onopen = () => {
-                    console.log('History updates WebSocket connected')
-                    // バックエンドからの通知を受信するのみ（購読メッセージは不要）
-                }
-
-                ws.onmessage = (event) => {
-                    try {
-                        const payload = JSON.parse(event.data)
-                        if (payload.type === 'reset') {
-                            setRoomHistory([])
-                            setHistoryReset(true)
-                            localStorage.setItem('reading-share-history-reset', '1')
-                            // リセット時は接続も閉じる
-                            ws?.close()
-                        } else if (!historyReset) {
-                            const history: RoomHistoryDto = payload
-                            setRoomHistory(prev => [history, ...prev.filter(h => h.roomId !== history.roomId)])
-                        }
-                    } catch (error) {
-                        console.error('Failed to parse history update message:', error)
-                    }
-                }
-
-                ws.onclose = () => {
-                    console.log('History updates WebSocket disconnected')
-                    if (!historyReset) {
-                        console.log('Attempting to reconnect...')
-                        reconnectTimeout = setTimeout(connect, 5000)
-                    }
-                }
-
-                ws.onerror = (error) => {
-                    console.error('History updates WebSocket error:', error)
-                }
-            } catch (error) {
-                console.error('Failed to create history WebSocket connection:', error)
-                if (!historyReset) {
-                    reconnectTimeout = setTimeout(connect, 5000)
-                }
-            }
-        }
-
-        connect()
-
-        return () => {
-            if (reconnectTimeout) {
-                clearTimeout(reconnectTimeout)
-            }
-            if (ws) {
-                ws.close()
-            }
-        }
     }, [currentUserId, historyReset])
 
     // 部屋クリック時の処理
