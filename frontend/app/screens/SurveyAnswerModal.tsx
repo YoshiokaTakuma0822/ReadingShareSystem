@@ -1,7 +1,8 @@
 "use client"
 import React, { useEffect, useState } from 'react'
+import { useUserId } from '../../lib/authUtils'
 import { surveyApi } from '../../lib/surveyApi'
-import { Survey, SubmitSurveyAnswerRequest } from '../../types/survey'
+import { SubmitSurveyAnswerRequest, Survey } from '../../types/survey'
 
 interface SurveyAnswerModalProps {
     open: boolean
@@ -11,6 +12,7 @@ interface SurveyAnswerModalProps {
 }
 
 const SurveyAnswerModal: React.FC<SurveyAnswerModalProps> = ({ open, surveyId, onClose, onAnswered }) => {
+    const userId = useUserId()
     const [survey, setSurvey] = useState<Survey | null>(null)
     const [selected, setSelected] = useState<string | null>(null)
     const [loading, setLoading] = useState(false)
@@ -30,17 +32,18 @@ const SurveyAnswerModal: React.FC<SurveyAnswerModalProps> = ({ open, surveyId, o
 
     const handleAnswer = async () => {
         if (!selected || !survey) return
+        if (!userId) { setError('ユーザーIDが取得できません'); return }
         setLoading(true)
         setError(null)
         try {
             const request: SubmitSurveyAnswerRequest = {
-                surveyId,
-                answers: new Map([[survey.questions[0].questionText, [selected]]]),
+                userId,
+                answers: { [survey.questions[0].questionText]: [selected] },
                 isAnonymous: false
             }
             await surveyApi.answerSurvey(surveyId, request)
             onClose()
-            if (onAnswered) onAnswered(); // 回答完了時にコールバックを呼ぶ
+            if (onAnswered) onAnswered()
         } catch (e) {
             setError('回答送信に失敗しました')
         } finally {
