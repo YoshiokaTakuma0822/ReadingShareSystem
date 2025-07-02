@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import MessageList from '../../components/MessageList'
+import { chatApi } from '../../lib/chatApi'
 import { roomApi } from '../../lib/roomApi'
 import { Room } from '../../types/room'
 import ReadingScreenOverlay from './ReadingScreenOverlay'
@@ -19,7 +20,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
     const router = useRouter()
     const [input, setInput] = useState("")
     const [showSurveyModal, setShowSurveyModal] = useState(false)
-    const [loading, setLoading] = useState(true)
+    const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [currentUserId, setCurrentUserId] = useState<string | null>(null)
     const [showReadingOverlay, setShowReadingOverlay] = useState(false)
@@ -95,6 +96,21 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
             setUserIdToName(map)
         })
     }, [roomId])
+
+    // メッセージ送信ハンドラ
+    const handleSendMessage = async () => {
+        if (!input.trim() || !roomId) return
+        setLoading(true)
+        setError(null)
+        try {
+            await chatApi.sendMessage(roomId, { messageContent: input })
+            setInput("")
+        } catch {
+            setError('メッセージ送信に失敗しました')
+        } finally {
+            setLoading(false)
+        }
+    }
 
     return (
         <div style={{ border: '4px solid #388e3c', margin: 24, padding: 24, background: 'linear-gradient(135deg, #e0f7ef 0%, #f1fdf6 100%)', borderRadius: 12, maxWidth: 1200, minHeight: 600, marginLeft: 'auto', marginRight: 'auto', display: 'flex', flexDirection: 'column', height: '80vh', position: 'relative' }}>
@@ -205,7 +221,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                     type="text"
                     value={input}
                     onChange={e => setInput(e.target.value)}
-                    onKeyDown={e => { if (e.key === 'Enter') { /* 送信ロジックはMessageListに移譲 */ } }}
+                    onKeyDown={e => { if (e.key === 'Enter') { handleSendMessage() } }}
                     style={{ flex: 1, padding: 12, borderRadius: 8, border: '1px solid #222', fontSize: 18 }}
                     placeholder="メッセージを入力..."
                     disabled={loading}
@@ -220,7 +236,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                         background: loading ? '#ccc' : 'white',
                         cursor: loading ? 'not-allowed' : 'pointer'
                     }}
-                    onClick={() => { /* 送信ロジックはMessageListに移譲 */ }}
+                    onClick={handleSendMessage}
                     disabled={loading}
                 >送信</button>
             </div>

@@ -1,6 +1,7 @@
 package com.readingshare.chat.dto;
 
 public class ChatMessageDto {
+    private String id; // メッセージID
     private String roomId;
     private String senderId;
     private String senderName;
@@ -8,6 +9,14 @@ public class ChatMessageDto {
     private String sentAt;
     private String messageType; // "TEXT", "SURVEY", "SYSTEM" など
     private String surveyId; // アンケートメッセージの場合のアンケートID
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public ChatMessageDto() {
     }

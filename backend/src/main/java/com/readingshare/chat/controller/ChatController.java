@@ -101,6 +101,7 @@ public class ChatController {
      */
     private ChatMessageDto convertToDto(ChatMessage chatMessage) {
         ChatMessageDto dto = new ChatMessageDto();
+        dto.setId(chatMessage.getId().toString());
         dto.setRoomId(chatMessage.getRoom() != null ? chatMessage.getRoom().getId().toString() : null);
         dto.setSenderId(chatMessage.getSenderUserId() != null ? chatMessage.getSenderUserId().toString() : null);
 

@@ -61,40 +61,49 @@ const MessageList: React.FC<MessageListProps> = ({ roomId, onAnswerClick, onResu
         setLoading(true)
         setError(null)
         try {
-        const chatHistory = await chatApi.getChatHistory(roomId)
-        // ソート: sentAtを主キー、idを副キーとして
-        chatHistory.sort((a, b) => {
-            if (a.sentAt < b.sentAt) return -1
-            if (a.sentAt > b.sentAt) return 1
-            return a.id < b.id ? -1 : a.id > b.id ? 1 : 0
-        })
-        // Message[] へ変換して state にセット
-        const converted: Message[] = chatHistory.map((msg, idx) => {
-            let messageText = ''
-            if (msg.messageType === 'SURVEY') {
-                messageText = ''
-            } else if (typeof msg.content === 'object' && msg.content !== null && 'value' in msg.content) {
-                messageText = String((msg.content as { value: string }).value || '')
-            } else {
-                messageText = String(msg.content || '')
-            }
-            const senderId = (msg.senderUserId ?? '').replace(/-/g, '').toLowerCase()
-            const myId = currentUserId ?? ''
-            const username = msg.senderName || (senderId && msg.senderUserId && userIdToName[msg.senderUserId]
-                ? userIdToName[msg.senderUserId]
-                : '匿名ユーザー')
-            return {
-                id: idx + 1,
-                uuid: msg.id,
-                user: username,
-                text: messageText,
-                isCurrentUser: senderId === myId,
-                sentAt: msg.sentAt,
-                messageType: msg.messageType || 'TEXT',
-                surveyId: msg.surveyId
-            }
-        })
-        setMessages(converted)
+            const chatHistory = await chatApi.getChatHistory(roomId)
+            // ソート: sentAtを主キー、idを副キーとして
+            chatHistory.sort((a, b) => {
+                if (a.sentAt < b.sentAt) return -1
+                if (a.sentAt > b.sentAt) return 1
+                return a.id < b.id ? -1 : a.id > b.id ? 1 : 0
+            })
+            console.log(chatHistory.map(m => m.id))
+            // Message[] へ変換して state にセット
+            const converted: Message[] = chatHistory.map((msg, idx) => {
+                let messageText = ''
+                if (msg.messageType === 'SURVEY') {
+                    messageText = ''
+                } else if (typeof msg.content === 'object' && msg.content !== null && 'value' in msg.content) {
+                    messageText = String((msg.content as { value: string }).value || '')
+                } else {
+                    messageText = String(msg.content || '')
+                }
+                const senderId = (msg.senderUserId ?? '').replace(/-/g, '').toLowerCase()
+                const myId = currentUserId ?? ''
+                const username = msg.senderName || (senderId && msg.senderUserId && userIdToName[msg.senderUserId]
+                    ? userIdToName[msg.senderUserId]
+                    : '匿名ユーザー')
+                return {
+                    id: idx + 1,
+                    uuid: msg.id,
+                    user: username,
+                    text: messageText,
+                    isCurrentUser: senderId === myId,
+                    sentAt: msg.sentAt,
+                    messageType: msg.messageType || 'TEXT',
+                    surveyId: msg.surveyId
+                }
+            })
+            // 差分のみ追加: 既存メッセージには手を付けず、新着だけ追加
+            setMessages(prev => {
+                if (prev.length === 0) {
+                    return converted
+                }
+                const existing = new Set(prev.map(m => m.uuid))
+                const newOnly = converted.filter(m => !existing.has(m.uuid))
+                return newOnly.length > 0 ? [...prev, ...newOnly] : prev
+            })
         } catch {
             setError('チャット履歴の読み込みに失敗しました')
         } finally {
