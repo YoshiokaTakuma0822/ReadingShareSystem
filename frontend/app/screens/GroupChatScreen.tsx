@@ -213,8 +213,8 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                 padding: 16,
                 scrollBehavior: 'smooth' // なめらかなスクロールを追加
             }}>
-                {/* チャット取得・スクロール・回答/結果制御はMessageListに移譲 */}
-                <MessageList roomId={roomId} onAnswerClick={() => { }} onResultClick={() => { }} />
+                {/* チャット取得・スクロールはMessageListに移譲 */}
+                <MessageList roomId={roomId} />
             </div>
             <div style={{ display: 'flex', alignItems: 'center', marginTop: 32 }}>
                 <input

@@ -9,11 +9,9 @@ import SurveyMessageCard from './SurveyMessageCard'
 
 interface MessageListProps {
     roomId?: string
-    onAnswerClick: (surveyId: string) => void
-    onResultClick: (surveyId: string) => void
 }
 
-const MessageList: React.FC<MessageListProps> = ({ roomId, onAnswerClick, onResultClick }) => {
+const MessageList: React.FC<MessageListProps> = ({ roomId }) => {
     const [messages, setMessages] = useState<Message[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
@@ -166,7 +164,7 @@ const MessageList: React.FC<MessageListProps> = ({ roomId, onAnswerClick, onResu
             {messages.map(msg => {
                 const isMine = msg.isCurrentUser
                 return msg.messageType === 'SURVEY'
-                    ? <SurveyMessageCard key={msg.uuid} msg={msg} isMine={isMine} currentUserId={currentUserId} onAnswerClick={onAnswerClick} onResultClick={onResultClick} onLoadingComplete={() => handleSurveyLoadingComplete(msg.id)} />
+                    ? <SurveyMessageCard key={msg.uuid} msg={msg} isMine={isMine} currentUserId={currentUserId} onLoadingComplete={() => handleSurveyLoadingComplete(msg.id)} />
                     : <ChatMessageCard key={msg.uuid} msg={msg} isMine={isMine} />
             })}
         </div>
