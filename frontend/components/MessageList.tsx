@@ -131,30 +131,15 @@ const MessageList: React.FC<MessageListProps> = ({ roomId }) => {
     useEffect(() => {
         if (!roomId || !currentUserId) return
 
-        // 接続成功メッセージをコンソールに表示
-        console.log(`WebSocket connecting to room: ${roomId}...`)
-
         const ws = new WebSocket(`ws://localhost:8080/ws/chat/notifications/${roomId}`)
 
-        // 接続時のイベントハンドラ
-        ws.onopen = () => {
-            console.log(`WebSocket connected to room: ${roomId}`)
-        }
-
         // メッセージ受信時のイベントハンドラ
-        ws.onmessage = (event) => {
-            console.log(`WebSocket notification received:`, event.data)
+        ws.onmessage = () => {
             loadChatHistory()
-        }
-
-        // エラー時のイベントハンドラ
-        ws.onerror = (error) => {
-            console.error(`WebSocket error:`, error)
         }
 
         // クリーンアップ関数
         return () => {
-            console.log(`WebSocket disconnecting from room: ${roomId}`)
             ws.close()
         }
     }, [roomId, currentUserId])
