@@ -308,7 +308,8 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
             chatHistory.sort((a, b) => {
                 if (a.sentAt < b.sentAt) return -1
                 if (a.sentAt > b.sentAt) return 1
-                return a.id.localeCompare(b.id)
+                // sentAt が同じなら UUID を辞書式に比較
+                return a.id < b.id ? -1 : a.id > b.id ? 1 : 0
             })
 
             console.log('取得したチャット履歴:', chatHistory)
