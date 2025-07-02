@@ -184,15 +184,14 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
                                         <div key={qIndex} style={{ marginBottom: 16, padding: 12, border: '1px solid #e0e0e0', borderRadius: 8, background: 'white' }}>
                                             <h4 style={{ marginBottom: 12, color: '#333', fontSize: 14 }}>{question.questionText}</h4>
                                             {question.options.map((option, oIndex) => (
-                                                <label key={oIndex} style={{ display: 'block', marginBottom: 6, cursor: 'pointer', fontSize: 13 }}>
-                                                    <input
-                                                        type={question.questionType === 'MULTIPLE_CHOICE' ? 'checkbox' : 'radio'}
-                                                        name={`question_${qIndex}`}
-                                                        value={option}
-                                                        checked={answers[question.questionText]?.includes(option) || false}
-                                                        onChange={() => handleAnswerSelect(question.questionText, option, question.questionType === 'MULTIPLE_CHOICE')}
-                                                        style={{ marginRight: 8 }}
-                                                    />
+                                                <label key={oIndex} style={{ display: 'block', marginBottom: 6, cursor: 'pointer', fontSize: 13 }}>                                            <input
+                                                    type={question.questionType === 'MULTIPLE_CHOICE' ? 'checkbox' : 'radio'}
+                                                    name={`question_${question.questionText.replace(/[^a-zA-Z0-9]/g, '_')}_${qIndex}`}
+                                                    value={option}
+                                                    checked={answers[question.questionText]?.includes(option) || false}
+                                                    onChange={() => handleAnswerSelect(question.questionText, option, question.questionType === 'MULTIPLE_CHOICE')}
+                                                    style={{ marginRight: 8 }}
+                                                />
                                                     {option}
                                                 </label>
                                             ))}
