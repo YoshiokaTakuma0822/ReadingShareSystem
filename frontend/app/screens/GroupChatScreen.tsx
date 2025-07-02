@@ -14,6 +14,7 @@ import SurveyResultModal from './SurveyResultModal'
 
 interface Message {
     id: number
+    uuid: string // メッセージの一意 ID を保持
     user: string
     text: string
     isCurrentUser: boolean
@@ -192,6 +193,41 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
     )
 }
 
+// 通常テキストメッセージ用コンポーネント
+interface ChatMessageCardProps {
+    msg: Message
+    isMine: boolean
+}
+const ChatMessageCard: React.FC<ChatMessageCardProps> = ({ msg, isMine }) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: isMine ? 'flex-end' : 'flex-start' }}>
+        {!isMine && (
+            <span style={{ border: '1px solid #222', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {msg.user ? String(msg.user).trim().charAt(0) : '?'}
+            </span>
+        )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            {isMine && msg.sentAt && (
+                <span style={{ fontSize: '0.8em', color: '#888', minWidth: 60, textAlign: 'right' }}>
+                    {new Date(msg.sentAt).toLocaleTimeString()}
+                </span>
+            )}
+            <div style={{ border: '1px solid #222', borderRadius: 16, padding: 8, background: isMine ? '#e0f7fa' : '#fff', maxWidth: 600, wordBreak: 'break-word' }}>
+                {String(msg.text)}
+            </div>
+            {!isMine && msg.sentAt && (
+                <span style={{ fontSize: '0.8em', color: '#888', minWidth: 60, textAlign: 'left' }}>
+                    {new Date(msg.sentAt).toLocaleTimeString()}
+                </span>
+            )}
+        </div>
+        {isMine && (
+            <span style={{ border: '1px solid #222', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#e0f7fa' }}>
+                {msg.user ? String(msg.user).trim().charAt(0) : '?'}
+            </span>
+        )}
+    </div>
+)
+
 // グローバルwindowに型を追加
 declare global {
     interface Window {
@@ -338,6 +374,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                 const username = msg.senderName || (senderId && msg.senderUserId && userIdToName[msg.senderUserId] ? userIdToName[msg.senderUserId] : '匿名ユーザー')
                 return {
                     id: index + 1,
+                    uuid: msg.id, // 元のメッセージ UUID を保持
                     user: username,
                     text: messageText,
                     isCurrentUser: !!(senderId && myId && senderId === myId),
@@ -347,8 +384,24 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                 }
             })
 
-            setMessages(convertedMessages)
-            setMsgId(convertedMessages.length + 1)
+            // 差分のみ追加し、既存メッセージは保持
+            if (messages.length > 0) {
+                const existingUuids = new Set(messages.map(m => m.uuid))
+                const newOnly = convertedMessages.filter(m => !existingUuids.has(m.uuid))
+                if (newOnly.length > 0) {
+                    const combined = [...messages, ...newOnly]
+                    combined.sort((a, b) => {
+                        if ((a.sentAt ?? '') < (b.sentAt ?? '')) return -1
+                        if ((a.sentAt ?? '') > (b.sentAt ?? '')) return 1
+                        return a.uuid < b.uuid ? -1 : a.uuid > b.uuid ? 1 : 0
+                    })
+                    setMessages(combined)
+                    setMsgId(combined.length + 1)
+                }
+            } else {
+                setMessages(convertedMessages)
+                setMsgId(convertedMessages.length + 1)
+            }
         } catch (err) {
             console.error('チャット履歴の取得に失敗しました:', err)
             console.log('エラー詳細:', err)
@@ -411,6 +464,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
         return () => ws.close()
     }, [roomId])
 
+    /*
     // メッセージ追加時にスクロール処理を設定
     useEffect(() => {
         // アンケートメッセージのローディング状態を初期化
@@ -437,6 +491,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
             }, 100) // 少し遅延を追加してレンダリング完了を確実にする
         }
     }, [messages])
+    */
 
     // 部屋名取得
     useEffect(() => {
@@ -461,123 +516,11 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
         })
     }, [roomId])
 
-    // メッセージ表示コンポーネント
-    const renderMessage = (msg: Message) => {
-        const isMine = msg.isCurrentUser
-
-        // アンケートメッセージの場合
-        if (msg.messageType === 'SURVEY') {
-            return <SurveyMessageCard
-                key={msg.id}
-                msg={msg}
-                isMine={isMine}
-                currentUserId={currentUserId}
-                onAnswerClick={(surveyId: string) => {
-                    setAnswerSurveyId(surveyId)
-                    setShowAnswerModal(true)
-                }}
-                onResultClick={(surveyId: string) => {
-                    setResultSurveyId(surveyId)
-                    setShowResultModal(true)
-                }}
-                onLoadingComplete={() => handleSurveyLoadingComplete(msg.id)}
-            />
-        }
-
-        // 通常のテキストメッセージ
-        return (
-            <div
-                key={msg.id}
-                style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    justifyContent: isMine ? 'flex-end' : 'flex-start',
-                }}
-            >
-                {!isMine && (
-                    <span style={{ border: '1px solid #222', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        {msg.user ? String(msg.user).trim().charAt(0) : '?'}
-                    </span>
-                )}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    {/* 自分のメッセージはタイムスタンプを左側に */}
-                    {isMine && msg.sentAt && (
-                        <span style={{ fontSize: '0.8em', color: '#888', minWidth: 60, textAlign: 'right' }}>
-                            {new Date(msg.sentAt).toLocaleTimeString()}
-                        </span>
-                    )}
-                    <div
-                        style={{
-                            border: '1px solid #222',
-                            borderRadius: 16,
-                            padding: 8,
-                            background: isMine ? '#e0f7fa' : '#fff',
-                            maxWidth: 600,
-                            wordBreak: 'break-word',
-                        }}
-                    >
-                        {String(msg.text)}
-                    </div>
-                    {/* 他人のメッセージはタイムスタンプを右側に */}
-                    {!isMine && msg.sentAt && (
-                        <span style={{ fontSize: '0.8em', color: '#888', minWidth: 60, textAlign: 'left' }}>
-                            {new Date(msg.sentAt).toLocaleTimeString()}
-                        </span>
-                    )}
-                </div>
-                {isMine && (
-                    <span style={{ border: '1px solid #222', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#e0f7fa' }}>
-                        {msg.user ? String(msg.user).trim().charAt(0) : '?'}
-                    </span>
-                )}
-            </div>
-        )
-    }
-
-    // userIdToNameまたはcurrentUserIdが更新されたら履歴を再生成
+    // userIdToNameまたはcurrentUserIdが更新されたら差分フェッチで履歴を更新
     useEffect(() => {
-        if (!roomId || !currentUserId || Object.keys(userIdToName).length === 0) return;
-        (async () => {
-            setLoading(true)
-            setError(null)
-            try {
-                const chatHistory = await chatApi.getChatHistory(roomId)
-                const convertedMessages: Message[] = chatHistory.map((msg, index) => {
-                    let messageText = ''
-                    if (typeof msg.content === 'object' && msg.content !== null && 'value' in msg.content) {
-                        messageText = String((msg.content as { value: string }).value || '')
-                    } else {
-                        messageText = String(msg.content || '')
-                    }
-
-                    // SURVEYメッセージの場合はテキストを空にする（カードで表示するため）
-                    if (msg.messageType === 'SURVEY') {
-                        messageText = ''
-                    }
-
-                    const senderId = (msg.senderUserId ?? '').replace(/-/g, '').toLowerCase()
-                    const myId = currentUserId ?? ''
-                    // バックエンドから返されるsenderNameを優先的に使用、ない場合のみfallback
-                    const username = msg.senderName || (senderId && msg.senderUserId && userIdToName[msg.senderUserId] ? userIdToName[msg.senderUserId] : '匿名ユーザー')
-                    return {
-                        id: index + 1,
-                        user: username,
-                        text: messageText,
-                        isCurrentUser: !!(senderId && myId && senderId === myId),
-                        sentAt: msg.sentAt,
-                        messageType: msg.messageType || 'TEXT', // 追加: メッセージタイプ
-                        surveyId: msg.surveyId // 追加: アンケートID
-                    }
-                })
-                setMessages(convertedMessages)
-                setMsgId(convertedMessages.length + 1)
-            } catch (err) {
-                setError('チャット履歴の読み込みに失敗しました')
-            } finally {
-                setLoading(false)
-            }
-        })()
+        if (!roomId || !currentUserId || Object.keys(userIdToName).length === 0) return
+        // 全フェッチを差分追加する共通ロジックを利用
+        loadChatHistory()
     }, [roomId, currentUserId, userIdToName])
 
     return (
@@ -681,7 +624,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                 scrollBehavior: 'smooth' // なめらかなスクロールを追加
             }}>
                 {loading ? (
-                    <div style={{
+                    <div key="loading" style={{
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -692,7 +635,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                         チャット履歴を読み込み中...
                     </div>
                 ) : messages.length === 0 ? (
-                    <div style={{
+                    <div key="empty" style={{
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -711,7 +654,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                             if (msg.messageType === 'SURVEY') {
                                 return (
                                     <SurveyMessageCard
-                                        key={msg.id}
+                                        key={msg.uuid}
                                         msg={msg}
                                         isMine={isMine}
                                         currentUserId={currentUserId}
@@ -730,52 +673,11 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
 
                             // 通常のテキストメッセージの場合
                             return (
-                                <div
-                                    key={msg.id}
-                                    style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: 8,
-                                        justifyContent: isMine ? 'flex-end' : 'flex-start',
-                                    }}
-                                >
-                                    {!isMine && (
-                                        <span style={{ border: '1px solid #222', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                            {msg.user ? String(msg.user).trim().charAt(0) : '?'}
-                                        </span>
-                                    )}
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                        {/* 自分のメッセージはタイムスタンプを左側に */}
-                                        {isMine && msg.sentAt && (
-                                            <span style={{ fontSize: '0.8em', color: '#888', minWidth: 60, textAlign: 'right' }}>
-                                                {new Date(msg.sentAt).toLocaleTimeString()}
-                                            </span>
-                                        )}
-                                        <div
-                                            style={{
-                                                border: '1px solid #222',
-                                                borderRadius: 16,
-                                                padding: 8,
-                                                background: isMine ? '#e0f7fa' : '#fff',
-                                                maxWidth: 600,
-                                                wordBreak: 'break-word',
-                                            }}
-                                        >
-                                            {String(msg.text)}
-                                        </div>
-                                        {/* 他人のメッセージはタイムスタンプを右側に */}
-                                        {!isMine && msg.sentAt && (
-                                            <span style={{ fontSize: '0.8em', color: '#888', minWidth: 60, textAlign: 'left' }}>
-                                                {new Date(msg.sentAt).toLocaleTimeString()}
-                                            </span>
-                                        )}
-                                    </div>
-                                    {isMine && (
-                                        <span style={{ border: '1px solid #222', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#e0f7fa' }}>
-                                            {msg.user ? String(msg.user).trim().charAt(0) : '?'}
-                                        </span>
-                                    )}
-                                </div>
+                                <ChatMessageCard
+                                    key={msg.uuid}
+                                    msg={msg}
+                                    isMine={isMine}
+                                />
                             )
                         })}
                     </>
