@@ -19,7 +19,6 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
     const [currentPage, setCurrentPage] = useState<number>(0) // 初期値を0に
     const [displayPage, setDisplayPage] = useState<number>(0) // 初期値を0に
     const [flipping, setFlipping] = useState<boolean>(false)
-    const [flippingPage, setFlippingPage] = useState<number | null>(null)
     const [animating, setAnimating] = useState<boolean>(false)
     // 複数のアニメーションを同時実行するための配列（シンプル版）
     const [activeAnimations, setActiveAnimations] = useState<Array<{
@@ -49,14 +48,14 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
     useEffect(() => {
         if (flipping && activeAnimations.length === 0 && displayPage < maxPage) {
             const timer = setTimeout(() => {
-                const newAnimationId = `auto-${++animationIdCounter.current}`
+                const newAnimationId = ++animationIdCounter.current
                 setActiveAnimations(prev => [...prev, {
                     id: newAnimationId,
-                    page: displayPage + 2,
-                    direction: 'backward',
-                    startTime: Date.now()
+                    direction: 'backward'
                 }])
-                setAnimating(true)
+                setDisplayPage(prev => prev + 2)
+                setCurrentPage(prev => prev + 2)
+                handlePageChange(displayPage + 2) // ページ進捗保存
             }, flipIntervalMs)
             return () => clearTimeout(timer)
         }
@@ -73,23 +72,10 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
 
     // 方向: 'forward' | 'backward' | null (削除予定の古い変数)
 
-    // アニメーション終了時のシーケンス
-    const onFlipEnd = (event: React.AnimationEvent, animationId: string) => {
-        setActiveAnimations(animations => {
-            const animation = animations.find(a => a.id === animationId)
-            if (animation) {
-                // 最後に追加されたアニメーションのページを採用
-                const lastAnimation = animations.reduce((latest, current) =>
-                    current.startTime > latest.startTime ? current : latest
-                )
-                if (animation.id === lastAnimation.id) {
-                    setDisplayPage(animation.page)
-                    setCurrentPage(animation.page)
-                    handlePageChange(animation.page)
-                }
-            }
-            return animations.filter(a => a.id !== animationId)
-        })
+    // アニメーション終了時のシーケンス（シンプル版）
+    const onFlipEnd = (animationId: number) => {
+        // 該当するアニメーションを削除
+        setActiveAnimations(animations => animations.filter(a => a.id !== animationId))
 
         // 全てのアニメーションが終了したかチェック
         setActiveAnimations(animations => {
@@ -98,14 +84,14 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                 // 自動めくりの継続チェック
                 if (flipping && displayPage + 2 <= maxPage) {
                     const timer = setTimeout(() => {
-                        const newAnimationId = `auto-${++animationIdCounter.current}`
+                        const newAnimationId = ++animationIdCounter.current
                         setActiveAnimations(prev => [...prev, {
                             id: newAnimationId,
-                            page: displayPage + 2,
-                            direction: 'backward',
-                            startTime: Date.now()
+                            direction: 'backward'
                         }])
-                        setAnimating(true)
+                        setDisplayPage(prev => prev + 2)
+                        setCurrentPage(prev => prev + 2)
+                        handlePageChange(displayPage + 2) // ページ進捗保存
                     }, flipIntervalMs)
                 } else {
                     setFlipping(false)
@@ -279,21 +265,22 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
         return () => ws.close()
     }, [roomId])
 
-    // 左右ページクリックハンドラ
+    // 左右ページクリックハンドラ（シンプル版）
     const handleLeftPageClick = () => {
         if (displayPage <= 1) return
 
         const targetPage = displayPage - 2
         const direction = 'forward'
-        const newAnimationId = `click-${++animationIdCounter.current}`
+        const newAnimationId = ++animationIdCounter.current
 
         // 新しいアニメーションを追加
         setActiveAnimations(prev => [...prev, {
             id: newAnimationId,
-            page: targetPage,
-            direction,
-            startTime: Date.now()
+            direction
         }])
+        setDisplayPage(targetPage)
+        setCurrentPage(targetPage)
+        handlePageChange(targetPage) // ページ進捗保存
         setAnimating(true)
     }
 
@@ -302,15 +289,16 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
 
         const targetPage = displayPage + 2
         const direction = 'backward'
-        const newAnimationId = `click-${++animationIdCounter.current}`
+        const newAnimationId = ++animationIdCounter.current
 
         // 新しいアニメーションを追加
         setActiveAnimations(prev => [...prev, {
             id: newAnimationId,
-            page: targetPage,
-            direction,
-            startTime: Date.now()
+            direction
         }])
+        setDisplayPage(targetPage)
+        setCurrentPage(targetPage)
+        handlePageChange(targetPage) // ページ進捗保存
         setAnimating(true)
     }
 
@@ -379,10 +367,10 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                             <div
                                 key={animation.id}
                                 className={`pageFlip${animating ? (animation.direction === 'forward' ? ' animate-forward' : ' animate-backward') : ''}`}
-                                onAnimationEnd={(e) => onFlipEnd(e, animation.id)}
+                                onAnimationEnd={() => onFlipEnd(animation.id)}
                                 style={{
                                     zIndex: 20 + index,
-                                    animationDelay: `${index * 0.1}s` // 少しずつずらして重ねる効果
+                                    animationDelay: `${index * 0.05}s` // 少しずつずらして重ねる効果
                                 }}
                             >
                                 <div className="back"></div>
