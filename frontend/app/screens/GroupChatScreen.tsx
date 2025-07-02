@@ -2,237 +2,21 @@
 
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
+import MessageList from '../../components/MessageList'
 import { chatApi } from '../../lib/chatApi'
 import { roomApi } from '../../lib/roomApi'
-import { surveyApi } from '../../lib/surveyApi'
+import { Message } from '../../types/message'
 import { Room } from '../../types/room'
-import { Survey } from '../../types/survey'
 import ReadingScreenOverlay from './ReadingScreenOverlay'
 import SurveyAnswerModal from './SurveyAnswerModal'
 import SurveyCreationModal from './SurveyCreationModal'
 import SurveyResultModal from './SurveyResultModal'
 
-interface Message {
-    id: number
-    uuid: string // メッセージの一意 ID を保持
-    user: string
-    text: string
-    isCurrentUser: boolean
-    sentAt?: string
-    messageType?: string // 追加: メッセージタイプ
-    surveyId?: string // 追加: アンケートID
-}
 
 interface GroupChatScreenProps {
     roomTitle?: string
     currentUser?: string
     roomId?: string
-}
-
-// SurveyMessageCardコンポーネント
-interface SurveyMessageCardProps {
-    msg: Message
-    isMine: boolean
-    currentUserId: string | null
-    onAnswerClick: (surveyId: string) => void
-    onResultClick: (surveyId: string) => void
-    onLoadingComplete?: () => void // 追加: ローディング完了コールバック
-}
-
-const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, currentUserId, onAnswerClick, onResultClick, onLoadingComplete }) => {
-    const [surveyData, setSurveyData] = useState<Survey | null>(null)
-    const [loading, setLoading] = useState(true)
-    const [hasAnswered, setHasAnswered] = useState(false)
-    const [error, setError] = useState<string | null>(null)
-
-    // アンケート情報を取得
-    useEffect(() => {
-        if (msg.surveyId) {
-            surveyApi.getSurveyFormat(msg.surveyId)
-                .then(data => {
-                    setSurveyData(data)
-                    setLoading(false)
-                    // ローディング完了を通知
-                    onLoadingComplete?.()
-                })
-                .catch(() => {
-                    setError('アンケート情報の取得に失敗しました')
-                    setLoading(false)
-                    // エラー時もローディング完了として通知
-                    onLoadingComplete?.()
-                })
-        }
-    }, [msg.surveyId, onLoadingComplete])
-
-    // 回答状態を確認
-    useEffect(() => {
-        if (msg.surveyId && currentUserId) {
-            surveyApi.hasAnswered(msg.surveyId, currentUserId)
-                .then(answered => {
-                    setHasAnswered(answered)
-                })
-                .catch(() => {
-                    setHasAnswered(false)
-                })
-        }
-    }, [msg.surveyId, currentUserId])
-
-    return (
-        <div
-            style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: 8,
-                justifyContent: isMine ? 'flex-end' : 'flex-start',
-                marginBottom: 12
-            }}
-        >
-            {!isMine && (
-                <span style={{ border: '1px solid #222', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    {msg.user ? String(msg.user).trim().charAt(0) : '?'}
-                </span>
-            )}
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: isMine ? 'flex-end' : 'flex-start', gap: 4 }}>
-                {/* タイムスタンプとユーザー名 */}
-                <div style={{ fontSize: '0.8em', color: '#888', display: 'flex', gap: 8 }}>
-                    <span>{msg.user}</span>
-                    {msg.sentAt && <span>{new Date(msg.sentAt).toLocaleTimeString()}</span>}
-                </div>
-                {/* アンケートカード */}
-                <div
-                    style={{
-                        border: '2px solid #2196f3',
-                        borderRadius: 12,
-                        padding: 16,
-                        background: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)',
-                        maxWidth: 500,
-                        minWidth: 300,
-                        boxShadow: '0 2px 8px rgba(33, 150, 243, 0.2)'
-                    }}
-                >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                        <span style={{ fontSize: 20 }}>📊</span>
-                        <span style={{ fontWeight: 'bold', color: '#1976d2' }}>新しいアンケート</span>
-                    </div>
-
-                    {loading ? (
-                        <div style={{ color: '#666', fontStyle: 'italic' }}>アンケート情報を読み込み中...</div>
-                    ) : error ? (
-                        <div style={{ color: '#d32f2f' }}>{error}</div>
-                    ) : surveyData ? (
-                        <div>
-                            <div style={{ marginBottom: 12 }}>
-                                <strong style={{ color: '#1976d2' }}>タイトル:</strong> {surveyData.title}
-                            </div>
-                            {surveyData.questions.map((q, qi) => (
-                                <div key={qi} style={{ marginBottom: 12 }}>
-                                    <div style={{ fontWeight: 'bold', marginBottom: 4, color: '#333' }}>{q.questionText}</div>
-                                    <div style={{ fontSize: '0.9em', color: '#555' }}>
-                                        <strong>選択肢:</strong>
-                                        <ul style={{ margin: '4px 0', paddingLeft: 20 }}>
-                                            {q.options.map((opt, oi) => (
-                                                <li key={oi} style={{ marginBottom: 2 }}>{opt}</li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                </div>
-                            ))}
-                            {msg.surveyId && (
-                                <div style={{ display: 'flex', gap: 8, width: '100%' }}>
-                                    {hasAnswered ? (
-                                        <button
-                                            onClick={() => onResultClick(msg.surveyId!)}
-                                            style={{
-                                                flex: 1,
-                                                padding: '12px 24px',
-                                                borderRadius: 8,
-                                                border: 'none',
-                                                fontSize: 16,
-                                                background: '#4caf50',
-                                                color: 'white',
-                                                cursor: 'pointer',
-                                                fontWeight: 'bold',
-                                                boxShadow: '0 2px 4px rgba(76, 175, 80, 0.3)'
-                                            }}
-                                        >
-                                            📊 結果を表示
-                                        </button>
-                                    ) : (
-                                        <button
-                                            onClick={() => onAnswerClick(msg.surveyId!)}
-                                            style={{
-                                                flex: 1,
-                                                padding: '12px 24px',
-                                                borderRadius: 8,
-                                                border: 'none',
-                                                fontSize: 16,
-                                                background: '#2196f3',
-                                                color: 'white',
-                                                cursor: 'pointer',
-                                                fontWeight: 'bold',
-                                                boxShadow: '0 2px 4px rgba(33, 150, 243, 0.3)'
-                                            }}
-                                        >
-                                            📝 アンケートに回答する
-                                        </button>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                    ) : (
-                        <div style={{ color: '#666', fontStyle: 'italic' }}>アンケート情報がありません</div>
-                    )}
-                </div>
-            </div>
-            {isMine && (
-                <span style={{ border: '1px solid #222', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#e0f7fa' }}>
-                    {msg.user ? String(msg.user).trim().charAt(0) : '?'}
-                </span>
-            )}
-        </div>
-    )
-}
-
-// 通常テキストメッセージ用コンポーネント
-interface ChatMessageCardProps {
-    msg: Message
-    isMine: boolean
-}
-const ChatMessageCard: React.FC<ChatMessageCardProps> = ({ msg, isMine }) => (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: isMine ? 'flex-end' : 'flex-start' }}>
-        {!isMine && (
-            <span style={{ border: '1px solid #222', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                {msg.user ? String(msg.user).trim().charAt(0) : '?'}
-            </span>
-        )}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            {isMine && msg.sentAt && (
-                <span style={{ fontSize: '0.8em', color: '#888', minWidth: 60, textAlign: 'right' }}>
-                    {new Date(msg.sentAt).toLocaleTimeString()}
-                </span>
-            )}
-            <div style={{ border: '1px solid #222', borderRadius: 16, padding: 8, background: isMine ? '#e0f7fa' : '#fff', maxWidth: 600, wordBreak: 'break-word' }}>
-                {String(msg.text)}
-            </div>
-            {!isMine && msg.sentAt && (
-                <span style={{ fontSize: '0.8em', color: '#888', minWidth: 60, textAlign: 'left' }}>
-                    {new Date(msg.sentAt).toLocaleTimeString()}
-                </span>
-            )}
-        </div>
-        {isMine && (
-            <span style={{ border: '1px solid #222', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#e0f7fa' }}>
-                {msg.user ? String(msg.user).trim().charAt(0) : '?'}
-            </span>
-        )}
-    </div>
-)
-
-// グローバルwindowに型を追加
-declare global {
-    interface Window {
-        updateGroupChatScreen?: (data: any) => void
-    }
 }
 
 const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャットルーム", currentUser = "あなた", roomId }) => {
@@ -623,65 +407,20 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                 padding: 16,
                 scrollBehavior: 'smooth' // なめらかなスクロールを追加
             }}>
-                {loading ? (
-                    <div key="loading" style={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        height: '100%',
-                        color: '#666',
-                        fontSize: 16
-                    }}>
-                        チャット履歴を読み込み中...
-                    </div>
-                ) : messages.length === 0 ? (
-                    <div key="empty" style={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        height: '100%',
-                        color: '#999',
-                        fontSize: 16
-                    }}>
-                        まだメッセージがありません
-                    </div>
-                ) : (
-                    <>
-                        {messages.map(msg => {
-                            const isMine = msg.isCurrentUser
-
-                            // アンケートメッセージの場合は専用のカードコンポーネントを表示
-                            if (msg.messageType === 'SURVEY') {
-                                return (
-                                    <SurveyMessageCard
-                                        key={msg.uuid}
-                                        msg={msg}
-                                        isMine={isMine}
-                                        currentUserId={currentUserId}
-                                        onAnswerClick={(surveyId) => {
-                                            setAnswerSurveyId(surveyId)
-                                            setShowAnswerModal(true)
-                                        }}
-                                        onResultClick={(surveyId) => {
-                                            setResultSurveyId(surveyId)
-                                            setShowResultModal(true)
-                                        }}
-                                        onLoadingComplete={() => handleSurveyLoadingComplete(msg.id)}
-                                    />
-                                )
-                            }
-
-                            // 通常のテキストメッセージの場合
-                            return (
-                                <ChatMessageCard
-                                    key={msg.uuid}
-                                    msg={msg}
-                                    isMine={isMine}
-                                />
-                            )
-                        })}
-                    </>
-                )}
+                <MessageList
+                    messages={messages}
+                    loading={loading}
+                    currentUserId={currentUserId}
+                    onAnswerClick={(surveyId) => {
+                        setAnswerSurveyId(surveyId)
+                        setShowAnswerModal(true)
+                    }}
+                    onResultClick={(surveyId) => {
+                        setResultSurveyId(surveyId)
+                        setShowResultModal(true)
+                    }}
+                    onLoadingComplete={handleSurveyLoadingComplete}
+                />
             </div>
             <div style={{ display: 'flex', alignItems: 'center', marginTop: 32 }}>
                 <input
