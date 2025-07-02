@@ -45,6 +45,12 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
     const [hostUserId, setHostUserId] = useState<string | null>(null)
     const [creatorName, setCreatorName] = useState<string>("")
 
+    // 縦書き/横書き切り替え用の状態
+    const [isVerticalText, setIsVerticalText] = useState<boolean>(false)
+
+    // ページめくり量（1ページか2ページか）
+    const [pageFlipAmount, setPageFlipAmount] = useState<number>(1)
+
     // Removed initial auto-flip effect; replaced below after handlers
 
     // 部屋情報取得（hostUserIdを保存）
@@ -105,12 +111,16 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
     // ページ進捗を保存し、WebSocketでブロードキャストする関数
     const saveAndBroadcastProgress = async (page: number) => {
         if (!roomId) return
+
+        // 2ページめくりモードの場合は偶数ページに調整
+        const adjustedPage = adjustToEvenPage(page)
+
         const userId = authStorage.getUserId()
         if (!userId) return
         const localKey = `reading-progress-${roomId}-${userId}`
-        localStorage.setItem(localKey, String(page)) // ローカルにも保存
+        localStorage.setItem(localKey, String(adjustedPage)) // ローカルにも保存
         try {
-            await readingStateApi.updateUserReadingState(roomId, userId, { userId, currentPage: page, comment: '' })
+            await readingStateApi.updateUserReadingState(roomId, userId, { userId, currentPage: adjustedPage, comment: '' })
             // WebSocket送信は不要。REST経由でバックエンドが通知をブロードキャストします。
             // if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
             //     wsRef.current.send(JSON.stringify({ event: 'reading-progress', roomId, userId, currentPage: page }))
@@ -250,9 +260,10 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
 
         // ページ更新
         setDisplayPage((prev) => {
-            const newPage = direction === 'forward' ? prev + 1 : prev - 1
+            // pageFlipAmount分だけページを進める/戻す
+            const newPage = direction === 'forward' ? prev + pageFlipAmount : prev - pageFlipAmount
             const clamped = Math.max(1, Math.min(newPage, totalPages))
-            setCurrentPage(clamped + (direction === 'forward' ? 1 : 0))
+            setCurrentPage(clamped + (direction === 'forward' ? pageFlipAmount : 0))
             return clamped
         })
     }
@@ -268,6 +279,23 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
         }
         return () => clearTimeout(timer)
     }, [flipping, hasActiveAnimations, displayPage, flipIntervalMs])
+
+    // ページを偶数に調整する関数（2ページめくりモード用）
+    const adjustToEvenPage = (page: number): number => {
+        // 2ページずつめくるモードで、奇数ページにいる場合は偶数ページに調整
+        if (pageFlipAmount === 2 && page % 2 !== 0) {
+            return Math.max(1, page - 1)
+        }
+        return page
+    }
+
+    // pageFlipAmountが変更された時に現在のページを調整
+    useEffect(() => {
+        if (pageFlipAmount === 2) {
+            setDisplayPage(prev => adjustToEvenPage(prev))
+            setCurrentPage(prev => adjustToEvenPage(prev))
+        }
+    }, [pageFlipAmount])
 
     return (
         <>
@@ -298,18 +326,18 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                         ))}
                     </div>
                     {/* 本の表示エリア */}
-                    <div className="bookContainer" style={{ position: 'relative' }}>
+                    <div className={`bookContainer ${isVerticalText ? 'vertical-text' : ''}`} style={{ position: 'relative' }}>
                         <div style={{ position: 'absolute', left: '-140px', top: '50%', transform: 'translateY(-50%)', width: 120, textAlign: 'right', color: '#388e3c', fontWeight: 'bold', fontSize: 16, pointerEvents: 'none', userSelect: 'none', zIndex: 100 }}>
-                            {displayPage > 0 && '← ページをクリックで1ページ戻る'}
+                            {displayPage > 0 && `← ページをクリックで${pageFlipAmount}ページ戻る`}
                         </div>
                         <div className="leftPage" onClick={handleLeftPageClick}>
-                            <span className="pageNumber left">{displayPage}</span>
+                            <span className={`pageNumber left ${displayPage % 2 === 0 ? 'even-page' : 'odd-page'}`}>{displayPage}</span>
                         </div>
                         <div className="rightPage" onClick={handleRightPageClick}>
-                            <span className="pageNumber right">{displayPage + 1 <= totalPages ? displayPage + 1 : ''}</span>
+                            <span className={`pageNumber right ${(displayPage + 1) % 2 === 0 ? 'even-page' : 'odd-page'}`}>{displayPage + 1 <= totalPages ? displayPage + 1 : ''}</span>
                         </div>
                         <div style={{ position: 'absolute', right: '-140px', top: '50%', transform: 'translateY(-50%)', width: 120, textAlign: 'left', color: '#388e3c', fontWeight: 'bold', fontSize: 16, pointerEvents: 'none', userSelect: 'none', zIndex: 100 }}>
-                            {displayPage < totalPages && 'ページをクリックで1ページ進む →'}
+                            {displayPage < totalPages && `ページをクリックで${pageFlipAmount}ページ進む →`}
                         </div>
                         <div className="spine"></div>
                         {/* 複数のアニメーション要素 */}
@@ -367,6 +395,38 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
 
                     {/* 操作エリア */}
                     <div className="controls">
+                        {/* 表示モード切り替えボタン */}
+                        <div style={{ display: 'flex', marginRight: 16 }}>
+                            <button
+                                className={`viewModeButton ${!isVerticalText ? 'active' : ''}`}
+                                onClick={() => setIsVerticalText(false)}
+                            >
+                                横書き
+                            </button>
+                            <button
+                                className={`viewModeButton ${isVerticalText ? 'active' : ''}`}
+                                onClick={() => setIsVerticalText(true)}
+                            >
+                                縦書き
+                            </button>
+                        </div>
+
+                        {/* ページめくり量切り替えボタン */}
+                        <div style={{ display: 'flex', marginRight: 16 }}>
+                            <button
+                                className={`viewModeButton ${pageFlipAmount === 1 ? 'active' : ''}`}
+                                onClick={() => setPageFlipAmount(1)}
+                            >
+                                1ページずつ
+                            </button>
+                            <button
+                                className={`viewModeButton ${pageFlipAmount === 2 ? 'active' : ''}`}
+                                onClick={() => setPageFlipAmount(2)}
+                            >
+                                2ページずつ
+                            </button>
+                        </div>
+
                         {/* 残り時間カウントダウン */}
                         {(flipping && !hasActiveAnimations) ? (
                             <div style={{ minWidth: 60, textAlign: 'right', fontSize: 22, fontWeight: 'bold', color: '#388e3c', marginRight: 8 }}>

@@ -392,6 +392,16 @@
     user-select: none;
 }
 
+/* 偶数/奇数ページの表示スタイル */
+.even-page {
+    font-weight: bold;
+    color: var(--green-dark);
+}
+
+.odd-page {
+    font-style: italic;
+}
+
 .hourglassWrapper {
     display: flex;
     flex-direction: column;
@@ -489,4 +499,74 @@ body,
     height: 100%;
     overflow-x: hidden;
     background-color: var(--green-bg);
+}
+
+/* 縦書きスタイル */
+.vertical-text .leftPage::after,
+.vertical-text .rightPage::after,
+.vertical-text .pageFlip::after,
+.vertical-text .back::after {
+    content: "";
+    position: absolute;
+    top: 20px;
+    left: 40px;
+    right: 40px;
+    bottom: 20px;
+    background-image: repeating-linear-gradient(to left,
+            var(--white) 0px,
+            var(--white) calc(var(--book-line-spacing) - 1px),
+            var(--book-line-color) var(--book-line-spacing));
+    z-index: 1;
+    pointer-events: none;
+}
+
+.vertical-text .leftPage::before,
+.vertical-text .rightPage::before,
+.vertical-text .pageFlip::before,
+.vertical-text .back::before {
+    content: "";
+    position: absolute;
+    top: 20px;
+    left: 40px;
+    right: 40px;
+    bottom: 20px;
+    background-image:
+        linear-gradient(to left,
+            transparent 0px,
+            transparent 80px,
+            var(--green-dark) 80px,
+            var(--green-dark) 81px,
+            transparent 81px,
+            transparent 161px,
+            var(--green-dark) 161px,
+            var(--green-dark) 162px,
+            transparent 162px);
+    opacity: 0.4;
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* 表示モード切替ボタン */
+.viewModeButton {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: bold;
+    background: var(--green-bg);
+    color: var(--green-dark);
+    transition: all 0.2s ease;
+    margin-right: 8px;
+}
+
+.viewModeButton:hover {
+    background: var(--green-light);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.viewModeButton.active {
+    background: var(--green-main);
+    color: var(--white);
 }
