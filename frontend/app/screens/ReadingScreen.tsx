@@ -20,6 +20,8 @@ type ActiveAnimation = {
     id: number
     direction: AnimationDirection
     displayPage: number
+    pageNumber: string // 捲られるページに表示する番号（表面）
+    backPageNumber: string // 捲られるページの裏面に表示する番号
 }
 
 /**
@@ -333,6 +335,27 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
     }
 
     /**
+     * 捲られるページの裏面のページ番号を計算
+     * 表面のページ番号から裏面の番号を決定
+     */
+    const getBackPageNumber = (frontPageNumber: string, isLeftPage: boolean): string => {
+        const frontNum = parseInt(frontPageNumber)
+        if (isNaN(frontNum)) return ''
+
+        // 裏面は表面の前後のページ番号
+        // 左ページの裏面は右ページ、右ページの裏面は左ページ
+        if (isLeftPage) {
+            // 左ページの裏面は右ページ（偶数）
+            const backNum = isVerticalText ? frontNum - 1 : frontNum + 1
+            return backNum > 0 && backNum <= totalPages ? backNum.toString() : ''
+        } else {
+            // 右ページの裏面は左ページ（奇数）
+            const backNum = isVerticalText ? frontNum + 1 : frontNum - 1
+            return backNum > 0 && backNum <= totalPages ? backNum.toString() : ''
+        }
+    }
+
+    /**
      * ページめくりのメインハンドラ
      * クリックされたページ位置に基づいてアニメーションと読書進行を処理
      */
@@ -344,11 +367,24 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
         const readingDirection = getReadingDirectionFromClick(isLeftPage)
         const animDirection = getAnimationDirectionFromClick(isLeftPage)
 
+        // 捲られるページの番号を決定
+        const flippingPageNumber = isLeftPage
+            ? (isVerticalText
+                ? (displayPage + 1 <= totalPages ? (displayPage + 1).toString() : '') // 和書: 左ページが奇数
+                : displayPage.toString() // 洋書: 左ページが偶数
+            )
+            : (isVerticalText
+                ? displayPage.toString() // 和書: 右ページが偶数
+                : (displayPage + 1 <= totalPages ? (displayPage + 1).toString() : '') // 洋書: 右ページが奇数
+            )
+
         // 新しいアニメーションを追加
         setActiveAnimations(prev => [...prev, {
             id: newAnimationId,
             direction: animDirection,
-            displayPage: displayPage
+            displayPage: displayPage,
+            pageNumber: flippingPageNumber,
+            backPageNumber: getBackPageNumber(flippingPageNumber, isLeftPage)
         }])
 
         // ページ更新（2ページずつ）
@@ -455,7 +491,21 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                                 onAnimationEnd={() => onAnimationEnd(animation.id)}
                                 style={{ zIndex: 20 + animation.id }}
                             >
-                                <div className="back"></div>
+                                {/* 表面のページ番号 */}
+                                {animation.pageNumber && (
+                                    <span className={`pageNumber ${animation.direction === 'toLeft' ? 'left' : 'right'} page-front`}>
+                                        {animation.pageNumber}
+                                    </span>
+                                )}
+
+                                <div className="back">
+                                    {/* 裏面のページ番号 */}
+                                    {animation.backPageNumber && (
+                                        <span className={`pageNumber ${animation.direction === 'toLeft' ? 'right' : 'left'} page-back`}>
+                                            {animation.backPageNumber}
+                                        </span>
+                                    )}
+                                </div>
                             </div>
                         ))}
                     </div>
