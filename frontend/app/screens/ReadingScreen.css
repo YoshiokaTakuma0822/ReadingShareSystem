@@ -8,7 +8,7 @@
     --white: #fff;
     --black: #000;
     --book-line-spacing: 20px;
-    --book-line-color: #e5e5e5;
+    --book-line-color: rgba(76, 175, 80, 0.4);
 }
 
 .container {
@@ -130,14 +130,14 @@
         linear-gradient(to bottom,
             transparent 0px,
             transparent 80px,
-            var(--book-line-color) 80px,
-            var(--book-line-color) 81px,
+            var(--green-dark) 80px,
+            var(--green-dark) 81px,
             transparent 81px,
             transparent 161px,
-            var(--book-line-color) 161px,
-            var(--book-line-color) 162px,
+            var(--green-dark) 161px,
+            var(--green-dark) 162px,
             transparent 162px);
-    opacity: 0.6;
+    opacity: 0.4;
     z-index: 2;
     pointer-events: none;
 }
