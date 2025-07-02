@@ -112,19 +112,17 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
     const saveAndBroadcastProgress = async (page: number) => {
         if (!roomId) return
 
-        // 2ページめくりモードの場合は偶数ページに調整
-        const adjustedPage = adjustToEvenPage(page)
+        // 常に偶数ページに調整（和書/洋書で偶数ページの位置が異なる）
+        const adjustedPage = isVerticalText
+            ? Math.max(2, page + (page % 2)) // 和書: 右ページを偶数に
+            : Math.max(1, page - (page % 2)) // 洋書: 左ページを偶数に
 
         const userId = authStorage.getUserId()
         if (!userId) return
         const localKey = `reading-progress-${roomId}-${userId}`
-        localStorage.setItem(localKey, String(adjustedPage)) // ローカルにも保存
+        localStorage.setItem(localKey, String(adjustedPage))
         try {
             await readingStateApi.updateUserReadingState(roomId, userId, { userId, currentPage: adjustedPage, comment: '' })
-            // WebSocket送信は不要。REST経由でバックエンドが通知をブロードキャストします。
-            // if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-            //     wsRef.current.send(JSON.stringify({ event: 'reading-progress', roomId, userId, currentPage: page }))
-            // }
         } catch (e) {
             // 保存失敗時は何もしない
         }
@@ -254,22 +252,28 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
         // 新しいアニメーションを追加
         setActiveAnimations(prev => [...prev, {
             id: newAnimationId,
-            direction,
+            direction: isVerticalText ?
+                (direction === 'forward' ? 'backward' : 'forward') : // 和書は方向を反転
+                direction, // 洋書はそのまま
             displayPage: displayPage
         }])
 
-        // ページ更新
+        // ページ更新（2ページずつ）
         setDisplayPage((prev) => {
-            // pageFlipAmount分だけページを進める/戻す
-            const newPage = direction === 'forward' ? prev + pageFlipAmount : prev - pageFlipAmount
-            const clamped = Math.max(1, Math.min(newPage, totalPages))
-            setCurrentPage(clamped + (direction === 'forward' ? pageFlipAmount : 0))
+            const newPage = direction === 'forward' ? prev + 2 : prev - 2
+            const clamped = Math.max(1, Math.min(newPage, totalPages - 1))
+            // 和書と洋書で偶数/奇数の配置が逆
+            const adjustedPage = isVerticalText
+                ? Math.max(2, clamped + (direction === 'forward' ? 0 : 2)) // 和書
+                : Math.max(1, clamped + (direction === 'forward' ? 2 : 0)) // 洋書
+            setCurrentPage(adjustedPage)
             return clamped
         })
     }
-    // page click handlers
-    const handleLeftPageClick = () => handleFlip('forward')
-    const handleRightPageClick = () => handleFlip('backward')
+
+    // page click handlers - 和書と洋書で進行方向が逆
+    const handleLeftPageClick = () => handleFlip(isVerticalText ? 'forward' : 'backward')
+    const handleRightPageClick = () => handleFlip(isVerticalText ? 'backward' : 'forward')
 
     // auto-flip effect
     useEffect(() => {
@@ -328,16 +332,26 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                     {/* 本の表示エリア */}
                     <div className={`bookContainer ${isVerticalText ? 'vertical-text' : ''}`} style={{ position: 'relative' }}>
                         <div style={{ position: 'absolute', left: '-140px', top: '50%', transform: 'translateY(-50%)', width: 120, textAlign: 'right', color: '#388e3c', fontWeight: 'bold', fontSize: 16, pointerEvents: 'none', userSelect: 'none', zIndex: 100 }}>
-                            {displayPage > 0 && `← ページをクリックで${pageFlipAmount}ページ戻る`}
+                            {displayPage > (isVerticalText ? 2 : 1) && `← ${isVerticalText ? '上' : '左'}のページをクリック`}
                         </div>
                         <div className="leftPage" onClick={handleLeftPageClick}>
-                            <span className={`pageNumber left ${displayPage % 2 === 0 ? 'even-page' : 'odd-page'}`}>{displayPage}</span>
+                            <span className={`pageNumber left`}>
+                                {isVerticalText
+                                    ? (displayPage + 1 <= totalPages ? displayPage + 1 : '') // 和書: 左ページが奇数
+                                    : displayPage // 洋書: 左ページが偶数
+                                }
+                            </span>
                         </div>
                         <div className="rightPage" onClick={handleRightPageClick}>
-                            <span className={`pageNumber right ${(displayPage + 1) % 2 === 0 ? 'even-page' : 'odd-page'}`}>{displayPage + 1 <= totalPages ? displayPage + 1 : ''}</span>
+                            <span className={`pageNumber right`}>
+                                {isVerticalText
+                                    ? displayPage // 和書: 右ページが偶数
+                                    : (displayPage + 1 <= totalPages ? displayPage + 1 : '') // 洋書: 右ページが奇数
+                                }
+                            </span>
                         </div>
                         <div style={{ position: 'absolute', right: '-140px', top: '50%', transform: 'translateY(-50%)', width: 120, textAlign: 'left', color: '#388e3c', fontWeight: 'bold', fontSize: 16, pointerEvents: 'none', userSelect: 'none', zIndex: 100 }}>
-                            {displayPage < totalPages && `ページをクリックで${pageFlipAmount}ページ進む →`}
+                            {displayPage < totalPages - 1 && `${isVerticalText ? '下' : '右'}のページをクリック →`}
                         </div>
                         <div className="spine"></div>
                         {/* 複数のアニメーション要素 */}
@@ -351,46 +365,6 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                                 <div className="back"></div>
                             </div>
                         ))}
-                    </div>
-                    <div style={{ textAlign: 'center', marginTop: 16, fontSize: 20, fontWeight: 'bold' }}>
-                        {displayPage} / {editingTotalPages ? (
-                            <>
-                                <input
-                                    type="number"
-                                    min={1}
-                                    value={inputTotalPages}
-                                    onChange={e => setInputTotalPages(Number(e.target.value))}
-                                    style={{ width: 80, fontSize: 18, marginRight: 8 }}
-                                />
-                                <button
-                                    className="controlButton"
-                                    style={{ padding: '4px 12px', fontSize: 14 }}
-                                    onClick={async () => {
-                                        if (inputTotalPages > 0 && roomId) {
-                                            try {
-                                                const updated = await roomApi.updateTotalPages(roomId, inputTotalPages)
-                                                setTotalPages(updated.totalPages ?? inputTotalPages)
-                                            } catch (e) {
-                                                alert('ページ数の更新に失敗しました')
-                                            }
-                                            setEditingTotalPages(false)
-                                        }
-                                    }}
-                                >保存</button>
-                                <button
-                                    className="controlButton"
-                                    style={{ padding: '4px 12px', fontSize: 14, marginLeft: 4 }}
-                                    onClick={() => {
-                                        setInputTotalPages(totalPages)
-                                        setEditingTotalPages(false)
-                                    }}
-                                >キャンセル</button>
-                            </>
-                        ) : (
-                            <>
-                                {totalPages}
-                            </>
-                        )}
                     </div>
 
                     {/* 操作エリア */}
@@ -408,22 +382,6 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                                 onClick={() => setIsVerticalText(true)}
                             >
                                 縦書き
-                            </button>
-                        </div>
-
-                        {/* ページめくり量切り替えボタン */}
-                        <div style={{ display: 'flex', marginRight: 16 }}>
-                            <button
-                                className={`viewModeButton ${pageFlipAmount === 1 ? 'active' : ''}`}
-                                onClick={() => setPageFlipAmount(1)}
-                            >
-                                1ページずつ
-                            </button>
-                            <button
-                                className={`viewModeButton ${pageFlipAmount === 2 ? 'active' : ''}`}
-                                onClick={() => setPageFlipAmount(2)}
-                            >
-                                2ページずつ
                             </button>
                         </div>
 
