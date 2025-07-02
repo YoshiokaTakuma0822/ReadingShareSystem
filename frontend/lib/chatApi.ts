@@ -1,5 +1,5 @@
-import apiClient from './apiClient'
 import { ChatMessage, SendMessageRequest } from '../types/chat'
+import apiClient from './apiClient'
 
 export const chatApi = {
     sendMessage: async (roomId: string, request: SendMessageRequest): Promise<void> => {

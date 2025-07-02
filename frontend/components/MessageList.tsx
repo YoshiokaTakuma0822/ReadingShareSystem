@@ -57,6 +57,7 @@ const MessageList: React.FC<MessageListProps> = ({ roomId, onAnswerClick, onResu
     }, [messages, shouldScrollToBottom, instantScrollToBottom, smoothScrollToBottom])
 
     const loadChatHistory = async () => {
+        console.log('[MessageList] loadChatHistory called, currentUserId=', currentUserId, 'roomId=', roomId)
         if (!roomId) return setLoading(false)
         setLoading(true)
         setError(null)
@@ -68,7 +69,7 @@ const MessageList: React.FC<MessageListProps> = ({ roomId, onAnswerClick, onResu
                 if (a.sentAt > b.sentAt) return 1
                 return a.id < b.id ? -1 : a.id > b.id ? 1 : 0
             })
-            console.log(chatHistory.map(m => m.id))
+            console.log('[MessageList] fetched chatHistory IDs:', chatHistory.map(m => m.id))
             // Message[] へ変換して state にセット
             const converted: Message[] = chatHistory.map((msg, idx) => {
                 let messageText = ''
@@ -79,10 +80,11 @@ const MessageList: React.FC<MessageListProps> = ({ roomId, onAnswerClick, onResu
                 } else {
                     messageText = String(msg.content || '')
                 }
-                const senderId = (msg.senderUserId ?? '').replace(/-/g, '').toLowerCase()
+                const senderId = msg.senderId ?? ''
                 const myId = currentUserId ?? ''
-                const username = msg.senderName || (senderId && msg.senderUserId && userIdToName[msg.senderUserId]
-                    ? userIdToName[msg.senderUserId]
+                console.log(`[MessageList] mapping msg.id=${msg.id}, senderId=${msg.senderId}, senderId=${senderId}, myId=${myId}, isCurrentUser=${senderId === myId}`)
+                const username = msg.senderName || (msg.senderId && userIdToName[msg.senderId]
+                    ? userIdToName[msg.senderId]
                     : '匿名ユーザー')
                 return {
                     id: idx + 1,
@@ -113,7 +115,10 @@ const MessageList: React.FC<MessageListProps> = ({ roomId, onAnswerClick, onResu
 
     useEffect(() => {
         const uid = localStorage.getItem('reading-share-user-id')
-        if (uid) setCurrentUserId(uid.replace(/-/g, '').toLowerCase())
+        if (uid) {
+            setCurrentUserId(uid)
+            console.log('[MessageList] currentUserId loaded from localStorage:', uid)
+        }
     }, [])
 
     useEffect(() => {
@@ -128,12 +133,13 @@ const MessageList: React.FC<MessageListProps> = ({ roomId, onAnswerClick, onResu
 
     // 初期ロード: currentUserIdとroomIdが揃ったらチャット履歴を取得
     useEffect(() => { if (currentUserId && roomId) loadChatHistory() }, [currentUserId, roomId])
+    // WebSocket通知: currentUserIdも含めて再接続
     useEffect(() => {
-        if (!roomId) return
+        if (!roomId || !currentUserId) return
         const ws = new WebSocket(`ws://localhost:8080/ws/chat/notifications/${roomId}`)
         ws.onmessage = () => loadChatHistory()
         return () => ws.close()
-    }, [roomId])
+    }, [roomId, currentUserId])
 
     useEffect(() => {
         // メッセージ追加時
