@@ -116,32 +116,6 @@
         linear-gradient(to left, rgba(0, 0, 0, 0.03) 0%, rgba(0, 0, 0, 0) 3%);
 }
 
-.leftPage::before,
-.rightPage::before,
-.pageFlip::before,
-.back::before {
-    content: "";
-    position: absolute;
-    top: 40px;
-    left: 20px;
-    right: 20px;
-    bottom: 40px;
-    background-image:
-        linear-gradient(to bottom,
-            transparent 0px,
-            transparent 80px,
-            var(--green-dark) 80px,
-            var(--green-dark) 81px,
-            transparent 81px,
-            transparent 161px,
-            var(--green-dark) 161px,
-            var(--green-dark) 162px,
-            transparent 162px);
-    opacity: 0.4;
-    z-index: 2;
-    pointer-events: none;
-}
-
 .leftPage::after,
 .rightPage::after {
     content: "";
@@ -563,32 +537,6 @@ body,
             var(--white) calc(var(--book-line-spacing) - 1px),
             var(--book-line-color) var(--book-line-spacing));
     z-index: 1;
-    pointer-events: none;
-}
-
-.vertical-text .leftPage::before,
-.vertical-text .rightPage::before,
-.vertical-text .pageFlip::before,
-.vertical-text .back::before {
-    content: "";
-    position: absolute;
-    top: 20px;
-    left: 40px;
-    right: 40px;
-    bottom: 20px;
-    background-image:
-        linear-gradient(to left,
-            transparent 0px,
-            transparent 80px,
-            var(--green-dark) 80px,
-            var(--green-dark) 81px,
-            transparent 81px,
-            transparent 161px,
-            var(--green-dark) 161px,
-            var(--green-dark) 162px,
-            transparent 162px);
-    opacity: 0.4;
-    z-index: 2;
     pointer-events: none;
 }
 
