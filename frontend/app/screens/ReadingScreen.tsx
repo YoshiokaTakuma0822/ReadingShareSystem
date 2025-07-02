@@ -341,7 +341,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                     {/* 本の表示エリア */}
                     <div className={`bookContainer ${isVerticalText ? 'vertical-text' : ''}`} style={{ position: 'relative' }}>
                         <div style={{ position: 'absolute', left: '-140px', top: '50%', transform: 'translateY(-50%)', width: 120, textAlign: 'right', color: '#388e3c', fontWeight: 'bold', fontSize: 16, pointerEvents: 'none', userSelect: 'none', zIndex: 100 }}>
-                            {displayPage > (isVerticalText ? 2 : 1) && (isVerticalText ? '← 前へ' : '次へ →')}
+                            {displayPage > (isVerticalText ? 2 : 1) && (isVerticalText ? '戻る' : '進む')}
                         </div>
                         <div className="leftPage" onClick={handleLeftPageClick}>
                             <span className={`pageNumber left`}>
@@ -360,7 +360,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                             </span>
                         </div>
                         <div style={{ position: 'absolute', right: '-140px', top: '50%', transform: 'translateY(-50%)', width: 120, textAlign: 'left', color: '#388e3c', fontWeight: 'bold', fontSize: 16, pointerEvents: 'none', userSelect: 'none', zIndex: 100 }}>
-                            {displayPage < totalPages - 1 && (isVerticalText ? '次へ →' : '← 前へ')}
+                            {displayPage < totalPages - 1 && (isVerticalText ? '進む' : '戻る')}
                         </div>
                         <div className="spine"></div>
                         {/* 複数のアニメーション要素 */}
