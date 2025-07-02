@@ -145,7 +145,8 @@ const MessageList: React.FC<MessageListProps> = ({ roomId, onAnswerClick, onResu
         if (!surveyMsgs.length) instantScrollToBottom()
     }, [messages, instantScrollToBottom, smoothScrollToBottom])
 
-    if (loading) return <div>チャット履歴を読み込み中...</div>
+    // 初回ロード時のみローディング表示（既存メッセージがある場合は差分取得中も既存表示を維持）
+    if (loading && messages.length === 0) return <div>チャット履歴を読み込み中...</div>
     if (error) return <div>{error}</div>
     if (!messages.length) {
         return (
