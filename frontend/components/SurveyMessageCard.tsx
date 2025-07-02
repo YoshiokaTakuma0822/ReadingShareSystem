@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { surveyApi } from '../lib/surveyApi'
 import { Message } from '../types/message'
 import { SubmitSurveyAnswerRequest, Survey, SurveyResult } from '../types/survey'
@@ -45,13 +45,32 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
         }
     }, [msg.surveyId, onLoadingComplete])
 
+    const handleShowResults = useCallback(async () => {
+        if (!msg.surveyId) return
+
+        try {
+            const result = await surveyApi.getSurveyResult(msg.surveyId)
+            setResults(result)
+            setShowingResults(true)
+        } catch (error) {
+            console.error('結果取得エラー:', error)
+            alert('結果の取得に失敗しました')
+        }
+    }, [msg.surveyId])
+
     useEffect(() => {
         if (msg.surveyId && currentUserId) {
             surveyApi.hasAnswered(msg.surveyId, currentUserId)
-                .then(answered => setHasAnswered(answered))
+                .then(answered => {
+                    setHasAnswered(answered)
+                    // 回答済みなら自動的に結果を取得
+                    if (answered) {
+                        handleShowResults()
+                    }
+                })
                 .catch(() => setHasAnswered(false))
         }
-    }, [msg.surveyId, currentUserId])
+    }, [msg.surveyId, currentUserId, handleShowResults])
 
     const handleAnswerSelect = (questionText: string, option: string, isMultiple: boolean) => {
         setAnswers(prev => {
@@ -93,19 +112,6 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
         }
     }
 
-    const handleShowResults = async () => {
-        if (!msg.surveyId) return
-
-        try {
-            const result = await surveyApi.getSurveyResult(msg.surveyId)
-            setResults(result)
-            setShowingResults(true)
-        } catch (error) {
-            console.error('結果取得エラー:', error)
-            alert('結果の取得に失敗しました')
-        }
-    }
-
     return (
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, justifyContent: isMine ? 'flex-end' : 'flex-start', marginBottom: 12 }}>
             {!isMine && (
@@ -135,7 +141,7 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
                             </div>
 
                             {/* 結果表示モード */}
-                            {showingResults && results ? (
+                            {(showingResults || hasAnswered) && results ? (
                                 <div>
                                     <div style={{ marginBottom: 12, fontSize: 14, color: '#666' }}>
                                         回答者数: {results.totalRespondents}人
@@ -161,29 +167,15 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
                                             </div>
                                         </div>
                                     ))}
-                                    <button onClick={() => setShowingResults(false)} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: '#666', color: 'white', cursor: 'pointer', fontSize: 14 }}>
-                                        質問を表示
-                                    </button>
+                                    {!hasAnswered && (
+                                        <button onClick={() => setShowingResults(false)} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: '#666', color: 'white', cursor: 'pointer', fontSize: 14 }}>
+                                            質問を表示
+                                        </button>
+                                    )}
                                 </div>
                             ) : hasAnswered ? (
-                                /* 回答済み表示 */
-                                <div>
-                                    {surveyData.questions.map((q, qi) => (
-                                        <div key={qi} style={{ marginBottom: 12 }}>
-                                            <div style={{ fontWeight: 'bold', marginBottom: 4, color: '#333', fontSize: 14 }}>{q.questionText}</div>
-                                            <ul style={{ margin: '4px 0', paddingLeft: 20, fontSize: '0.85em', color: '#555' }}>
-                                                {q.options.map((opt, oi) => (
-                                                    <li key={oi} style={{ marginBottom: 2 }}>{opt}</li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                    ))}
-                                    <div style={{ marginTop: 12 }}>
-                                        <button onClick={handleShowResults} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', fontSize: 14, background: '#4caf50', color: 'white', cursor: 'pointer', fontWeight: 'bold' }}>
-                                            📊 結果を表示
-                                        </button>
-                                    </div>
-                                </div>
+                                /* 回答済み - 結果取得中 */
+                                <div style={{ color: '#666', fontStyle: 'italic' }}>結果を読み込み中...</div>
                             ) : (
                                 /* 回答フォーム */
                                 <div>
