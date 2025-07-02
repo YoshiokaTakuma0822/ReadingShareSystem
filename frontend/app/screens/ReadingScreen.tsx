@@ -252,9 +252,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
         // 新しいアニメーションを追加
         setActiveAnimations(prev => [...prev, {
             id: newAnimationId,
-            direction: isVerticalText ?
-                (direction === 'forward' ? 'backward' : 'forward') : // 和書は方向を反転
-                direction, // 洋書はそのまま
+            direction, // クリックしたページの動きに合わせてそのまま使用
             displayPage: displayPage
         }])
 
@@ -271,18 +269,29 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
         })
     }
 
-    // page click handlers - 和書と洋書で進行方向が逆
-    const handleLeftPageClick = () => handleFlip(isVerticalText ? 'forward' : 'backward')
-    const handleRightPageClick = () => handleFlip(isVerticalText ? 'backward' : 'forward')
+    // page click handlers - クリックしたページ自体が捲られる方向に修正
+    const handleLeftPageClick = () => {
+        // 和書: 左ページを右に捲って前のページへ
+        // 洋書: 左ページを右に捲って次のページへ
+        handleFlip('backward')
+    }
 
-    // auto-flip effect
+    const handleRightPageClick = () => {
+        // 和書: 右ページを左に捲って次のページへ
+        // 洋書: 右ページを左に捲って前のページへ
+        handleFlip('forward')
+    }
+
+    // auto-flip effect - 自動めくりの方向も合わせて修正
     useEffect(() => {
         let timer: NodeJS.Timeout
         if (flipping && !hasActiveAnimations) {
-            timer = setTimeout(handleRightPageClick, flipIntervalMs)
+            // 和書: 右から左へ（右ページを左に捲る）
+            // 洋書: 左から右へ（左ページを右に捲る）
+            timer = setTimeout(isVerticalText ? handleRightPageClick : handleLeftPageClick, flipIntervalMs)
         }
         return () => clearTimeout(timer)
-    }, [flipping, hasActiveAnimations, displayPage, flipIntervalMs])
+    }, [flipping, hasActiveAnimations, displayPage, flipIntervalMs, isVerticalText])
 
     // ページを偶数に調整する関数（2ページめくりモード用）
     const adjustToEvenPage = (page: number): number => {
@@ -332,13 +341,13 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                     {/* 本の表示エリア */}
                     <div className={`bookContainer ${isVerticalText ? 'vertical-text' : ''}`} style={{ position: 'relative' }}>
                         <div style={{ position: 'absolute', left: '-140px', top: '50%', transform: 'translateY(-50%)', width: 120, textAlign: 'right', color: '#388e3c', fontWeight: 'bold', fontSize: 16, pointerEvents: 'none', userSelect: 'none', zIndex: 100 }}>
-                            {displayPage > (isVerticalText ? 2 : 1) && `← ${isVerticalText ? '上' : '左'}のページをクリック`}
+                            {displayPage > (isVerticalText ? 2 : 1) && (isVerticalText ? '← 前へ' : '次へ →')}
                         </div>
                         <div className="leftPage" onClick={handleLeftPageClick}>
                             <span className={`pageNumber left`}>
                                 {isVerticalText
                                     ? (displayPage + 1 <= totalPages ? displayPage + 1 : '') // 和書: 左ページが奇数
-                                    : displayPage // 洋書: 左ページが偶数
+                                    : (totalPages - displayPage + 1) // 洋書: 左ページ、降順
                                 }
                             </span>
                         </div>
@@ -346,12 +355,12 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                             <span className={`pageNumber right`}>
                                 {isVerticalText
                                     ? displayPage // 和書: 右ページが偶数
-                                    : (displayPage + 1 <= totalPages ? displayPage + 1 : '') // 洋書: 右ページが奇数
+                                    : (displayPage + 1 <= totalPages ? totalPages - displayPage : '') // 洋書: 右ページ、降順
                                 }
                             </span>
                         </div>
                         <div style={{ position: 'absolute', right: '-140px', top: '50%', transform: 'translateY(-50%)', width: 120, textAlign: 'left', color: '#388e3c', fontWeight: 'bold', fontSize: 16, pointerEvents: 'none', userSelect: 'none', zIndex: 100 }}>
-                            {displayPage < totalPages - 1 && `${isVerticalText ? '下' : '右'}のページをクリック →`}
+                            {displayPage < totalPages - 1 && (isVerticalText ? '次へ →' : '← 前へ')}
                         </div>
                         <div className="spine"></div>
                         {/* 複数のアニメーション要素 */}
@@ -369,19 +378,19 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
 
                     {/* 操作エリア */}
                     <div className="controls">
-                        {/* 表示モード切り替えボタン */}
+                        {/* 本の種類切り替えボタン */}
                         <div style={{ display: 'flex', marginRight: 16 }}>
                             <button
                                 className={`viewModeButton ${!isVerticalText ? 'active' : ''}`}
                                 onClick={() => setIsVerticalText(false)}
                             >
-                                横書き
+                                洋書
                             </button>
                             <button
                                 className={`viewModeButton ${isVerticalText ? 'active' : ''}`}
                                 onClick={() => setIsVerticalText(true)}
                             >
-                                縦書き
+                                和書
                             </button>
                         </div>
 
