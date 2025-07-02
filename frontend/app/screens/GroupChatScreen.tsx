@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from 'next/navigation'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import MessageList from '../../components/MessageList'
 import { chatApi } from '../../lib/chatApi'
 import { roomApi } from '../../lib/roomApi'
@@ -31,6 +31,9 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
     // 追加: ユーザーID→ユーザー名のマッピングを保持
     const [userIdToName, setUserIdToName] = useState<Record<string, string>>({})
     const [scrollTrigger, setScrollTrigger] = useState(0)
+
+    // input要素のrefを追加
+    const inputRef = useRef<HTMLInputElement>(null)
 
     // コンポーネントマウント時にユーザーIDを取得
     useEffect(() => {
@@ -78,6 +81,10 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
             setInput("")
             // メッセージ送信後にスクロールをトリガー
             setScrollTrigger(prev => prev + 1)
+            // フォーカスを入力欄に戻す（Chrome対応）
+            setTimeout(() => {
+                inputRef.current?.focus()
+            }, 100)
         } catch {
             setError('メッセージ送信に失敗しました')
         } finally {
@@ -176,6 +183,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
             </div>
             <div style={{ display: 'flex', alignItems: 'center', marginTop: 32 }}>
                 <input
+                    ref={inputRef}
                     type="text"
                     value={input}
                     onChange={e => setInput(e.target.value)}
