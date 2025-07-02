@@ -246,6 +246,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
 
             // ChatMessageをMessage形式に変換
             const convertedMessages: Message[] = chatHistory.map((msg, index) => {
+                console.log('メッセージ変換:', { senderUserId: msg.senderUserId, senderName: msg.senderName, content: msg.content })
                 let messageText = ''
 
                 // SUVEYタイプのメッセージの場合は、textを空文字にする（カードで表示するため）
@@ -263,8 +264,8 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                 const senderId = (msg.senderUserId ?? '').replace(/-/g, '').toLowerCase()
                 // currentUserIdはすでに整形済み
                 const myId = currentUserId ?? ''
-                // msg.senderUserIdがnullの場合は空文字でアクセスしない
-                const username = senderId && msg.senderUserId && userIdToName[msg.senderUserId] ? userIdToName[msg.senderUserId] : (msg.senderUserId || '匿名ユーザー')
+                // バックエンドから返されるsenderNameを優先的に使用、ない場合のみfallback
+                const username = msg.senderName || (senderId && msg.senderUserId && userIdToName[msg.senderUserId] ? userIdToName[msg.senderUserId] : '匿名ユーザー')
                 return {
                     id: index + 1,
                     user: username,
@@ -466,7 +467,8 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
 
                     const senderId = (msg.senderUserId ?? '').replace(/-/g, '').toLowerCase()
                     const myId = currentUserId ?? ''
-                    const username = senderId && msg.senderUserId && userIdToName[msg.senderUserId] ? userIdToName[msg.senderUserId] : (msg.senderUserId || '匿名ユーザー')
+                    // バックエンドから返されるsenderNameを優先的に使用、ない場合のみfallback
+                    const username = msg.senderName || (senderId && msg.senderUserId && userIdToName[msg.senderUserId] ? userIdToName[msg.senderUserId] : '匿名ユーザー')
                     return {
                         id: index + 1,
                         user: username,
