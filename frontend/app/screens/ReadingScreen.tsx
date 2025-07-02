@@ -256,13 +256,26 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
   }, [roomId]);
 
   // 左右ページクリックハンドラ
+  const [noMorePageMsg, setNoMorePageMsg] = useState<string>("");
+
   const handleLeftPageClick = () => {
     if (animating || displayPage <= 1) return;
+    setNoMorePageMsg(""); // 左ページクリック時もメッセージを消す
     setFlippingPage(displayPage - 2);
     setFlipDirection('forward');
   };
   const handleRightPageClick = () => {
-    if (animating || displayPage + 2 > totalPages) return;
+    if (animating) return;
+    // 300ページ目など、すでに上限にいる場合もメッセージを出す
+    if (displayPage >= totalPages) {
+      setNoMorePageMsg("これ以上ページがありません");
+      return;
+    }
+    if (displayPage + 2 > totalPages) {
+      setNoMorePageMsg("これ以上ページがありません");
+      return;
+    }
+    setNoMorePageMsg(""); // ページめくり可能な場合はメッセージを消す
     setFlippingPage(displayPage + 2);
     setFlipDirection('backward');
   };
@@ -338,6 +351,14 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
               </div>
             )}
           </div>
+
+          {/* ページ上限到達メッセージ */}
+          {noMorePageMsg && (
+            <div style={{ color: '#d32f2f', fontWeight: 'bold', fontSize: 18, margin: '12px 0' }}>
+              {noMorePageMsg}
+            </div>
+          )}
+
           <div style={{ textAlign: 'center', marginTop: 16, fontSize: 20, fontWeight: 'bold' }}>
             {displayPage} / {editingTotalPages ? (
               <>
