@@ -1,3 +1,16 @@
+:root {
+    --green-bg: #f0f9f4;
+    --green-main: #4caf50;
+    --green-light: #81c784;
+    --green-dark: #388e3c;
+    --accent: #f44336;
+    --border: #ccc;
+    --white: #fff;
+    --black: #000;
+    --book-line-spacing: 20px;
+    --book-line-color: #e5e5e5;
+}
+
 .container {
     min-height: 85vh;
     width: 100%;
@@ -67,6 +80,7 @@
     justify-content: center;
     align-items: center;
     margin: 0 auto 24px auto;
+    filter: drop-shadow(0 10px 8px rgba(0, 0, 0, 0.1));
 }
 
 .leftPage {
@@ -81,6 +95,9 @@
     box-shadow: inset 5px 0 15px rgba(0, 0, 0, 0.1);
     border-radius: 2px 0 0 2px;
     z-index: 3;
+    background-image:
+        linear-gradient(to right, rgba(0, 0, 0, 0.03) 0%, rgba(0, 0, 0, 0) 3%),
+        linear-gradient(to left, rgba(0, 0, 0, 0.03) 0%, rgba(0, 0, 0, 0) 3%);
 }
 
 .rightPage {
@@ -94,6 +111,50 @@
     box-shadow: inset -5px 0 15px rgba(0, 0, 0, 0.1);
     border-radius: 0 2px 2px 0;
     z-index: 2;
+    background-image:
+        linear-gradient(to right, rgba(0, 0, 0, 0.03) 0%, rgba(0, 0, 0, 0) 3%),
+        linear-gradient(to left, rgba(0, 0, 0, 0.03) 0%, rgba(0, 0, 0, 0) 3%);
+}
+
+.leftPage::before,
+.rightPage::before,
+.pageFlip::before,
+.back::before {
+    content: "";
+    position: absolute;
+    top: 40px;
+    left: 20px;
+    right: 20px;
+    bottom: 40px;
+    background-image:
+        linear-gradient(to bottom,
+            transparent 0px,
+            transparent 80px,
+            var(--book-line-color) 80px,
+            var(--book-line-color) 81px,
+            transparent 81px,
+            transparent 161px,
+            var(--book-line-color) 161px,
+            var(--book-line-color) 162px,
+            transparent 162px);
+    opacity: 0.6;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.leftPage::after,
+.rightPage::after {
+    content: "";
+    position: absolute;
+    top: 40px;
+    left: 20px;
+    right: 20px;
+    bottom: 40px;
+    background-image: repeating-linear-gradient(var(--white) 0px,
+            var(--white) calc(var(--book-line-spacing) - 1px),
+            var(--book-line-color) var(--book-line-spacing));
+    z-index: 1;
+    pointer-events: none;
 }
 
 .spine {
@@ -123,6 +184,21 @@
     z-index: 10;
     transition: box-shadow 0.3s ease-out;
     transform-style: preserve-3d;
+    pointer-events: none;
+}
+
+.pageFlip::after,
+.back::after {
+    content: "";
+    position: absolute;
+    top: 40px;
+    left: 20px;
+    right: 20px;
+    bottom: 40px;
+    background-image: repeating-linear-gradient(var(--white) 0px,
+            var(--white) calc(var(--book-line-spacing) - 1px),
+            var(--book-line-color) var(--book-line-spacing));
+    z-index: 1;
     pointer-events: none;
 }
 
@@ -197,6 +273,13 @@
     font-weight: bold;
     background: var(--green-bg);
     color: var(--accent);
+    transition: all 0.2s ease;
+}
+
+.controlButton:hover {
+    background: var(--green-light);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .flipIntervalLabel {
