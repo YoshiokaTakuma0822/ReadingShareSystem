@@ -30,7 +30,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
 
     // 追加: ユーザーID→ユーザー名のマッピングを保持
     const [userIdToName, setUserIdToName] = useState<Record<string, string>>({})
-    const [triggerScroll, setTriggerScroll] = useState(false)
+    const [scrollTrigger, setScrollTrigger] = useState(0)
 
     // コンポーネントマウント時にユーザーIDを取得
     useEffect(() => {
@@ -77,7 +77,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
             await chatApi.sendMessage(roomId, { messageContent: input })
             setInput("")
             // メッセージ送信後にスクロールをトリガー
-            setTriggerScroll(prev => !prev)
+            setScrollTrigger(prev => prev + 1)
         } catch {
             setError('メッセージ送信に失敗しました')
         } finally {
@@ -172,7 +172,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                 padding: 16
             }}>
                 {/* チャット取得・スクロールはMessageListに移譲 */}
-                <MessageList roomId={roomId} triggerScroll={triggerScroll} />
+                <MessageList roomId={roomId} scrollTrigger={scrollTrigger} />
             </div>
             <div style={{ display: 'flex', alignItems: 'center', marginTop: 32 }}>
                 <input

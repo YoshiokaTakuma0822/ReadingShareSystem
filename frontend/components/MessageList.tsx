@@ -9,10 +9,10 @@ import SurveyMessageCard from './SurveyMessageCard'
 
 interface MessageListProps {
     roomId?: string
-    triggerScroll?: boolean
+    scrollTrigger?: number
 }
 
-const MessageList: React.FC<MessageListProps> = ({ roomId, triggerScroll }) => {
+const MessageList: React.FC<MessageListProps> = ({ roomId, scrollTrigger }) => {
     const [messages, setMessages] = useState<Message[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
@@ -31,7 +31,18 @@ const MessageList: React.FC<MessageListProps> = ({ roomId, triggerScroll }) => {
 
     const smoothScrollToBottom = useCallback(() => {
         if (containerRef.current) {
-            containerRef.current.scrollTo({ top: containerRef.current.scrollHeight, behavior: 'smooth' })
+            // Chrome用の確実なスクロール処理
+            const element = containerRef.current
+            const isAtBottom = element.scrollHeight - element.clientHeight <= element.scrollTop + 1
+
+            if (!isAtBottom) {
+                // まず即座にスクロール
+                element.scrollTo({ top: element.scrollHeight, behavior: 'auto' })
+                // 少し待ってからスムーズスクロール
+                setTimeout(() => {
+                    element.scrollTo({ top: element.scrollHeight, behavior: 'smooth' })
+                }, 10)
+            }
         }
     }, [])
 
@@ -166,12 +177,15 @@ const MessageList: React.FC<MessageListProps> = ({ roomId, triggerScroll }) => {
 
     // 外部からのスクロールトリガー（メッセージ送信後など）
     useEffect(() => {
-        if (triggerScroll) {
-            setTimeout(() => {
-                smoothScrollToBottom()
-            }, 100)
+        if (scrollTrigger && scrollTrigger > 0) {
+            // requestAnimationFrameを使ってChromeでの確実なスクロール実行を保証
+            requestAnimationFrame(() => {
+                setTimeout(() => {
+                    smoothScrollToBottom()
+                }, 50)
+            })
         }
-    }, [triggerScroll, smoothScrollToBottom])
+    }, [scrollTrigger, smoothScrollToBottom])
 
     // 初回ロード時のみローディング表示（既存メッセージがある場合は差分取得中も既存表示を維持）
     if (loading && messages.length === 0) return <div>チャット履歴を読み込み中...</div>
