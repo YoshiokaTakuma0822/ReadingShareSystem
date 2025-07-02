@@ -353,14 +353,22 @@
     z-index: 999;
 }
 
+.pageNumber {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    pointer-events: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
 .pageNumber.left {
     position: absolute;
     left: 12px;
     bottom: 10px;
     font-size: 15px;
     color: #888;
-    pointer-events: none;
-    user-select: none;
 }
 
 .pageNumber.right {
@@ -369,8 +377,6 @@
     bottom: 10px;
     font-size: 15px;
     color: #888;
-    pointer-events: none;
-    user-select: none;
 }
 
 /* 表面と裏面のページ番号表示制御 */
