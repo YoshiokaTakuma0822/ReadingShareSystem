@@ -493,7 +493,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                             >
                                 {/* 表面のページ番号 */}
                                 {animation.pageNumber && (
-                                    <span className={`pageNumber ${animation.direction === 'toLeft' ? 'left' : 'right'} page-front`}>
+                                    <span className={`pageNumber ${animation.direction === 'toLeft' ? 'right' : 'left'} page-front`}>
                                         {animation.pageNumber}
                                     </span>
                                 )}
@@ -501,7 +501,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                                 <div className="back">
                                     {/* 裏面のページ番号 */}
                                     {animation.backPageNumber && (
-                                        <span className={`pageNumber ${animation.direction === 'toLeft' ? 'right' : 'left'} page-back`}>
+                                        <span className={`pageNumber ${animation.direction === 'toLeft' ? 'left' : 'right'} page-back`}>
                                             {animation.backPageNumber}
                                         </span>
                                     )}
