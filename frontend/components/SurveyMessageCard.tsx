@@ -13,6 +13,13 @@ interface SurveyMessageCardProps {
 }
 
 const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, currentUserId, onLoadingComplete }) => {
+    console.log('SurveyMessageCard render:', msg.surveyId)
+    useEffect(() => {
+        return () => {
+            console.log('SurveyMessageCard unmount:', msg.surveyId)
+        }
+    }, [msg.surveyId])
+
     const [surveyData, setSurveyData] = useState<Survey | null>(null)
     const [loading, setLoading] = useState(true)
     const [hasAnswered, setHasAnswered] = useState(false)
@@ -22,18 +29,54 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
     const [isAnonymous, setIsAnonymous] = useState(false)
     const [submitting, setSubmitting] = useState(false)
     const [results, setResults] = useState<SurveyResult | null>(null)
+    const [surveyTestVal, setSurveyTestVal] = useState<string>('')
+
+    // ローカルストレージに回答状態を保存するキーを生成
+    const localStorageKey = useCallback(() => {
+        if (!msg.surveyId) return null
+        return `survey_answers_${msg.surveyId}`
+    }, [msg.surveyId])
+
+    // 回答をローカルストレージから読み込む
+    useEffect(() => {
+        if (!msg.surveyId) return
+        const key = localStorageKey()
+        if (!key) return
+
+        const savedAnswers = localStorage.getItem(key)
+        if (savedAnswers) {
+            try {
+                const parsed = JSON.parse(savedAnswers)
+                console.log('Loaded answers from storage:', parsed)
+                setAnswers(parsed)
+            } catch (e) {
+                console.error('Failed to parse saved answers:', e)
+            }
+        }
+    }, [msg.surveyId, localStorageKey])
+
+    // 回答をローカルストレージに保存
+    useEffect(() => {
+        if (!msg.surveyId || Object.keys(answers).length === 0) return
+        const key = localStorageKey()
+        if (!key) return
+
+        localStorage.setItem(key, JSON.stringify(answers))
+        console.log('Saved answers to storage:', answers)
+    }, [answers, msg.surveyId, localStorageKey])
 
     useEffect(() => {
         if (msg.surveyId) {
+            console.log('Loading survey format for', msg.surveyId)
             surveyApi.getSurveyFormat(msg.surveyId)
                 .then(data => {
                     setSurveyData(data)
-                    // 回答の初期化
-                    const initAnswers: Record<string, string[]> = {}
-                    data.questions.forEach(q => {
-                        initAnswers[q.questionText] = []
-                    })
-                    setAnswers(initAnswers)
+                    // 回答の初期化（ローカルストレージから読み込むため不要）
+                    // const initAnswers: Record<string, string[]> = {}
+                    // data.questions.forEach(q => {
+                    //     initAnswers[q.questionText] = []
+                    // })
+                    // setAnswers(initAnswers)
                     setLoading(false)
                     onLoadingComplete?.()
                 })
@@ -72,7 +115,8 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
         }
     }, [msg.surveyId, currentUserId, handleShowResults])
 
-    const handleAnswerSelect = (questionText: string, option: string, isMultiple: boolean) => {
+    const handleAnswerSelect = useCallback((questionText: string, option: string, isMultiple: boolean) => {
+        console.log('handleAnswerSelect called:', { questionText, option, isMultiple })
         setAnswers(prev => {
             const currentAnswers = prev[questionText] || []
             let newAnswers: string[]
@@ -87,9 +131,21 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
                 newAnswers = [option]
             }
 
-            return { ...prev, [questionText]: newAnswers }
+            const result = { ...prev, [questionText]: newAnswers }
+            console.log('New answers state:', result)
+            // ローカルストレージに即時保存（状態の永続化）
+            const key = localStorageKey()
+            if (key) {
+                try {
+                    localStorage.setItem(key, JSON.stringify(result))
+                    console.log('Saved answers on change:', result)
+                } catch (e) {
+                    console.error('Failed to save answers:', e)
+                }
+            }
+            return result
         })
-    }
+    }, [localStorageKey])
 
     const handleSubmitAnswer = async () => {
         if (!msg.surveyId || !currentUserId) return
@@ -105,6 +161,13 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
             setHasAnswered(true)
             // 回答送信後に結果を取得
             handleShowResults()
+
+            // 回答送信に成功したら、ローカルストレージからも削除
+            const key = localStorageKey()
+            if (key) {
+                localStorage.removeItem(key)
+                console.log('Removed saved answers after submission')
+            }
         } catch (error) {
             console.error('回答送信エラー:', error)
             alert('回答の送信に失敗しました')
@@ -180,18 +243,31 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
                             ) : (
                                 /* 回答フォーム */
                                 <div>
+                                    {/* テスト用ラジオボタン - バグ検証 */}
+                                    <div style={{ background: '#fff3e0', border: '2px dashed #ff5722', borderRadius: 6, padding: 12, marginBottom: 16 }}>
+                                        <h4 style={{ margin: '0 0 8px 0', fontSize: 14, color: '#bf360c' }}>🧪 Survey Test Radio</h4>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                                            <label style={{ cursor: 'pointer' }}>
+                                                <input type="radio" name="surveyTest" value="opt1" checked={surveyTestVal === 'opt1'} onChange={e => setSurveyTestVal(e.target.value)} style={{ marginRight: 6 }} /> opt1
+                                            </label>
+                                            <label style={{ cursor: 'pointer' }}>
+                                                <input type="radio" name="surveyTest" value="opt2" checked={surveyTestVal === 'opt2'} onChange={e => setSurveyTestVal(e.target.value)} style={{ marginRight: 6 }} /> opt2
+                                            </label>
+                                            <button onClick={() => setSurveyTestVal('')} style={{ marginTop: 8, fontSize: 12, padding: '4px 8px', background: '#ff5722', color: 'white', border: 'none', borderRadius: 4 }}>リセット</button>
+                                        </div>
+                                    </div>
                                     {surveyData.questions.map((question, qIndex) => (
                                         <div key={qIndex} style={{ marginBottom: 16, padding: 12, border: '1px solid #e0e0e0', borderRadius: 8, background: 'white' }}>
-                                            <h4 style={{ marginBottom: 12, color: '#333', fontSize: 14 }}>{question.questionText}</h4>
-                                            {question.options.map((option, oIndex) => (
-                                                <label key={oIndex} style={{ display: 'block', marginBottom: 6, cursor: 'pointer', fontSize: 13 }}>                                            <input
-                                                    type={question.questionType === 'MULTIPLE_CHOICE' ? 'checkbox' : 'radio'}
-                                                    name={`question_${question.questionText.replace(/[^a-zA-Z0-9]/g, '_')}_${qIndex}`}
-                                                    value={option}
-                                                    checked={answers[question.questionText]?.includes(option) || false}
-                                                    onChange={() => handleAnswerSelect(question.questionText, option, question.questionType === 'MULTIPLE_CHOICE')}
-                                                    style={{ marginRight: 8 }}
-                                                />
+                                            <h4 style={{ marginBottom: 12, color: '#333', fontSize: 14 }}>{question.questionText}</h4>                            {question.options.map((option, oIndex) => (
+                                                <label key={oIndex} style={{ display: 'block', marginBottom: 6, cursor: 'pointer', fontSize: 13 }}>
+                                                    <input
+                                                        type={question.questionType === 'MULTIPLE_CHOICE' ? 'checkbox' : 'radio'}
+                                                        name={`survey_${msg.surveyId}_question_${qIndex}`}
+                                                        value={option}
+                                                        checked={answers[question.questionText]?.includes(option) || false}
+                                                        onChange={() => handleAnswerSelect(question.questionText, option, question.questionType === 'MULTIPLE_CHOICE')}
+                                                        style={{ marginRight: 8 }}
+                                                    />
                                                     {option}
                                                 </label>
                                             ))}
@@ -244,4 +320,9 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
     )
 }
 
-export default SurveyMessageCard
+// メモ化したSurveyMessageCardをエクスポート
+export default React.memo(SurveyMessageCard, (prevProps, nextProps) => {
+    // surveyIdが同じなら再レンダリングしない（パフォーマンス最適化）
+    return prevProps.msg.surveyId === nextProps.msg.surveyId &&
+        prevProps.currentUserId === nextProps.currentUserId
+})
