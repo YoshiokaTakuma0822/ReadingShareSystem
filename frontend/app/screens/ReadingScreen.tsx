@@ -7,7 +7,6 @@ import { RoomMember } from '../../types/room'
 import ReadingProgressModal from "./ReadingProgressModal"
 
 const maxPage = 300
-const selfName = "A"
 
 interface ReadingScreenProps {
     roomId?: string
@@ -22,6 +21,12 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
     const [flipping, setFlipping] = useState<boolean>(false)
     const [flippingPage, setFlippingPage] = useState<number | null>(null)
     const [animating, setAnimating] = useState<boolean>(false)
+    // 複数のアニメーションを同時実行するための配列（シンプル版）
+    const [activeAnimations, setActiveAnimations] = useState<Array<{
+        id: number
+        direction: 'forward' | 'backward'
+    }>>([])
+    const animationIdCounter = useRef<number>(0)
 
     // --- 追加: 初期化完了フラグ ---
     const [isInitialized, setIsInitialized] = useState(false)
@@ -42,46 +47,72 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
 
     // 自動めくり開始時、初回のページを flipIntervalMs 後にキック
     useEffect(() => {
-        if (flipping && flippingPage === null && displayPage < maxPage) {
+        if (flipping && activeAnimations.length === 0 && displayPage < maxPage) {
             const timer = setTimeout(() => {
-                setFlippingPage(displayPage + 2)
-                setFlipDirection('backward') // ← 右から左に
+                const newAnimationId = `auto-${++animationIdCounter.current}`
+                setActiveAnimations(prev => [...prev, {
+                    id: newAnimationId,
+                    page: displayPage + 2,
+                    direction: 'backward',
+                    startTime: Date.now()
+                }])
+                setAnimating(true)
             }, flipIntervalMs)
             return () => clearTimeout(timer)
         }
-    }, [flipping, flippingPage, displayPage, flipIntervalMs])
+    }, [flipping, activeAnimations.length, displayPage, flipIntervalMs])
 
-    // flippingPage がセットされたら、次のフレームで animate クラスを付与
+    // activeAnimations がセットされたら、次のフレームで animate クラスを付与
     useEffect(() => {
-        if (flippingPage !== null) {
+        if (activeAnimations.length > 0) {
             requestAnimationFrame(() => {
                 setAnimating(true)
             })
         }
-    }, [flippingPage])
+    }, [activeAnimations])
 
-    // 方向: 'forward' | 'backward' | null
-    const [flipDirection, setFlipDirection] = useState<'forward' | 'backward' | null>(null)
+    // 方向: 'forward' | 'backward' | null (削除予定の古い変数)
 
     // アニメーション終了時のシーケンス
-    const onFlipEnd = () => {
-        setAnimating(false)
-        if (flippingPage === null || !flipDirection) return
-        let next = flippingPage
-        setDisplayPage(next)
-        setCurrentPage(next)
-        setFlippingPage(null)
-        setFlipDirection(null)
-        if (flipping && next + 2 <= maxPage) {
-            const timer = setTimeout(() => {
-                setFlippingPage(next + 2)
-                setFlipDirection('backward') // ← 右から左に
-            }, flipIntervalMs)
-        } else {
-            setFlipping(false)
-        }
-        // ページ進捗保存
-        handlePageChange(next)
+    const onFlipEnd = (event: React.AnimationEvent, animationId: string) => {
+        setActiveAnimations(animations => {
+            const animation = animations.find(a => a.id === animationId)
+            if (animation) {
+                // 最後に追加されたアニメーションのページを採用
+                const lastAnimation = animations.reduce((latest, current) =>
+                    current.startTime > latest.startTime ? current : latest
+                )
+                if (animation.id === lastAnimation.id) {
+                    setDisplayPage(animation.page)
+                    setCurrentPage(animation.page)
+                    handlePageChange(animation.page)
+                }
+            }
+            return animations.filter(a => a.id !== animationId)
+        })
+
+        // 全てのアニメーションが終了したかチェック
+        setActiveAnimations(animations => {
+            if (animations.length <= 1) { // 現在終了するものを除いて0になる
+                setAnimating(false)
+                // 自動めくりの継続チェック
+                if (flipping && displayPage + 2 <= maxPage) {
+                    const timer = setTimeout(() => {
+                        const newAnimationId = `auto-${++animationIdCounter.current}`
+                        setActiveAnimations(prev => [...prev, {
+                            id: newAnimationId,
+                            page: displayPage + 2,
+                            direction: 'backward',
+                            startTime: Date.now()
+                        }])
+                        setAnimating(true)
+                    }, flipIntervalMs)
+                } else {
+                    setFlipping(false)
+                }
+            }
+            return animations.filter(a => a.id !== animationId)
+        })
     }
 
     // 部屋情報取得（hostUserIdを保存）
@@ -250,20 +281,43 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
 
     // 左右ページクリックハンドラ
     const handleLeftPageClick = () => {
-        if (animating || displayPage <= 1) return
-        setFlippingPage(displayPage - 2)
-        setFlipDirection('forward')
+        if (displayPage <= 1) return
+
+        const targetPage = displayPage - 2
+        const direction = 'forward'
+        const newAnimationId = `click-${++animationIdCounter.current}`
+
+        // 新しいアニメーションを追加
+        setActiveAnimations(prev => [...prev, {
+            id: newAnimationId,
+            page: targetPage,
+            direction,
+            startTime: Date.now()
+        }])
+        setAnimating(true)
     }
+
     const handleRightPageClick = () => {
-        if (animating || displayPage + 2 > totalPages) return
-        setFlippingPage(displayPage + 2)
-        setFlipDirection('backward')
+        if (displayPage + 2 > totalPages) return
+
+        const targetPage = displayPage + 2
+        const direction = 'backward'
+        const newAnimationId = `click-${++animationIdCounter.current}`
+
+        // 新しいアニメーションを追加
+        setActiveAnimations(prev => [...prev, {
+            id: newAnimationId,
+            page: targetPage,
+            direction,
+            startTime: Date.now()
+        }])
+        setAnimating(true)
     }
 
     // --- カウントダウン用 ---
     const [countdown, setCountdown] = useState(flipIntervalMs)
     useEffect(() => {
-        if (flipping && flippingPage === null) {
+        if (flipping && activeAnimations.length === 0) {
             setCountdown(flipIntervalMs)
             const start = Date.now()
             const interval = setInterval(() => {
@@ -276,7 +330,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
         } else {
             setCountdown(flipIntervalMs)
         }
-    }, [flipping, flippingPage, flipIntervalMs])
+    }, [flipping, activeAnimations.length, flipIntervalMs])
 
     return (
         <>
@@ -321,15 +375,19 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                             {displayPage < totalPages && 'ページをクリックで1ページ進む →'}
                         </div>
                         <div className="spine"></div>
-                        {flippingPage !== null && flipDirection && (
+                        {activeAnimations.map((animation, index) => (
                             <div
-                                className={`pageFlip${animating ? (flipDirection === 'forward' ? ' animate-forward' : ' animate-backward') : ''}`}
-                                onAnimationEnd={onFlipEnd}
-                                style={{ zIndex: 20 }}
+                                key={animation.id}
+                                className={`pageFlip${animating ? (animation.direction === 'forward' ? ' animate-forward' : ' animate-backward') : ''}`}
+                                onAnimationEnd={(e) => onFlipEnd(e, animation.id)}
+                                style={{
+                                    zIndex: 20 + index,
+                                    animationDelay: `${index * 0.1}s` // 少しずつずらして重ねる効果
+                                }}
                             >
                                 <div className="back"></div>
                             </div>
-                        )}
+                        ))}
                     </div>
                     <div style={{ textAlign: 'center', marginTop: 16, fontSize: 20, fontWeight: 'bold' }}>
                         {displayPage} / {editingTotalPages ? (
@@ -375,7 +433,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                     {/* 操作エリア */}
                     <div className="controls">
                         {/* 残り時間カウントダウン */}
-                        {(flipping && flippingPage === null) ? (
+                        {(flipping && activeAnimations.length === 0) ? (
                             <div style={{ minWidth: 60, textAlign: 'right', fontSize: 22, fontWeight: 'bold', color: '#388e3c', marginRight: 8 }}>
                                 {Math.ceil(countdown / 1000)} 秒
                             </div>
@@ -396,7 +454,8 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                             onClick={() => {
                                 setFlipping((f) => {
                                     if (f) {
-                                        setFlippingPage(null)
+                                        // 自動めくり停止時は進行中のアニメーションは継続
+                                        // setActiveAnimations([])
                                         setAnimating(false)
                                     }
                                     return !f
