@@ -142,10 +142,8 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
     const saveAndBroadcastProgress = async (page: number) => {
         if (!roomId) return
 
-        // 常に偶数ページに調整（和書/洋書で偶数ページの位置が異なる）
-        const adjustedPage = isVerticalText
-            ? Math.max(2, page + (page % 2)) // 和書: 右ページを偶数に
-            : Math.max(1, page - (page % 2)) // 洋書: 左ページを偶数に
+        // 常に偶数ページに調整（和書/洋書共に表示ページは偶数ベース）
+        const adjustedPage = Math.max(2, page % 2 === 0 ? page : page - 1)
 
         const userId = authStorage.getUserId()
         if (!userId) return
@@ -326,12 +324,11 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
     const adjustPageNumber = (page: number, direction: ReadingDirection): number => {
         // 和書と洋書で偶数/奇数の配置が逆
         if (isVerticalText) {
-            // 和書: 右ページを偶数に
-            return Math.max(2, page + (direction === 'next' ? 0 : 2))
+            // 和書: 右ページを偶数に（displayPageは偶数）
+            return Math.max(2, page % 2 === 0 ? page : page - 1)
         } else {
-            // 洋書: 左ページを偶数に
-            const delta = direction === 'next' ? 2 : 0
-            return Math.max(1, page + delta)
+            // 洋書: 左ページを偶数に（displayPageは偶数）
+            return Math.max(2, page % 2 === 0 ? page : page - 1)
         }
     }
 
@@ -434,7 +431,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                             <span className={`pageNumber left`}>
                                 {isVerticalText
                                     ? (displayPage + 1 <= totalPages ? displayPage + 1 : '') // 和書: 左ページが奇数
-                                    : (totalPages - displayPage + 1) // 洋書: 左ページ、降順
+                                    : displayPage // 洋書: 左ページが偶数（小さい番号）
                                 }
                             </span>
                         </div>
@@ -442,7 +439,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                             <span className={`pageNumber right`}>
                                 {isVerticalText
                                     ? displayPage // 和書: 右ページが偶数
-                                    : (displayPage + 1 <= totalPages ? totalPages - displayPage : '') // 洋書: 右ページ、降順
+                                    : (displayPage + 1 <= totalPages ? displayPage + 1 : '') // 洋書: 右ページが奇数（大きい番号）
                                 }
                             </span>
                         </div>
@@ -611,17 +608,19 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
  *
  * 基本原則：「クリックした方のページを手で掴んで捲る」
  *
+ * ページ番号の配置：
+ * - 和書：右ページが偶数（小さい番号）、左ページが奇数（大きい番号）
+ * - 洋書：左ページが偶数（小さい番号）、右ページが奇数（大きい番号）
+ *
  * ページめくりの動作：
  *
  * 1. 和書（縦書き）の場合：
  *    - 基本方向: 右から左へ読み進む
- *    - 右ページが偶数、左ページが奇数
  *    - 左ページをクリック → 左ページを手で掴んで右方向に捲る → 次のページが見える
  *    - 右ページをクリック → 右ページを手で掴んで左方向に捲る → 前のページが見える
  *
  * 2. 洋書（横書き）の場合：
  *    - 基本方向: 左から右へ読み進む
- *    - 左ページが偶数、右ページが奇数
  *    - 左ページをクリック → 左ページを手で掴んで右方向に捲る → 前のページが見える
  *    - 右ページをクリック → 右ページを手で掴んで左方向に捲る → 次のページが見える
  *
