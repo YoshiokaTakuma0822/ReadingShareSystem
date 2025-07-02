@@ -1,4 +1,5 @@
 "use client"
+
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import { chatApi } from '../../lib/chatApi'
@@ -34,9 +35,10 @@ interface SurveyMessageCardProps {
     currentUserId: string | null
     onAnswerClick: (surveyId: string) => void
     onResultClick: (surveyId: string) => void
+    onLoadingComplete?: () => void // 追加: ローディング完了コールバック
 }
 
-const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, currentUserId, onAnswerClick, onResultClick }) => {
+const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, currentUserId, onAnswerClick, onResultClick, onLoadingComplete }) => {
     const [surveyData, setSurveyData] = useState<Survey | null>(null)
     const [loading, setLoading] = useState(true)
     const [hasAnswered, setHasAnswered] = useState(false)
@@ -49,13 +51,17 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
                 .then(data => {
                     setSurveyData(data)
                     setLoading(false)
+                    // ローディング完了を通知
+                    onLoadingComplete?.()
                 })
                 .catch(() => {
                     setError('アンケート情報の取得に失敗しました')
                     setLoading(false)
+                    // エラー時もローディング完了として通知
+                    onLoadingComplete?.()
                 })
         }
-    }, [msg.surveyId])
+    }, [msg.surveyId, onLoadingComplete])
 
     // 回答状態を確認
     useEffect(() => {
@@ -214,8 +220,48 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
     // 追加: ユーザーID→ユーザー名のマッピングを保持
     const [userIdToName, setUserIdToName] = useState<Record<string, string>>({})
 
+    // 追加: アンケートメッセージのローディング状態を追跡
+    const [surveyLoadingStates, setSurveyLoadingStates] = useState<Record<number, boolean>>({})
+
+    // 追加: スクロールが必要かどうかのフラグ
+    const [shouldScrollToBottom, setShouldScrollToBottom] = useState(false)
+
     // スクロール用ref
-    const messagesEndRef = React.useRef<HTMLDivElement | null>(null)
+    const messagesContainerRef = React.useRef<HTMLDivElement | null>(null)
+
+    // なめらかなスクロール関数
+    const smoothScrollToBottom = React.useCallback(() => {
+        if (messagesContainerRef.current) {
+            messagesContainerRef.current.scrollTo({
+                top: messagesContainerRef.current.scrollHeight,
+                behavior: 'smooth'
+            })
+        }
+    }, [])
+
+    // アンケートメッセージのローディング完了コールバック
+    const handleSurveyLoadingComplete = React.useCallback((messageId: number) => {
+        setSurveyLoadingStates(prev => {
+            const newStates = {
+                ...prev,
+                [messageId]: true
+            }
+
+            // すべてのアンケートメッセージのローディングが完了したかチェック
+            const surveyMessages = messages.filter(msg => msg.messageType === 'SURVEY')
+            const allLoaded = surveyMessages.every(msg => newStates[msg.id] === true)
+
+            if (allLoaded && shouldScrollToBottom) {
+                // 次のレンダリング後になめらかにスクロールを実行
+                setTimeout(() => {
+                    smoothScrollToBottom()
+                    setShouldScrollToBottom(false)
+                }, 100) // 少し遅延を追加してレンダリング完了を確実にする
+            }
+
+            return newStates
+        })
+    }, [messages, shouldScrollToBottom])
 
     // コンポーネントマウント時にユーザーIDを取得
     useEffect(() => {
@@ -341,10 +387,25 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
         return () => ws.close()
     }, [roomId])
 
-    // メッセージ追加時に自動スクロール
+    // メッセージ追加時にスクロール処理を設定
     useEffect(() => {
-        if (messagesEndRef.current) {
-            messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
+        // アンケートメッセージのローディング状態を初期化
+        const surveyMessages = messages.filter(msg => msg.messageType === 'SURVEY')
+        const initialLoadingStates: Record<number, boolean> = {}
+        surveyMessages.forEach(msg => {
+            initialLoadingStates[msg.id] = false
+        })
+        setSurveyLoadingStates(initialLoadingStates)
+
+        // スクロールフラグを設定
+        setShouldScrollToBottom(true)
+
+        // アンケートメッセージがない場合は即座にスクロール
+        if (surveyMessages.length === 0) {
+            setTimeout(() => {
+                smoothScrollToBottom()
+                setShouldScrollToBottom(false)
+            }, 100) // 少し遅延を追加してレンダリング完了を確実にする
         }
     }, [messages])
 
@@ -390,6 +451,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                     setResultSurveyId(surveyId)
                     setShowResultModal(true)
                 }}
+                onLoadingComplete={() => handleSurveyLoadingComplete(msg.id)}
             />
         }
 
@@ -575,7 +637,20 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                 </div>
             )}
 
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 32, minHeight: 200, maxHeight: '60vh', overflowY: 'auto', background: 'rgba(255,255,255,0.7)', borderRadius: 8, padding: 16 }}>
+            <div ref={messagesContainerRef} style={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 16,
+                marginBottom: 32,
+                minHeight: 200,
+                maxHeight: '60vh',
+                overflowY: 'auto',
+                background: 'rgba(255,255,255,0.7)',
+                borderRadius: 8,
+                padding: 16,
+                scrollBehavior: 'smooth' // なめらかなスクロールを追加
+            }}>
                 {loading ? (
                     <div style={{
                         display: 'flex',
@@ -619,6 +694,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                                             setResultSurveyId(surveyId)
                                             setShowResultModal(true)
                                         }}
+                                        onLoadingComplete={() => handleSurveyLoadingComplete(msg.id)}
                                     />
                                 )
                             }
@@ -673,7 +749,6 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                                 </div>
                             )
                         })}
-                        <div ref={messagesEndRef} />
                     </>
                 )}
             </div>
