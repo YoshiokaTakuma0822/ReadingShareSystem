@@ -48,14 +48,11 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
     useEffect(() => {
         if (flipping && activeAnimations.length === 0 && displayPage < maxPage) {
             const timer = setTimeout(() => {
-                const newAnimationId = ++animationIdCounter.current
-                setActiveAnimations(prev => [...prev, {
-                    id: newAnimationId,
-                    direction: 'backward'
-                }])
-                setDisplayPage(prev => prev + 2)
-                setCurrentPage(prev => prev + 2)
-                handlePageChange(displayPage + 2) // ページ進捗保存
+                const targetPage = displayPage + 2
+                setDisplayPage(targetPage)
+                setCurrentPage(targetPage)
+                handlePageChange(targetPage)
+                doAnimation('backward')
             }, flipIntervalMs)
             return () => clearTimeout(timer)
         }
@@ -84,14 +81,11 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                 // 自動めくりの継続チェック
                 if (flipping && displayPage + 2 <= maxPage) {
                     const timer = setTimeout(() => {
-                        const newAnimationId = ++animationIdCounter.current
-                        setActiveAnimations(prev => [...prev, {
-                            id: newAnimationId,
-                            direction: 'backward'
-                        }])
-                        setDisplayPage(prev => prev + 2)
-                        setCurrentPage(prev => prev + 2)
-                        handlePageChange(displayPage + 2) // ページ進捗保存
+                        const targetPage = displayPage + 2
+                        setDisplayPage(targetPage)
+                        setCurrentPage(targetPage)
+                        handlePageChange(targetPage)
+                        doAnimation('backward')
                     }, flipIntervalMs)
                 } else {
                     setFlipping(false)
@@ -265,41 +259,37 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
         return () => ws.close()
     }, [roomId])
 
-    // 左右ページクリックハンドラ（シンプル版）
-    const handleLeftPageClick = () => {
-        if (displayPage <= 1) return
-
-        const targetPage = displayPage - 2
-        const direction = 'forward'
+    // アニメーション実行関数
+    const doAnimation = (direction: 'forward' | 'backward', targetPage?: number) => {
         const newAnimationId = ++animationIdCounter.current
 
-        // 新しいアニメーションを追加
+        // アニメーション要素を追加
         setActiveAnimations(prev => [...prev, {
             id: newAnimationId,
             direction
         }])
-        setDisplayPage(targetPage)
-        setCurrentPage(targetPage)
-        handlePageChange(targetPage) // ページ進捗保存
+
+        // ページ更新（targetPageが指定されている場合のみ）
+        if (targetPage !== undefined) {
+            setDisplayPage(targetPage)
+            setCurrentPage(targetPage)
+            handlePageChange(targetPage)
+        }
+
         setAnimating(true)
+    }
+
+    // 左右ページクリックハンドラ（doAnimation使用版）
+    const handleLeftPageClick = () => {
+        if (displayPage <= 1) return
+        const targetPage = displayPage - 2
+        doAnimation('forward', targetPage)
     }
 
     const handleRightPageClick = () => {
         if (displayPage + 2 > totalPages) return
-
         const targetPage = displayPage + 2
-        const direction = 'backward'
-        const newAnimationId = ++animationIdCounter.current
-
-        // 新しいアニメーションを追加
-        setActiveAnimations(prev => [...prev, {
-            id: newAnimationId,
-            direction
-        }])
-        setDisplayPage(targetPage)
-        setCurrentPage(targetPage)
-        handlePageChange(targetPage) // ページ進捗保存
-        setAnimating(true)
+        doAnimation('backward', targetPage)
     }
 
     // --- カウントダウン用 ---
@@ -657,6 +647,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                  z-index: 10;
                  transition: box-shadow 0.3s ease-out;
                  transform-style: preserve-3d;
+                 pointer-events: none; /* 追加: ポインターイベントを無効化 */
                }
                .animate-forward {
                  animation: pageFlipForward 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
