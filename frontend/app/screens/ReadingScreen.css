@@ -173,7 +173,6 @@
     position: absolute;
     left: 50%;
     top: 50%;
-    transform-origin: 100% 50%;
     width: 200px;
     height: 280px;
     background: var(--white);
@@ -205,30 +204,38 @@
 .animate-left {
     animation: pageFlipLeft 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    transform-origin: 0% 50%;
+    /* 左端を軸に回転（右ページが左に捲れる） */
 }
 
 .animate-right {
     animation: pageFlipRight 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    transform-origin: 100% 50%;
+    /* 右端を軸に回転（左ページが右に捲れる） */
 }
 
 @keyframes pageFlipLeft {
     0% {
-        transform: translate(-100%, -50%) rotateY(0deg);
+        transform: translate(0%, -50%) rotateY(0deg);
+        /* 右ページの位置から開始 */
     }
 
     100% {
-        transform: translate(-100%, -50%) rotateY(180deg);
+        transform: translate(0%, -50%) rotateY(-180deg);
+        /* 左方向に捲れる */
     }
 }
 
 @keyframes pageFlipRight {
     0% {
-        transform: translate(-100%, -50%) rotateY(180deg);
+        transform: translate(-100%, -50%) rotateY(0deg);
+        /* 左ページの位置から開始 */
     }
 
     100% {
-        transform: translate(-100%, -50%) rotateY(0deg);
+        transform: translate(-100%, -50%) rotateY(180deg);
+        /* 右方向に捲れる */
     }
 }
 
