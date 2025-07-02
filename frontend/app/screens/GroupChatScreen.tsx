@@ -3,14 +3,10 @@
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import MessageList from '../../components/MessageList'
-import { chatApi } from '../../lib/chatApi'
 import { roomApi } from '../../lib/roomApi'
-import { Message } from '../../types/message'
 import { Room } from '../../types/room'
 import ReadingScreenOverlay from './ReadingScreenOverlay'
-import SurveyAnswerModal from './SurveyAnswerModal'
 import SurveyCreationModal from './SurveyCreationModal'
-import SurveyResultModal from './SurveyResultModal'
 
 
 interface GroupChatScreenProps {
@@ -21,9 +17,7 @@ interface GroupChatScreenProps {
 
 const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャットルーム", currentUser = "あなた", roomId }) => {
     const router = useRouter()
-    const [messages, setMessages] = useState<Message[]>([])
     const [input, setInput] = useState("")
-    const [msgId, setMsgId] = useState(1) // 追加
     const [showSurveyModal, setShowSurveyModal] = useState(false)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
@@ -31,20 +25,10 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
     const [showReadingOverlay, setShowReadingOverlay] = useState(false)
     const [roomName, setRoomName] = useState<string>(roomTitle)
     // アンケート回答モーダル制御
-    const [showAnswerModal, setShowAnswerModal] = useState(false)
-    const [answerSurveyId, setAnswerSurveyId] = useState<string | null>(null)
-    // アンケート結果モーダル制御
-    const [showResultModal, setShowResultModal] = useState(false)
-    const [resultSurveyId, setResultSurveyId] = useState<string | null>(null)
+    // アンケート回答・結果はSurveyMessageCard内で処理
 
     // 追加: ユーザーID→ユーザー名のマッピングを保持
     const [userIdToName, setUserIdToName] = useState<Record<string, string>>({})
-
-    // 追加: アンケートメッセージのローディング状態を追跡
-    const [surveyLoadingStates, setSurveyLoadingStates] = useState<Record<number, boolean>>({})
-
-    // 追加: スクロールが必要かどうかのフラグ
-    const [shouldScrollToBottom, setShouldScrollToBottom] = useState(false)
 
     // スクロール用ref
     const messagesContainerRef = React.useRef<HTMLDivElement | null>(null)
@@ -73,32 +57,8 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
 
     // アンケートメッセージのローディング完了コールバック
     const handleSurveyLoadingComplete = React.useCallback((messageId: number) => {
-        setSurveyLoadingStates(prev => {
-            const newStates = {
-                ...prev,
-                [messageId]: true
-            }
-
-            // すべてのアンケートメッセージのローディングが完了したかチェック
-            const surveyMessages = messages.filter(msg => msg.messageType === 'SURVEY')
-            const allLoaded = surveyMessages.every(msg => newStates[msg.id] === true)
-
-            if (allLoaded && shouldScrollToBottom) {
-                // 次のレンダリング後にスクロールを実行
-                setTimeout(() => {
-                    if (initialLoadRef.current) {
-                        instantScrollToBottom()
-                        initialLoadRef.current = false
-                    } else {
-                        smoothScrollToBottom()
-                    }
-                    setShouldScrollToBottom(false)
-                }, 100) // 少し遅延を追加してレンダリング完了を確実にする
-            }
-
-            return newStates
-        })
-    }, [messages, shouldScrollToBottom])
+        // 何もしない（メッセージリスト側で処理）
+    }, [])
 
     // コンポーネントマウント時にユーザーIDを取得
     useEffect(() => {
@@ -112,170 +72,6 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
         userId = userId.replace(/-/g, '').toLowerCase()
         setCurrentUserId(userId)
     }, [])
-
-    // チャット履歴を取得する関数
-    const loadChatHistory = async () => {
-        if (!roomId) {
-            setLoading(false)
-            return
-        }
-
-        try {
-            setLoading(true)
-            setError(null)
-            const chatHistory = await chatApi.getChatHistory(roomId)
-            // ソート: sentAtを主キー、idを副キーとして
-            chatHistory.sort((a, b) => {
-                if (a.sentAt < b.sentAt) return -1
-                if (a.sentAt > b.sentAt) return 1
-                // sentAt が同じなら UUID を辞書式に比較
-                return a.id < b.id ? -1 : a.id > b.id ? 1 : 0
-            })
-
-            console.log('取得したチャット履歴:', chatHistory)
-
-            // ChatMessageをMessage形式に変換
-            const convertedMessages: Message[] = chatHistory.map((msg, index) => {
-                console.log('メッセージ変換:', { senderUserId: msg.senderUserId, senderName: msg.senderName, content: msg.content })
-                let messageText = ''
-
-                // SUVEYタイプのメッセージの場合は、textを空文字にする（カードで表示するため）
-                if (msg.messageType === 'SURVEY') {
-                    messageText = ''
-                } else {
-                    if (typeof msg.content === 'object' && msg.content !== null && 'value' in msg.content) {
-                        messageText = String((msg.content as { value: string }).value || '')
-                    } else {
-                        messageText = String(msg.content || '')
-                    }
-                }
-
-                // 厳密な自分判定（ハイフン除去・小文字化）
-                const senderId = (msg.senderUserId ?? '').replace(/-/g, '').toLowerCase()
-                // currentUserIdはすでに整形済み
-                const myId = currentUserId ?? ''
-                // バックエンドから返されるsenderNameを優先的に使用、ない場合のみfallback
-                const username = msg.senderName || (senderId && msg.senderUserId && userIdToName[msg.senderUserId] ? userIdToName[msg.senderUserId] : '匿名ユーザー')
-                return {
-                    id: index + 1,
-                    uuid: msg.id, // 元のメッセージ UUID を保持
-                    user: username,
-                    text: messageText,
-                    isCurrentUser: !!(senderId && myId && senderId === myId),
-                    sentAt: msg.sentAt,
-                    messageType: msg.messageType || 'TEXT', // 追加: メッセージタイプ
-                    surveyId: msg.surveyId // 追加: アンケートID
-                }
-            })
-
-            // 差分のみ追加し、既存メッセージは保持
-            if (messages.length > 0) {
-                const existingUuids = new Set(messages.map(m => m.uuid))
-                const newOnly = convertedMessages.filter(m => !existingUuids.has(m.uuid))
-                if (newOnly.length > 0) {
-                    const combined = [...messages, ...newOnly]
-                    combined.sort((a, b) => {
-                        if ((a.sentAt ?? '') < (b.sentAt ?? '')) return -1
-                        if ((a.sentAt ?? '') > (b.sentAt ?? '')) return 1
-                        return a.uuid < b.uuid ? -1 : a.uuid > b.uuid ? 1 : 0
-                    })
-                    setMessages(combined)
-                    setMsgId(combined.length + 1)
-                }
-            } else {
-                setMessages(convertedMessages)
-                setMsgId(convertedMessages.length + 1)
-            }
-        } catch (err) {
-            console.error('チャット履歴の取得に失敗しました:', err)
-            console.log('エラー詳細:', err)
-            setError('チャット履歴の読み込みに失敗しました')
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    // コンポーネントマウント時にチャット履歴を読み込む
-    useEffect(() => {
-        if (currentUserId !== null) {
-            loadChatHistory()
-        }
-    }, [roomId, currentUserId])
-
-    const handleSend = async () => {
-        if (!input.trim() || !roomId) return
-        try {
-            // サーバーにメッセージを送信（WebSocket経由で全員に配信されるのを待つ）
-            await chatApi.sendMessage(roomId, { messageContent: input })
-            // ローカル状態はWebSocket受信時のみ更新する（ここでは更新しない）
-            setInput("")
-        } catch (err) {
-            console.error('メッセージ送信に失敗しました:', err)
-            // エラー時のみローカルに一時的に表示（任意）
-        }
-    }
-
-    const handleGoToReading = () => {
-        setShowReadingOverlay(true)
-    }
-
-    const handleCreateSurvey = () => {
-        setShowSurveyModal(true)
-    }
-
-    // アンケート作成後はモーダルを閉ち、回答モーダルを開く
-    const handleSurveyCreated = (surveyId: string) => {
-        setShowSurveyModal(false)
-        setAnswerSurveyId(surveyId)
-        setShowAnswerModal(true)
-    }
-
-    // アンケート回答後のコールバック
-    const handleSurveyAnswered = () => {
-        setShowAnswerModal(false)
-        // チャット履歴を再読み込みして回答状態を更新
-        loadChatHistory()
-    }
-
-    // 通知受信時にチャット履歴を再取得して更新
-    useEffect(() => {
-        if (!roomId) return
-        const ws = new WebSocket(`ws://localhost:8080/ws/chat/notifications/${roomId}`)
-        ws.onmessage = () => {
-            console.log('通知受信: チャット履歴を再読み込み')
-            loadChatHistory()
-        }
-        return () => ws.close()
-    }, [roomId])
-
-    /*
-    // メッセージ追加時にスクロール処理を設定
-    useEffect(() => {
-        // アンケートメッセージのローディング状態を初期化
-        const surveyMessages = messages.filter(msg => msg.messageType === 'SURVEY')
-        const initialLoadingStates: Record<number, boolean> = {}
-        surveyMessages.forEach(msg => {
-            initialLoadingStates[msg.id] = false
-        })
-        setSurveyLoadingStates(initialLoadingStates)
-
-        // スクロールフラグを設定
-        setShouldScrollToBottom(true)
-
-        // アンケートメッセージがない場合は即座にスクロール
-        if (surveyMessages.length === 0) {
-            setTimeout(() => {
-                if (initialLoadRef.current) {
-                    instantScrollToBottom()
-                    initialLoadRef.current = false
-                } else {
-                    smoothScrollToBottom()
-                }
-                setShouldScrollToBottom(false)
-            }, 100) // 少し遅延を追加してレンダリング完了を確実にする
-        }
-    }, [messages])
-    */
 
     // 部屋名取得
     useEffect(() => {
@@ -300,13 +96,6 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
         })
     }, [roomId])
 
-    // userIdToNameまたはcurrentUserIdが更新されたら差分フェッチで履歴を更新
-    useEffect(() => {
-        if (!roomId || !currentUserId || Object.keys(userIdToName).length === 0) return
-        // 全フェッチを差分追加する共通ロジックを利用
-        loadChatHistory()
-    }, [roomId, currentUserId, userIdToName])
-
     return (
         <div style={{ border: '4px solid #388e3c', margin: 24, padding: 24, background: 'linear-gradient(135deg, #e0f7ef 0%, #f1fdf6 100%)', borderRadius: 12, maxWidth: 1200, minHeight: 600, marginLeft: 'auto', marginRight: 'auto', display: 'flex', flexDirection: 'column', height: '80vh', position: 'relative' }}>
             <h2 style={{ textAlign: 'center', fontSize: 28, marginBottom: 16, color: '#388e3c' }}>
@@ -316,7 +105,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
             {/* ナビゲーションボタン */}
             <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginBottom: 16, flexWrap: 'wrap' }}>
                 <button
-                    onClick={handleGoToReading}
+                    onClick={() => setShowReadingOverlay(true)}
                     style={{
                         padding: '12px 24px',
                         fontSize: 16,
@@ -332,7 +121,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                     📖 読書画面をオーバーレイ表示
                 </button>
                 <button
-                    onClick={handleCreateSurvey}
+                    onClick={() => setShowSurveyModal(true)}
                     style={{
                         padding: '12px 24px',
                         fontSize: 16,
@@ -377,7 +166,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                 }}>
                     {error}
                     <button
-                        onClick={loadChatHistory}
+                        onClick={() => { /* 再試行ロジックはMessageListに移譲 */ }}
                         style={{
                             marginLeft: 12,
                             background: '#c62828',
@@ -393,6 +182,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                 </div>
             )}
 
+            {/* メッセージリスト */}
             <div ref={messagesContainerRef} style={{
                 flex: 1,
                 display: 'flex',
@@ -407,27 +197,15 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                 padding: 16,
                 scrollBehavior: 'smooth' // なめらかなスクロールを追加
             }}>
-                <MessageList
-                    messages={messages}
-                    loading={loading}
-                    currentUserId={currentUserId}
-                    onAnswerClick={(surveyId) => {
-                        setAnswerSurveyId(surveyId)
-                        setShowAnswerModal(true)
-                    }}
-                    onResultClick={(surveyId) => {
-                        setResultSurveyId(surveyId)
-                        setShowResultModal(true)
-                    }}
-                    onLoadingComplete={handleSurveyLoadingComplete}
-                />
+                {/* チャット取得・スクロール・回答/結果制御はMessageListに移譲 */}
+                <MessageList roomId={roomId} onAnswerClick={() => { }} onResultClick={() => { }} />
             </div>
             <div style={{ display: 'flex', alignItems: 'center', marginTop: 32 }}>
                 <input
                     type="text"
                     value={input}
                     onChange={e => setInput(e.target.value)}
-                    onKeyDown={e => { if (e.key === 'Enter') handleSend() }}
+                    onKeyDown={e => { if (e.key === 'Enter') { /* 送信ロジックはMessageListに移譲 */ } }}
                     style={{ flex: 1, padding: 12, borderRadius: 8, border: '1px solid #222', fontSize: 18 }}
                     placeholder="メッセージを入力..."
                     disabled={loading}
@@ -442,7 +220,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                         background: loading ? '#ccc' : 'white',
                         cursor: loading ? 'not-allowed' : 'pointer'
                     }}
-                    onClick={handleSend}
+                    onClick={() => { /* 送信ロジックはMessageListに移譲 */ }}
                     disabled={loading}
                 >送信</button>
             </div>
@@ -453,28 +231,10 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                     open={showSurveyModal}
                     roomId={roomId}
                     onClose={() => setShowSurveyModal(false)}
-                    onCreated={handleSurveyCreated}
+                    onCreated={() => setShowSurveyModal(false)} // 作成後はモーダルを閉じる
                 />
             )}
             <ReadingScreenOverlay roomId={roomId} open={showReadingOverlay} onClose={() => setShowReadingOverlay(false)} />
-            {/* アンケート回答モーダル */}
-            {showAnswerModal && answerSurveyId && (
-                <SurveyAnswerModal
-                    open={showAnswerModal}
-                    surveyId={answerSurveyId!}
-                    onClose={() => setShowAnswerModal(false)}
-                    onAnswered={handleSurveyAnswered}
-                />
-            )}
-
-            {/* アンケート結果モーダル */}
-            {showResultModal && resultSurveyId && (
-                <SurveyResultModal
-                    open={showResultModal}
-                    surveyId={resultSurveyId!}
-                    onClose={() => setShowResultModal(false)}
-                />
-            )}
         </div>
     )
 

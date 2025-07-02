@@ -1,54 +1,163 @@
 "use client"
 
-import React from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { chatApi } from '../lib/chatApi'
+import { roomApi } from '../lib/roomApi'
 import { Message } from '../types/message'
 import ChatMessageCard from './ChatMessageCard'
 import SurveyMessageCard from './SurveyMessageCard'
 
 interface MessageListProps {
-    messages: Message[]
-    loading: boolean
-    currentUserId: string | null
+    roomId?: string
     onAnswerClick: (surveyId: string) => void
     onResultClick: (surveyId: string) => void
-    onLoadingComplete: (messageId: number) => void
 }
 
-const MessageList: React.FC<MessageListProps> = ({ messages, loading, currentUserId, onAnswerClick, onResultClick, onLoadingComplete }) => {
-    if (loading) {
+const MessageList: React.FC<MessageListProps> = ({ roomId, onAnswerClick, onResultClick }) => {
+    const [messages, setMessages] = useState<Message[]>([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState<string | null>(null)
+    const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+    const [userIdToName, setUserIdToName] = useState<Record<string, string>>({})
+    const [surveyLoadingStates, setSurveyLoadingStates] = useState<Record<number, boolean>>({})
+    const [shouldScrollToBottom, setShouldScrollToBottom] = useState(false)
+    const initialLoadRef = useRef(true)
+    const containerRef = useRef<HTMLDivElement | null>(null)
+
+    const instantScrollToBottom = useCallback(() => {
+        if (containerRef.current) {
+            containerRef.current.scrollTo({ top: containerRef.current.scrollHeight, behavior: 'auto' })
+        }
+    }, [])
+
+    const smoothScrollToBottom = useCallback(() => {
+        if (containerRef.current) {
+            containerRef.current.scrollTo({ top: containerRef.current.scrollHeight, behavior: 'smooth' })
+        }
+    }, [])
+
+    const handleSurveyLoadingComplete = useCallback((messageId: number) => {
+        setSurveyLoadingStates(prev => {
+            const newStates = { ...prev, [messageId]: true }
+            const surveyMsgs = messages.filter(m => m.messageType === 'SURVEY')
+            const allLoaded = surveyMsgs.every(m => newStates[m.id])
+            if (allLoaded && shouldScrollToBottom) {
+                setTimeout(() => {
+                    if (initialLoadRef.current) {
+                        instantScrollToBottom()
+                        initialLoadRef.current = false
+                    } else {
+                        smoothScrollToBottom()
+                    }
+                    setShouldScrollToBottom(false)
+                }, 100)
+            }
+            return newStates
+        })
+    }, [messages, shouldScrollToBottom, instantScrollToBottom, smoothScrollToBottom])
+
+    const loadChatHistory = async () => {
+        if (!roomId) return setLoading(false)
+        setLoading(true)
+        setError(null)
+        try {
+        const chatHistory = await chatApi.getChatHistory(roomId)
+        // ソート: sentAtを主キー、idを副キーとして
+        chatHistory.sort((a, b) => {
+            if (a.sentAt < b.sentAt) return -1
+            if (a.sentAt > b.sentAt) return 1
+            return a.id < b.id ? -1 : a.id > b.id ? 1 : 0
+        })
+        // Message[] へ変換して state にセット
+        const converted: Message[] = chatHistory.map((msg, idx) => {
+            let messageText = ''
+            if (msg.messageType === 'SURVEY') {
+                messageText = ''
+            } else if (typeof msg.content === 'object' && msg.content !== null && 'value' in msg.content) {
+                messageText = String((msg.content as { value: string }).value || '')
+            } else {
+                messageText = String(msg.content || '')
+            }
+            const senderId = (msg.senderUserId ?? '').replace(/-/g, '').toLowerCase()
+            const myId = currentUserId ?? ''
+            const username = msg.senderName || (senderId && msg.senderUserId && userIdToName[msg.senderUserId]
+                ? userIdToName[msg.senderUserId]
+                : '匿名ユーザー')
+            return {
+                id: idx + 1,
+                uuid: msg.id,
+                user: username,
+                text: messageText,
+                isCurrentUser: senderId === myId,
+                sentAt: msg.sentAt,
+                messageType: msg.messageType || 'TEXT',
+                surveyId: msg.surveyId
+            }
+        })
+        setMessages(converted)
+        } catch {
+            setError('チャット履歴の読み込みに失敗しました')
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    useEffect(() => {
+        const uid = localStorage.getItem('reading-share-user-id')
+        if (uid) setCurrentUserId(uid.replace(/-/g, '').toLowerCase())
+    }, [])
+
+    useEffect(() => {
+        if (roomId) {
+            roomApi.getRoomMembers(roomId).then(members => {
+                const map: Record<string, string> = {}
+                members.forEach((m: any) => { if (m.userId && m.username) map[m.userId] = m.username })
+                setUserIdToName(map)
+            })
+        }
+    }, [roomId])
+
+    // 初期ロード: currentUserIdとroomIdが揃ったらチャット履歴を取得
+    useEffect(() => { if (currentUserId && roomId) loadChatHistory() }, [currentUserId, roomId])
+    useEffect(() => {
+        if (!roomId) return
+        const ws = new WebSocket(`ws://localhost:8080/ws/chat/notifications/${roomId}`)
+        ws.onmessage = () => loadChatHistory()
+        return () => ws.close()
+    }, [roomId])
+
+    useEffect(() => {
+        // メッセージ追加時
+        const surveyMsgs = messages.filter(m => m.messageType === 'SURVEY')
+        const initialStates: Record<number, boolean> = {}
+        surveyMsgs.forEach(m => initialStates[m.id] = false)
+        setSurveyLoadingStates(initialStates)
+        setShouldScrollToBottom(true)
+        if (!surveyMsgs.length) instantScrollToBottom()
+    }, [messages, instantScrollToBottom, smoothScrollToBottom])
+
+    if (loading) return <div>チャット履歴を読み込み中...</div>
+    if (error) return <div>{error}</div>
+    if (!messages.length) {
         return (
-            <div key="loading" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', color: '#666', fontSize: 16 }}>
-                チャット履歴を読み込み中...
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', color: '#999', fontSize: 16 }}>
+                <div>まだメッセージがありません</div>
+                <button onClick={loadChatHistory} style={{ marginTop: 8, padding: '8px 16px', borderRadius: 4, border: '1px solid #222', background: 'white', cursor: 'pointer' }}>
+                    再読み込み
+                </button>
             </div>
         )
     }
-    if (messages.length === 0) {
-        return (
-            <div key="empty" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', color: '#999', fontSize: 16 }}>
-                まだメッセージがありません
-            </div>
-        )
-    }
+
     return (
-        <>
+        <div ref={containerRef} style={{ flex: 1, overflowY: 'auto' }}>
             {messages.map(msg => {
                 const isMine = msg.isCurrentUser
-                if (msg.messageType === 'SURVEY') {
-                    return (
-                        <SurveyMessageCard
-                            key={msg.uuid}
-                            msg={msg}
-                            isMine={isMine}
-                            currentUserId={currentUserId}
-                            onAnswerClick={onAnswerClick}
-                            onResultClick={onResultClick}
-                            onLoadingComplete={() => onLoadingComplete(msg.id)}
-                        />
-                    )
-                }
-                return <ChatMessageCard key={msg.uuid} msg={msg} isMine={isMine} />
+                return msg.messageType === 'SURVEY'
+                    ? <SurveyMessageCard key={msg.uuid} msg={msg} isMine={isMine} currentUserId={currentUserId} onAnswerClick={onAnswerClick} onResultClick={onResultClick} onLoadingComplete={() => handleSurveyLoadingComplete(msg.id)} />
+                    : <ChatMessageCard key={msg.uuid} msg={msg} isMine={isMine} />
             })}
-        </>
+        </div>
     )
 }
 
