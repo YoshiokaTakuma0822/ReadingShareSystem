@@ -346,11 +346,11 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
         // 左ページの裏面は右ページ、右ページの裏面は左ページ
         if (isLeftPage) {
             // 左ページの裏面は右ページ（偶数）
-            const backNum = isVerticalText ? frontNum - 1 : frontNum + 1
+            const backNum = isVerticalText ? frontNum + 1 : frontNum - 1
             return backNum > 0 && backNum <= totalPages ? backNum.toString() : ''
         } else {
             // 右ページの裏面は左ページ（奇数）
-            const backNum = isVerticalText ? frontNum + 1 : frontNum - 1
+            const backNum = isVerticalText ? frontNum - 1 : frontNum + 1
             return backNum > 0 && backNum <= totalPages ? backNum.toString() : ''
         }
     }
