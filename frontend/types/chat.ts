@@ -7,6 +7,7 @@ export interface ChatMessage {
     id: string // UUID (バックエンドのエンティティに合わせてmessageIdからidに変更)
     roomId: RoomId
     senderUserId: UserId | null // バックエンドのエンティティに合わせてsenderからsenderUserIdに変更、匿名ユーザーの場合null
+    senderName?: string // 送信者名（バックエンドから返される）
     content: MessageContent // バックエンドではMessageContentオブジェクト
     sentAt: string // 送信時刻 (Instant)
     messageType?: string // メッセージタイプ ("TEXT", "SURVEY", "SYSTEM")
