@@ -229,6 +229,18 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
     // スクロール用ref
     const messagesContainerRef = React.useRef<HTMLDivElement | null>(null)
 
+    // 初回ロード判定用ref
+    const initialLoadRef = React.useRef(true)
+    // 即時スクロール関数
+    const instantScrollToBottom = React.useCallback(() => {
+        if (messagesContainerRef.current) {
+            messagesContainerRef.current.scrollTo({
+                top: messagesContainerRef.current.scrollHeight,
+                behavior: 'auto'
+            })
+        }
+    }, [])
+
     // なめらかなスクロール関数
     const smoothScrollToBottom = React.useCallback(() => {
         if (messagesContainerRef.current) {
@@ -252,9 +264,14 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
             const allLoaded = surveyMessages.every(msg => newStates[msg.id] === true)
 
             if (allLoaded && shouldScrollToBottom) {
-                // 次のレンダリング後になめらかにスクロールを実行
+                // 次のレンダリング後にスクロールを実行
                 setTimeout(() => {
-                    smoothScrollToBottom()
+                    if (initialLoadRef.current) {
+                        instantScrollToBottom()
+                        initialLoadRef.current = false
+                    } else {
+                        smoothScrollToBottom()
+                    }
                     setShouldScrollToBottom(false)
                 }, 100) // 少し遅延を追加してレンダリング完了を確実にする
             }
@@ -287,6 +304,12 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
             setLoading(true)
             setError(null)
             const chatHistory = await chatApi.getChatHistory(roomId)
+            // ソート: sentAtを主キー、idを副キーとして
+            chatHistory.sort((a, b) => {
+                if (a.sentAt < b.sentAt) return -1
+                if (a.sentAt > b.sentAt) return 1
+                return a.id.localeCompare(b.id)
+            })
 
             console.log('取得したチャット履歴:', chatHistory)
 
@@ -403,7 +426,12 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
         // アンケートメッセージがない場合は即座にスクロール
         if (surveyMessages.length === 0) {
             setTimeout(() => {
-                smoothScrollToBottom()
+                if (initialLoadRef.current) {
+                    instantScrollToBottom()
+                    initialLoadRef.current = false
+                } else {
+                    smoothScrollToBottom()
+                }
                 setShouldScrollToBottom(false)
             }, 100) // 少し遅延を追加してレンダリング完了を確実にする
         }
