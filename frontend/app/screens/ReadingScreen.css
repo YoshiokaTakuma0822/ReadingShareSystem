@@ -399,6 +399,45 @@
     user-select: none;
 }
 
+/* 表面と裏面のページ番号表示制御 */
+.page-front {
+    opacity: 1;
+    animation: front-page-fade 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.page-back {
+    opacity: 0;
+    animation: back-page-fade 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes front-page-fade {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes back-page-fade {
+    0% {
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
 /* 偶数/奇数ページの表示スタイル */
 .even-page {
     font-weight: bold;
