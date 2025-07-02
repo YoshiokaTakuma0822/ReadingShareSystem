@@ -277,15 +277,34 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
     // --- ページめくりのユーティリティ関数 ---
 
     /**
-     * 読書の方向（next/prev）から物理的なアニメーション方向（toLeft/toRight）を決定
+     * クリックされたページ位置から読書の進行方向を決定
+     *
+     * 和書（右から左へ読む）の場合：
+     * - 左ページ（奇数）をクリック → 前のページへ（prev）
+     * - 右ページ（偶数）をクリック → 次のページへ（next）
+     *
+     * 洋書（左から右へ読む）の場合：
+     * - 左ページ（偶数）をクリック → 次のページへ（next）
+     * - 右ページ（奇数）をクリック → 前のページへ（prev）
      */
-    const getAnimationDirection = (readingDirection: ReadingDirection): AnimationDirection => {
-        // 和書：右から左へ進む（next=toLeft）、洋書：左から右へ進む（next=toRight）
-        if (readingDirection === 'next') {
-            return isVerticalText ? 'toLeft' : 'toRight'
+    const getReadingDirectionFromClick = (isLeftPage: boolean): ReadingDirection => {
+        if (isVerticalText) {
+            // 和書：右から左へ読む
+            return isLeftPage ? 'prev' : 'next'
         } else {
-            return isVerticalText ? 'toRight' : 'toLeft'
+            // 洋書：左から右へ読む
+            return isLeftPage ? 'next' : 'prev'
         }
+    }
+
+    /**
+     * クリックされたページ位置から物理的なアニメーション方向を決定
+     * クリックされたページが捲られる方向
+     */
+    const getAnimationDirectionFromClick = (isLeftPage: boolean): AnimationDirection => {
+        // 左ページをクリック → 右方向に捲れる
+        // 右ページをクリック → 左方向に捲れる
+        return isLeftPage ? 'toRight' : 'toLeft'
     }
 
     /**
@@ -301,22 +320,28 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
      * 和書/洋書に応じてページ番号を調整
      */
     const adjustPageNumber = (page: number, direction: ReadingDirection): number => {
-        const delta = direction === 'next' ? 2 : 0
         // 和書と洋書で偶数/奇数の配置が逆
-        return isVerticalText
-            ? Math.max(2, page + (direction === 'next' ? 0 : 2)) // 和書: 右ページを偶数に
-            : Math.max(1, page + delta) // 洋書: 左ページを偶数に
+        if (isVerticalText) {
+            // 和書: 右ページを偶数に
+            return Math.max(2, page + (direction === 'next' ? 0 : 2))
+        } else {
+            // 洋書: 左ページを偶数に
+            const delta = direction === 'next' ? 2 : 0
+            return Math.max(1, page + delta)
+        }
     }
 
     /**
      * ページめくりのメインハンドラ
+     * クリックされたページ位置に基づいてアニメーションと読書進行を処理
      */
-    const handleFlip = (readingDirection: ReadingDirection) => {
+    const handlePageClick = (isLeftPage: boolean) => {
         const newAnimationId = animationIdCounter
         setAnimationIdCounter(prev => prev + 1)
 
-        // 物理的なアニメーション方向を決定
-        const animDirection = getAnimationDirection(readingDirection)
+        // クリックされたページ位置から方向を決定
+        const readingDirection = getReadingDirectionFromClick(isLeftPage)
+        const animDirection = getAnimationDirectionFromClick(isLeftPage)
 
         // 新しいアニメーションを追加
         setActiveAnimations(prev => [...prev, {
@@ -336,28 +361,34 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
 
     /**
      * 左ページクリックハンドラ
-     * - 和書: 前のページへ（右にめくる）
-     * - 洋書: 次のページへ（右にめくる）
+     * 左ページが右方向に捲られる
      */
     const handleLeftPageClick = () => {
-        handleFlip(isVerticalText ? 'prev' : 'next')
+        handlePageClick(true)
     }
 
     /**
      * 右ページクリックハンドラ
-     * - 和書: 次のページへ（左にめくる）
-     * - 洋書: 前のページへ（左にめくる）
+     * 右ページが左方向に捲られる
      */
     const handleRightPageClick = () => {
-        handleFlip(isVerticalText ? 'next' : 'prev')
+        handlePageClick(false)
     }
 
     // 自動めくりエフェクト - 読書方向に合わせて自動めくり
     useEffect(() => {
         let timer: NodeJS.Timeout
         if (flipping && !hasActiveAnimations) {
-            // 常に次のページへ進む。getAnimationDirectionで和書/洋書を考慮
-            timer = setTimeout(() => handleFlip('next'), flipIntervalMs)
+            // 自動めくりでは常に次のページに進む
+            // 和書：右ページをクリック（左に捲れて次へ）
+            // 洋書：左ページをクリック（右に捲れて次へ）
+            timer = setTimeout(() => {
+                if (isVerticalText) {
+                    handleRightPageClick() // 和書：右ページをクリック
+                } else {
+                    handleLeftPageClick() // 洋書：左ページをクリック
+                }
+            }, flipIntervalMs)
         }
         return () => clearTimeout(timer)
     }, [flipping, hasActiveAnimations, displayPage, flipIntervalMs, isVerticalText])
@@ -572,29 +603,31 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
 }
 
 /**
- * 読書ビューコンポーネント
+ * ReadingScreen - 和書（縦書き）と洋書（横書き）の電子書籍ビューアーコンポーネント
  *
- * ページめくりの仕様:
+ * 基本原則：「クリックした方のページが捲られる」
  *
- * 1. 和書（縦書き）の場合:
+ * ページめくりの動作：
+ *
+ * 1. 和書（縦書き）の場合：
  *    - 基本方向: 右から左へ読み進む
  *    - 右ページが偶数、左ページが奇数
- *    - 右ページをクリック → そのページが左方向へめくれて次のページ（数字増加）
- *    - 左ページをクリック → そのページが右方向へめくれて前のページ（数字減少）
+ *    - 左ページをクリック → 左ページが右方向に捲れて前のページへ
+ *    - 右ページをクリック → 右ページが左方向に捲れて次のページへ
  *
- * 2. 洋書（横書き）の場合:
+ * 2. 洋書（横書き）の場合：
  *    - 基本方向: 左から右へ読み進む
  *    - 左ページが偶数、右ページが奇数
- *    - 左ページをクリック → そのページが右方向へめくれて次のページ（数字減少）
- *    - 右ページをクリック → そのページが左方向へめくれて前のページ（数字増加）
+ *    - 左ページをクリック → 左ページが右方向に捲れて次のページへ
+ *    - 右ページをクリック → 右ページが左方向に捲れて前のページへ
  *
- * アニメーションの方向:
- * - forward: 左方向へめくれる動作
- * - backward: 右方向へめくれる動作
+ * アニメーションの方向：
+ * - toLeft: 左方向へ捲れる動作（右ページがクリックされた時）
+ * - toRight: 右方向へ捲れる動作（左ページがクリックされた時）
  *
- * 自動めくり:
- * - 和書: 右ページを左方向へめくる（次のページへ）
- * - 洋書: 左ページを右方向へめくる（次のページへ）
+ * 自動めくり：
+ * - 和書: 右ページを左方向へ捲る（次のページへ）
+ * - 洋書: 左ページを右方向へ捲る（次のページへ）
  */
 
 export default ReadingScreen
