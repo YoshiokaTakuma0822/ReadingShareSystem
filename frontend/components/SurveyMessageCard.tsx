@@ -103,7 +103,8 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
             }
             await surveyApi.answerSurvey(msg.surveyId, request)
             setHasAnswered(true)
-            alert('回答が送信されました')
+            // 回答送信後に結果を取得
+            handleShowResults()
         } catch (error) {
             console.error('回答送信エラー:', error)
             alert('回答の送信に失敗しました')
@@ -186,7 +187,7 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
                                                 <label key={oIndex} style={{ display: 'block', marginBottom: 6, cursor: 'pointer', fontSize: 13 }}>
                                                     <input
                                                         type={question.questionType === 'MULTIPLE_CHOICE' ? 'checkbox' : 'radio'}
-                                                        name={question.questionText}
+                                                        name={`question_${qIndex}`}
                                                         value={option}
                                                         checked={answers[question.questionText]?.includes(option) || false}
                                                         onChange={() => handleAnswerSelect(question.questionText, option, question.questionType === 'MULTIPLE_CHOICE')}
