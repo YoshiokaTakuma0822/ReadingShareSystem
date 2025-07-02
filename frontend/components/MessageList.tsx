@@ -25,7 +25,7 @@ const MessageList: React.FC<MessageListProps> = ({ roomId, scrollTrigger }) => {
 
     const instantScrollToBottom = useCallback(() => {
         if (containerRef.current) {
-            containerRef.current.scrollTo({ top: containerRef.current.scrollHeight, behavior: 'auto' })
+            containerRef.current.scrollTo({ top: 0, behavior: 'auto' })
         }
     }, [])
 
@@ -33,14 +33,14 @@ const MessageList: React.FC<MessageListProps> = ({ roomId, scrollTrigger }) => {
         if (containerRef.current) {
             // Chrome用の確実なスクロール処理
             const element = containerRef.current
-            const isAtBottom = element.scrollHeight - element.clientHeight <= element.scrollTop + 1
+            const isAtTop = element.scrollTop <= 1
 
-            if (!isAtBottom) {
+            if (!isAtTop) {
                 // まず即座にスクロール
-                element.scrollTo({ top: element.scrollHeight, behavior: 'auto' })
+                element.scrollTo({ top: 0, behavior: 'auto' })
                 // 少し待ってからスムーズスクロール
                 setTimeout(() => {
-                    element.scrollTo({ top: element.scrollHeight, behavior: 'smooth' })
+                    element.scrollTo({ top: 0, behavior: 'smooth' })
                 }, 10)
             }
         }
@@ -206,11 +206,11 @@ const MessageList: React.FC<MessageListProps> = ({ roomId, scrollTrigger }) => {
             flex: 1,
             overflowY: 'auto',
             display: 'flex',
-            flexDirection: 'column',
+            flexDirection: 'column-reverse',
             gap: 16,
             scrollBehavior: 'smooth'
         }}>
-            {messages.map(msg => {
+            {[...messages].reverse().map(msg => {
                 const isMine = msg.isCurrentUser
                 return msg.messageType === 'SURVEY'
                     ? <SurveyMessageCard key={msg.uuid} msg={msg} isMine={isMine} currentUserId={currentUserId} onLoadingComplete={() => handleSurveyLoadingComplete(msg.id)} />
