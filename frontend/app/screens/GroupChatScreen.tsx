@@ -213,7 +213,10 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                     open={showSurveyModal}
                     roomId={roomId}
                     onClose={() => setShowSurveyModal(false)}
-                    onCreated={() => setShowSurveyModal(false)} // 作成後はモーダルを閉じる
+                    onCreated={() => {
+                        setShowSurveyModal(false) // 作成後はモーダルを閉じる
+                        setScrollTrigger(prev => prev + 1) // スクロールをトリガー
+                    }}
                 />
             )}
             <ReadingScreenOverlay roomId={roomId} open={showReadingOverlay} onClose={() => setShowReadingOverlay(false)} />
