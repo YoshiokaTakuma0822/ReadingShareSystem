@@ -202,17 +202,17 @@
     pointer-events: none;
 }
 
-.animate-forward {
-    animation: pageFlipForward 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+.animate-left {
+    animation: pageFlipLeft 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
 }
 
-.animate-backward {
-    animation: pageFlipBackward 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+.animate-right {
+    animation: pageFlipRight 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
 }
 
-@keyframes pageFlipForward {
+@keyframes pageFlipLeft {
     0% {
         transform: translate(-100%, -50%) rotateY(0deg);
     }
@@ -222,7 +222,7 @@
     }
 }
 
-@keyframes pageFlipBackward {
+@keyframes pageFlipRight {
     0% {
         transform: translate(-100%, -50%) rotateY(180deg);
     }
