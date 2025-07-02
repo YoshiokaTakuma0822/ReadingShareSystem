@@ -25,42 +25,11 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
     const [currentUserId, setCurrentUserId] = useState<string | null>(null)
     const [showReadingOverlay, setShowReadingOverlay] = useState(false)
     const [roomName, setRoomName] = useState<string>(roomTitle)
-    const [testRadioValue, setTestRadioValue] = useState<string>("")
     // アンケート回答モーダル制御
     // アンケート回答・結果はSurveyMessageCard内で処理
 
     // 追加: ユーザーID→ユーザー名のマッピングを保持
     const [userIdToName, setUserIdToName] = useState<Record<string, string>>({})
-
-    // スクロール用ref
-    const messagesContainerRef = React.useRef<HTMLDivElement | null>(null)
-
-    // 初回ロード判定用ref
-    const initialLoadRef = React.useRef(true)
-    // 即時スクロール関数
-    const instantScrollToBottom = React.useCallback(() => {
-        if (messagesContainerRef.current) {
-            messagesContainerRef.current.scrollTo({
-                top: messagesContainerRef.current.scrollHeight,
-                behavior: 'auto'
-            })
-        }
-    }, [])
-
-    // なめらかなスクロール関数
-    const smoothScrollToBottom = React.useCallback(() => {
-        if (messagesContainerRef.current) {
-            messagesContainerRef.current.scrollTo({
-                top: messagesContainerRef.current.scrollHeight,
-                behavior: 'smooth'
-            })
-        }
-    }, [])
-
-    // アンケートメッセージのローディング完了コールバック
-    const handleSurveyLoadingComplete = React.useCallback((messageId: number) => {
-        // 何もしない（メッセージリスト側で処理）
-    }, [])
 
     // コンポーネントマウント時にユーザーIDを取得
     useEffect(() => {
@@ -171,96 +140,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                 </button>
             </div>
 
-            {/* テスト用ラジオボタン - バグ検証 */}
-            <div style={{
-                background: '#fff3e0',
-                border: '2px solid #ff9800',
-                borderRadius: 8,
-                padding: 16,
-                marginBottom: 16
-            }}>
-                <h3 style={{ margin: '0 0 12px 0', color: '#e65100' }}>🧪 テスト用ラジオボタン</h3>
-                <p style={{ margin: '0 0 12px 0', fontSize: 14, color: '#666' }}>
-                    現在の選択: <strong>{testRadioValue || "未選択"}</strong>
-                </p>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                        <input
-                            type="radio"
-                            name="testRadio"
-                            value="option1"
-                            checked={testRadioValue === "option1"}
-                            onChange={(e) => {
-                                console.log('Test radio changed:', e.target.value)
-                                setTestRadioValue(e.target.value)
-                            }}
-                            style={{ marginRight: 8 }}
-                        />
-                        オプション1
-                    </label>
-                    <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                        <input
-                            type="radio"
-                            name="testRadio"
-                            value="option2"
-                            checked={testRadioValue === "option2"}
-                            onChange={(e) => {
-                                console.log('Test radio changed:', e.target.value)
-                                setTestRadioValue(e.target.value)
-                            }}
-                            style={{ marginRight: 8 }}
-                        />
-                        オプション2
-                    </label>
-                    <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                        <input
-                            type="radio"
-                            name="testRadio"
-                            value="option3"
-                            checked={testRadioValue === "option3"}
-                            onChange={(e) => {
-                                console.log('Test radio changed:', e.target.value)
-                                setTestRadioValue(e.target.value)
-                            }}
-                            style={{ marginRight: 8 }}
-                        />
-                        オプション3
-                    </label>
-                </div>
-                <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
-                    <button
-                        onClick={() => {
-                            console.log('Reset clicked')
-                            setTestRadioValue("")
-                        }}
-                        style={{
-                            padding: '6px 12px',
-                            fontSize: 12,
-                            background: '#ff9800',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: 4,
-                            cursor: 'pointer'
-                        }}
-                    >
-                        リセット
-                    </button>
-                    <button
-                        onClick={() => console.log('Current state:', testRadioValue)}
-                        style={{
-                            padding: '6px 12px',
-                            fontSize: 12,
-                            background: '#2196f3',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: 4,
-                            cursor: 'pointer'
-                        }}
-                    >
-                        状態確認
-                    </button>
-                </div>
-            </div>
+
 
             {/* エラー表示 */}
             {error && (
@@ -273,37 +153,20 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                     border: '1px solid #ef5350'
                 }}>
                     {error}
-                    <button
-                        onClick={() => { /* 再試行ロジックはMessageListに移譲 */ }}
-                        style={{
-                            marginLeft: 12,
-                            background: '#c62828',
-                            color: 'white',
-                            border: 'none',
-                            padding: '4px 8px',
-                            borderRadius: 4,
-                            cursor: 'pointer'
-                        }}
-                    >
-                        再試行
-                    </button>
                 </div>
             )}
 
             {/* メッセージリスト */}
-            <div ref={messagesContainerRef} style={{
+            <div style={{
                 flex: 1,
                 display: 'flex',
                 flexDirection: 'column',
-                gap: 16,
                 marginBottom: 32,
                 minHeight: 200,
                 maxHeight: '60vh',
-                overflowY: 'auto',
                 background: 'rgba(255,255,255,0.7)',
                 borderRadius: 8,
-                padding: 16,
-                scrollBehavior: 'smooth' // なめらかなスクロールを追加
+                padding: 16
             }}>
                 {/* チャット取得・スクロールはMessageListに移譲 */}
                 <MessageList roomId={roomId} />

@@ -151,7 +151,16 @@ const MessageList: React.FC<MessageListProps> = ({ roomId }) => {
         surveyMsgs.forEach(m => initialStates[m.id] = false)
         setSurveyLoadingStates(initialStates)
         setShouldScrollToBottom(true)
-        if (!surveyMsgs.length) instantScrollToBottom()
+
+        // サーベイメッセージがない場合はすぐにスクロール
+        if (!surveyMsgs.length) {
+            if (initialLoadRef.current) {
+                instantScrollToBottom()
+                initialLoadRef.current = false
+            } else {
+                smoothScrollToBottom()
+            }
+        }
     }, [messages, instantScrollToBottom, smoothScrollToBottom])
 
     // 初回ロード時のみローディング表示（既存メッセージがある場合は差分取得中も既存表示を維持）
@@ -169,7 +178,14 @@ const MessageList: React.FC<MessageListProps> = ({ roomId }) => {
     }
 
     return (
-        <div ref={containerRef} style={{ flex: 1, overflowY: 'auto' }}>
+        <div ref={containerRef} style={{
+            flex: 1,
+            overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 16,
+            scrollBehavior: 'smooth'
+        }}>
             {messages.map(msg => {
                 const isMine = msg.isCurrentUser
                 return msg.messageType === 'SURVEY'
