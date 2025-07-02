@@ -57,7 +57,6 @@ const MessageList: React.FC<MessageListProps> = ({ roomId, onAnswerClick, onResu
     }, [messages, shouldScrollToBottom, instantScrollToBottom, smoothScrollToBottom])
 
     const loadChatHistory = async () => {
-        console.log('[MessageList] loadChatHistory called, currentUserId=', currentUserId, 'roomId=', roomId)
         if (!roomId) return setLoading(false)
         setLoading(true)
         setError(null)
@@ -69,7 +68,6 @@ const MessageList: React.FC<MessageListProps> = ({ roomId, onAnswerClick, onResu
                 if (a.sentAt > b.sentAt) return 1
                 return a.id < b.id ? -1 : a.id > b.id ? 1 : 0
             })
-            console.log('[MessageList] fetched chatHistory IDs:', chatHistory.map(m => m.id))
             // Message[] へ変換して state にセット
             const converted: Message[] = chatHistory.map((msg, idx) => {
                 let messageText = ''
@@ -82,7 +80,6 @@ const MessageList: React.FC<MessageListProps> = ({ roomId, onAnswerClick, onResu
                 }
                 const senderId = msg.senderId ?? ''
                 const myId = currentUserId ?? ''
-                console.log(`[MessageList] mapping msg.id=${msg.id}, senderId=${msg.senderId}, senderId=${senderId}, myId=${myId}, isCurrentUser=${senderId === myId}`)
                 const username = msg.senderName || (msg.senderId && userIdToName[msg.senderId]
                     ? userIdToName[msg.senderId]
                     : '匿名ユーザー')
@@ -117,7 +114,6 @@ const MessageList: React.FC<MessageListProps> = ({ roomId, onAnswerClick, onResu
         const uid = localStorage.getItem('reading-share-user-id')
         if (uid) {
             setCurrentUserId(uid)
-            console.log('[MessageList] currentUserId loaded from localStorage:', uid)
         }
     }, [])
 
