@@ -248,16 +248,59 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
         return () => ws.close()
     }, [roomId])
 
-    // 左右ページクリックハンドラ
+    // 連打対応のクリックカウンター
+    const [clickCount, setClickCount] = useState(0)
+    const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+    const CLICK_DELAY = 300 // 300msの間隔で連打を検出
+
+    // クリーンアップ
+    useEffect(() => {
+        return () => {
+            if (clickTimeoutRef.current) {
+                clearTimeout(clickTimeoutRef.current)
+            }
+        }
+    }, [])
+
+    // 左右ページクリックハンドラ（連打対応）
     const handleLeftPageClick = () => {
         if (animating || displayPage <= 1) return
-        setFlippingPage(displayPage - 2)
-        setFlipDirection('forward')
+
+        // 連打カウンターを増加
+        setClickCount(prev => prev + 1)
+
+        // 既存のタイマーをクリア
+        if (clickTimeoutRef.current) {
+            clearTimeout(clickTimeoutRef.current)
+        }
+
+        // 新しいタイマーを設定
+        clickTimeoutRef.current = setTimeout(() => {
+            const targetPage = Math.max(1, displayPage - (clickCount * 2))
+            setFlippingPage(targetPage)
+            setFlipDirection('forward')
+            setClickCount(0) // カウンターをリセット
+        }, CLICK_DELAY)
     }
+
     const handleRightPageClick = () => {
         if (animating || displayPage + 2 > totalPages) return
-        setFlippingPage(displayPage + 2)
-        setFlipDirection('backward')
+
+        // 連打カウンターを増加
+        setClickCount(prev => prev + 1)
+
+        // 既存のタイマーをクリア
+        if (clickTimeoutRef.current) {
+            clearTimeout(clickTimeoutRef.current)
+        }
+
+        // 新しいタイマーを設定
+        clickTimeoutRef.current = setTimeout(() => {
+            const targetPage = Math.min(totalPages, displayPage + (clickCount * 2))
+            setFlippingPage(targetPage)
+            setFlipDirection('backward')
+            setClickCount(0) // カウンターをリセット
+        }, CLICK_DELAY)
     }
 
     // --- カウントダウン用 ---
@@ -310,6 +353,11 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                     <div className="bookContainer" style={{ position: 'relative' }}>
                         <div style={{ position: 'absolute', left: '-140px', top: '50%', transform: 'translateY(-50%)', width: 120, textAlign: 'right', color: '#388e3c', fontWeight: 'bold', fontSize: 16, pointerEvents: 'none', userSelect: 'none', zIndex: 100 }}>
                             {displayPage > 0 && '← ページをクリックで1ページ戻る'}
+                            {clickCount > 0 && (
+                                <div style={{ fontSize: 14, color: '#ff6b35', marginTop: 4 }}>
+                                    {clickCount}回クリック中...
+                                </div>
+                            )}
                         </div>
                         <div className="leftPage" onClick={handleLeftPageClick}>
                             <span className="pageNumber left">{displayPage}</span>
@@ -319,6 +367,11 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                         </div>
                         <div style={{ position: 'absolute', right: '-140px', top: '50%', transform: 'translateY(-50%)', width: 120, textAlign: 'left', color: '#388e3c', fontWeight: 'bold', fontSize: 16, pointerEvents: 'none', userSelect: 'none', zIndex: 100 }}>
                             {displayPage < totalPages && 'ページをクリックで1ページ進む →'}
+                            {clickCount > 0 && (
+                                <div style={{ fontSize: 14, color: '#ff6b35', marginTop: 4 }}>
+                                    {clickCount}回クリック中...
+                                </div>
+                            )}
                         </div>
                         <div className="spine"></div>
                         {flippingPage !== null && flipDirection && (
