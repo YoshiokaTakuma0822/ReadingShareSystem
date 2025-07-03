@@ -11,3 +11,5 @@ export default function ChatPage({ params }: ChatPageProps) {
     const { roomId } = React.use(params)
     return <GroupChatScreen roomId={roomId} />
 }
+
+export const dynamic = 'force-dynamic';
