@@ -6,6 +6,9 @@ import requests
 import zipfile
 import io
 import time
+import asyncio
+
+operation_lock = asyncio.Lock()
 
 app = FastAPI(
     docs_url=None,
@@ -25,6 +28,30 @@ COMPOSE_DIR = EXTRACT_DIR / f"{REPO}-{BRANCH}"
 # Add rate limiting utilities
 last_deploy_time = 0.0
 last_reset_time = 0.0
+
+# Timeout for operations: 15 minutes
+TIMEOUT_SECONDS = 15 * 60
+
+# Synchronous helper for deploy logic
+def _deploy_task():
+    global last_deploy_time
+    # Rate limiting: 5秒間隔
+    if time.time() - last_deploy_time < 11:
+        raise HTTPException(status_code=429, detail="Too many requests")
+    fetch_and_extract()
+    run_cmd("docker compose down", cwd=COMPOSE_DIR)
+    run_cmd("docker compose up -d --build", cwd=COMPOSE_DIR)
+    last_deploy_time = time.time()
+
+# Synchronous helper for reset logic
+def _reset_task():
+    global last_reset_time
+    # Rate limiting: 5秒間隔
+    if time.time() - last_reset_time < 11:
+        raise HTTPException(status_code=429, detail="Too many requests")
+    run_cmd("docker compose down -v", cwd=COMPOSE_DIR)
+    run_cmd("docker compose up -d",   cwd=COMPOSE_DIR)
+    last_reset_time = time.time()
 
 def run_cmd(cmd: str, cwd: Path = None) -> str:
     result = subprocess.run(
@@ -60,20 +87,25 @@ async def deploy():
     - ZIP をダウンロード → 展開  
     - COMPOSE_DIR 以下で docker compose up -d
     """
-    global last_deploy_time
-
-    # Rate limiting: 5秒間隔
-    if time.time() - last_deploy_time < 11:
-        raise HTTPException(status_code=429, detail="Too many requests")
-
+    # Prevent simultaneous operations
+    if operation_lock.locked():
+        raise HTTPException(status_code=429, detail="Another operation in progress")
+    await operation_lock.acquire()
     try:
-        fetch_and_extract()
-        run_cmd("docker compose down", cwd=COMPOSE_DIR)
-        run_cmd("docker compose up -d", cwd=COMPOSE_DIR)
-        last_deploy_time = time.time()
+        # Execute deploy with timeout
+        await asyncio.wait_for(
+            asyncio.get_running_loop().run_in_executor(None, _deploy_task),
+            timeout=TIMEOUT_SECONDS
+        )
         return {"status": "deployed via HTTP archive"}
+    except asyncio.TimeoutError:
+        raise HTTPException(status_code=504, detail="Operation timed out after 15 minutes")
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        operation_lock.release()
 
 @app.get("/b0e873fd-af04-4b45-b0cc-95a990f1077d/reset")
 async def reset():
@@ -81,19 +113,25 @@ async def reset():
     - COMPOSE_DIR 以下で docker compose down  
     - 再度 up -d
     """
-    global last_reset_time
-
-    # Rate limiting: 5秒間隔
-    if time.time() - last_reset_time < 11:
-        raise HTTPException(status_code=429, detail="Too many requests")
-
+    # Prevent simultaneous operations
+    if operation_lock.locked():
+        raise HTTPException(status_code=429, detail="Another operation in progress")
+    await operation_lock.acquire()
     try:
-        run_cmd("docker compose down -v", cwd=COMPOSE_DIR)
-        run_cmd("docker compose up -d",   cwd=COMPOSE_DIR)
-        last_reset_time = time.time()
+        # Execute reset with timeout
+        await asyncio.wait_for(
+            asyncio.get_running_loop().run_in_executor(None, _reset_task),
+            timeout=TIMEOUT_SECONDS
+        )
         return {"status": "reset and deployed"}
+    except asyncio.TimeoutError:
+        raise HTTPException(status_code=504, detail="Operation timed out after 15 minutes")
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        operation_lock.release()
 
 if __name__ == "__main__":
     import uvicorn  # type: ignore
