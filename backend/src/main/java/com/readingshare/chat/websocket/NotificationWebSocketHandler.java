@@ -66,11 +66,13 @@ public class NotificationWebSocketHandler extends TextWebSocketHandler {
      * roomId 宛に進捗更新を通知
      */
     public void broadcastProgress(String roomId, int percent, String detail) {
+        // Include userId and currentPage in payload
         Map<String, Object> payloadMap = Map.of(
                 "roomId", roomId,
                 "event", "progressUpdate",
                 "percent", percent,
-                "detail", detail);
+                "userId", detail,
+                "currentPage", detail);
         Set<WebSocketSession> sessions = sessionsMap.get(roomId);
         if (sessions == null)
             return;
