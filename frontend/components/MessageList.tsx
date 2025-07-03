@@ -178,6 +178,8 @@ const MessageList: React.FC<MessageListProps> = ({ roomId, scrollTrigger }) => {
     // 外部からのスクロールトリガー（メッセージ送信後など）
     useEffect(() => {
         if (scrollTrigger && scrollTrigger > 0) {
+            // 送信後に新着メッセージを取得
+            loadChatHistory()
             // requestAnimationFrameを使ってChromeでの確実なスクロール実行を保証
             requestAnimationFrame(() => {
                 setTimeout(() => {
