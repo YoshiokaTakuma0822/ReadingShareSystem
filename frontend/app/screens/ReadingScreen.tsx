@@ -351,11 +351,11 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
         const newAnimationId = animationIdCounter
         setAnimationIdCounter(prev => prev + 1)
 
-        // クリックされたページ位置から方向を決定
+        // Determine directions
         const readingDirection = getReadingDirectionFromClick(isLeftPage)
         const animDirection = getAnimationDirectionFromClick(isLeftPage)
 
-        // 捲られるページの番号を決定
+        // Determine flipping page number for animation
         const flippingPageNumber = isLeftPage
             ? (isVerticalText
                 ? (displayPage + 1 <= totalPages ? (displayPage + 1).toString() : '') // 和書: 左ページが奇数
@@ -366,7 +366,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                 : (displayPage + 1 <= totalPages ? (displayPage + 1).toString() : '') // 洋書: 右ページが奇数
             )
 
-        // 新しいアニメーションを追加
+        // Add animation
         setActiveAnimations(prev => [...prev, {
             id: newAnimationId,
             direction: animDirection,
@@ -375,13 +375,15 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
             backPageNumber: getBackPageNumber(flippingPageNumber, isLeftPage)
         }])
 
-        // ページ更新（2ページずつ）
-        setDisplayPage(prev => {
-            const newPage = getNextPageNumber(prev, readingDirection)
-            const adjustedPage = adjustPageNumber(newPage, readingDirection)
-            setCurrentPage(adjustedPage)
-            return newPage
-        })
+        // Update pages together
+        const rawNext = getNextPageNumber(currentPage, readingDirection)
+        const adjusted = adjustPageNumber(rawNext, readingDirection)
+        setCurrentPage(adjusted)
+        setDisplayPage(adjusted)
+        // Persist progress via REST API when user clicks page
+        if (isInitialized) {
+            saveAndBroadcastProgress(adjusted)
+        }
     }
 
     /**
@@ -627,7 +629,8 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                                                 try {
                                                     const updated = await roomApi.updateTotalPages(roomId, inputTotalPages)
                                                     setTotalPages(updated.totalPages ?? inputTotalPages)
-                                                    saveAndBroadcastProgress(currentPage)
+                                                    // reflect both currentPage and displayPage
+                                                    handlePageChange(currentPage)
                                                 } catch (e) {
                                                     alert("ページ数の更新に失敗しました")
                                                 }
