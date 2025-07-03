@@ -75,13 +75,9 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
 
     // 作成者名
     const [hostUserId, setHostUserId] = useState<string | null>(null)
-    const [creatorName, setCreatorName] = useState<string>("")
 
     // 縦書き/横書き切り替え用の状態
     const [isVerticalText, setIsVerticalText] = useState<boolean>(false)
-
-    // ページめくり量（1ページか2ページか）
-    const [pageFlipAmount, setPageFlipAmount] = useState<number>(1)
 
     // Removed initial auto-flip effect; replaced below after handlers
 
@@ -107,9 +103,6 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                     color: '#222',
                     userId: m.userId
                 })))
-                // userId比較はハイフン除去・小文字化で厳密一致
-                const creator = memberList.find(m => m.userId && hostUserId && m.userId.replace(/-/g, '').toLowerCase() === hostUserId.replace(/-/g, '').toLowerCase())
-                setCreatorName(creator ? creator.username : '')
             })
             .catch((e) => console.error('getRoomMembers error:', e))
     }, [roomId, hostUserId])
@@ -317,7 +310,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
     const getNextPageNumber = (currentPage: number, direction: ReadingDirection): number => {
         const delta = direction === 'next' ? 2 : -2
         const newPage = currentPage + delta
-        return Math.max(1, Math.min(newPage, totalPages - 1))
+        return Math.max(0, Math.min(newPage, totalPages - totalPages % 2)) // 偶数ページに調整
     }
 
     /**
