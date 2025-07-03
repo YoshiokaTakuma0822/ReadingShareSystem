@@ -224,8 +224,13 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
         ws.onmessage = (event) => {
             try {
                 const msg = JSON.parse(event.data)
-                if (msg.type === 'reading-progress' && msg.roomId === roomId && msg.userId && typeof msg.currentPage === 'number') {
-                    setMembers((prev) => prev.map(m => m.userId === msg.userId ? { ...m, page: msg.currentPage } : m))
+                if (msg.event === 'progressUpdate' && msg.roomId === roomId) {
+                    // update member progress or own page
+                    setMembers((prev) => prev.map(m => m.userId === msg.userId ? { ...m, page: Number(msg.currentPage) } : m))
+                    if (msg.userId === authStorage.getUserId()) {
+                        setCurrentPage(Number(msg.currentPage))
+                        setDisplayPage(Number(msg.currentPage))
+                    }
                 }
             } catch { }
         }
@@ -545,7 +550,22 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                         <button
                             className="controlButton"
                             style={{ padding: '12px 24px', fontSize: 18 }}
-                            onClick={() => {
+                            onClick={async () => {
+                                if (roomId) {
+                                    const userId = authStorage.getUserId()
+                                    if (userId) {
+                                        try {
+                                            const res = await readingStateApi.getRoomReadingState(roomId, userId)
+                                            const myState = res.userStates.find(u => u.userId === userId)
+                                            if (myState) {
+                                                setCurrentPage(myState.currentPage)
+                                                setDisplayPage(myState.currentPage)
+                                            }
+                                        } catch {
+                                            // ignore
+                                        }
+                                    }
+                                }
                                 setEditingTotalPages(true)
                                 setShowProgressModal(true)
                             }}
