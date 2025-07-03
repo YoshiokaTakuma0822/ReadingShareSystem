@@ -110,38 +110,31 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
         if (!roomId) return
         const userId = authStorage.getUserId()
         if (!userId) return
-        // ローカルストレージから進捗を優先的に取得
-        const localKey = `reading-progress-${roomId}-${userId}`
-        const localPage = localStorage.getItem(localKey)
-        if (localPage && !isNaN(Number(localPage))) {
-            setCurrentPage(Number(localPage))
-            setDisplayPage(Number(localPage))
-        }
-        readingStateApi.getRoomReadingState(roomId, userId).then((res) => {
-            if (res && res.userStates && res.userStates.length > 0) {
-                const myState = res.userStates.find(u => u.userId === userId)
-                if (myState) {
-                    setCurrentPage(myState.currentPage)
-                    setDisplayPage(myState.currentPage)
-                    // サーバー値でローカルも上書き
-                    localStorage.setItem(localKey, String(myState.currentPage))
+        // Fetch progress from server instead of localStorage
+        readingStateApi.getRoomReadingState(roomId, userId)
+            .then((res) => {
+                if (res && res.userStates && res.userStates.length > 0) {
+                    const myState = res.userStates.find(u => u.userId === userId)
+                    if (myState) {
+                        setCurrentPage(myState.currentPage)
+                        setDisplayPage(myState.currentPage)
+                    }
                 }
-            }
-            setIsInitialized(true) // 初期化完了
-        }).catch(() => { setIsInitialized(true) })
+                setIsInitialized(true) // 初期化完了
+            })
+            .catch(() => { setIsInitialized(true) })
     }, [roomId])
 
     // ページ進捗を保存し、WebSocketでブロードキャストする関数
     const saveAndBroadcastProgress = async (page: number) => {
         if (!roomId) return
 
-        // 常に偶数ページに調整（和書/洋書共に表示ページは偶数ベース）
+        // Always adjust to even page number
         const adjustedPage = Math.max(2, page % 2 === 0 ? page : page - 1)
 
         const userId = authStorage.getUserId()
         if (!userId) return
-        const localKey = `reading-progress-${roomId}-${userId}`
-        localStorage.setItem(localKey, String(adjustedPage))
+        // Send progress to server instead of localStorage
         try {
             await readingStateApi.updateUserReadingState(roomId, userId, { userId, currentPage: adjustedPage, comment: '' })
         } catch (e) {
@@ -154,8 +147,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
         if (roomId) {
             const userId = authStorage.getUserId()
             if (userId) {
-                const localKey = `reading-progress-${roomId}-${userId}`
-                localStorage.removeItem(localKey)
+                // Removed localStorage cleanup
             }
             window.location.href = `/rooms/${roomId}/chat`
         }
