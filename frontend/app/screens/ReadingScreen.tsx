@@ -7,8 +7,6 @@ import { RoomMember } from '../../types/room'
 import ReadingProgressModal from "./ReadingProgressModal"
 import './ReadingScreen.css'
 
-const maxPage = 300
-
 // 本の進行方向を表す型
 type ReadingDirection = 'next' | 'prev'
 
@@ -459,16 +457,16 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                         <div className="leftPage" onClick={handleLeftPageClick}>
                             <span className={`pageNumber left`}>
                                 {isVerticalText
-                                    ? (displayPage + 1 <= totalPages ? displayPage + 1 : '') // 和書: 左ページが奇数
-                                    : displayPage // 洋書: 左ページが偶数（小さい番号）
+                                    ? ((displayPage + 1) >= 1 && (displayPage + 1) <= totalPages ? displayPage + 1 : '') // 和書: 左ページが奇数
+                                    : (displayPage >= 1 && displayPage <= totalPages ? displayPage : '') // 洋書: 左ページが偶数（小さい番号）
                                 }
                             </span>
                         </div>
                         <div className="rightPage" onClick={handleRightPageClick}>
                             <span className={`pageNumber right`}>
                                 {isVerticalText
-                                    ? displayPage // 和書: 右ページが偶数
-                                    : (displayPage + 1 <= totalPages ? displayPage + 1 : '') // 洋書: 右ページが奇数（大きい番号）
+                                    ? (displayPage >= 1 && displayPage <= totalPages ? displayPage : '') // 和書: 右ページが偶数
+                                    : ((displayPage + 1) >= 1 && (displayPage + 1) <= totalPages ? displayPage + 1 : '') // 洋書: 右ページが奇数（大きい番号）
                                 }
                             </span>
                         </div>
@@ -566,7 +564,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                         <ReadingProgressModal
                             open={showProgressModal}
                             currentPage={currentPage}
-                            maxPage={maxPage}
+                            maxPage={totalPages}
                             onClose={() => setShowProgressModal(false)}
                             onSubmit={(page) => {
                                 handlePageChange(page)
