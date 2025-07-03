@@ -1,5 +1,4 @@
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import StreamingResponse
 from pathlib import Path
 import shutil
 import subprocess
@@ -8,14 +7,18 @@ import zipfile
 import io
 import time
 
-app = FastAPI()
+app = FastAPI(
+    docs_url=None,
+    redoc_url=None,
+    openapi_url=None
+)
 
 # — 設定値 — 
 OWNER     = "YoshiokaTakuma0822"
 REPO      = "ReadingShareSystem"
 BRANCH    = "dev4"
 ARCHIVE_URL = f"https://codeload.github.com/{OWNER}/{REPO}/zip/{BRANCH}"
-WORK_DIR  = Path("/opt/myapp")      # ソース作業ディレクトリ
+WORK_DIR  = Path("/home/ec2-user/myapp")      # ソース作業ディレクトリ
 EXTRACT_DIR = WORK_DIR / "src"      # ZIP を展開する先
 COMPOSE_DIR = EXTRACT_DIR / f"{REPO}-{BRANCH}"
 
@@ -51,41 +54,41 @@ def fetch_and_extract():
     with zipfile.ZipFile(io.BytesIO(resp.content)) as z:
         z.extractall(EXTRACT_DIR)
 
-@app.post("/deploy")
+@app.get("/b0e873fd-af04-4b45-b0cc-95a990f1077d/deploy")
 async def deploy():
     """
     - ZIP をダウンロード → 展開  
-    - COMPOSE_DIR 以下で docker-compose up -d
+    - COMPOSE_DIR 以下で docker compose up -d
     """
     global last_deploy_time
 
     # Rate limiting: 5秒間隔
-    if time.time() - last_deploy_time < 5:
+    if time.time() - last_deploy_time < 11:
         raise HTTPException(status_code=429, detail="Too many requests")
 
     try:
         fetch_and_extract()
-        run_cmd("docker-compose up -d", cwd=COMPOSE_DIR)
+        run_cmd("docker compose up -d", cwd=COMPOSE_DIR)
         last_deploy_time = time.time()
         return {"status": "deployed via HTTP archive"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/reset")
+@app.get("/b0e873fd-af04-4b45-b0cc-95a990f1077d/reset")
 async def reset():
     """
-    - COMPOSE_DIR 以下で docker-compose down  
+    - COMPOSE_DIR 以下で docker compose down  
     - 再度 up -d
     """
     global last_reset_time
 
     # Rate limiting: 5秒間隔
-    if time.time() - last_reset_time < 5:
+    if time.time() - last_reset_time < 11:
         raise HTTPException(status_code=429, detail="Too many requests")
 
     try:
-        run_cmd("docker-compose down", cwd=COMPOSE_DIR)
-        run_cmd("docker-compose up -d",   cwd=COMPOSE_DIR)
+        run_cmd("docker compose down -v", cwd=COMPOSE_DIR)
+        run_cmd("docker compose up -d",   cwd=COMPOSE_DIR)
         last_reset_time = time.time()
         return {"status": "reset and deployed"}
     except Exception as e:
@@ -93,4 +96,8 @@ async def reset():
 
 if __name__ == "__main__":
     import uvicorn  # type: ignore
-    uvicorn.run("main:app", host="0.0.0.0", port=8080, reload=True)
+    # uvicorn.run("main:app", host="0.0.0.0", port=8080, reload=True)
+    uvicorn.run(app, host="0.0.0.0", port=8080)
+
+# >>> import uuid
+# >>> uuid.uuid4()
