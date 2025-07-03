@@ -117,7 +117,8 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                     const myState = res.userStates.find(u => u.userId === userId)
                     if (myState) {
                         setCurrentPage(myState.currentPage)
-                        setDisplayPage(myState.currentPage)
+                        // Adjust displayPage to proper even/odd based on orientation
+                        setDisplayPage(adjustPageNumber(myState.currentPage, 'next'))
                     }
                 }
                 setIsInitialized(true) // 初期化完了
@@ -156,7 +157,9 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
     // currentPage変更時の保存・WebSocket送信はここで一元化
     const handlePageChange = (page: number) => {
         setCurrentPage(page)
-        setDisplayPage(page)
+        // Align display page to even page based on reading direction
+        const adjustedDisplay = adjustPageNumber(page, 'next')
+        setDisplayPage(adjustedDisplay)
         // 初期化完了後のみ保存・送信
         if (isInitialized) {
             saveAndBroadcastProgress(page)
@@ -228,8 +231,9 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                     // update member progress or own page
                     setMembers((prev) => prev.map(m => m.userId === msg.userId ? { ...m, page: Number(msg.currentPage) } : m))
                     if (msg.userId === authStorage.getUserId()) {
-                        setCurrentPage(Number(msg.currentPage))
-                        setDisplayPage(Number(msg.currentPage))
+                        const newPage = Number(msg.currentPage)
+                        setCurrentPage(newPage)
+                        setDisplayPage(adjustPageNumber(newPage, 'next'))
                     }
                 }
             } catch { }
@@ -560,8 +564,9 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                                             const res = await readingStateApi.getRoomReadingState(roomId, userId)
                                             const myState = res.userStates.find(u => u.userId === userId)
                                             if (myState) {
-                                                setCurrentPage(myState.currentPage)
-                                                setDisplayPage(myState.currentPage)
+                                                const initPage = myState.currentPage
+                                                setCurrentPage(initPage)
+                                                setDisplayPage(adjustPageNumber(initPage, 'next'))
                                             }
                                         } catch {
                                             // ignore
