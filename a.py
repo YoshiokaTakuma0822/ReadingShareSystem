@@ -11,9 +11,9 @@ import time
 app = FastAPI()
 
 # — 設定値 — 
-OWNER     = "<ユーザー>"
-REPO      = "<リポジトリ>"
-BRANCH    = "main"
+OWNER     = "YoshiokaTakuma0822"
+REPO      = "ReadingShareSystem"
+BRANCH    = "dev4"
 ARCHIVE_URL = f"https://codeload.github.com/{OWNER}/{REPO}/zip/{BRANCH}"
 WORK_DIR  = Path("/opt/myapp")      # ソース作業ディレクトリ
 EXTRACT_DIR = WORK_DIR / "src"      # ZIP を展開する先
