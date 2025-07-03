@@ -130,7 +130,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
         if (!roomId) return
 
         // Always adjust to even page number
-        const adjustedPage = Math.max(2, page % 2 === 0 ? page : page - 1)
+        const adjustedPage = Math.max(0, page % 2 === 0 ? page : page - 1)
 
         const userId = authStorage.getUserId()
         if (!userId) return
@@ -315,10 +315,10 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
         // 和書と洋書で偶数/奇数の配置が逆
         if (isVerticalText) {
             // 和書: 右ページを偶数に（displayPageは偶数）
-            return Math.max(2, page % 2 === 0 ? page : page - 1)
+            return Math.max(0, page % 2 === 0 ? page : page - 1)
         } else {
             // 洋書: 左ページを偶数に（displayPageは偶数）
-            return Math.max(2, page % 2 === 0 ? page : page - 1)
+            return Math.max(0, page % 2 === 0 ? page : page - 1)
         }
     }
 
