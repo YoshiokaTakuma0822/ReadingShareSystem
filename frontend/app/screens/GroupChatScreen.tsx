@@ -16,7 +16,7 @@ interface GroupChatScreenProps {
     roomId?: string
 }
 
-const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャットルーム", currentUser = "あなた", roomId }) => {
+const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャットルームa", currentUser = "あなた", roomId }) => {
     const router = useRouter()
     const [input, setInput] = useState("")
     const [showSurveyModal, setShowSurveyModal] = useState(false)
