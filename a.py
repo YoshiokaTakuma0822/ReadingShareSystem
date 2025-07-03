@@ -1,12 +1,12 @@
-from fastapi import FastAPI, HTTPException
-from pathlib import Path
+import asyncio
+import io
 import shutil
 import subprocess
-import requests
 import zipfile
-import io
-import time
-import asyncio
+from pathlib import Path
+
+import requests
+from fastapi import FastAPI, HTTPException
 
 operation_lock = asyncio.Lock()
 
@@ -54,8 +54,8 @@ def run_cmd(cmd: str, cwd: Path = None) -> str:
 
 def fetch_and_extract():
     """
-    1) ARCHIVE_URL から ZIP をダウンロード  
-    2) EXTRACT_DIR を丸ごと削除して再作成  
+    1) ARCHIVE_URL から ZIP をダウンロード
+    2) EXTRACT_DIR を丸ごと削除して再作成
     3) ZIP をメモリ上で解凍
     """
     # ダウンロード
@@ -75,7 +75,7 @@ def fetch_and_extract():
 @app.get("/b0e873fd-af04-4b45-b0cc-95a990f1077d/deploy")
 async def deploy():
     """
-    - ZIP をダウンロード → 展開  
+    - ZIP をダウンロード → 展開
     - COMPOSE_DIR 以下で docker compose up -d
     """
     # Prevent simultaneous operations
@@ -104,7 +104,7 @@ async def deploy():
 @app.get("/b0e873fd-af04-4b45-b0cc-95a990f1077d/reset")
 async def reset():
     """
-    - COMPOSE_DIR 以下で docker compose down  
+    - COMPOSE_DIR 以下で docker compose down
     - 再度 up -d
     """
     # Prevent simultaneous operations
@@ -131,6 +131,7 @@ async def reset():
 
 if __name__ == "__main__":
     import uvicorn  # type: ignore
+
     # uvicorn.run("main:app", host="0.0.0.0", port=8080, reload=True)
     uvicorn.run(app, host="0.0.0.0", port=8080)
 
