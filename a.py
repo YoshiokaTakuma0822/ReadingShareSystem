@@ -68,6 +68,7 @@ async def deploy():
 
     try:
         fetch_and_extract()
+        run_cmd("docker compose down", cwd=COMPOSE_DIR)
         run_cmd("docker compose up -d", cwd=COMPOSE_DIR)
         last_deploy_time = time.time()
         return {"status": "deployed via HTTP archive"}
