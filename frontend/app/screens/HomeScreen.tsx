@@ -46,36 +46,12 @@ const HomeScreen: React.FC = () => {
     const [endTimeFrom, setEndTimeFrom] = useState<string>('')
     const [endTimeTo, setEndTimeTo] = useState<string>('')
 
-    // 部屋検索API（空文字の場合は全件取得）
-    const handleSearch = async () => {
+    // 部屋一覧取得（作成タブ用）
+    const handleGetRooms = async () => {
         setLoading(true)
         setError(null)
         try {
-            // 'create' タブでは全件取得、'search' タブではキーワード検索
-            let roomsList: Room[] = []
-            if (tab === 'create') {
-                roomsList = await roomApi.getRooms(100) // limit 100
-            } else {
-                // 検索タブでは複数条件検索
-                const result = await roomApi.searchRooms(
-                    searchText,
-                    genre,
-                    startTimeFrom,
-                    startTimeTo,
-                    endTimeFrom,
-                    endTimeTo,
-                    minPages,
-                    maxPages
-                )
-                // 部屋タイプによるフィルター
-                let found = result.rooms || []
-                if (roomType === 'open') {
-                    found = found.filter(r => !r.hasPassword)
-                } else if (roomType === 'closed') {
-                    found = found.filter(r => r.hasPassword)
-                }
-                roomsList = found
-            }
+            const roomsList = await roomApi.getRooms(100) // limit 100
             setRooms(roomsList)
             // 部屋ごとに作成者名を取得
             const map: { [roomId: string]: string } = {}
@@ -96,15 +72,66 @@ const HomeScreen: React.FC = () => {
         }
     }
 
+    // 部屋検索（検索タブ用）
+    const handleSearch = async () => {
+        setLoading(true)
+        setError(null)
+        try {
+            // 検索タブでは複数条件検索
+            const result = await roomApi.searchRooms(
+                searchText,
+                genre,
+                startTimeFrom,
+                startTimeTo,
+                endTimeFrom,
+                endTimeTo,
+                minPages,
+                maxPages
+            )
+            // 部屋タイプによるフィルター
+            let found = result.rooms || []
+            if (roomType === 'open') {
+                found = found.filter(r => !r.hasPassword)
+            } else if (roomType === 'closed') {
+                found = found.filter(r => r.hasPassword)
+            }
+            setRooms(found)
+            // 部屋ごとに作成者名を取得
+            const map: { [roomId: string]: string } = {}
+            await Promise.all(found.map(async (room) => {
+                try {
+                    const members = await roomApi.getRoomMembers(room.id)
+                    const creator = members.find((m: any) => (m.userId || '').replace(/-/g, '').toLowerCase() === (room.hostUserId || '').replace(/-/g, '').toLowerCase())
+                    map[room.id] = creator ? creator.username : ''
+                } catch {
+                    map[room.id] = ''
+                }
+            }))
+            setCreatorMap(map)
+        } catch (e) {
+            setError('部屋の検索に失敗しました')
+        } finally {
+            setLoading(false)
+        }
+    }
+
     // 初期表示とタブ変更時の部屋取得
     // 初期マウントで全件取得
     React.useEffect(() => {
-        handleSearch()
+        if (tab === 'create') {
+            handleGetRooms()
+        } else {
+            handleSearch()
+        }
     }, [])
     // タブ変更時の部屋取得
     React.useEffect(() => {
         // タブを切り替えたときは常に部屋情報を取得
-        handleSearch()
+        if (tab === 'create') {
+            handleGetRooms()
+        } else {
+            handleSearch()
+        }
     }, [tab])
 
     // 検索テキスト変更時のリアルタイム検索（デバウンス）
@@ -204,10 +231,12 @@ const HomeScreen: React.FC = () => {
     }
 
     // 部屋作成後のリスト再取得
-    const handleRoomCreated = (_room: Room) => {
+    const handleRoomCreated = async (_room: Room) => {
         setShowCreateModal(false)
         // 作成タブに戻す
         setTab('create')
+        // 部屋リストを更新（作成タブなので全件取得）
+        await handleGetRooms()
     }
 
     // 部屋参加後の処理
