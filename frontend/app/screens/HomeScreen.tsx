@@ -340,7 +340,7 @@ const HomeScreen: React.FC = () => {
                             新しい部屋を作成する
                         </button>
                         <button
-                            onClick={handleSearch}
+                            onClick={handleGetRooms}
                             style={{ padding: '12px 24px', borderRadius: 8, border: '1px solid #2196f3', background: '#2196f3', color: '#fff', fontWeight: 'bold', fontSize: 16, cursor: 'pointer' }}
                         >部屋一覧を更新</button>
                     </div>
@@ -606,7 +606,14 @@ const HomeScreen: React.FC = () => {
                                                     e.stopPropagation()
                                                     if (window.confirm('本当にこの部屋を削除しますか？')) {
                                                         roomApi.deleteRoom(room.id)
-                                                            .then(handleSearch)
+                                                            .then(() => {
+                                                                // 現在のタブに応じて適切な更新処理を実行
+                                                                if (tab === 'create') {
+                                                                    handleGetRooms()
+                                                                } else {
+                                                                    handleSearch()
+                                                                }
+                                                            })
                                                             .catch(err => {
                                                                 let msg = '削除に失敗しました'
                                                                 if (err && err.response && err.response.data) {
