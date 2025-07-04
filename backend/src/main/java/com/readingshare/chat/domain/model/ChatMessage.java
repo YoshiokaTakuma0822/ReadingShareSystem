@@ -38,7 +38,7 @@ public class ChatMessage {
     @Column(name = "sent_at", nullable = false)
     private Instant sentAt; // 送信日時
 
-    @Column(name = "message_type", nullable = false, columnDefinition = "VARCHAR(20) DEFAULT 'TEXT'")
+    @Column(name = "message_type", nullable = false, length = 20)
     private String messageType = MessageType.TEXT; // メッセージタイプ
 
     @Column(name = "survey_id", columnDefinition = "UUID")

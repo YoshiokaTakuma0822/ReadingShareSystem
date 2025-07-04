@@ -29,7 +29,7 @@ public class ChatMessageBroadcastService {
         dto.setSenderName(senderName);
         dto.setContent(chatMessage.getContent() != null ? chatMessage.getContent().getValue() : null);
         dto.setSentAt(chatMessage.getSentAt() != null ? chatMessage.getSentAt().toString() : null);
-        dto.setMessageType(chatMessage.getMessageType() != null ? chatMessage.getMessageType() : "TEXT");
+        dto.setMessageType(chatMessage.getMessageType());
         dto.setSurveyId(chatMessage.getSurveyId() != null ? chatMessage.getSurveyId().toString() : null);
         System.out.println("[WebSocket送信] " + dto);
 

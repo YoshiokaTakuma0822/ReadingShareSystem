@@ -51,7 +51,7 @@ CREATE TABLE chat_messages (
     sender_user_id  UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     message_content TEXT NOT NULL,
     sent_at         TIMESTAMP NOT NULL,
-    message_type    VARCHAR(20) NOT NULL DEFAULT 'TEXT',
+    message_type    VARCHAR(20) NOT NULL,
     survey_id       UUID REFERENCES surveys(id) ON DELETE SET NULL
 );
 
