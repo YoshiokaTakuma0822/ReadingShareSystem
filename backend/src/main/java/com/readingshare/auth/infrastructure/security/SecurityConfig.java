@@ -42,9 +42,6 @@ public class SecurityConfig {
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/topic/**").permitAll()
                         .requestMatchers("/app/**").permitAll()
-                        // 履歴APIを認証不要に
-                        .requestMatchers(HttpMethod.GET, "/api/rooms/history").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/api/rooms/history").permitAll()
                         // その他のAPIは認証が必要
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll())
