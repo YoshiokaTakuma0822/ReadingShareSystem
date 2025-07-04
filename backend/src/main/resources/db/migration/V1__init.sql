@@ -6,8 +6,8 @@ CREATE TABLE users (
     id             UUID PRIMARY KEY,
     username       VARCHAR(255) NOT NULL UNIQUE,
     password_hash  VARCHAR(255) NOT NULL,
-    joined_at      TIMESTAMP NOT NULL,
-    history_reset_at TIMESTAMP
+    joined_at      TIMESTAMP WITH TIME ZONE NOT NULL,
+    history_reset_at TIMESTAMP WITH TIME ZONE
 );
 
 -- 認証トークンテーブル
@@ -27,12 +27,12 @@ CREATE TABLE rooms (
     room_name      VARCHAR(100) NOT NULL,
     book_title     VARCHAR(200) NOT NULL,
     host_user_id   UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    created_at     TIMESTAMP NOT NULL,
-    end_time       TIMESTAMP,
+    created_at     TIMESTAMP WITH TIME ZONE NOT NULL,
+    end_time       TIMESTAMP WITH TIME ZONE,
     total_pages    INTEGER NOT NULL DEFAULT 0,
     password_hash  VARCHAR(255),
     genre          VARCHAR(100),
-    start_time     TIMESTAMP
+    start_time     TIMESTAMP WITH TIME ZONE
 );
 
 -- 部屋メンバーテーブル
@@ -40,7 +40,7 @@ CREATE TABLE room_members (
     id           UUID PRIMARY KEY,
     room_id      UUID NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
     user_id      UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    joined_at    TIMESTAMP NOT NULL,
+    joined_at    TIMESTAMP WITH TIME ZONE NOT NULL,
     CONSTRAINT unique_room_member UNIQUE (room_id, user_id)
 );
 
@@ -50,7 +50,7 @@ CREATE TABLE chat_messages (
     room_id         UUID NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
     sender_user_id  UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     message_content TEXT NOT NULL,
-    sent_at         TIMESTAMP NOT NULL,
+    sent_at         TIMESTAMP WITH TIME ZONE NOT NULL,
     message_type    VARCHAR(20) NOT NULL,
     survey_id       UUID REFERENCES surveys(id) ON DELETE SET NULL
 );
@@ -61,7 +61,7 @@ CREATE TABLE user_progress (
     room_id      UUID NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
     user_id      UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     current_page INTEGER NOT NULL CHECK (current_page >= 0),
-    updated_at   TIMESTAMP NOT NULL,
+    updated_at   TIMESTAMP WITH TIME ZONE NOT NULL,
     CONSTRAINT unique_user_progress UNIQUE (room_id, user_id)
 );
 
@@ -71,7 +71,7 @@ CREATE TABLE surveys (
     room_id    UUID NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
     title      VARCHAR(255) NOT NULL,
     questions  JSONB NOT NULL,
-    created_at TIMESTAMP NOT NULL
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
 -- アンケート回答テーブル
@@ -80,7 +80,7 @@ CREATE TABLE survey_answers (
     survey_id   UUID NOT NULL REFERENCES surveys(id) ON DELETE CASCADE,
     user_id     UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     answers     JSONB NOT NULL,
-    answered_at TIMESTAMP NOT NULL,
+    answered_at TIMESTAMP WITH TIME ZONE NOT NULL,
     CONSTRAINT unique_survey_answer UNIQUE (survey_id, user_id)
 );
 
