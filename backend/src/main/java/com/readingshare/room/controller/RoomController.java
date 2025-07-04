@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.readingshare.auth.domain.model.User;
 import com.readingshare.auth.domain.repository.IUserRepository;
-import com.readingshare.chat.websocket.NotificationWebSocketHandler;
 import com.readingshare.room.domain.model.Room;
 import com.readingshare.room.domain.model.RoomMember;
 import com.readingshare.room.dto.CreateRoomRequest;
@@ -37,13 +36,10 @@ import com.readingshare.room.service.RoomService;
 public class RoomController {
 
     private final RoomService roomService;
-    private final NotificationWebSocketHandler notificationHandler;
     private final IUserRepository userRepository;
 
-    public RoomController(RoomService roomService, IUserRepository userRepository,
-            NotificationWebSocketHandler notificationHandler) {
+    public RoomController(RoomService roomService, IUserRepository userRepository) {
         this.roomService = roomService;
-        this.notificationHandler = notificationHandler;
         this.userRepository = userRepository;
     }
 
