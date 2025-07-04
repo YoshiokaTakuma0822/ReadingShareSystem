@@ -30,19 +30,11 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable()) // REST APIのためCSRFを無効化
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // ステートレス
                 .authorizeHttpRequests(authz -> authz
-                        // 認証不要のエンドポイント
-                        .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
-                        .requestMatchers("/api/auth/logout").permitAll()
-                        // Swagger UI関連
+                        .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/register", "/api/auth/logout")
+                        .permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
-                        // 健康チェック
                         .requestMatchers("/actuator/health").permitAll()
-                        // WebSocketのエンドポイントを認証不要に
                         .requestMatchers("/ws/**").permitAll()
-                        .requestMatchers("/topic/**").permitAll()
-                        .requestMatchers("/app/**").permitAll()
-                        // その他のAPIは認証が必要
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll())
                 .addFilterBefore(bearerTokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
