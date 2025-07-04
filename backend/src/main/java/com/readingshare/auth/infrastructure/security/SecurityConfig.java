@@ -38,13 +38,11 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                         // 健康チェック
                         .requestMatchers("/actuator/health").permitAll()
-                        // WebSocket/STOMP関連のエンドポイントを認証不要に
-                        .requestMatchers("/ws/**").permitAll()
-                        .requestMatchers("/topic/**").permitAll()
-                        .requestMatchers("/app/**").permitAll()
-                        // 履歴APIを認証不要に
-                        .requestMatchers(HttpMethod.GET, "/api/rooms/history").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/api/rooms/history").permitAll()
+                        // WebSocketエンドポイントを認証要件ありに変更（ネイティブWebSocketのみ使用）
+                        .requestMatchers("/ws/**").authenticated()
+                        // 履歴APIに認証要件を適用
+                        .requestMatchers(HttpMethod.GET, "/api/rooms/history").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/rooms/history").authenticated()
                         // その他のAPIは認証が必要
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll())

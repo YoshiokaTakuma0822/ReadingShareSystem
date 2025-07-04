@@ -6,6 +6,7 @@ import { roomApi } from '../../lib/roomApi'
 import { RoomMember } from '../../types/room'
 import ReadingProgressModal from "./ReadingProgressModal"
 import './ReadingScreen.css'
+import { createWebSocket } from '../../lib/websocketClient'
 
 // 本の進行方向を表す型
 type ReadingDirection = 'next' | 'prev'
@@ -219,7 +220,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
         // WebSocketエンドポイント
         const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
         const wsUrl = `${wsProtocol}://${window.location.hostname}:8080/ws/chat`
-        const ws = new WebSocket(wsUrl)
+        const ws = createWebSocket(wsUrl)
         ws.onopen = () => {
             // サーバー側でSTOMP等が必要な場合はここでプロトコルに合わせて送信
             // ここではシンプルなJSON送受信を仮定
