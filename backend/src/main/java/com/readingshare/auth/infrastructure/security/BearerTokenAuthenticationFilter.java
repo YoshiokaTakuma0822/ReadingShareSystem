@@ -42,17 +42,14 @@ public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String authorizationHeader = request.getHeader(AUTHORIZATION_HEADER);
-        // WebSocket handshake時はSec-WebSocket-Protocolヘッダーを検証して認証を強制
+
+        // WebSocket handshakeリクエストの場合は認証をスキップ
         String upgradeHeader = request.getHeader("Upgrade");
-        if ("websocket".equalsIgnoreCase(upgradeHeader)) {
-            String wsProtocolHeader = request.getHeader("Sec-WebSocket-Protocol");
-            if (wsProtocolHeader == null || !wsProtocolHeader.startsWith(BEARER_PREFIX)) {
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized WebSocket handshake");
-                return;
-            }
-            // 有効なBearerトークンをサブプロトコルとして返却
-            authorizationHeader = wsProtocolHeader;
-            response.setHeader("Sec-WebSocket-Protocol", wsProtocolHeader);
+        if (upgradeHeader != null && "websocket".equalsIgnoreCase(upgradeHeader)) {
+            System.out.println(
+                    "[BearerTokenAuthenticationFilter] WebSocket handshakeリクエストのため認証スキップ: " + request.getRequestURI());
+            filterChain.doFilter(request, response);
+            return;
         }
 
         if (authorizationHeader != null && authorizationHeader.startsWith(BEARER_PREFIX)) {

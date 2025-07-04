@@ -1,9 +1,8 @@
 "use client"
 
-import React, { useEffect, useRef, useState, useCallback } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { chatApi } from '../lib/chatApi'
 import { roomApi } from '../lib/roomApi'
-import { createWebSocket } from '../lib/websocketClient'
 import { Message } from '../types/message'
 import ChatMessageCard from './ChatMessageCard'
 import SurveyMessageCard from './SurveyMessageCard'
@@ -144,11 +143,10 @@ const MessageList: React.FC<MessageListProps> = ({ roomId, scrollTrigger }) => {
     useEffect(() => {
         if (!roomId || !currentUserId) return
 
-        const wsUrl = `ws://localhost:8080/ws/chat/notifications/${roomId}`
-        const ws = createWebSocket(wsUrl)
+        const ws = new WebSocket(`ws://localhost:8080/ws/chat/notifications/${roomId}`)
 
-         // メッセージ受信時のイベントハンドラ
-         ws.onmessage = () => {
+        // メッセージ受信時のイベントハンドラ
+        ws.onmessage = () => {
             loadChatHistory()
         }
 

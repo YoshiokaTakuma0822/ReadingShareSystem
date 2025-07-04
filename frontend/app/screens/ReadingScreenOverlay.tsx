@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { chatApi } from '../../lib/chatApi'
-import { createWebSocket } from '../../lib/websocketClient'
 import ChatNotification from './ChatNotification'
 import ReadingScreen from './ReadingScreen'
 
@@ -43,8 +42,7 @@ const ReadingScreenOverlay: React.FC<ReadingScreenOverlayProps> = ({ roomId, ope
     // WebSocketでリアルタイム通知
     useEffect(() => {
         if (!roomId) return
-        const wsUrl = `ws://localhost:8080/ws/chat/notifications/${roomId}`
-        const ws = createWebSocket(wsUrl)
+        const ws = new WebSocket(`ws://localhost:8080/ws/chat/notifications/${roomId}`)
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data)
             const receivedRoomId = String(data.roomId || '').trim().toLowerCase()
