@@ -10,9 +10,10 @@ interface SurveyMessageCardProps {
     isMine: boolean
     currentUserId: string | null
     onLoadingComplete?: () => void
+    showAvatar?: boolean  // add showAvatar prop
 }
 
-const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, currentUserId, onLoadingComplete }) => {
+const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, currentUserId, onLoadingComplete, showAvatar = true }) => {
     const [surveyData, setSurveyData] = useState<Survey | null>(null)
     const [loading, setLoading] = useState(true)
     const [hasAnswered, setHasAnswered] = useState(false)
@@ -161,15 +162,18 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
             <span style={{
                 borderRadius: '50%', width: 32, height: 32, marginTop: -4,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: isMine ? '#bbdefb' : '#c8e6c9'
+                background: showAvatar ? (isMine ? '#bbdefb' : '#c8e6c9') : 'transparent',
+                visibility: showAvatar ? 'visible' : 'hidden'
             }}>
-                {msg.user ? String(msg.user).trim().charAt(0) : '?'}
+                {showAvatar && (msg.user ? String(msg.user).trim().charAt(0) : '?')}
             </span>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1, alignItems: 'flex-start' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span>{msg.user}</span>
-                    {msg.sentAt && <span style={{ fontSize: '0.8em', color: '#888' }}>{new Date(msg.sentAt).toLocaleTimeString()}</span>}
-                </div>
+                {showAvatar && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span>{msg.user}</span>
+                        {msg.sentAt && <span style={{ fontSize: '0.8em', color: '#888' }}>{new Date(msg.sentAt).toLocaleTimeString()}</span>}
+                    </div>
+                )}
                 <div style={{ border: '2px solid #2196f3', borderRadius: 12, padding: 16, background: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)', maxWidth: 500, minWidth: 300, boxShadow: '0 2px 8px rgba(33,150,243,0.2)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                         <span style={{ fontSize: 20 }}>📊</span>
