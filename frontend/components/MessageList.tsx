@@ -209,7 +209,7 @@ const MessageList: React.FC<MessageListProps> = ({ roomId, scrollTrigger }) => {
             overflowY: 'auto',
             display: 'flex',
             flexDirection: 'column-reverse',
-            gap: 16,
+            gap: 10,
             scrollBehavior: 'smooth'
         }}>
             {[...messages].reverse().map(msg => {
@@ -222,17 +222,20 @@ const MessageList: React.FC<MessageListProps> = ({ roomId, scrollTrigger }) => {
                     new Date(prev.sentAt).toISOString().slice(0, 16) === new Date(msg.sentAt).toISOString().slice(0, 16)
                 const isSameUser = prev && prev.user === msg.user
                 const showAvatar = !(isSameUser && sameMinute)
-                const showTime = !sameMinute
-                const showName = !(isSameUser && (sameMinute || false))
                 return msg.messageType === 'SURVEY'
-                    ? <SurveyMessageCard key={msg.uuid} msg={msg} isMine={isMine} currentUserId={currentUserId} onLoadingComplete={() => handleSurveyLoadingComplete(msg.id)} />
+                    ? <SurveyMessageCard
+                        key={msg.uuid}
+                        msg={msg}
+                        isMine={isMine}
+                        currentUserId={currentUserId}
+                        showAvatar={showAvatar}
+                        onLoadingComplete={() => handleSurveyLoadingComplete(msg.id)}
+                    />
                     : <ChatMessageCard
                         key={msg.uuid}
                         msg={msg}
                         isMine={isMine}
                         showAvatar={showAvatar}
-                        showTime={showTime}
-                        showName={showName}
                     />
             })}
         </div>
