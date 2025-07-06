@@ -24,6 +24,7 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
     const [isAnonymous, setIsAnonymous] = useState(false)
     const [submitting, setSubmitting] = useState(false)
     const [results, setResults] = useState<SurveyResult | null>(null)
+    const [newOptionInputs, setNewOptionInputs] = useState<Record<string, string>>({})
 
     // ローカルストレージに回答状態を保存するキーを生成
     const localStorageKey = useCallback(() => {
@@ -158,6 +159,23 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
         }
     }
 
+    const handleAddOption = async (questionText: string) => {
+        const val = (newOptionInputs[questionText] || '').trim();
+        if (!val || !surveyData) return;
+        setSubmitting(true);
+        try {
+            await surveyApi.addOption(surveyData.id, questionText, val);
+            // 最新のアンケート情報を再取得
+            const updated = await surveyApi.getSurveyFormat(surveyData.id);
+            setSurveyData(updated);
+            setNewOptionInputs(prev => ({ ...prev, [questionText]: '' }));
+        } catch (e) {
+            alert('選択肢の追加に失敗しました');
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
     return (
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, justifyContent: 'flex-start', marginBottom: 12 }}>
             <span style={{
@@ -232,7 +250,8 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
                                 <div>
                                     {surveyData.questions.map((question, qIndex) => (
                                         <div key={qIndex} style={{ marginBottom: 16, padding: 12, border: '1px solid #e0e0e0', borderRadius: 8, background: 'white' }}>
-                                            <h4 style={{ marginBottom: 12, color: '#333', fontSize: 14 }}>{question.questionText}</h4>                            {question.options.map((option, oIndex) => (
+                                            <h4 style={{ marginBottom: 12, color: '#333', fontSize: 14 }}>{question.questionText}</h4>
+                                            {question.options.map((option, oIndex) => (
                                                 <label key={oIndex} style={{ display: 'block', marginBottom: 6, cursor: 'pointer', fontSize: 13 }}>
                                                     <input
                                                         type={question.questionType === 'MULTIPLE_CHOICE' ? 'checkbox' : 'radio'}
@@ -245,6 +264,25 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
                                                     {option}
                                                 </label>
                                             ))}
+                                            {/* 選択肢追加UI */}
+                                            {question.allowAddOptions && (
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+                                                    <input
+                                                        type="text"
+                                                        value={newOptionInputs?.[question.questionText] || ''}
+                                                        onChange={e => setNewOptionInputs(prev => ({ ...prev, [question.questionText]: e.target.value }))}
+                                                        placeholder="新しい選択肢を追加"
+                                                        style={{ flex: 1, padding: 6, fontSize: 13, border: '1px solid #ccc' }}
+                                                        disabled={submitting}
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleAddOption(question.questionText)}
+                                                        style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid #1976d2', background: '#e3f2fd', color: '#1976d2', fontWeight: 600, cursor: 'pointer' }}
+                                                        disabled={submitting || !(newOptionInputs?.[question.questionText] || '').trim()}
+                                                    >追加</button>
+                                                </div>
+                                            )}
                                         </div>
                                     ))}
 
