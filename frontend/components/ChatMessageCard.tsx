@@ -11,7 +11,7 @@ interface ChatMessageCardProps {
     showName?: boolean
 }
 
-const ChatMessageCard: React.FC<ChatMessageCardProps> = ({ msg, isMine, showAvatar = true, showTime = true, showName = true }) => (
+const ChatMessageCard: React.FC<ChatMessageCardProps> = ({ msg, isMine, showAvatar = true }) => (
     <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, justifyContent: 'flex-start' }}>
         <span style={{
             borderRadius: '50%', width: 32, height: 32, marginTop: -4,
@@ -23,14 +23,16 @@ const ChatMessageCard: React.FC<ChatMessageCardProps> = ({ msg, isMine, showAvat
         </span>
         {/* Discord風: ユーザー名＋時間、その下にメッセージ */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                {showName && <span>{msg.user}</span>}
-                {msg.sentAt && showTime && (
-                    <span style={{ fontSize: '0.8em', color: '#888' }}>
-                        {new Date(msg.sentAt).toLocaleTimeString()}
-                    </span>
-                )}
-            </div>
+            {showAvatar && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span>{msg.user}</span>
+                    {msg.sentAt && (
+                        <span style={{ fontSize: '0.8em', color: '#888' }}>
+                            {new Date(msg.sentAt).toLocaleTimeString()}
+                        </span>
+                    )}
+                </div>
+            )}
             <div style={{ wordBreak: 'break-word' }}>
                 {String(msg.text)}
             </div>
