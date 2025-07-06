@@ -145,7 +145,7 @@ const MessageList: React.FC<MessageListProps> = ({ roomId, scrollTrigger }) => {
 
         // WebSocket接続 - 開発時はプロキシ経由、本番時は直接接続
         const wsUrl = process.env.NODE_ENV === 'production'
-            ? `ws://app:8080/ws/chat/notifications/${roomId}`
+            ? `/ws/chat/notifications/${roomId}`
             : `ws://localhost:8080/ws/chat/notifications/${roomId}`
 
         const ws = new WebSocket(wsUrl)
