@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useRef, useState } from 'react'
-import { MdMenuBook, MdPoll, MdHome } from 'react-icons/md'
+import { MdHome, MdMenuBook, MdPoll } from 'react-icons/md'
 import MessageList from '../../components/MessageList'
 import { chatApi } from '../../lib/chatApi'
 import { roomApi } from '../../lib/roomApi'
@@ -123,7 +123,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                         gap: 8
                     }}
                 >
-                    <MdMenuBook style={{ fontSize: 18 }} />
+                    <MdMenuBook style={{ fontSize: 25, marginTop: -3.5 }} />
                     読書画面をオーバーレイ表示
                 </button>
                 <button
@@ -143,7 +143,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                         gap: 8
                     }}
                 >
-                    <MdPoll style={{ fontSize: 18 }} />
+                    <MdPoll style={{ fontSize: 25, marginTop: -1.5 }} />
                     アンケート作成
                 </button>
                 <button
@@ -163,7 +163,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                         gap: 8
                     }}
                 >
-                    <MdHome style={{ fontSize: 18 }} />
+                    <MdHome style={{ fontSize: 25, marginTop: -1.5 }} />
                     ホームへ
                 </button>
             </div>
