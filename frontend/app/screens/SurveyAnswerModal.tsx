@@ -1,8 +1,7 @@
 "use client"
 import React, { useEffect, useState } from 'react'
-import { useUserId } from '../../lib/authUtils'
 import { surveyApi } from '../../lib/surveyApi'
-import { SubmitSurveyAnswerRequest, Survey } from '../../types/survey'
+import { Survey, SubmitSurveyAnswerRequest } from '../../types/survey'
 
 interface SurveyAnswerModalProps {
     open: boolean
@@ -12,9 +11,9 @@ interface SurveyAnswerModalProps {
 }
 
 const SurveyAnswerModal: React.FC<SurveyAnswerModalProps> = ({ open, surveyId, onClose, onAnswered }) => {
-    const userId = useUserId()
     const [survey, setSurvey] = useState<Survey | null>(null)
-    const [selected, setSelected] = useState<string | null>(null)
+    const [selected, setSelected] = useState<Record<string, string[]>>({})
+    const [newOption, setNewOption] = useState<Record<string, string>>({})
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
@@ -25,30 +24,84 @@ const SurveyAnswerModal: React.FC<SurveyAnswerModalProps> = ({ open, surveyId, o
         surveyApi.getSurveyFormat(surveyId)
             .then(data => {
                 setSurvey(data)
+                 console.log('questions:', data.questions) // ← ここを追加
+                // 初期化
+                const sel: Record<string, string[]> = {}
+                data.questions.forEach(q => sel[q.questionText] = [])
+                setSelected(sel)
+                setNewOption({})
             })
             .catch(() => setError('アンケート情報の取得に失敗しました'))
             .finally(() => setLoading(false))
     }, [open, surveyId])
 
-    const handleAnswer = async () => {
-        // 選択肢未選択時のエラー表示
-        if (!selected) {
-            setError('選択肢を選択してください');
-            return;
-        }
-        if (!survey) return
-        if (!userId) { setError('ユーザーIDが取得できません'); return }
+    const handleSelect = (q: string, opt: string, multi: boolean) => {
+        setSelected(prev => {
+            if (multi) {
+                const arr = prev[q] || []
+                if (arr.includes(opt)) {
+                    return { ...prev, [q]: arr.filter(o => o !== opt) }
+                } else {
+                    return { ...prev, [q]: [...arr, opt] }
+                }
+            } else {
+                return { ...prev, [q]: [opt] }
+            }
+        })
+    }
+
+    const handleAddOption = async (q: string) => {
+        const val = (newOption[q] || '').trim()
+        if (!val) return
         setLoading(true)
         setError(null)
         try {
+            // サーバーに新しい選択肢を追加
+            await surveyApi.addOption(surveyId, q, val)
+            // 最新のアンケート情報を再取得
+            const updated = await surveyApi.getSurveyFormat(surveyId)
+            setSurvey(updated)
+            setSelected(prev => ({ ...prev, [q]: [...(prev[q] || []), val] }))
+            setNewOption(prev => ({ ...prev, [q]: '' }))
+        } catch (e) {
+            setError('選択肢の追加に失敗しました')
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const handleAnswer = async () => {
+        if (!survey) return
+        setLoading(true)
+        setError(null)
+        try {
+            // userId取得
+            let userId = localStorage.getItem('reading-share-user-id');
+            if (!userId) {
+                setError('ユーザー情報が見つかりません。再ログインしてください。')
+                setLoading(false)
+                return;
+            }
+            // 必須チェック
+            for (const q of survey.questions) {
+                if ((selected[q.questionText]?.length || 0) === 0) {
+                    setError('すべての質問に回答してください')
+                    setLoading(false)
+                    return
+                }
+                if (q.questionType === 'SINGLE_CHOICE' && selected[q.questionText].length > 1) {
+                    setError('単一選択の質問には1つだけ選択してください')
+                    setLoading(false)
+                    return
+                }
+            }
             const request: SubmitSurveyAnswerRequest = {
                 userId,
-                answers: { [survey.questions[0].questionText]: [selected] },
-                isAnonymous: false
+                answers: selected
             }
             await surveyApi.answerSurvey(surveyId, request)
             onClose()
-            if (onAnswered) onAnswered()
+            if (onAnswered) onAnswered();
         } catch (e) {
             setError('回答送信に失敗しました')
         } finally {
@@ -99,10 +152,37 @@ const SurveyAnswerModal: React.FC<SurveyAnswerModalProps> = ({ open, surveyId, o
                     <div style={{ color: 'red', marginBottom: 16 }}>{error}</div>
                 ) : survey && survey.questions.length > 0 ? (
                     <div style={{ marginBottom: 32 }}>
-                        <h3 style={{ marginBottom: 16 }}>{survey.questions[0].questionText}</h3>
-                        {survey.questions[0].options.map((opt: string, idx: number) => (
-                            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 }}>
-                                <input type="radio" name="survey_option" checked={selected === opt} onChange={() => setSelected(opt)} /> {opt}
+                        {survey.questions.map((q, idx) => (
+                            <div key={idx} style={{ marginBottom: 24 }}>
+                                <h3 style={{ marginBottom: 16 }}>{q.questionText}</h3>
+                                {q.options.map((opt: string, i: number) => (
+                                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 8 }}>
+                                        <input
+                                            type={q.questionType === 'MULTIPLE_CHOICE' ? 'checkbox' : 'radio'}
+                                            name={q.questionText}
+                                            checked={selected[q.questionText]?.includes(opt) || false}
+                                            onChange={() => handleSelect(q.questionText, opt, q.questionType === 'MULTIPLE_CHOICE')}
+                                        /> {opt}
+                                    </div>
+                                ))}
+                                {q.allowAddOptions && (
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+                                        <input
+                                            type="text"
+                                            value={newOption[q.questionText] || ''}
+                                            onChange={e => setNewOption(prev => ({ ...prev, [q.questionText]: e.target.value }))}
+                                            placeholder="新しい選択肢を追加"
+                                            style={{ flex: 1, padding: 6, fontSize: 16, border: '1px solid #ccc' }}
+                                            disabled={loading}
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => handleAddOption(q.questionText)}
+                                            style={{ padding: '6px 16px', borderRadius: 6, border: '1px solid #388e3c', background: '#e8f5e9', color: '#388e3c', fontWeight: 600, cursor: 'pointer' }}
+                                            disabled={loading}
+                                        >追加</button>
+                                    </div>
+                                )}
                             </div>
                         ))}
                     </div>
@@ -126,7 +206,7 @@ const SurveyAnswerModal: React.FC<SurveyAnswerModalProps> = ({ open, surveyId, o
                     </button>
                     <button
                         onClick={handleAnswer}
-                        disabled={!selected || loading}
+                        disabled={loading}
                         style={{
                             padding: '12px 24px',
                             border: '2px solid #388e3c',
@@ -134,8 +214,8 @@ const SurveyAnswerModal: React.FC<SurveyAnswerModalProps> = ({ open, surveyId, o
                             background: '#388e3c',
                             color: 'white',
                             fontSize: 16,
-                            cursor: !selected || loading ? 'not-allowed' : 'pointer',
-                            opacity: !selected || loading ? 0.6 : 1
+                            cursor: loading ? 'not-allowed' : 'pointer',
+                            opacity: loading ? 0.6 : 1
                         }}
                     >
                         {loading ? '送信中...' : '回答する'}
