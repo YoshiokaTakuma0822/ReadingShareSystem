@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import AuthGuard from '../../components/AuthGuard'
+import CustomDropdown from '../../components/CustomDropdown'
 import { getDummyUserId, logout } from '../../lib/authUtils'
 import { roomApi } from '../../lib/roomApi'
 import type { RoomHistoryDto } from '../../types/room'
@@ -91,9 +92,9 @@ const HomeScreen: React.FC = () => {
                 roomType === 'closed'
             )
             const found = result.rooms
-             setRooms(found)
-             // 部屋ごとに作成者名を取得
-             const map: { [roomId: string]: string } = {}
+            setRooms(found)
+            // 部屋ごとに作成者名を取得
+            const map: { [roomId: string]: string } = {}
             await Promise.all(found.map(async (room) => {
                 try {
                     const members = await roomApi.getRoomMembers(room.id)
@@ -358,53 +359,55 @@ const HomeScreen: React.FC = () => {
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                                     <label style={{ fontSize: 13, color: '#388e3c', marginBottom: 2 }}>部屋の公開範囲</label>
-                                    <select
+                                    <CustomDropdown
+                                        options={[
+                                            { value: 'all', label: 'すべて' },
+                                            { value: 'open', label: 'オープン' },
+                                            { value: 'closed', label: 'クローズ' }
+                                        ]}
                                         value={roomType}
-                                        onChange={e => setRoomType(e.target.value)}
-                                        style={{ padding: 12, borderRadius: 8, border: '1px solid #ccc', fontSize: 18, height: '56px' }}
-                                    >
-                                        <option value="all">すべて</option>
-                                        <option value="open">オープン</option>
-                                        <option value="closed">クローズ</option>
-                                    </select>
+                                        onChange={setRoomType}
+                                        style={{ height: '56px' }}
+                                    />
                                 </div>
                                 {/* ジャンル＋ボタンを横並びでまとめる */}
                                 <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8 }}>
                                     <div style={{ display: 'flex', flexDirection: 'column' }}>
                                         <label style={{ fontSize: 13, color: '#388e3c', marginBottom: 2 }}>ジャンル</label>
-                                        <select
+                                        <CustomDropdown
+                                            options={[
+                                                { value: '', label: 'ジャンル指定なし' },
+                                                { value: '小説', label: '小説' },
+                                                { value: 'ビジネス', label: 'ビジネス' },
+                                                { value: '学習', label: '学習' },
+                                                { value: 'エッセイ', label: 'エッセイ' },
+                                                { value: '漫画', label: '漫画' },
+                                                { value: '歴史', label: '歴史' },
+                                                { value: '科学', label: '科学' },
+                                                { value: 'ライトノベル', label: 'ライトノベル' },
+                                                { value: '児童書', label: '児童書' },
+                                                { value: '技術書', label: '技術書' },
+                                                { value: '趣味・実用', label: '趣味・実用' },
+                                                { value: '詩・短歌', label: '詩・短歌' },
+                                                { value: '自己啓発', label: '自己啓発' },
+                                                { value: '旅行', label: '旅行' },
+                                                { value: '料理', label: '料理' },
+                                                { value: 'スポーツ', label: 'スポーツ' },
+                                                { value: '芸術', label: '芸術' },
+                                                { value: '写真集', label: '写真集' },
+                                                { value: '伝記', label: '伝記' },
+                                                { value: 'ファンタジー', label: 'ファンタジー' },
+                                                { value: 'ミステリー', label: 'ミステリー' },
+                                                { value: 'ホラー', label: 'ホラー' },
+                                                { value: '恋愛', label: '恋愛' },
+                                                { value: 'SF', label: 'SF' },
+                                                { value: 'ノンフィクション', label: 'ノンフィクション' },
+                                                { value: 'その他', label: 'その他' }
+                                            ]}
                                             value={genre}
-                                            onChange={e => setGenre(e.target.value)}
-                                            style={{ padding: 12, borderRadius: 8, border: '1px solid #ccc', fontSize: 18, height: '56px' }}
-                                        >
-                                            <option value="">ジャンル指定なし</option>
-                                            <option value="小説">小説</option>
-                                            <option value="ビジネス">ビジネス</option>
-                                            <option value="学習">学習</option>
-                                            <option value="エッセイ">エッセイ</option>
-                                            <option value="漫画">漫画</option>
-                                            <option value="歴史">歴史</option>
-                                            <option value="科学">科学</option>
-                                            <option value="ライトノベル">ライトノベル</option>
-                                            <option value="児童書">児童書</option>
-                                            <option value="技術書">技術書</option>
-                                            <option value="趣味・実用">趣味・実用</option>
-                                            <option value="詩・短歌">詩・短歌</option>
-                                            <option value="自己啓発">自己啓発</option>
-                                            <option value="旅行">旅行</option>
-                                            <option value="料理">料理</option>
-                                            <option value="スポーツ">スポーツ</option>
-                                            <option value="芸術">芸術</option>
-                                            <option value="写真集">写真集</option>
-                                            <option value="伝記">伝記</option>
-                                            <option value="ファンタジー">ファンタジー</option>
-                                            <option value="ミステリー">ミステリー</option>
-                                            <option value="ホラー">ホラー</option>
-                                            <option value="恋愛">恋愛</option>
-                                            <option value="SF">SF</option>
-                                            <option value="ノンフィクション">ノンフィクション</option>
-                                            <option value="その他">その他</option>
-                                        </select>
+                                            onChange={setGenre}
+                                            style={{ height: '56px' }}
+                                        />
                                     </div>
                                     {/* 右にスペースを追加（検索ボタン1個分） */}
                                     <div style={{ width: 120 }} />
