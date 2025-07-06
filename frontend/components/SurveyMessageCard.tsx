@@ -157,16 +157,18 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
     }
 
     return (
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, justifyContent: isMine ? 'flex-end' : 'flex-start', marginBottom: 12 }}>
-            {!isMine && (
-                <span style={{ border: '1px solid #222', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    {msg.user ? String(msg.user).trim().charAt(0) : '?'}
-                </span>
-            )}
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: isMine ? 'flex-end' : 'flex-start', gap: 4 }}>
-                <div style={{ fontSize: '0.8em', color: '#888', display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, justifyContent: 'flex-start', marginBottom: 12 }}>
+            <span style={{
+                borderRadius: '50%', width: 32, height: 32, marginTop: -4,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: isMine ? '#bbdefb' : '#c8e6c9'
+            }}>
+                {msg.user ? String(msg.user).trim().charAt(0) : '?'}
+            </span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1, alignItems: 'flex-start' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span>{msg.user}</span>
-                    {msg.sentAt && <span>{new Date(msg.sentAt).toLocaleTimeString()}</span>}
+                    {msg.sentAt && <span style={{ fontSize: '0.8em', color: '#888' }}>{new Date(msg.sentAt).toLocaleTimeString()}</span>}
                 </div>
                 <div style={{ border: '2px solid #2196f3', borderRadius: 12, padding: 16, background: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)', maxWidth: 500, minWidth: 300, boxShadow: '0 2px 8px rgba(33,150,243,0.2)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
@@ -278,11 +280,6 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
                     )}
                 </div>
             </div>
-            {isMine && (
-                <span style={{ border: '1px solid #222', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#e0f7fa' }}>
-                    {msg.user ? String(msg.user).trim().charAt(0) : '?'}
-                </span>
-            )}
         </div>
     )
 }
