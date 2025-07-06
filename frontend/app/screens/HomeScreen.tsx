@@ -1,5 +1,12 @@
 "use client"
 
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 import React, { useState } from 'react'
 import AuthGuard from '../../components/AuthGuard'
 import { HoverPopover } from '../../components/ui/my-hover-popover'
@@ -32,7 +39,7 @@ const HomeScreen: React.FC = () => {
     const [roomType, setRoomType] = useState<string>('all') // 部屋タイプ: all, open, closed
 
     // ジャンル、ページ数範囲、開始/終了時刻範囲
-    const [genre, setGenre] = useState<string>('')
+    const [genre, setGenre] = useState<string>('all')
     const [minPages, setMinPages] = useState<string>('')
     const [maxPages, setMaxPages] = useState<string>('')
     const [startTimeFrom, setStartTimeFrom] = useState<string>('')
@@ -74,7 +81,7 @@ const HomeScreen: React.FC = () => {
             // 検索タブでは複数条件検索
             const result = await roomApi.searchRooms(
                 searchText,
-                genre,
+                genre === 'all' ? '' : genre,
                 startTimeFrom,
                 startTimeTo,
                 endTimeFrom,
@@ -362,53 +369,55 @@ const HomeScreen: React.FC = () => {
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                                     <label style={{ fontSize: 13, color: '#388e3c', marginBottom: 2 }}>部屋の公開範囲</label>
-                                    <select
-                                        value={roomType}
-                                        onChange={e => setRoomType(e.target.value)}
-                                        style={{ padding: 12, borderRadius: 8, border: '1px solid #ccc', fontSize: 18, height: '56px' }}
-                                    >
-                                        <option value="all">すべて</option>
-                                        <option value="open">オープン</option>
-                                        <option value="closed">クローズ</option>
-                                    </select>
+                                    <Select value={roomType} onValueChange={setRoomType}>
+                                        <SelectTrigger style={{ width: 160, height: '56px' }}>
+                                            <SelectValue placeholder="すべて" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">すべて</SelectItem>
+                                            <SelectItem value="open">オープン</SelectItem>
+                                            <SelectItem value="closed">クローズ</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                 </div>
                                 {/* ジャンル＋ボタンを横並びでまとめる */}
                                 <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8 }}>
                                     <div style={{ display: 'flex', flexDirection: 'column' }}>
                                         <label style={{ fontSize: 13, color: '#388e3c', marginBottom: 2 }}>ジャンル</label>
-                                        <select
-                                            value={genre}
-                                            onChange={e => setGenre(e.target.value)}
-                                            style={{ padding: 12, borderRadius: 8, border: '1px solid #ccc', fontSize: 18, height: '56px' }}
-                                        >
-                                            <option value="">ジャンル指定なし</option>
-                                            <option value="小説">小説</option>
-                                            <option value="ビジネス">ビジネス</option>
-                                            <option value="学習">学習</option>
-                                            <option value="エッセイ">エッセイ</option>
-                                            <option value="漫画">漫画</option>
-                                            <option value="歴史">歴史</option>
-                                            <option value="科学">科学</option>
-                                            <option value="ライトノベル">ライトノベル</option>
-                                            <option value="児童書">児童書</option>
-                                            <option value="技術書">技術書</option>
-                                            <option value="趣味・実用">趣味・実用</option>
-                                            <option value="詩・短歌">詩・短歌</option>
-                                            <option value="自己啓発">自己啓発</option>
-                                            <option value="旅行">旅行</option>
-                                            <option value="料理">料理</option>
-                                            <option value="スポーツ">スポーツ</option>
-                                            <option value="芸術">芸術</option>
-                                            <option value="写真集">写真集</option>
-                                            <option value="伝記">伝記</option>
-                                            <option value="ファンタジー">ファンタジー</option>
-                                            <option value="ミステリー">ミステリー</option>
-                                            <option value="ホラー">ホラー</option>
-                                            <option value="恋愛">恋愛</option>
-                                            <option value="SF">SF</option>
-                                            <option value="ノンフィクション">ノンフィクション</option>
-                                            <option value="その他">その他</option>
-                                        </select>
+                                        <Select value={genre} onValueChange={setGenre}>
+                                            <SelectTrigger style={{ width: 200, height: '56px' }}>
+                                                <SelectValue placeholder="ジャンル指定なし" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="all">ジャンル指定なし</SelectItem>
+                                                <SelectItem value="小説">小説</SelectItem>
+                                                <SelectItem value="ビジネス">ビジネス</SelectItem>
+                                                <SelectItem value="学習">学習</SelectItem>
+                                                <SelectItem value="エッセイ">エッセイ</SelectItem>
+                                                <SelectItem value="漫画">漫画</SelectItem>
+                                                <SelectItem value="歴史">歴史</SelectItem>
+                                                <SelectItem value="科学">科学</SelectItem>
+                                                <SelectItem value="ライトノベル">ライトノベル</SelectItem>
+                                                <SelectItem value="児童書">児童書</SelectItem>
+                                                <SelectItem value="技術書">技術書</SelectItem>
+                                                <SelectItem value="趣味・実用">趣味・実用</SelectItem>
+                                                <SelectItem value="詩・短歌">詩・短歌</SelectItem>
+                                                <SelectItem value="自己啓発">自己啓発</SelectItem>
+                                                <SelectItem value="旅行">旅行</SelectItem>
+                                                <SelectItem value="料理">料理</SelectItem>
+                                                <SelectItem value="スポーツ">スポーツ</SelectItem>
+                                                <SelectItem value="芸術">芸術</SelectItem>
+                                                <SelectItem value="写真集">写真集</SelectItem>
+                                                <SelectItem value="伝記">伝記</SelectItem>
+                                                <SelectItem value="ファンタジー">ファンタジー</SelectItem>
+                                                <SelectItem value="ミステリー">ミステリー</SelectItem>
+                                                <SelectItem value="ホラー">ホラー</SelectItem>
+                                                <SelectItem value="恋愛">恋愛</SelectItem>
+                                                <SelectItem value="SF">SF</SelectItem>
+                                                <SelectItem value="ノンフィクション">ノンフィクション</SelectItem>
+                                                <SelectItem value="その他">その他</SelectItem>
+                                            </SelectContent>
+                                        </Select>
                                     </div>
                                     {/* 右にスペースを追加（検索ボタン1個分） */}
                                     <div style={{ width: 120 }} />
@@ -502,7 +511,7 @@ const HomeScreen: React.FC = () => {
                             }}
                         >
                             {tab === 'search' &&
-                                roomType === 'all' && !searchText && !genre && !minPages && !maxPages && !startTimeFrom && !startTimeTo && !endTimeFrom && !endTimeTo ? (
+                                roomType === 'all' && !searchText && (genre === 'all' || genre === '') && !minPages && !maxPages && !startTimeFrom && !startTimeTo && !endTimeFrom && !endTimeTo ? (
                                 <div style={{ color: '#b0b8c9', fontSize: 18, width: '100%', textAlign: 'center', padding: '32px 0' }}>
                                     検索された部屋はここに表示されます
                                 </div>
