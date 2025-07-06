@@ -10,8 +10,8 @@
     --green-light: #A5D6A7;
     --green-bg: #e0f7ef;
     --white: #fff;
-    --border: oklch(0.922 0 0);
-    --accent: oklch(0.97 0 0);
+    /* --border: oklch(0.922 0 0);
+    --accent: oklch(0.97 0 0); */
     --text-main: #222;
     --text-accent: #388e3c;
     --radius: 0.625rem;
