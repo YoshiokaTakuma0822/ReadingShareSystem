@@ -13,8 +13,6 @@ interface SurveyMessageCardProps {
 }
 
 const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, currentUserId, onLoadingComplete }) => {
-    console.log('SurveyMessageCard render:', msg.surveyId)
-
     const [surveyData, setSurveyData] = useState<Survey | null>(null)
     const [loading, setLoading] = useState(true)
     const [hasAnswered, setHasAnswered] = useState(false)
