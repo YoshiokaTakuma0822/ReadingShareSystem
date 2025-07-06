@@ -1,25 +1,25 @@
 import type { NextConfig } from "next"
+import { PHASE_DEVELOPMENT_SERVER } from "next/constants"
 
-const nextConfig: NextConfig = {
-    // API routes rewrite for development and production
-    async rewrites() {
-        return [
-            {
-                source: '/api/:path*',
-                destination: process.env.NODE_ENV === 'production' ?
-                    'http://app:8080/api/:path*' : 'http://localhost:8080/api/:path*',
+const nextConfig = (phase: string): NextConfig => {
+    const isDev = phase === PHASE_DEVELOPMENT_SERVER
+
+    return {
+        ...(isDev ? {
+            async rewrites() {
+                return [
+                    {
+                        source: "/api/:path*",
+                        destination: "http://localhost:8080/api/:path*",
+                    },
+                ]
             },
-            {
-                source: '/ws/:path*',
-                destination: process.env.NODE_ENV === 'production' ?
-                    'http://app:8080/ws/:path*' : 'http://localhost:8080/ws/:path*',
-            },
-            {
-                source: '/internal/:path*',
-                destination: 'http://host.docker.internal:8888/:path*',
-            },
-        ]
-    },
+        } : {}),
+
+        eslint: {
+            ignoreDuringBuilds: true,
+        },
+    }
 }
 
 export default nextConfig
