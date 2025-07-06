@@ -10,8 +10,6 @@ import type { RoomHistoryDto } from '../../types/room'
 import { Room } from '../../types/room'
 import RoomCreationModal from './RoomCreationModal'
 import RoomJoinModal from './RoomJoinModal'
-import SurveyAnswerModal from './SurveyAnswerModal'
-import SurveyResultModal from './SurveyResultModal'
 
 const HomeScreen: React.FC = () => {
     const [tab, setTab] = useState<'create' | 'search'>('create') // デフォルトを部屋作成に変更
@@ -23,12 +21,7 @@ const HomeScreen: React.FC = () => {
     const [selectedRoom, setSelectedRoom] = useState<Room | null>(null)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
-    const [showSurveyAnswerModal, setShowSurveyAnswerModal] = useState(false)
-    const [showSurveyResultModal, setShowSurveyResultModal] = useState(false)
     const [currentUserId, setCurrentUserId] = useState<string>('00000000-0000-0000-0000-000000000001')
-
-    // サンプル用のダミーsurveyId
-    const dummySurveyId = '00000000-0000-0000-0000-000000000001'
 
     // クライアントサイドでユーザーIDを初期化
     React.useEffect(() => {
@@ -723,20 +716,6 @@ const HomeScreen: React.FC = () => {
                         setSelectedRoom(null)
                     }}
                     onJoined={handleRoomJoined}
-                />
-            )}
-            {showSurveyAnswerModal && (
-                <SurveyAnswerModal
-                    open={showSurveyAnswerModal}
-                    surveyId={dummySurveyId}
-                    onClose={() => setShowSurveyAnswerModal(false)}
-                />
-            )}
-            {showSurveyResultModal && (
-                <SurveyResultModal
-                    open={showSurveyResultModal}
-                    surveyId={dummySurveyId}
-                    onClose={() => setShowSurveyResultModal(false)}
                 />
             )}
         </AuthGuard>
