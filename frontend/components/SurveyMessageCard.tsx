@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useCallback, useEffect, useState } from 'react'
+import { MdPoll } from 'react-icons/md'
 import { surveyApi } from '../lib/surveyApi'
 import { Message } from '../types/message'
 import { SubmitSurveyAnswerRequest, Survey, SurveyResult } from '../types/survey'
@@ -176,7 +177,7 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
                 )}
                 <div style={{ border: '2px solid #2196f3', borderRadius: 12, padding: 16, background: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)', maxWidth: 500, minWidth: 300, boxShadow: '0 2px 8px rgba(33,150,243,0.2)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                        <span style={{ fontSize: 20 }}>📊</span>
+                        <MdPoll style={{ fontSize: 20, color: '#1976d2' }} />
                         <span style={{ fontWeight: 'bold', color: '#1976d2' }}>アンケート</span>
                     </div>
 
