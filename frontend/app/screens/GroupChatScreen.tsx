@@ -77,14 +77,6 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
         setCurrentUserId(userId);
     }, [])
 
-    // --- アンケートメッセージのみlocalStorageで永続化・復元 ---
-    useEffect(() => {
-        const surveyMessages = messages.filter(m => m.type === 'survey');
-        if (surveyMessages.length > 0) {
-            localStorage.setItem('surveyMessages', JSON.stringify(surveyMessages));
-        }
-    }, [messages]);
-
     // チャット履歴を取得する関数
     const loadChatHistory = async () => {
         if (!roomId) {
@@ -133,37 +125,9 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                     survey
                 };
             });
-
-            // --- localStorageのアンケートメッセージ（type: 'survey'）とマージ ---
-            let mergedMessages = [...convertedMessages];
-            const saved = localStorage.getItem('surveyMessages');
-            if (saved) {
-                try {
-                    const parsed = JSON.parse(saved);
-                    if (Array.isArray(parsed)) {
-                        // id重複を避けてマージ
-                        const existingIds = new Set(mergedMessages.map(m => m.id));
-                        const toAdd = parsed.filter((m: any) => m.type === 'survey' && !existingIds.has(m.id));
-                        mergedMessages = [...mergedMessages, ...toAdd];
-                    }
-                } catch {}
-            }
-            setMessages(mergedMessages)
-            setMsgId(mergedMessages.length + 1)
+            setMessages(convertedMessages)
+            setMsgId(convertedMessages.length + 1)
         } catch (err) {
-            // サーバー取得失敗時のみlocalStorageから復元
-            const saved = localStorage.getItem('surveyMessages');
-            if (saved) {
-                try {
-                    const parsed = JSON.parse(saved);
-                    if (Array.isArray(parsed)) {
-                        setMessages(parsed);
-                        setMsgId(parsed.length + 1);
-                        setLoading(false);
-                        return;
-                    }
-                } catch {}
-            }
             setError('チャット履歴の読み込みに失敗しました')
         } finally {
             setLoading(false)
@@ -198,27 +162,36 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
         setShowSurveyModal(true)
     }
 
-    // アンケート作成後はモーダルを閉ち、回答モーダルを開く＋ストリームに追加
+    // アンケート作成後はモーダルを閉じ、回答モーダルを開く＋ストリームに追加
     const handleSurveyCreated = async (surveyId: string) => {
-        setShowSurveyModal(false)
-        setAnswerSurveyId(surveyId)
-        setShowAnswerModal(true)
-        // アンケート内容を取得
-        const survey = await surveyApi.getSurveyFormat(surveyId);
-        // サーバーのチャット履歴にもtype: 'survey'メッセージを送信
-        await chatApi.sendMessage(roomId!, { messageContent: JSON.stringify({ type: 'survey', survey }) });
-        // ローカルにも即時反映
-        setMessages(prev => [
-            ...prev,
-            {
-                id: prev.length + 1,
-                user: 'システム',
-                isCurrentUser: false,
-                type: 'survey',
-                survey,
-                sentAt: new Date().toISOString(),
+        setShowSurveyModal(false);
+        setAnsweredSurveyIds([]); // アンケート作成直後に回答済みIDをリセット
+        try {
+            // アンケート内容を取得
+            const survey = await surveyApi.getSurveyFormat(surveyId);
+            if (!survey) {
+                setError('アンケートの取得に失敗しました');
+                return;
             }
-        ]);
+            // サーバーのチャット履歴にもtype: 'survey'メッセージを送信
+            await chatApi.sendMessage(roomId!, { messageContent: JSON.stringify({ type: 'survey', survey }) });
+            // ローカルにも即時反映
+            setMessages(prev => [
+                ...prev,
+                {
+                    id: prev.length + 1,
+                    user: 'システム',
+                    isCurrentUser: false,
+                    type: 'survey',
+                    survey,
+                    sentAt: new Date().toISOString(),
+                }
+            ]);
+            setAnswerSurveyId(surveyId);
+            setShowAnswerModal(true);
+        } catch (e) {
+            setError('アンケート作成に失敗しました');
+        }
     }
 
     // アンケートフォーマット取得
@@ -333,21 +306,8 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                         survey
                     };
                 });
-                // --- localStorageのアンケートメッセージ（type: 'survey'）とマージ ---
-                let mergedMessages = [...convertedMessages];
-                const saved = localStorage.getItem('surveyMessages');
-                if (saved) {
-                    try {
-                        const parsed = JSON.parse(saved);
-                        if (Array.isArray(parsed)) {
-                            const existingIds = new Set(mergedMessages.map(m => m.id));
-                            const toAdd = parsed.filter((m: any) => m.type === 'survey' && !existingIds.has(m.id));
-                            mergedMessages = [...mergedMessages, ...toAdd];
-                        }
-                    } catch {}
-                }
-                setMessages(mergedMessages);
-                setMsgId(mergedMessages.length + 1);
+                setMessages(convertedMessages);
+                setMsgId(convertedMessages.length + 1);
             } catch (err) {
                 setError('チャット履歴の読み込みに失敗しました');
             } finally {
@@ -363,55 +323,6 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
             setShowResultModal(true);
         }
     };
-
-    // --- 追加: アンケート回答済みID・選択中アンケートIDの永続化 ---
-    // 保存
-    useEffect(() => {
-        if (answeredSurveyIds.length > 0) {
-            localStorage.setItem('answeredSurveyIds', JSON.stringify(answeredSurveyIds));
-        }
-    }, [answeredSurveyIds]);
-    useEffect(() => {
-        if (answerSurveyId) {
-            localStorage.setItem('answerSurveyId', answerSurveyId);
-        }
-    }, [answerSurveyId]);
-    // 復元
-    useEffect(() => {
-        const savedAnswered = localStorage.getItem('answeredSurveyIds');
-        if (savedAnswered) {
-            try {
-                setAnsweredSurveyIds(JSON.parse(savedAnswered));
-            } catch {}
-        }
-        const savedAnswerSurveyId = localStorage.getItem('answerSurveyId');
-        if (savedAnswerSurveyId) {
-            setAnswerSurveyId(savedAnswerSurveyId);
-        }
-    }, []);
-
-    // --- 修正版: messages全体をlocalStorageで永続化（復元はloadChatHistory内でのみ） ---
-    useEffect(() => {
-        if (messages.length > 0) {
-            localStorage.setItem('chatMessages', JSON.stringify(messages));
-        }
-    }, [messages]);
-    useEffect(() => {
-        const saved = localStorage.getItem('chatMessages');
-        if (saved) {
-            try {
-                const parsed = JSON.parse(saved);
-                if (Array.isArray(parsed)) {
-                    setMessages(prev => {
-                        // id重複を避けてマージ
-                        const existingIds = new Set(prev.map(m => m.id));
-                        const toAdd = parsed.filter((m: any) => !existingIds.has(m.id));
-                        return [...prev, ...toAdd];
-                    });
-                }
-            } catch {}
-        }
-    }, []);
 
     return (
         <div style={{ border: '4px solid #388e3c', margin: 24, padding: 24, background: 'linear-gradient(135deg, #e0f7ef 0%, #f1fdf6 100%)', borderRadius: 12, maxWidth: 1200, minHeight: 600, marginLeft: 'auto', marginRight: 'auto', display: 'flex', flexDirection: 'column', height: '80vh', position: 'relative' }}>
