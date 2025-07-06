@@ -16,7 +16,7 @@ const nextConfig: NextConfig = {
             },
             {
                 source: '/internal/:path*',
-                destination: 'http://localhost:8080/:path*',
+                destination: 'http://localhost:8888/:path*',
             },
         ]
     },
