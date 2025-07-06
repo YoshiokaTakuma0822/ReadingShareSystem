@@ -34,4 +34,6 @@ sudo systemctl daemon-reload
 sudo systemctl enable a.service
 sudo systemctl restart a.service
 
+echo curl http://localhost:8888/deploy
+
 journalctl -u a.service -f

@@ -14,6 +14,10 @@ const nextConfig: NextConfig = {
                 destination: process.env.NODE_ENV === 'production' ?
                     'http://app:8080/ws/:path*' : 'http://localhost:8080/ws/:path*',
             },
+            {
+                source: '/internal/:path*',
+                destination: 'http://host.docker.internal:8888/:path*',
+            },
         ]
     },
 }
