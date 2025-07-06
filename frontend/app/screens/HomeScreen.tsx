@@ -86,18 +86,14 @@ const HomeScreen: React.FC = () => {
                 endTimeFrom,
                 endTimeTo,
                 minPages,
-                maxPages
+                maxPages,
+                roomType === 'open',
+                roomType === 'closed'
             )
-            // 部屋タイプによるフィルター
-            let found = result.rooms || []
-            if (roomType === 'open') {
-                found = found.filter(r => !r.hasPassword)
-            } else if (roomType === 'closed') {
-                found = found.filter(r => r.hasPassword)
-            }
-            setRooms(found)
-            // 部屋ごとに作成者名を取得
-            const map: { [roomId: string]: string } = {}
+            const found = result.rooms
+             setRooms(found)
+             // 部屋ごとに作成者名を取得
+             const map: { [roomId: string]: string } = {}
             await Promise.all(found.map(async (room) => {
                 try {
                     const members = await roomApi.getRoomMembers(room.id)
@@ -365,7 +361,7 @@ const HomeScreen: React.FC = () => {
                                     <select
                                         value={roomType}
                                         onChange={e => setRoomType(e.target.value)}
-                                        style={{ padding: 12, borderRadius: 8, border: '1px solid #ccc', fontSize: 16 }}
+                                        style={{ padding: 12, borderRadius: 8, border: '1px solid #ccc', fontSize: 18, height: '56px' }}
                                     >
                                         <option value="all">すべて</option>
                                         <option value="open">オープン</option>
@@ -379,7 +375,7 @@ const HomeScreen: React.FC = () => {
                                         <select
                                             value={genre}
                                             onChange={e => setGenre(e.target.value)}
-                                            style={{ padding: 12, borderRadius: 8, border: '1px solid #ccc', fontSize: 16 }}
+                                            style={{ padding: 12, borderRadius: 8, border: '1px solid #ccc', fontSize: 18, height: '56px' }}
                                         >
                                             <option value="">ジャンル指定なし</option>
                                             <option value="小説">小説</option>
@@ -502,7 +498,7 @@ const HomeScreen: React.FC = () => {
                             }}
                         >
                             {tab === 'search' &&
-                                !searchText && !genre && !minPages && !maxPages && !startTimeFrom && !startTimeTo && !endTimeFrom && !endTimeTo ? (
+                                roomType === 'all' && !searchText && !genre && !minPages && !maxPages && !startTimeFrom && !startTimeTo && !endTimeFrom && !endTimeTo ? (
                                 <div style={{ color: '#b0b8c9', fontSize: 18, width: '100%', textAlign: 'center', padding: '32px 0' }}>
                                     検索された部屋はここに表示されます
                                 </div>

@@ -24,6 +24,19 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
     const [passwordType, setPasswordType] = useState<'none' | 'set'>('none');
 
     const handleCreate = async () => {
+        // パスワード設定時のバリデーション: 8～16文字の半角英字＋数字
+        if (passwordType === 'set') {
+            const passPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,16}$/;
+            if (!passPattern.test(password)) {
+                setError('パスワードは8文字以上，16文字以下の英字＋数字にしてください.');
+                return;
+            }
+        }
+        // 入力バリデーション: 部屋名は16文字以下
+        if (roomName.length > 16) {
+            setError('部屋名は16文字以下にしてください');
+            return;
+        }
         setLoading(true);
         setError(null);
         try {

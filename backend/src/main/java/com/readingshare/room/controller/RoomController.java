@@ -99,9 +99,15 @@ public class RoomController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endFrom,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTo,
             @RequestParam(required = false) Integer pagesMin,
-            @RequestParam(required = false) Integer pagesMax) {
-        List<Room> rooms = roomService.searchRooms(keyword, genre, startFrom, startTo, endFrom, endTo, pagesMin,
-                pagesMax);
+            @RequestParam(required = false) Integer pagesMax,
+            @RequestParam(defaultValue = "false") boolean openOnly,
+            @RequestParam(defaultValue = "false") boolean closedOnly) {
+        List<Room> rooms = roomService.searchRooms(
+                keyword, genre,
+                startFrom, startTo,
+                endFrom, endTo,
+                pagesMin, pagesMax,
+                openOnly, closedOnly);
         return ResponseEntity.ok(rooms);
     }
 

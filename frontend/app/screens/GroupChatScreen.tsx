@@ -73,6 +73,11 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
 
     // メッセージ送信ハンドラ
     const handleSendMessage = async () => {
+        // メッセージ長チェック: 10000文字以内
+        if (input.length > 10000) {
+            setError('メッセージは10000文字以下にしてください.')
+            return
+        }
         if (!input.trim() || !roomId) return
         setLoading(true)
         setError(null)
