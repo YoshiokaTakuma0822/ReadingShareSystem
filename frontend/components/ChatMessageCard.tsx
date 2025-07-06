@@ -9,9 +9,13 @@ interface ChatMessageCardProps {
 }
 
 const ChatMessageCard: React.FC<ChatMessageCardProps> = ({ msg, isMine }) => (
-    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, justifyContent: isMine ? 'flex-end' : 'flex-start' }}>
+    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, justifyContent: 'flex-start' }}>
         {/* アイコン (左固定) */}
-        <span style={{ borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', background: isMine ? '#bbdefb' : '#c8e6c9' }}>
+        <span style={{
+            borderRadius: '50%', width: 32, height: 32, marginTop: -4,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: isMine ? '#bbdefb' : '#c8e6c9'
+        }}>
             {msg.user ? String(msg.user).trim().charAt(0) : '?'}
         </span>
         {/* Discord風: ユーザー名＋時間、その下にメッセージ */}
