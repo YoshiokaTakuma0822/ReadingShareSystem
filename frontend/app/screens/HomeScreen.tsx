@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react'
 import AuthGuard from '../../components/AuthGuard'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../../components/ui/card'
+import { HoverPopover } from '../../components/ui/my-hover-popover'
 import { getDummyUserId, logout } from '../../lib/authUtils'
 import { roomApi } from '../../lib/roomApi'
 import type { RoomHistoryDto } from '../../types/room'
@@ -91,9 +93,9 @@ const HomeScreen: React.FC = () => {
                 roomType === 'closed'
             )
             const found = result.rooms
-             setRooms(found)
-             // 部屋ごとに作成者名を取得
-             const map: { [roomId: string]: string } = {}
+            setRooms(found)
+            // 部屋ごとに作成者名を取得
+            const map: { [roomId: string]: string } = {}
             await Promise.all(found.map(async (room) => {
                 try {
                     const members = await roomApi.getRoomMembers(room.id)
@@ -261,49 +263,59 @@ const HomeScreen: React.FC = () => {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                         <h1 style={{ color: 'var(--accent)', fontSize: 32, margin: 0 }}>読書共有システム</h1>
                         {/* ユーザープロフィール表示 */}
-                        <div
-                            style={{
-                                background: '#388e3c', color: '#fff', borderRadius: 24, padding: '8px 20px', fontWeight: 'bold', fontSize: 16, cursor: 'pointer', position: 'relative', marginRight: 16
-                            }}
-                            title={``}
-                            onMouseEnter={e => {
-                                const tooltip = document.createElement('div')
-                                tooltip.id = 'user-profile-tooltip'
-                                tooltip.style.position = 'absolute'
-                                tooltip.style.top = '110%'
-                                tooltip.style.left = '50%'
-                                tooltip.style.transform = 'translateX(-50%)'
-                                tooltip.style.background = '#fff'
-                                tooltip.style.color = '#333'
-                                tooltip.style.padding = '12px 20px'
-                                tooltip.style.borderRadius = '12px'
-                                tooltip.style.boxShadow = '0 2px 8px rgba(0,0,0,0.18)'
-                                tooltip.style.whiteSpace = 'nowrap'
-                                tooltip.style.zIndex = '9999'
-                                tooltip.innerHTML = `<b>ユーザー名:</b> ${userName}<br/><b>ログイン経過:</b> ${elapsed}`
-                                e.currentTarget.appendChild(tooltip)
-                            }}
-                            onMouseLeave={e => {
-                                const tooltip = document.getElementById('user-profile-tooltip')
-                                if (tooltip) tooltip.remove()
-                            }}
+                        <HoverPopover
+                            align="end"
+                            side="bottom"
+                            content={
+                                <Card className="w-64">
+                                    <CardHeader>
+                                        <CardTitle className="text-lg">プロフィール</CardTitle>
+                                        <CardDescription>ユーザー情報</CardDescription>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="space-y-3">
+                                            <div>
+                                                <div className="text-sm font-medium text-gray-700">ユーザー名</div>
+                                                <div className="text-sm text-gray-900">{userName}</div>
+                                            </div>
+                                            <div>
+                                                <div className="text-sm font-medium text-gray-700">ログイン経過</div>
+                                                <div className="text-sm text-gray-900">
+                                                    {loginTime
+                                                        ? `${Math.floor((Date.now() - loginTime.getTime()) / 60000)}分`
+                                                        : '不明'
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                    <CardFooter>
+                                        <button
+                                            onClick={logout}
+                                            className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md transition-colors"
+                                        >
+                                            ログアウト
+                                        </button>
+                                    </CardFooter>
+                                </Card>
+                            }
                         >
-                            {userName}
-                        </div>
-                        <button
-                            onClick={logout}
-                            style={{
-                                padding: '8px 16px',
-                                background: '#dc3545',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: 4,
-                                cursor: 'pointer',
-                                fontSize: 14
-                            }}
-                        >
-                            ログアウト
-                        </button>
+                            <div
+                                style={{
+                                    background: '#388e3c',
+                                    color: '#fff',
+                                    borderRadius: 24,
+                                    padding: '8px 20px',
+                                    fontWeight: 'bold',
+                                    fontSize: 16,
+                                    cursor: 'pointer',
+                                    position: 'relative',
+                                    marginRight: 16
+                                }}
+                            >
+                                {userName}
+                            </div>
+                        </HoverPopover>
                     </div>
                     <p style={{ color: 'var(--text-main)', fontSize: 16 }}>友達と一緒に読書を楽しもう</p>
                     <div style={{ marginTop: 16 }}>
