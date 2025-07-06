@@ -214,9 +214,26 @@ const MessageList: React.FC<MessageListProps> = ({ roomId, scrollTrigger }) => {
         }}>
             {[...messages].reverse().map(msg => {
                 const isMine = msg.isCurrentUser
+                // Determine whether to show avatar and timestamp based on previous message
+                const reversed = [...messages].reverse()
+                const idx = reversed.findIndex(m => m.uuid === msg.uuid)
+                const prev = reversed[idx + 1]
+                const sameMinute = prev && prev.sentAt && msg.sentAt &&
+                    new Date(prev.sentAt).toISOString().slice(0, 16) === new Date(msg.sentAt).toISOString().slice(0, 16)
+                const isSameUser = prev && prev.user === msg.user
+                const showAvatar = !(isSameUser && sameMinute)
+                const showTime = !sameMinute
+                const showName = !(isSameUser && (sameMinute || false))
                 return msg.messageType === 'SURVEY'
                     ? <SurveyMessageCard key={msg.uuid} msg={msg} isMine={isMine} currentUserId={currentUserId} onLoadingComplete={() => handleSurveyLoadingComplete(msg.id)} />
-                    : <ChatMessageCard key={msg.uuid} msg={msg} isMine={isMine} />
+                    : <ChatMessageCard
+                        key={msg.uuid}
+                        msg={msg}
+                        isMine={isMine}
+                        showAvatar={showAvatar}
+                        showTime={showTime}
+                        showName={showName}
+                    />
             })}
         </div>
     )
