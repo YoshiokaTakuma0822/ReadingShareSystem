@@ -31,7 +31,12 @@ const SurveyAnswerModal: React.FC<SurveyAnswerModalProps> = ({ open, surveyId, o
     }, [open, surveyId])
 
     const handleAnswer = async () => {
-        if (!selected || !survey) return
+        // 選択肢未選択時のエラー表示
+        if (!selected) {
+            setError('選択肢を選択してください');
+            return;
+        }
+        if (!survey) return
         if (!userId) { setError('ユーザーIDが取得できません'); return }
         setLoading(true)
         setError(null)

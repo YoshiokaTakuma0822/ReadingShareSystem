@@ -86,18 +86,14 @@ const HomeScreen: React.FC = () => {
                 endTimeFrom,
                 endTimeTo,
                 minPages,
-                maxPages
+                maxPages,
+                roomType === 'open',
+                roomType === 'closed'
             )
-            // 部屋タイプによるフィルター
-            let found = result.rooms || []
-            if (roomType === 'open') {
-                found = found.filter(r => !r.hasPassword)
-            } else if (roomType === 'closed') {
-                found = found.filter(r => r.hasPassword)
-            }
-            setRooms(found)
-            // 部屋ごとに作成者名を取得
-            const map: { [roomId: string]: string } = {}
+            const found = result.rooms
+             setRooms(found)
+             // 部屋ごとに作成者名を取得
+             const map: { [roomId: string]: string } = {}
             await Promise.all(found.map(async (room) => {
                 try {
                     const members = await roomApi.getRoomMembers(room.id)

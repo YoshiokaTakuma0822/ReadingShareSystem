@@ -21,6 +21,12 @@ const LoginScreen: React.FC = () => {
     const [error, setError] = useState<string | null>(null)
 
     const handleLogin = async () => {
+        // 入力バリデーション: IDとパスワードは16文字以内の半角英字，数字
+        const pattern = /^[A-Za-z0-9]{1,16}$/;
+        if (!pattern.test(username) || !pattern.test(password)) {
+            setError('ID・パスワードは16文字以内の半角英字，数字です．');
+            return;
+        }
         setLoading(true)
         setError(null)
         try {

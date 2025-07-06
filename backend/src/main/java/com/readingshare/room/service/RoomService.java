@@ -151,6 +151,27 @@ public class RoomService {
         // DBレベルで条件検索
         List<Room> rooms = roomRepository.findByConditions(
                 keyword, genre, startFromI, startToI, endFromI, endToI, pagesMin, pagesMax);
+        // Java側でも時刻フィルタを適用（リポジトリクエリが正しく動作しない場合のフォールバック）
+        if (startFromI != null) {
+            rooms = rooms.stream()
+                    .filter(r -> r.getStartTime() != null && !r.getStartTime().isBefore(startFromI))
+                    .toList();
+        }
+        if (startToI != null) {
+            rooms = rooms.stream()
+                    .filter(r -> r.getStartTime() != null && !r.getStartTime().isAfter(startToI))
+                    .toList();
+        }
+        if (endFromI != null) {
+            rooms = rooms.stream()
+                    .filter(r -> r.getEndTime() != null && !r.getEndTime().isBefore(endFromI))
+                    .toList();
+        }
+        if (endToI != null) {
+            rooms = rooms.stream()
+                    .filter(r -> r.getEndTime() != null && !r.getEndTime().isAfter(endToI))
+                    .toList();
+        }
         return rooms;
     }
 
@@ -281,5 +302,36 @@ public class RoomService {
         for (RoomMember m : members) {
             roomMemberRepository.delete(m);
         }
+    }
+
+    /**
+     * 複数条件で部屋を検索する。
+     */
+    @Transactional(readOnly = true)
+    public List<Room> searchRooms(
+            String keyword,
+            String genre,
+            LocalDateTime startFrom,
+            LocalDateTime startTo,
+            LocalDateTime endFrom,
+            LocalDateTime endTo,
+            Integer pagesMin,
+            Integer pagesMax,
+            boolean openOnly,
+            boolean closedOnly) {
+        // まず既存の条件検索を実行
+        List<Room> rooms = searchRooms(keyword, genre, startFrom, startTo, endFrom, endTo, pagesMin, pagesMax);
+        // オープン(パスワードなし)/クローズ(パスワードあり) で絞り込み
+        if (openOnly) {
+            rooms = rooms.stream()
+                    .filter(r -> !r.isHasPassword())
+                    .toList();
+        }
+        if (closedOnly) {
+            rooms = rooms.stream()
+                    .filter(Room::isHasPassword)
+                    .toList();
+        }
+        return rooms;
     }
 }

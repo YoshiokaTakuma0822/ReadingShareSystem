@@ -25,6 +25,12 @@ const RegisterScreen: React.FC = () => {
     const [success, setSuccess] = useState(false)
 
     const handleRegister = async () => {
+        // 入力バリデーション: IDとパスワードは半角英数字16文字以内
+        const pattern = /^[A-Za-z0-9]{1,16}$/;
+        if (!pattern.test(username) || !pattern.test(password)) {
+            setError('ID・パスワードは16文字以内の半角英字か数字にしてください');
+            return;
+        }
         setLoading(true)
         setError(null)
         setSuccess(false)
