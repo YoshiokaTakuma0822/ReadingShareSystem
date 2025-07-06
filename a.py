@@ -72,7 +72,7 @@ def fetch_and_extract():
         z.extractall(EXTRACT_DIR)
 
 
-@app.get("/b0e873fd-af04-4b45-b0cc-95a990f1077d/deploy")
+@app.get("/deploy")
 async def deploy():
     """
     - ZIP をダウンロード → 展開
@@ -101,7 +101,7 @@ async def deploy():
         operation_lock.release()
 
 
-@app.get("/b0e873fd-af04-4b45-b0cc-95a990f1077d/reset")
+@app.get("/reset")
 async def reset():
     """
     - COMPOSE_DIR 以下で docker compose down
@@ -133,7 +133,7 @@ if __name__ == "__main__":
     import uvicorn  # type: ignore
 
     # uvicorn.run("main:app", host="0.0.0.0", port=8080, reload=True)
-    uvicorn.run(app, host="0.0.0.0", port=8080)
+    uvicorn.run(app, host="localhost", port=8080)
 
 # >>> import uuid
 # >>> uuid.uuid4()
