@@ -209,7 +209,6 @@ const MessageList: React.FC<MessageListProps> = ({ roomId, scrollTrigger }) => {
             overflowY: 'auto',
             display: 'flex',
             flexDirection: 'column-reverse',
-            gap: 10,
             scrollBehavior: 'smooth'
         }}>
             {[...messages].reverse().map(msg => {
@@ -222,21 +221,24 @@ const MessageList: React.FC<MessageListProps> = ({ roomId, scrollTrigger }) => {
                     new Date(prev.sentAt).toISOString().slice(0, 16) === new Date(msg.sentAt).toISOString().slice(0, 16)
                 const isSameUser = prev && prev.user === msg.user
                 const showAvatar = !(isSameUser && sameMinute)
-                return msg.messageType === 'SURVEY'
-                    ? <SurveyMessageCard
-                        key={msg.uuid}
-                        msg={msg}
-                        isMine={isMine}
-                        currentUserId={currentUserId}
-                        showAvatar={showAvatar}
-                        onLoadingComplete={() => handleSurveyLoadingComplete(msg.id)}
-                    />
-                    : <ChatMessageCard
-                        key={msg.uuid}
-                        msg={msg}
-                        isMine={isMine}
-                        showAvatar={showAvatar}
-                    />
+                return (
+                    <div key={msg.uuid} style={{ marginTop: showAvatar ? 16 : 8 }}>
+                        {msg.messageType === 'SURVEY'
+                            ? <SurveyMessageCard
+                                msg={msg}
+                                isMine={isMine}
+                                currentUserId={currentUserId}
+                                showAvatar={showAvatar}
+                                onLoadingComplete={() => handleSurveyLoadingComplete(msg.id)}
+                            />
+                            : <ChatMessageCard
+                                msg={msg}
+                                isMine={isMine}
+                                showAvatar={showAvatar}
+                            />
+                        }
+                    </div>
+                )
             })}
         </div>
     )
