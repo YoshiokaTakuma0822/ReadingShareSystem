@@ -8,8 +8,6 @@ import type { RoomHistoryDto } from '../../types/room'
 import { Room } from '../../types/room'
 import RoomCreationModal from './RoomCreationModal'
 import RoomJoinModal from './RoomJoinModal'
-import SurveyAnswerModal from './SurveyAnswerModal'
-import SurveyResultModal from './SurveyResultModal'
 
 const HomeScreen: React.FC = () => {
     const [tab, setTab] = useState<'create' | 'search'>('create') // デフォルトを部屋作成に変更
@@ -717,20 +715,8 @@ const HomeScreen: React.FC = () => {
                     onJoined={handleRoomJoined}
                 />
             )}
-            {showSurveyAnswerModal && (
-                <SurveyAnswerModal
-                    open={showSurveyAnswerModal}
-                    surveyId={dummySurveyId}
-                    onClose={() => setShowSurveyAnswerModal(false)}
-                />
-            )}
-            {showSurveyResultModal && (
-                <SurveyResultModal
-                    open={showSurveyResultModal}
-                    surveyId={dummySurveyId}
-                    onClose={() => setShowSurveyResultModal(false)}
-                />
-            )}
+            
+            
         </AuthGuard>
     )
 }
