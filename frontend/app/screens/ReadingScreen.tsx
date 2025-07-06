@@ -45,9 +45,10 @@ type ActiveAnimation = {
 
 interface ReadingScreenProps {
     roomId?: string
+    onClose?: () => void  // モーダルを閉じるためのコールバック関数
 }
 
-const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
+const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId, onClose }) => {
     // persistent WebSocket for progress notifications
     const wsRef = useRef<WebSocket | null>(null)
     const [showProgressModal, setShowProgressModal] = useState(false)
@@ -148,7 +149,11 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
 
     // --- 部屋退出時にローカル進捗を削除 ---
     const closeReading = () => {
-        if (roomId) {
+        if (onClose) {
+            // モーダルとして使用されている場合は、単純にモーダルを閉じる
+            onClose()
+        } else if (roomId) {
+            // 直接アクセスされている場合は、チャット画面に遷移
             const userId = authStorage.getUserId()
             if (userId) {
                 // Removed localStorage cleanup
