@@ -261,7 +261,7 @@ const HomeScreen: React.FC = () => {
             <div style={{ padding: 32, background: 'var(--green-bg)', minHeight: '100vh' }}>
                 <div style={{ marginBottom: 32 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                        <h1 style={{ color: 'var(--accent)', fontSize: 32, margin: 0 }}>読書共有システム</h1>
+                        <h1 style={{ color: 'var(--green-dark)', fontSize: 32, margin: 0 }}>読書共有システム</h1>
                         {/* ユーザープロフィール表示 */}
                         <HoverPopover
                             align="end"
@@ -334,17 +334,17 @@ const HomeScreen: React.FC = () => {
                 </div>
                 <div style={{ display: 'flex', gap: 16, marginBottom: 24 }}>
                     <button
-                        style={{ flex: 1, padding: 16, background: tab === 'create' ? 'var(--green-light)' : 'var(--white)', borderBottom: tab === 'create' ? '2px solid var(--accent)' : '1px solid var(--green-light)', color: 'var(--accent)', fontWeight: 'bold' }}
+                        style={{ flex: 1, padding: 16, background: tab === 'create' ? 'var(--green-light)' : 'var(--white)', borderBottom: tab === 'create' ? '2px solid var(--green-dark)' : '1px solid var(--green-light)', color: 'var(--green-dark)', fontWeight: 'bold' }}
                         onClick={() => setTab('create')}
                     >部屋作成</button>
                     <button
-                        style={{ flex: 1, padding: 16, background: tab === 'search' ? 'var(--green-light)' : 'var(--white)', borderBottom: tab === 'search' ? '2px solid var(--accent)' : '1px solid var(--green-light)', color: 'var(--accent)', fontWeight: 'bold' }}
+                        style={{ flex: 1, padding: 16, background: tab === 'search' ? 'var(--green-light)' : 'var(--white)', borderBottom: tab === 'search' ? '2px solid var(--green-dark)' : '1px solid var(--green-light)', color: 'var(--green-dark)', fontWeight: 'bold' }}
                         onClick={() => setTab('search')}
                     >検索</button>
                 </div>
                 {tab === 'create' && (
                     <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <button onClick={() => setShowCreateModal(true)} style={{ padding: '12px 32px', fontSize: 18, borderRadius: 8, border: '1px solid var(--text-main)', background: 'var(--accent)', color: 'var(--white)', fontWeight: 'bold' }}>
+                        <button onClick={() => setShowCreateModal(true)} style={{ padding: '12px 32px', fontSize: 18, borderRadius: 8, border: '1px solid var(--text-main)', background: 'var(--green-main)', color: 'var(--white)', fontWeight: 'bold' }}>
                             新しい部屋を作成する
                         </button>
                         <button
@@ -584,7 +584,7 @@ const HomeScreen: React.FC = () => {
                                         }}
                                     >
                                         <div>
-                                            <h3 style={{ color: 'var(--accent)', fontSize: 18, fontWeight: 'bold', marginBottom: 8, overflowWrap: 'break-word', wordBreak: 'break-word' }}>
+                                            <h3 style={{ color: 'var(--green-dark)', fontSize: 18, fontWeight: 'bold', marginBottom: 8, overflowWrap: 'break-word', wordBreak: 'break-word' }}>
                                                 {room.roomName}
                                             </h3>
                                             <p style={{ color: 'var(--text-main)', fontSize: 14, marginBottom: 8, overflowWrap: 'break-word', wordBreak: 'break-word' }}>
@@ -645,7 +645,7 @@ const HomeScreen: React.FC = () => {
                 {/* 最近参加した部屋（最新10件） */}
                 <div style={{ marginTop: 32, padding: 16, background: 'var(--white)', borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <h2 style={{ margin: '0 0 12px', fontSize: 20, color: 'var(--accent)' }}>最近参加した部屋</h2>
+                        <h2 style={{ margin: '0 0 12px', fontSize: 20, color: 'var(--green-dark)' }}>最近参加した部屋</h2>
                         <button
                             onClick={handleResetHistory}
                             style={{ padding: '6px 16px', borderRadius: 6, border: '1px solid #dc3545', background: '#fff', color: '#dc3545', fontWeight: 'bold', fontSize: 14, cursor: 'pointer', marginLeft: 12 }}
@@ -683,7 +683,7 @@ const HomeScreen: React.FC = () => {
                                     ) : (
                                         <>
                                             <div>
-                                                <h3 style={{ color: 'var(--accent)', fontSize: 18, fontWeight: 'bold', marginBottom: 8, overflowWrap: 'break-word', wordBreak: 'break-word' }}>
+                                                <h3 style={{ color: 'var(--green-dark)', fontSize: 18, fontWeight: 'bold', marginBottom: 8, overflowWrap: 'break-word', wordBreak: 'break-word' }}>
                                                     {h.room!.roomName}
                                                 </h3>
                                                 <p style={{ color: 'var(--text-main)', fontSize: 14, marginBottom: 8, overflowWrap: 'break-word', wordBreak: 'break-word' }}>
