@@ -4,6 +4,8 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+    --border: oklch(0.75 0.12 142);
+    --accent: oklch(0.68 0.14 142);
     /* グリーン＆白基調カラーパレット */
     --green-main: #4CAF50;
     --green-dark: #388E3C;
