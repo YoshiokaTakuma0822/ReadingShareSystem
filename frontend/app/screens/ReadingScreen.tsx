@@ -454,7 +454,26 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                     </div>
                     {/* 本の表示エリア */}
                     <div className={`bookContainer ${isVerticalText ? 'vertical-text' : ''}`} style={{ position: 'relative' }}>
-                        <div style={{ position: 'absolute', left: '-140px', top: '50%', transform: 'translateY(-50%)', width: 120, textAlign: 'right', color: '#388e3c', fontWeight: 'bold', fontSize: 16, pointerEvents: 'none', userSelect: 'none', zIndex: 100 }}>
+                        <div style={{
+                            position: 'absolute',
+                            left: '-140px',
+                            top: '50%',
+                            transform: 'translateY(-50%)',
+                            width: 120,
+                            textAlign: 'right',
+                            color: '#388e3c',
+                            fontWeight: 'bold',
+                            fontSize: 16,
+                            pointerEvents: 'auto',
+                            userSelect: 'none',
+                            WebkitUserSelect: 'none',
+                            MozUserSelect: 'none',
+                            msUserSelect: 'none',
+                            zIndex: 100,
+                            cursor: 'pointer'
+                        }}
+                            onClick={handleLeftPageClick}
+                        >
                             {displayPage > (isVerticalText ? 2 : 1) && (isVerticalText ? '進む' : '戻る')}
                         </div>
                         <div className="leftPage" onClick={handleLeftPageClick}>
@@ -473,7 +492,26 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                                 }
                             </span>
                         </div>
-                        <div style={{ position: 'absolute', right: '-140px', top: '50%', transform: 'translateY(-50%)', width: 120, textAlign: 'left', color: '#388e3c', fontWeight: 'bold', fontSize: 16, pointerEvents: 'none', userSelect: 'none', zIndex: 100 }}>
+                        <div style={{
+                            position: 'absolute',
+                            right: '-140px',
+                            top: '50%',
+                            transform: 'translateY(-50%)',
+                            width: 120,
+                            textAlign: 'left',
+                            color: '#388e3c',
+                            fontWeight: 'bold',
+                            fontSize: 16,
+                            pointerEvents: 'auto',
+                            userSelect: 'none',
+                            WebkitUserSelect: 'none',
+                            MozUserSelect: 'none',
+                            msUserSelect: 'none',
+                            zIndex: 100,
+                            cursor: 'pointer'
+                        }}
+                            onClick={handleRightPageClick}
+                        >
                             {displayPage < totalPages - 1 && (isVerticalText ? '戻る' : '進む')}
                         </div>
                         <div className="spine"></div>
