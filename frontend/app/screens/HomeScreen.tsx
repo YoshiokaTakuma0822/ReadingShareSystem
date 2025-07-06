@@ -498,7 +498,7 @@ const HomeScreen: React.FC = () => {
                             }}
                         >
                             {tab === 'search' &&
-                                !searchText && !genre && !minPages && !maxPages && !startTimeFrom && !startTimeTo && !endTimeFrom && !endTimeTo ? (
+                                roomType === 'all' && !searchText && !genre && !minPages && !maxPages && !startTimeFrom && !startTimeTo && !endTimeFrom && !endTimeTo ? (
                                 <div style={{ color: '#b0b8c9', fontSize: 18, width: '100%', textAlign: 'center', padding: '32px 0' }}>
                                     検索された部屋はここに表示されます
                                 </div>
