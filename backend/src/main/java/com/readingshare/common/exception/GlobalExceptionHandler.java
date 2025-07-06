@@ -26,6 +26,15 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * DuplicateUsernameExceptionをHTTP 409 Conflictとして処理する。
+     */
+    @ExceptionHandler(DuplicateUsernameException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateUsernameException(DuplicateUsernameException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(ex.getCode(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    }
+
+    /**
      * DatabaseAccessExceptionをHTTP 500 Internal Server Errorとして処理する。
      * データベースアクセスエラー。
      *

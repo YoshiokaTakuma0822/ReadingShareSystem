@@ -11,6 +11,7 @@ import com.readingshare.auth.domain.model.User;
 import com.readingshare.auth.domain.repository.IUserRepository;
 import com.readingshare.auth.infrastructure.security.IPasswordHasher;
 import com.readingshare.common.exception.DomainException;
+import com.readingshare.common.exception.DuplicateUsernameException;
 
 /**
  * 認証とユーザー管理に関するドメインロジックを扱うサービス。
@@ -53,12 +54,12 @@ public class AuthenticationDomainService {
      * @param user        登録するユーザーエンティティ（ID、パスワードハッシュは含まない）
      * @param rawPassword 平文のパスワード
      * @return 登録されたユーザーエンティティ
-     * @throws DomainException ユーザー名が既に存在する場合
+     * @throws DuplicateUsernameException ユーザー名が既に存在する場合
      */
     @Transactional
     public User registerUser(User user, String rawPassword) {
         if (userRepository.findByUsername(user.getUsername()).isPresent()) {
-            throw new DomainException("Username '" + user.getUsername() + "' already exists.");
+            throw new DuplicateUsernameException(user.getUsername());
         }
         String hashedPassword = passwordHasher.hashPassword(rawPassword);
         user.setPasswordHash(hashedPassword);

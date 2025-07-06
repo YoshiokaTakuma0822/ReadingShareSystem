@@ -1,6 +1,6 @@
 "use client"
-import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import React, { useState } from 'react'
 import { authApi } from '../../lib/authApi'
 import { RegisterUserRequest } from '../../types/auth'
 
@@ -43,14 +43,15 @@ const RegisterScreen: React.FC = () => {
             }, 1500)
         } catch (e: any) {
             if (e?.response?.status === 409) {
-                // サーバーからのエラーメッセージを利用
-                const msg = e?.response?.data?.message || e?.response?.data || '';
-                if (typeof msg === 'string' && msg.includes('Username')) {
-                    setError('このユーザー名は既に使われています');
-                } else if (typeof msg === 'string' && (msg.includes('Email') || msg.includes('メール'))) {
-                    setError('このメールアドレスは既に使われています');
+                // サーバーからのエラーコードを利用
+                const respData = e?.response?.data
+                const code = respData?.code
+                if (code === 'USERNAME_ALREADY_EXISTS') {
+                    setError('このユーザー名は既に使われています')
+                } else if (code === 'EMAIL_ALREADY_EXISTS') {
+                    setError('このメールアドレスは既に使われています')
                 } else {
-                    setError('同じユーザー情報が既に存在します');
+                    setError('同じユーザー情報が既に存在します')
                 }
             } else {
                 setError('登録に失敗しました')
@@ -63,7 +64,7 @@ const RegisterScreen: React.FC = () => {
     return (
         <div style={{ maxWidth: 900, minWidth: 520, width: '60vw', height: 600, position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', border: '2px solid #388e3c', padding: 48, borderRadius: 20, background: 'linear-gradient(135deg, #e0f7ef 0%, #f1fdf6 100%)', boxShadow: '0 4px 24px #a5d6a7', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
             onKeyDown={e => {
-                if (e.key === 'Enter') handleRegister();
+                if (e.key === 'Enter') handleRegister()
             }}
         >
             <h1 style={{ textAlign: 'center', fontSize: 32, marginBottom: 32, color: '#388e3c' }}>会員登録画面</h1>
