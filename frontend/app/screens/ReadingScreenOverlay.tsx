@@ -169,7 +169,7 @@ const ReadingScreenOverlay: React.FC<ReadingScreenOverlayProps> = ({ roomId, ope
                 display: 'flex',
                 flexDirection: 'column',
             }}>
-                <ReadingScreen roomId={roomId} />
+                <ReadingScreen roomId={roomId} onClose={onClose} />
             </div>
         </div>
     )
