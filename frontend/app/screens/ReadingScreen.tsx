@@ -634,10 +634,9 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                             className="modalContainer"
                             onClick={(e) => {
                                 if (e.target === e.currentTarget) {
-                                    setShowProgressModal(false) // オーバーレイ以外をクリックした場合にモーダルを閉じる
-                                    setTimeout(() => {
-                                        window.location.href = `/rooms/${roomId}/chat` // チャット画面に戻る
-                                    }, 0) // 非同期で遷移を確実に実行
+                                    // モーダルを閉じるのみ（チャット画面には戻らない）
+                                    setShowProgressModal(false)
+                                    setEditingTotalPages(false)
                                 }
                             }}
                         >
