@@ -1,9 +1,8 @@
 "use client"
 
 import React, { useState } from 'react'
-import CustomDropdown from '../../components/CustomDropdown'
-import { roomApi } from '../../lib/roomApi'
 import { CreateRoomRequest, Room } from '../../types/room'
+import { roomApi } from '../../lib/roomApi'
 
 interface RoomCreationModalProps {
     open: boolean
@@ -18,28 +17,28 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
-    const [genre, setGenre] = useState('小説')
-    const [startTime, setStartTime] = useState('')
-    const [endTime, setEndTime] = useState('')
-    const [totalPages, setTotalPages] = useState<number>(300) // 追加: 本の全ページ数
-    const [passwordType, setPasswordType] = useState<'none' | 'set'>('none')
+    const [genre, setGenre] = useState('小説');
+    const [startTime, setStartTime] = useState('');
+    const [endTime, setEndTime] = useState('');
+    const [totalPages, setTotalPages] = useState<number>(300); // 追加: 本の全ページ数
+    const [passwordType, setPasswordType] = useState<'none' | 'set'>('none');
 
     const handleCreate = async () => {
         // パスワード設定時のバリデーション: 8～16文字の半角英字＋数字
         if (passwordType === 'set') {
-            const passPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,16}$/
+            const passPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,16}$/;
             if (!passPattern.test(password)) {
-                setError('パスワードは8文字以上，16文字以下の英字＋数字にしてください.')
-                return
+                setError('パスワードは8文字以上，16文字以下の英字＋数字にしてください.');
+                return;
             }
         }
         // 入力バリデーション: 部屋名は16文字以下
         if (roomName.length > 16) {
-            setError('部屋名は16文字以下にしてください')
-            return
+            setError('部屋名は16文字以下にしてください');
+            return;
         }
-        setLoading(true)
-        setError(null)
+        setLoading(true);
+        setError(null);
         try {
             const req: CreateRoomRequest = {
                 roomName,
@@ -50,9 +49,9 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
                 startTime: startTime || undefined,
                 endTime: endTime || undefined,
                 totalPages: totalPages || undefined, // 追加
-            }
-            const createdRoom: Room = await roomApi.createRoom(req)
-            onCreated(createdRoom)
+            };
+            const createdRoom: Room = await roomApi.createRoom(req);
+            onCreated(createdRoom);
         } catch (e) {
             setError('部屋作成に失敗しました')
         } finally {
@@ -62,32 +61,32 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
 
     React.useEffect(() => {
         if (!open) {
-            setRoomName('')
-            setBookTitle('')
-            setPassword('')
-            setGenre('小説')
-            setStartTime('')
-            setEndTime('')
-            setTotalPages(300)
-            setPasswordType('none')
-            setError(null)
+            setRoomName('');
+            setBookTitle('');
+            setPassword('');
+            setGenre('小説');
+            setStartTime('');
+            setEndTime('');
+            setTotalPages(300);
+            setPasswordType('none');
+            setError(null);
         }
-    }, [open])
+    }, [open]);
 
     // 部屋作成完了時にもリセット
     React.useEffect(() => {
         if (!loading && !open) {
-            setRoomName('')
-            setBookTitle('')
-            setPassword('')
-            setGenre('小説')
-            setStartTime('')
-            setEndTime('')
-            setTotalPages(300)
-            setPasswordType('none')
-            setError(null)
+            setRoomName('');
+            setBookTitle('');
+            setPassword('');
+            setGenre('小説');
+            setStartTime('');
+            setEndTime('');
+            setTotalPages(300);
+            setPasswordType('none');
+            setError(null);
         }
-    }, [loading, open])
+    }, [loading, open]);
 
     if (!open) return null
 
@@ -136,7 +135,7 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
                 onClick={(e) => e.stopPropagation()}
                 onKeyDown={e => {
                     if (e.key === 'Enter' && !loading && roomName.trim() && bookTitle.trim()) {
-                        handleCreate()
+                        handleCreate();
                     }
                 }}
                 tabIndex={0}
@@ -158,59 +157,49 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
                         </div>
                         <div style={{ marginBottom: 16 }}>
                             <label>パスワード設定</label>
-                            <CustomDropdown
-                                options={[
-                                    { value: 'none', label: 'パスワードなし（オープン）' },
-                                    { value: 'set', label: 'パスワードあり' }
-                                ]}
-                                value={passwordType}
-                                onChange={(value) => setPasswordType(value as 'none' | 'set')}
-                                style={{ marginTop: 4 }}
-                            />
+                            <select value={passwordType} onChange={e => setPasswordType(e.target.value as 'none' | 'set')} style={{ width: '100%', padding: 8, marginTop: 4 }}>
+                                <option value="none">パスワードなし（オープン）</option>
+                                <option value="set">パスワードあり</option>
+                            </select>
                         </div>
                         {passwordType === 'set' && (
-                            <div style={{ marginBottom: 16 }}>
-                                <label>パスワード</label>
-                                <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="パスワードを入力してください" style={{ width: '100%', padding: 8, marginTop: 4 }} />
-                            </div>
+                        <div style={{ marginBottom: 16 }}>
+                            <label>パスワード</label>
+                            <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="パスワードを入力してください" style={{ width: '100%', padding: 8, marginTop: 4 }} />
+                        </div>
                         )}
                     </div>
                     <div style={{ flex: 1, minWidth: 280 }}>
                         <div style={{ marginBottom: 16 }}>
                             <label>ジャンル</label>
-                            <CustomDropdown
-                                options={[
-                                    { value: '小説', label: '小説' },
-                                    { value: 'ビジネス', label: 'ビジネス' },
-                                    { value: '学習', label: '学習' },
-                                    { value: 'エッセイ', label: 'エッセイ' },
-                                    { value: '漫画', label: '漫画' },
-                                    { value: '歴史', label: '歴史' },
-                                    { value: '科学', label: '科学' },
-                                    { value: 'ライトノベル', label: 'ライトノベル' },
-                                    { value: '児童書', label: '児童書' },
-                                    { value: '技術書', label: '技術書' },
-                                    { value: '趣味・実用', label: '趣味・実用' },
-                                    { value: '詩・短歌', label: '詩・短歌' },
-                                    { value: '自己啓発', label: '自己啓発' },
-                                    { value: '旅行', label: '旅行' },
-                                    { value: '料理', label: '料理' },
-                                    { value: 'スポーツ', label: 'スポーツ' },
-                                    { value: '芸術', label: '芸術' },
-                                    { value: '写真集', label: '写真集' },
-                                    { value: '伝記', label: '伝記' },
-                                    { value: 'ファンタジー', label: 'ファンタジー' },
-                                    { value: 'ミステリー', label: 'ミステリー' },
-                                    { value: 'ホラー', label: 'ホラー' },
-                                    { value: '恋愛', label: '恋愛' },
-                                    { value: 'SF', label: 'SF' },
-                                    { value: 'ノンフィクション', label: 'ノンフィクション' },
-                                    { value: 'その他', label: 'その他' }
-                                ]}
-                                value={genre}
-                                onChange={setGenre}
-                                style={{ marginTop: 4 }}
-                            />
+                            <select value={genre} onChange={e => setGenre(e.target.value)} style={{ width: '100%', padding: 8, marginTop: 4 }}>
+                                <option value="小説">小説</option>
+                                <option value="ビジネス">ビジネス</option>
+                                <option value="学習">学習</option>
+                                <option value="エッセイ">エッセイ</option>
+                                <option value="漫画">漫画</option>
+                                <option value="歴史">歴史</option>
+                                <option value="科学">科学</option>
+                                <option value="ライトノベル">ライトノベル</option>
+                                <option value="児童書">児童書</option>
+                                <option value="技術書">技術書</option>
+                                <option value="趣味・実用">趣味・実用</option>
+                                <option value="詩・短歌">詩・短歌</option>
+                                <option value="自己啓発">自己啓発</option>
+                                <option value="旅行">旅行</option>
+                                <option value="料理">料理</option>
+                                <option value="スポーツ">スポーツ</option>
+                                <option value="芸術">芸術</option>
+                                <option value="写真集">写真集</option>
+                                <option value="伝記">伝記</option>
+                                <option value="ファンタジー">ファンタジー</option>
+                                <option value="ミステリー">ミステリー</option>
+                                <option value="ホラー">ホラー</option>
+                                <option value="恋愛">恋愛</option>
+                                <option value="SF">SF</option>
+                                <option value="ノンフィクション">ノンフィクション</option>
+                                <option value="その他">その他</option>
+                            </select>
                         </div>
                         <div style={{ marginBottom: 16 }}>
                             <label>開始時刻</label>
