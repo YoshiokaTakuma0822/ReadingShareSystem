@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import AuthGuard from '../../components/AuthGuard'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../../components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
 import { HoverPopover } from '../../components/ui/my-hover-popover'
 import { getDummyUserId, logout } from '../../lib/authUtils'
 import { roomApi } from '../../lib/roomApi'
@@ -255,7 +255,7 @@ const HomeScreen: React.FC = () => {
                 <div style={{ marginBottom: 32 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                         <h1 style={{ color: 'var(--green-dark)', fontSize: 32, margin: 0 }}>読書共有システム</h1>
-                        
+
                         {/* Card単体テスト */}
                         <div style={{ position: 'absolute', top: 100, right: 32, zIndex: 1000 }}>
                             <Card className="w-64 border-0 shadow-none">
@@ -268,43 +268,39 @@ const HomeScreen: React.FC = () => {
                                 </CardContent>
                             </Card>
                         </div>
-                        
+
                         {/* ユーザープロフィール表示 */}
                         <HoverPopover
                             align="end"
                             side="bottom"
                             content={
-                                <Card className="w-64 border-0 shadow-none">
-                                    <CardHeader>
-                                        <CardTitle className="text-lg">プロフィール</CardTitle>
-                                        <CardDescription>ユーザー情報</CardDescription>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="space-y-3">
-                                            <div>
-                                                <div className="text-sm font-medium text-gray-700">ユーザー名</div>
-                                                <div className="text-sm text-gray-900">{userName}</div>
-                                            </div>
-                                            <div>
-                                                <div className="text-sm font-medium text-gray-700">ログイン経過</div>
-                                                <div className="text-sm text-gray-900">
-                                                    {loginTime
-                                                        ? `${Math.floor((Date.now() - loginTime.getTime()) / 60000)}分`
-                                                        : '不明'
-                                                    }
-                                                </div>
+                                <div className="w-64 p-6">
+                                    <div className="mb-4">
+                                        <h3 className="text-lg font-semibold">プロフィール</h3>
+                                        <p className="text-sm text-gray-600">ユーザー情報</p>
+                                    </div>
+                                    <div className="space-y-3 mb-4">
+                                        <div>
+                                            <div className="text-sm font-medium text-gray-700">ユーザー名</div>
+                                            <div className="text-sm text-gray-900">{userName}</div>
+                                        </div>
+                                        <div>
+                                            <div className="text-sm font-medium text-gray-700">ログイン経過</div>
+                                            <div className="text-sm text-gray-900">
+                                                {loginTime
+                                                    ? `${Math.floor((Date.now() - loginTime.getTime()) / 60000)}分`
+                                                    : '不明'
+                                                }
                                             </div>
                                         </div>
-                                    </CardContent>
-                                    <CardFooter>
-                                        <button
-                                            onClick={logout}
-                                            className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md transition-colors"
-                                        >
-                                            ログアウト
-                                        </button>
-                                    </CardFooter>
-                                </Card>
+                                    </div>
+                                    <button
+                                        onClick={logout}
+                                        className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md transition-colors"
+                                    >
+                                        ログアウト
+                                    </button>
+                                </div>
                             }
                         >
                             <div
