@@ -361,7 +361,7 @@ const HomeScreen: React.FC = () => {
                                     <select
                                         value={roomType}
                                         onChange={e => setRoomType(e.target.value)}
-                                        style={{ padding: 12, borderRadius: 8, border: '1px solid #ccc', fontSize: 16 }}
+                                        style={{ padding: 12, borderRadius: 8, border: '1px solid #ccc', fontSize: 18, height: '56px' }}
                                     >
                                         <option value="all">すべて</option>
                                         <option value="open">オープン</option>
@@ -375,7 +375,7 @@ const HomeScreen: React.FC = () => {
                                         <select
                                             value={genre}
                                             onChange={e => setGenre(e.target.value)}
-                                            style={{ padding: 12, borderRadius: 8, border: '1px solid #ccc', fontSize: 16 }}
+                                            style={{ padding: 12, borderRadius: 8, border: '1px solid #ccc', fontSize: 18, height: '56px' }}
                                         >
                                             <option value="">ジャンル指定なし</option>
                                             <option value="小説">小説</option>
