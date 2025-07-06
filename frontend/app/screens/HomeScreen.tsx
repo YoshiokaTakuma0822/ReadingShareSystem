@@ -255,12 +255,26 @@ const HomeScreen: React.FC = () => {
                 <div style={{ marginBottom: 32 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                         <h1 style={{ color: 'var(--green-dark)', fontSize: 32, margin: 0 }}>読書共有システム</h1>
+                        
+                        {/* Card単体テスト */}
+                        <div style={{ position: 'absolute', top: 100, right: 32, zIndex: 1000 }}>
+                            <Card className="w-64 border-0 shadow-none">
+                                <CardHeader>
+                                    <CardTitle className="text-lg">テストCard</CardTitle>
+                                    <CardDescription>border-0テスト</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <div>テスト内容</div>
+                                </CardContent>
+                            </Card>
+                        </div>
+                        
                         {/* ユーザープロフィール表示 */}
                         <HoverPopover
                             align="end"
                             side="bottom"
                             content={
-                                <Card className="w-64">
+                                <Card className="w-64 border-0 shadow-none">
                                     <CardHeader>
                                         <CardTitle className="text-lg">プロフィール</CardTitle>
                                         <CardDescription>ユーザー情報</CardDescription>
