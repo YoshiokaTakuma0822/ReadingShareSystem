@@ -6,11 +6,33 @@ package com.readingshare.common.exception;
  */
 public class ApplicationException extends RuntimeException {
 
+    private final String code;
+
     public ApplicationException(String message) {
-        super(message);
+        this(null, message);
     }
 
     public ApplicationException(String message, Throwable cause) {
+        this(null, message, cause);
+    }
+
+    /**
+     * アプリケーションエラーコード付き例外
+     */
+    public ApplicationException(String code, String message) {
+        super(message);
+        this.code = code;
+    }
+
+    public ApplicationException(String code, String message, Throwable cause) {
         super(message, cause);
+        this.code = code;
+    }
+
+    /**
+     * エラーコードを取得
+     */
+    public String getCode() {
+        return code;
     }
 }
