@@ -152,20 +152,42 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
                     <div style={{ flex: 1, minWidth: 280 }}>
                         <div style={{ marginBottom: 16 }}>
                             <label>部屋名</label>
-                            <input type="text" value={roomName} onChange={e => setRoomName(e.target.value)} placeholder="部屋名を入力してください" style={{ width: '100%', padding: 8, marginTop: 4 }} />
+                            <input
+                                type="text"
+                                value={roomName}
+                                onChange={e => setRoomName(e.target.value)}
+                                placeholder="部屋名を入力してください"
+                                style={{ width: '100%', padding: 8, marginTop: 4 }}
+                                tabIndex={1}
+                            />
                         </div>
                         <div style={{ marginBottom: 16 }}>
                             <label>本のタイトル</label>
-                            <input type="text" value={bookTitle} onChange={e => setBookTitle(e.target.value)} placeholder="本のタイトルを入力してください" style={{ width: '100%', padding: 8, marginTop: 4 }} />
+                            <input
+                                type="text"
+                                value={bookTitle}
+                                onChange={e => setBookTitle(e.target.value)}
+                                placeholder="本のタイトルを入力してください"
+                                style={{ width: '100%', padding: 8, marginTop: 4 }}
+                                tabIndex={2}
+                            />
                         </div>
                         <div style={{ marginBottom: 16 }}>
                             <label>本のページ数</label>
-                            <input type="number" min={1} value={totalPages} onChange={e => setTotalPages(Number(e.target.value))} placeholder="例: 300" style={{ width: '100%', padding: 8, marginTop: 4 }} />
+                            <input
+                                type="number"
+                                min={1}
+                                value={totalPages}
+                                onChange={e => setTotalPages(Number(e.target.value))}
+                                placeholder="例: 300"
+                                style={{ width: '100%', padding: 8, marginTop: 4 }}
+                                tabIndex={3}
+                            />
                         </div>
                         <div style={{ marginBottom: 16 }}>
                             <label>パスワード設定</label>
                             <Select value={passwordType} onValueChange={(value) => setPasswordType(value as 'none' | 'set')}>
-                                <SelectTrigger style={{ width: '100%', marginTop: 4 }}>
+                                <SelectTrigger style={{ width: '100%', marginTop: 4 }} tabIndex={4}>
                                     <SelectValue placeholder="パスワード設定を選択" />
                                 </SelectTrigger>
                                 <SelectContent style={{ zIndex: 1001 }}>
@@ -177,7 +199,14 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
                         {passwordType === 'set' && (
                             <div style={{ marginBottom: 16 }}>
                                 <label>パスワード</label>
-                                <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="パスワードを入力してください" style={{ width: '100%', padding: 8, marginTop: 4 }} />
+                                <input
+                                    type="password"
+                                    value={password}
+                                    onChange={e => setPassword(e.target.value)}
+                                    placeholder="パスワードを入力してください"
+                                    style={{ width: '100%', padding: 8, marginTop: 4 }}
+                                    tabIndex={5}
+                                />
                             </div>
                         )}
                     </div>
@@ -185,7 +214,7 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
                         <div style={{ marginBottom: 16 }}>
                             <label>ジャンル</label>
                             <Select value={genre} onValueChange={setGenre}>
-                                <SelectTrigger style={{ width: '100%', marginTop: 4 }}>
+                                <SelectTrigger style={{ width: '100%', marginTop: 4 }} tabIndex={6}>
                                     <SelectValue placeholder="ジャンルを選択" />
                                 </SelectTrigger>
                                 <SelectContent style={{ zIndex: 1001 }}>
@@ -220,11 +249,23 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
                         </div>
                         <div style={{ marginBottom: 16 }}>
                             <label>開始時刻</label>
-                            <input type="datetime-local" value={startTime} onChange={e => setStartTime(e.target.value)} style={{ width: '100%', padding: 8, marginTop: 4 }} />
+                            <input
+                                type="datetime-local"
+                                value={startTime}
+                                onChange={e => setStartTime(e.target.value)}
+                                style={{ width: '100%', padding: 8, marginTop: 4 }}
+                                tabIndex={7}
+                            />
                         </div>
                         <div style={{ marginBottom: 16 }}>
                             <label>終了時刻</label>
-                            <input type="datetime-local" value={endTime} onChange={e => setEndTime(e.target.value)} style={{ width: '100%', padding: 8, marginTop: 4 }} />
+                            <input
+                                type="datetime-local"
+                                value={endTime}
+                                onChange={e => setEndTime(e.target.value)}
+                                style={{ width: '100%', padding: 8, marginTop: 4 }}
+                                tabIndex={8}
+                            />
                         </div>
                     </div>
                 </div>
@@ -241,6 +282,7 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
                             fontSize: 16,
                             cursor: 'pointer'
                         }}
+                        tabIndex={9}
                     >
                         キャンセル
                     </button>
@@ -257,6 +299,7 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
                             cursor: loading || !roomName.trim() || !bookTitle.trim() ? 'not-allowed' : 'pointer',
                             opacity: loading || !roomName.trim() || !bookTitle.trim() ? 0.6 : 1
                         }}
+                        tabIndex={10}
                     >
                         {loading ? '作成中...' : '部屋を作成'}
                     </button>
