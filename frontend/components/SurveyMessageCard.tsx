@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useCallback, useEffect, useState } from 'react'
+import { MdPoll } from 'react-icons/md'
 import { surveyApi } from '../lib/surveyApi'
 import { Message } from '../types/message'
 import { SubmitSurveyAnswerRequest, Survey, SurveyResult } from '../types/survey'
@@ -10,11 +11,10 @@ interface SurveyMessageCardProps {
     isMine: boolean
     currentUserId: string | null
     onLoadingComplete?: () => void
+    showAvatar?: boolean  // add showAvatar prop
 }
 
-const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, currentUserId, onLoadingComplete }) => {
-    console.log('SurveyMessageCard render:', msg.surveyId)
-
+const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, currentUserId, onLoadingComplete, showAvatar = true }) => {
     const [surveyData, setSurveyData] = useState<Survey | null>(null)
     const [loading, setLoading] = useState(true)
     const [hasAnswered, setHasAnswered] = useState(false)
@@ -177,20 +177,25 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
     };
 
     return (
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, justifyContent: isMine ? 'flex-end' : 'flex-start', marginBottom: 12 }}>
-            {!isMine && (
-                <span style={{ border: '1px solid #222', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    {msg.user ? String(msg.user).trim().charAt(0) : '?'}
-                </span>
-            )}
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: isMine ? 'flex-end' : 'flex-start', gap: 4 }}>
-                <div style={{ fontSize: '0.8em', color: '#888', display: 'flex', gap: 8 }}>
-                    <span>{msg.user}</span>
-                    {msg.sentAt && <span>{new Date(msg.sentAt).toLocaleTimeString()}</span>}
-                </div>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, justifyContent: 'flex-start', marginBottom: 12 }}>
+            <span style={{
+                borderRadius: '50%', width: 32, height: 32, marginTop: -4,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: showAvatar ? (isMine ? '#bbdefb' : '#c8e6c9') : 'transparent',
+                visibility: showAvatar ? 'visible' : 'hidden'
+            }}>
+                {showAvatar && (msg.user ? String(msg.user).trim().charAt(0) : '?')}
+            </span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1, alignItems: 'flex-start' }}>
+                {showAvatar && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span>{msg.user}</span>
+                        {msg.sentAt && <span style={{ fontSize: '0.8em', color: '#888' }}>{new Date(msg.sentAt).toLocaleTimeString()}</span>}
+                    </div>
+                )}
                 <div style={{ border: '2px solid #2196f3', borderRadius: 12, padding: 16, background: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)', maxWidth: 500, minWidth: 300, boxShadow: '0 2px 8px rgba(33,150,243,0.2)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                        <span style={{ fontSize: 20 }}>📊</span>
+                        <MdPoll style={{ fontSize: 25, color: '#1976d2', marginTop: -1.5 }} />
                         <span style={{ fontWeight: 'bold', color: '#1976d2' }}>アンケート</span>
                     </div>
 
@@ -318,11 +323,6 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
                     )}
                 </div>
             </div>
-            {isMine && (
-                <span style={{ border: '1px solid #222', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#e0f7fa' }}>
-                    {msg.user ? String(msg.user).trim().charAt(0) : '?'}
-                </span>
-            )}
         </div>
     )
 }

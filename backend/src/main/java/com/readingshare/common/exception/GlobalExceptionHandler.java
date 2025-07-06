@@ -21,8 +21,17 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(DomainException.class)
     public ResponseEntity<ErrorResponse> handleDomainException(DomainException ex) {
-        ErrorResponse errorResponse = new ErrorResponse(ex.getMessage());
+        ErrorResponse errorResponse = new ErrorResponse(ex.getClass().getSimpleName(), ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    /**
+     * DuplicateUsernameExceptionをHTTP 409 Conflictとして処理する。
+     */
+    @ExceptionHandler(DuplicateUsernameException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateUsernameException(DuplicateUsernameException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(ex.getCode(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
     }
 
     /**
@@ -34,7 +43,8 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(DatabaseAccessException.class)
     public ResponseEntity<ErrorResponse> handleDatabaseAccessException(DatabaseAccessException ex) {
-        ErrorResponse errorResponse = new ErrorResponse("Database access error occurred.");
+        ErrorResponse errorResponse = new ErrorResponse(ex.getClass().getSimpleName(),
+                "Database access error occurred.");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 
@@ -47,7 +57,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(DifferentQuestionnaireComponentException.class)
     public ResponseEntity<ErrorResponse> handleQuestionnaireException(DifferentQuestionnaireComponentException ex) {
-        ErrorResponse errorResponse = new ErrorResponse(ex.getMessage());
+        ErrorResponse errorResponse = new ErrorResponse(ex.getClass().getSimpleName(), ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
@@ -60,7 +70,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex) {
-        ErrorResponse errorResponse = new ErrorResponse(ex.getMessage());
+        ErrorResponse errorResponse = new ErrorResponse(ex.getClass().getSimpleName(), ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
 
@@ -73,7 +83,8 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(ApplicationException.class)
     public ResponseEntity<ErrorResponse> handleApplicationException(ApplicationException ex) {
-        ErrorResponse errorResponse = new ErrorResponse(ex.getMessage());
+        ErrorResponse errorResponse = new ErrorResponse(ex.getCode(), ex.getMessage()); // code from
+                                                                                        // ApplicationException
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
@@ -86,7 +97,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneralException(Exception ex) {
-        ErrorResponse errorResponse = new ErrorResponse("An unexpected error occurred.");
+        ErrorResponse errorResponse = new ErrorResponse(ex.getClass().getSimpleName(), "An unexpected error occurred.");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 
@@ -94,10 +105,16 @@ public class GlobalExceptionHandler {
      * エラーレスポンス用のDTO。
      */
     public static class ErrorResponse {
+        private final String code;
         private final String message;
 
-        public ErrorResponse(String message) {
+        public ErrorResponse(String code, String message) {
+            this.code = code;
             this.message = message;
+        }
+
+        public String getCode() {
+            return code;
         }
 
         public String getMessage() {
