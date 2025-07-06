@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useRef, useState } from 'react'
+import { MdMenuBook, MdPoll, MdHome } from 'react-icons/md'
 import MessageList from '../../components/MessageList'
 import { chatApi } from '../../lib/chatApi'
 import { roomApi } from '../../lib/roomApi'
@@ -116,10 +117,14 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                         borderRadius: 8,
                         cursor: 'pointer',
                         fontWeight: 'bold',
-                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 8
                     }}
                 >
-                    📖 読書画面をオーバーレイ表示
+                    <MdMenuBook style={{ fontSize: 18 }} />
+                    読書画面をオーバーレイ表示
                 </button>
                 <button
                     onClick={() => setShowSurveyModal(true)}
@@ -132,10 +137,14 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                         borderRadius: 8,
                         cursor: 'pointer',
                         fontWeight: 'bold',
-                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 8
                     }}
                 >
-                    📊 アンケート作成
+                    <MdPoll style={{ fontSize: 18 }} />
+                    アンケート作成
                 </button>
                 <button
                     onClick={() => window.location.href = '/'}
@@ -148,10 +157,14 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                         borderRadius: 8,
                         cursor: 'pointer',
                         fontWeight: 'bold',
-                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 8
                     }}
                 >
-                    🏠 ホームへ
+                    <MdHome style={{ fontSize: 18 }} />
+                    ホームへ
                 </button>
             </div>
 
