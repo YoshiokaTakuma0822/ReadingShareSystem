@@ -78,7 +78,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
     const [isVerticalText, setIsVerticalText] = useState<boolean>(false)
 
     // 保存時のバリデーションエラーメッセージ
-    const [editError, setEditError] = useState<string>('');
+    const [editError, setEditError] = useState<string>('')
 
     // Removed initial auto-flip effect; replaced below after handlers
 
@@ -219,14 +219,13 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
     // --- WebSocketで進捗リアルタイム共有 ---
     useEffect(() => {
         if (!roomId) return
-        // WebSocketエンドポイント
-        const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
-        const wsUrl = `${wsProtocol}://${window.location.hostname}:8080/ws/chat`
+
+        // WebSocket接続 - 開発時はプロキシ経由、本番時は直接接続
+        const wsUrl = process.env.NODE_ENV === 'production'
+            ? `ws://app:8080/ws/chat/notifications/${roomId}`
+            : `ws://localhost:8080/ws/chat/notifications/${roomId}`
+
         const ws = new WebSocket(wsUrl)
-        ws.onopen = () => {
-            // サーバー側でSTOMP等が必要な場合はここでプロトコルに合わせて送信
-            // ここではシンプルなJSON送受信を仮定
-        }
         ws.onmessage = (event) => {
             try {
                 const msg = JSON.parse(event.data)
@@ -655,8 +654,8 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                                         min={1}
                                         value={currentPage}
                                         onChange={(e) => {
-                                            setCurrentPage(Number(e.target.value));
-                                            setEditError('');
+                                            setCurrentPage(Number(e.target.value))
+                                            setEditError('')
                                         }}
                                     />
                                 </div>
@@ -667,8 +666,8 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                                         min={1}
                                         value={inputTotalPages}
                                         onChange={(e) => {
-                                            setInputTotalPages(Number(e.target.value));
-                                            setEditError('');
+                                            setInputTotalPages(Number(e.target.value))
+                                            setEditError('')
                                         }}
                                     />
                                 </div>
@@ -679,8 +678,8 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                                         onClick={async () => {
                                             if (inputTotalPages > 0 && currentPage > 0 && roomId) {
                                                 if (currentPage > inputTotalPages) {
-                                                    setEditError('進捗ページ数が本の最大ページ数を超えてしまっています');
-                                                    return;
+                                                    setEditError('進捗ページ数が本の最大ページ数を超えてしまっています')
+                                                    return
                                                 }
                                                 try {
                                                     const updated = await roomApi.updateTotalPages(roomId, inputTotalPages)
@@ -691,7 +690,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                                                 }
                                                 setEditingTotalPages(false)
                                                 setShowProgressModal(false)
-                                                setEditError('');
+                                                setEditError('')
                                             }
                                         }}
                                     >保存</button>
@@ -702,7 +701,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                                             setCurrentPage(displayPage)
                                             setEditingTotalPages(false)
                                             setShowProgressModal(false)
-                                            setEditError('');
+                                            setEditError('')
                                         }}
                                     >キャンセル</button>
                                 </div>
