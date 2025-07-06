@@ -92,24 +92,22 @@ public class RoomController {
      */
     @GetMapping("/search")
     public ResponseEntity<List<Room>> searchRooms(
-            @RequestParam(required = false, value = "keyword") String keyword,
-            @RequestParam(required = false, value = "genre") String genre,
-            @RequestParam(required = false, value = "startFrom") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startFrom,
-            @RequestParam(required = false, value = "startTo") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTo,
-            @RequestParam(required = false, value = "endFrom") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endFrom,
-            @RequestParam(required = false, value = "endTo") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTo,
-            @RequestParam(required = false, value = "pagesMin") Integer pagesMin,
-            @RequestParam(required = false, value = "pagesMax") Integer pagesMax,
-            @RequestParam(name = "openOnly", defaultValue = "false") boolean openOnly,
-            @RequestParam(name = "closedOnly", defaultValue = "false") boolean closedOnly
-    ) {
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String genre,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startFrom,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTo,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endFrom,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTo,
+            @RequestParam(required = false) Integer pagesMin,
+            @RequestParam(required = false) Integer pagesMax,
+            @RequestParam(defaultValue = "false") boolean openOnly,
+            @RequestParam(defaultValue = "false") boolean closedOnly) {
         List<Room> rooms = roomService.searchRooms(
                 keyword, genre,
                 startFrom, startTo,
                 endFrom, endTo,
                 pagesMin, pagesMax,
-                openOnly, closedOnly
-        );
+                openOnly, closedOnly);
         return ResponseEntity.ok(rooms);
     }
 

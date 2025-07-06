@@ -1,7 +1,8 @@
 "use client"
 import React, { useState } from 'react'
 import { surveyApi } from '../../lib/surveyApi'
-import { CreateSurveyRequest, Question, QuestionType } from '../../types/survey'
+import { ApiErrorResponse, SurveyErrorCode } from '../../types/error'
+import { CreateSurveyRequest, Question } from '../../types/survey'
 
 interface SurveyCreationModalProps {
     open: boolean
@@ -52,8 +53,23 @@ const SurveyCreationModal: React.FC<SurveyCreationModalProps> = ({ open, roomId,
             // 新しいアンケートを作成し、IDを取得
             const createdSurvey = await surveyApi.createSurvey(request)
             onCreated(createdSurvey)
-        } catch (e) {
-            setError('アンケート作成に失敗しました')
+        } catch (e: any) {
+            // エラーコードで分岐して日本語メッセージを表示
+            const data = e.response?.data as ApiErrorResponse | undefined
+            if (data) {
+                switch (data.code as SurveyErrorCode) {
+                    case SurveyErrorCode.TOO_FEW_OPTIONS:
+                        setError('選択肢は最低2つ必要です')
+                        break
+                    case SurveyErrorCode.DUPLICATE_OPTIONS:
+                        setError('同じ選択肢は使えません')
+                        break
+                    default:
+                        setError(data.message)
+                }
+            } else {
+                setError('アンケート作成に失敗しました')
+            }
         } finally {
             setLoading(false)
         }

@@ -6,35 +6,37 @@ import { Message } from '../types/message'
 interface ChatMessageCardProps {
     msg: Message
     isMine: boolean
+    showAvatar?: boolean
+    showTime?: boolean
+    showName?: boolean
 }
 
-const ChatMessageCard: React.FC<ChatMessageCardProps> = ({ msg, isMine }) => (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: isMine ? 'flex-end' : 'flex-start' }}>
-        {!isMine && (
-            <span style={{ border: '1px solid #222', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                {msg.user ? String(msg.user).trim().charAt(0) : '?'}
-            </span>
-        )}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            {isMine && msg.sentAt && (
-                <span style={{ fontSize: '0.8em', color: '#888', minWidth: 60, textAlign: 'right' }}>
-                    {new Date(msg.sentAt).toLocaleTimeString()}
-                </span>
+const ChatMessageCard: React.FC<ChatMessageCardProps> = ({ msg, isMine, showAvatar = true }) => (
+    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, justifyContent: 'flex-start' }}>
+        <span style={{
+            borderRadius: '50%', width: 32, height: 32, marginTop: -4,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: showAvatar ? (isMine ? '#bbdefb' : '#c8e6c9') : 'transparent',
+            visibility: showAvatar ? 'visible' : 'hidden'
+        }}>
+            {showAvatar ? (msg.user ? String(msg.user).trim().charAt(0) : '?') : null}
+        </span>
+        {/* Discord風: ユーザー名＋時間、その下にメッセージ */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1 }}>
+            {showAvatar && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span>{msg.user}</span>
+                    {msg.sentAt && (
+                        <span style={{ fontSize: '0.8em', color: '#888' }}>
+                            {new Date(msg.sentAt).toLocaleTimeString()}
+                        </span>
+                    )}
+                </div>
             )}
-            <div style={{ border: '1px solid #222', borderRadius: 16, padding: 8, background: isMine ? '#e0f7fa' : '#fff', maxWidth: 600, wordBreak: 'break-word' }}>
+            <div style={{ wordBreak: 'break-word' }}>
                 {String(msg.text)}
             </div>
-            {!isMine && msg.sentAt && (
-                <span style={{ fontSize: '0.8em', color: '#888', minWidth: 60, textAlign: 'left' }}>
-                    {new Date(msg.sentAt).toLocaleTimeString()}
-                </span>
-            )}
         </div>
-        {isMine && (
-            <span style={{ border: '1px solid #222', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#e0f7fa' }}>
-                {msg.user ? String(msg.user).trim().charAt(0) : '?'}
-            </span>
-        )}
     </div>
 )
 

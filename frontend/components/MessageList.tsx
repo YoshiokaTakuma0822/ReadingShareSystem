@@ -209,14 +209,36 @@ const MessageList: React.FC<MessageListProps> = ({ roomId, scrollTrigger }) => {
             overflowY: 'auto',
             display: 'flex',
             flexDirection: 'column-reverse',
-            gap: 16,
             scrollBehavior: 'smooth'
         }}>
             {[...messages].reverse().map(msg => {
                 const isMine = msg.isCurrentUser
-                return msg.messageType === 'SURVEY'
-                    ? <SurveyMessageCard key={msg.uuid} msg={msg} isMine={isMine} currentUserId={currentUserId} onLoadingComplete={() => handleSurveyLoadingComplete(msg.id)} />
-                    : <ChatMessageCard key={msg.uuid} msg={msg} isMine={isMine} />
+                // Determine whether to show avatar and timestamp based on previous message
+                const reversed = [...messages].reverse()
+                const idx = reversed.findIndex(m => m.uuid === msg.uuid)
+                const prev = reversed[idx + 1]
+                const sameMinute = prev && prev.sentAt && msg.sentAt &&
+                    new Date(prev.sentAt).toISOString().slice(0, 16) === new Date(msg.sentAt).toISOString().slice(0, 16)
+                const isSameUser = prev && prev.user === msg.user
+                const showAvatar = !(isSameUser && sameMinute)
+                return (
+                    <div key={msg.uuid} style={{ marginTop: showAvatar ? 16 : 8 }}>
+                        {msg.messageType === 'SURVEY'
+                            ? <SurveyMessageCard
+                                msg={msg}
+                                isMine={isMine}
+                                currentUserId={currentUserId}
+                                showAvatar={showAvatar}
+                                onLoadingComplete={() => handleSurveyLoadingComplete(msg.id)}
+                            />
+                            : <ChatMessageCard
+                                msg={msg}
+                                isMine={isMine}
+                                showAvatar={showAvatar}
+                            />
+                        }
+                    </div>
+                )
             })}
         </div>
     )

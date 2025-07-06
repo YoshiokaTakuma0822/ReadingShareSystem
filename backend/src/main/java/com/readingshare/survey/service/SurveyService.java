@@ -1,6 +1,7 @@
 package com.readingshare.survey.service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -19,8 +20,10 @@ import com.readingshare.survey.domain.model.Survey;
 import com.readingshare.survey.domain.model.SurveyAnswer;
 import com.readingshare.survey.domain.repository.ISurveyRepository;
 import com.readingshare.survey.dto.CreateSurveyRequest;
+import com.readingshare.survey.dto.CreateSurveyRequest.QuestionDto;
 import com.readingshare.survey.dto.SubmitSurveyAnswerRequest;
 import com.readingshare.survey.dto.SurveyResultResponse;
+import com.readingshare.survey.exception.SurveyErrorCode;
 
 /**
  * アンケート関連サービスを1ファイルに統合
@@ -45,6 +48,20 @@ public class SurveyService {
             // roomIdが存在するかチェック
             if (!roomRepository.findById(request.roomId()).isPresent()) {
                 throw new ResourceNotFoundException("Room not found with id: " + request.roomId());
+            }
+
+            // 選択肢のバリデーション（重複と最小数）
+            for (QuestionDto q : request.questions()) {
+                if (q.options().size() < 2) {
+                    throw new ApplicationException(
+                            SurveyErrorCode.TOO_FEW_OPTIONS.name(),
+                            "Question '" + q.questionText() + "' must have at least two options.");
+                }
+                if (new HashSet<>(q.options()).size() != q.options().size()) {
+                    throw new ApplicationException(
+                            SurveyErrorCode.DUPLICATE_OPTIONS.name(),
+                            "Question '" + q.questionText() + "' contains duplicate options.");
+                }
             }
 
             List<Question> questions = request.questions().stream()
