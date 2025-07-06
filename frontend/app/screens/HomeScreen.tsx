@@ -370,7 +370,7 @@ const HomeScreen: React.FC = () => {
                                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                                     <label style={{ fontSize: 13, color: '#388e3c', marginBottom: 2 }}>部屋の公開範囲</label>
                                     <Select value={roomType} onValueChange={setRoomType}>
-                                        <SelectTrigger style={{ width: 160, height: '56px' }}>
+                                        <SelectTrigger style={{ width: 160, height: '56px', fontSize: 18 }}>
                                             <SelectValue placeholder="すべて" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -385,7 +385,7 @@ const HomeScreen: React.FC = () => {
                                     <div style={{ display: 'flex', flexDirection: 'column' }}>
                                         <label style={{ fontSize: 13, color: '#388e3c', marginBottom: 2 }}>ジャンル</label>
                                         <Select value={genre} onValueChange={setGenre}>
-                                            <SelectTrigger style={{ width: 200, height: '56px' }}>
+                                            <SelectTrigger style={{ width: 200, height: '56px', fontSize: 18 }}>
                                                 <SelectValue placeholder="ジャンル指定なし" />
                                             </SelectTrigger>
                                             <SelectContent>
