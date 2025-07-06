@@ -133,7 +133,7 @@ if __name__ == "__main__":
     import uvicorn  # type: ignore
 
     # uvicorn.run("main:app", host="0.0.0.0", port=8080, reload=True)
-    uvicorn.run(app, host="localhost", port=8080)
+    uvicorn.run(app, host="localhost", port=8888)
 
 # >>> import uuid
 # >>> uuid.uuid4()
