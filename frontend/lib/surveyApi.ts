@@ -32,4 +32,8 @@ export const surveyApi = {
             return false
         }
     },
+    // 選択肢追加API
+    addOption: async (surveyId: string, questionText: string, newOption: string): Promise<void> => {
+        await apiClient.post(`/api/surveys/${surveyId}/options`, { questionText, newOption }, { baseURL: '' });
+    },
 }
