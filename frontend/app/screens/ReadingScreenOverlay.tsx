@@ -42,7 +42,13 @@ const ReadingScreenOverlay: React.FC<ReadingScreenOverlayProps> = ({ roomId, ope
     // WebSocketでリアルタイム通知
     useEffect(() => {
         if (!roomId) return
-        const ws = new WebSocket(`ws://localhost:8080/ws/chat/notifications/${roomId}`)
+
+        // WebSocket接続 - 開発時はプロキシ経由、本番時は直接接続
+        const wsUrl = process.env.NODE_ENV === 'production'
+            ? `ws://app:8080/ws/chat/notifications/${roomId}`
+            : `ws://localhost:8080/ws/chat/notifications/${roomId}`
+
+        const ws = new WebSocket(wsUrl)
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data)
             const receivedRoomId = String(data.roomId || '').trim().toLowerCase()
