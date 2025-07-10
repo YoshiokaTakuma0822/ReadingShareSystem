@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { chatApi } from '../../lib/chatApi'
 import { useChatWebSocket } from '../../lib/useChatWebSocket'
+import { useMediaQuery } from '../hooks/useMediaQuery'
 import ChatNotification from './ChatNotification'
 import ReadingScreen from './ReadingScreen'
 
@@ -14,7 +15,7 @@ const ReadingScreenOverlay: React.FC<ReadingScreenOverlayProps> = ({ roomId, ope
     const [notification, setNotification] = useState<string | null>(null)
     const [badgeCount, setBadgeCount] = useState(0)
     const [badgeSenders, setBadgeSenders] = useState<string[]>([])
-    const [badgeSenderCounts, setBadgeSenderCounts] = useState<{ [sender: string]: number }>({}) // 送信者ごとの件数を管理
+    const [badgeSenderCounts, setBadgeSenderCounts] = useState<{ [sender: string]: number }>({})
     const [visible, setVisible] = useState(false)
     const [showNewMessageBanner, setShowNewMessageBanner] = useState(false)
     const userIdRef = useRef<string | null>(null)
@@ -74,6 +75,11 @@ const ReadingScreenOverlay: React.FC<ReadingScreenOverlayProps> = ({ roomId, ope
         setBadgeSenders([])
         onClose()
     }
+
+    // モバイル判定（縦横どちらかが閾値以下）にカスタムフックを使用
+    const isMobile = useMediaQuery('(max-width: 767px)')
+
+    // モバイル対応: Overlay をフルスクリーン表示したいため、エラー判定は削除しました
 
     if (!open) return null
     return (
@@ -143,12 +149,12 @@ const ReadingScreenOverlay: React.FC<ReadingScreenOverlayProps> = ({ roomId, ope
             <ChatNotification message={notification || ''} visible={visible} onClose={() => setNotification(null)} />
             <div onClick={e => e.stopPropagation()} style={{
                 background: '#fff',
-                borderRadius: 16,
+                borderRadius: isMobile ? 0 : 16,
                 boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
-                padding: '16px 24px',
-                width: '60vw',
-                maxWidth: '90vw',
-                maxHeight: '98vh',
+                padding: isMobile ? '8px 12px' : '16px 24px',
+                width: isMobile ? '100vw' : '60vw',
+                maxWidth: isMobile ? '100vw' : '90vw',
+                maxHeight: isMobile ? '100vh' : '98vh',
                 /* 横スクロールを隠して縦スクロールのみ許可 */
                 overflowY: 'auto',
                 overflowX: 'hidden',
