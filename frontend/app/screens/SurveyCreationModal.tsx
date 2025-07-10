@@ -13,45 +13,32 @@ interface SurveyCreationModalProps {
 }
 
 const SurveyCreationModal: React.FC<SurveyCreationModalProps> = ({ open, roomId, onClose, onCreated }) => {
+    // 現在時刻+1時間を取得するヘルパー関数
+    const getOneHourLaterDateTimeLocal = () => {
+        const oneHourLater = new Date()
+        oneHourLater.setHours(oneHourLater.getHours() + 1)
+        const year = oneHourLater.getFullYear()
+        const month = String(oneHourLater.getMonth() + 1).padStart(2, '0')
+        const day = String(oneHourLater.getDate()).padStart(2, '0')
+        const hours = String(oneHourLater.getHours()).padStart(2, '0')
+        const minutes = String(oneHourLater.getMinutes()).padStart(2, '0')
+        return `${year}-${month}-${day}T${hours}:${minutes}`
+    }
+
     const [title, setTitle] = useState("")
     const [options, setOptions] = useState(["", ""])
-    // 初期値を現在時刻+1時間に設定（JST時間）
-    const [endDate, setEndDate] = useState(() => {
-        const now = new Date()
-        now.setHours(now.getHours() + 1)
-        
-        // JST時間でdatetime-local形式に変換
-        const year = now.getFullYear()
-        const month = String(now.getMonth() + 1).padStart(2, '0')
-        const day = String(now.getDate()).padStart(2, '0')
-        const hours = String(now.getHours()).padStart(2, '0')
-        const minutes = String(now.getMinutes()).padStart(2, '0')
-        return `${year}-${month}-${day}T${hours}:${minutes}`
-    })
+    const [endDate, setEndDate] = useState(() => getOneHourLaterDateTimeLocal())
     const [multi, setMulti] = useState(false)
     const [allowAdd, setAllowAdd] = useState(false)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
-    // モーダルが開いたときに終了時刻を現在時刻+1時間にリセット
+    // モーダルが開いたときに状態をリセット
     useEffect(() => {
-        console.log('SurveyCreationModal opened:', open)
         if (open) {
-            const now = new Date()
-            now.setHours(now.getHours() + 1)
-            
-            // JST時間でdatetime-local形式に変換
-            const year = now.getFullYear()
-            const month = String(now.getMonth() + 1).padStart(2, '0')
-            const day = String(now.getDate()).padStart(2, '0')
-            const hours = String(now.getHours()).padStart(2, '0')
-            const minutes = String(now.getMinutes()).padStart(2, '0')
-            const jstDateTimeString = `${year}-${month}-${day}T${hours}:${minutes}`
-            
-            setEndDate(jstDateTimeString)
-            // その他の状態もリセット
             setTitle("")
             setOptions(["", ""])
+            setEndDate(getOneHourLaterDateTimeLocal())
             setMulti(false)
             setAllowAdd(false)
             setError(null)
