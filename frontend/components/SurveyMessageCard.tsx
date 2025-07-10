@@ -12,9 +12,11 @@ interface SurveyMessageCardProps {
     currentUserId: string | null
     onLoadingComplete?: () => void
     showAvatar?: boolean  // add showAvatar prop
+    // 外部からの再フェッチ用トリガー
+    refreshTrigger?: number
 }
 
-const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, currentUserId, onLoadingComplete, showAvatar = true }) => {
+const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, currentUserId, onLoadingComplete, showAvatar = true, refreshTrigger }) => {
     const [surveyData, setSurveyData] = useState<Survey | null>(null)
     const [loading, setLoading] = useState(true)
     const [hasAnswered, setHasAnswered] = useState(false)
@@ -58,25 +60,23 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
         localStorage.setItem(key, JSON.stringify(answers))
     }, [answers, msg.surveyId, localStorageKey])
 
-    useEffect(() => {
-        if (msg.surveyId) {
-            surveyApi.getSurveyFormat(msg.surveyId)
-                .then(data => {
-                    setSurveyData(data)
-                    setLoading(false)
-                    onLoadingComplete?.()
-                })
-                .catch(() => {
-                    setError('アンケート情報の取得に失敗しました')
-                    setLoading(false)
-                    onLoadingComplete?.()
-                })
-        }
+    const handleShowFormat = useCallback(async () => {
+        if (!msg.surveyId) return
+        surveyApi.getSurveyFormat(msg.surveyId)
+            .then(data => {
+                setSurveyData(data)
+                setLoading(false)
+                onLoadingComplete?.()
+            })
+            .catch(() => {
+                setError('アンケート情報の取得に失敗しました')
+                setLoading(false)
+                onLoadingComplete?.()
+            })
     }, [msg.surveyId, onLoadingComplete])
 
     const handleShowResults = useCallback(async () => {
         if (!msg.surveyId) return
-
         try {
             const result = await surveyApi.getSurveyResult(msg.surveyId)
             setResults(result)
@@ -100,6 +100,13 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
                 .catch(() => setHasAnswered(false))
         }
     }, [msg.surveyId, currentUserId, handleShowResults])
+
+    useEffect(() => {
+        handleShowFormat()
+        if (showingResults || hasAnswered) {
+            handleShowResults()
+        }
+    }, [refreshTrigger, showingResults, hasAnswered, msg.surveyId, handleShowResults])
 
     const handleAnswerSelect = useCallback((questionText: string, option: string, isMultiple: boolean) => {
         setAnswers(prev => {
@@ -327,9 +334,5 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
     )
 }
 
-// メモ化したSurveyMessageCardをエクスポート
-export default React.memo(SurveyMessageCard, (prevProps, nextProps) => {
-    // surveyIdが同じなら再レンダリングしない（パフォーマンス最適化）
-    return prevProps.msg.surveyId === nextProps.msg.surveyId &&
-        prevProps.currentUserId === nextProps.currentUserId
-})
+// SurveyMessageCard を直接エクスポート
+export default SurveyMessageCard
