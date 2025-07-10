@@ -51,7 +51,6 @@ interface ReadingScreenProps {
 
 const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId, onClose }) => {
     // persistent WebSocket for progress notifications
-    const wsRef = useRef<WebSocket | null>(null)
     const [showProgressModal, setShowProgressModal] = useState(false)
     const [currentPage, setCurrentPage] = useState<number>(0)
     const [displayPage, setDisplayPage] = useState<number>(0)
