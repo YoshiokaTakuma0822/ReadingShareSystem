@@ -95,6 +95,7 @@ public class Survey {
 
     /**
      * アンケートが終了しているかどうかをチェックする
+     * 
      * @return 終了している場合true、そうでなければfalse
      */
     public boolean isExpired() {

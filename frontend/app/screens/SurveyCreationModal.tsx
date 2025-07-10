@@ -37,7 +37,7 @@ const SurveyCreationModal: React.FC<SurveyCreationModalProps> = ({ open, roomId,
             setError('選択肢は32文字以内の英字，数字，日本語にしてください．')
             return
         }
-        
+
         // 終了時刻の妥当性チェック
         const endDateTime = new Date(endDate)
         const now = new Date()

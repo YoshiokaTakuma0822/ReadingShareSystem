@@ -95,14 +95,14 @@ public class SurveyService {
         // Load survey to get roomId and validate existence
         Survey survey = surveyRepository.findById(surveyId)
                 .orElseThrow(() -> new ResourceNotFoundException("Survey not found with id: " + surveyId));
-        
+
         // アンケートの終了時刻をチェック
         if (survey.isExpired()) {
             throw new ApplicationException(
                     SurveyErrorCode.SURVEY_EXPIRED.name(),
                     "Survey has expired and no longer accepts responses");
         }
-        
+
         SurveyAnswer answer = new SurveyAnswer(surveyId, request.userId(), request.answers());
         surveyRepository.saveAnswer(answer);
         // Notify updated survey results via WebSocket
@@ -178,7 +178,7 @@ public class SurveyService {
             questionResults.add(new SurveyResultResponse.QuestionResultResponse(question.getQuestionText(), votes));
         }
         int totalRespondents = (int) answers.stream().map(SurveyAnswer::getUserId).distinct().count();
-        return new SurveyResultResponse(survey.getId(), survey.getTitle(), totalRespondents, questionResults, 
+        return new SurveyResultResponse(survey.getId(), survey.getTitle(), totalRespondents, questionResults,
                 survey.getEndTime(), survey.isExpired());
     }
 }
