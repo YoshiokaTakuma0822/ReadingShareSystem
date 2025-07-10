@@ -20,6 +20,8 @@ const MessageList: React.FC<MessageListProps> = ({ roomId, scrollTrigger }) => {
     const [userIdToName, setUserIdToName] = useState<Record<string, string>>({})
     const [surveyLoadingStates, setSurveyLoadingStates] = useState<Record<number, boolean>>({})
     const [shouldScrollToBottom, setShouldScrollToBottom] = useState(false)
+    // SurveyMessageCard再フェッチ用トリガー
+    const [surveyRefresh, setSurveyRefresh] = useState(0)
     const initialLoadRef = useRef(true)
     const containerRef = useRef<HTMLDivElement | null>(null)
 
@@ -113,6 +115,8 @@ const MessageList: React.FC<MessageListProps> = ({ roomId, scrollTrigger }) => {
                 const newOnly = converted.filter(m => !existing.has(m.uuid))
                 return newOnly.length > 0 ? [...prev, ...newOnly] : prev
             })
+            // SurveyMessageCardを再フェッチ
+            setSurveyRefresh(prev => prev + 1)
         } catch {
             setError('チャット履歴の読み込みに失敗しました')
         } finally {
@@ -242,6 +246,7 @@ const MessageList: React.FC<MessageListProps> = ({ roomId, scrollTrigger }) => {
                                 currentUserId={currentUserId}
                                 showAvatar={showAvatar}
                                 onLoadingComplete={() => handleSurveyLoadingComplete(msg.id)}
+                                refreshTrigger={surveyRefresh}
                             />
                             : <ChatMessageCard
                                 msg={msg}
