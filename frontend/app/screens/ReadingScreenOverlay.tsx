@@ -3,6 +3,7 @@ import { chatApi } from '../../lib/chatApi'
 import { useChatWebSocket } from '../../lib/useChatWebSocket'
 import ChatNotification from './ChatNotification'
 import ReadingScreen from './ReadingScreen'
+import styles from './ReadingScreenOverlay.module.css'
 
 interface ReadingScreenOverlayProps {
     roomId?: string
@@ -77,18 +78,7 @@ const ReadingScreenOverlay: React.FC<ReadingScreenOverlayProps> = ({ roomId, ope
 
     if (!open) return null
     return (
-        <div onClick={handleClose} style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100vw',
-            height: '100vh',
-            background: 'rgba(0,0,0,0.35)',
-            zIndex: 2000,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-        }}>
+        <div className={styles.overlay} onClick={handleClose}>
             {/* 新着メッセージバナー */}
             {showNewMessageBanner && (
                 <div style={{
@@ -141,21 +131,8 @@ const ReadingScreenOverlay: React.FC<ReadingScreenOverlayProps> = ({ roomId, ope
             )}
             {/* 通知表示 */}
             <ChatNotification message={notification || ''} visible={visible} onClose={() => setNotification(null)} />
-            <div onClick={e => e.stopPropagation()} style={{
-                background: '#fff',
-                borderRadius: 16,
-                boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
-                padding: '16px 24px',
-                width: '60vw',
-                maxWidth: '90vw',
-                maxHeight: '98vh',
-                /* 横スクロールを隠して縦スクロールのみ許可 */
-                overflowY: 'auto',
-                overflowX: 'hidden',
-                position: 'relative',
-                display: 'flex',
-                flexDirection: 'column',
-            }}>
+            <div className={styles.modal} onClick={e => e.stopPropagation()}>
+                <button className={styles.closeButton} onClick={handleClose} aria-label="Close">×</button>
                 <ReadingScreen roomId={roomId} onClose={onClose} />
             </div>
         </div>
