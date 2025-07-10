@@ -6,7 +6,7 @@ import { roomApi } from '../../lib/roomApi'
 import { useChatWebSocket } from '../../lib/useChatWebSocket'
 import { RoomMember } from '../../types/room'
 import ReadingProgressModal from "./ReadingProgressModal"
-import './ReadingScreen.css'
+import styles from './ReadingScreen.module.css'
 
 // 本の進行方向を表す型
 type ReadingDirection = 'next' | 'prev'
@@ -422,20 +422,20 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId, onClose }) => {
 
     return (
         <>
-            <div className="readingOverlay" onClick={closeReading}>
-                <div className="container" onClick={e => e.stopPropagation()}>
+            <div className={styles.readingOverlay} onClick={closeReading}>
+                <div className={styles.container} onClick={e => e.stopPropagation()}>
                     {/* 進捗バー＋メンバーアイコン */}
-                    <div className="progressWrapper">
-                        <div className="progressBar">
+                    <div className={styles.progressWrapper}>
+                        <div className={styles.progressBar}>
                             <div
-                                className="progress"
+                                className={styles.progress}
                                 style={{ width: `${(totalPages > 0 ? currentPage / totalPages : 0) * 100}%` }}
                             ></div>
                         </div>
                         {memberProgress.map((m) => (
                             <div
                                 key={m.name}
-                                className="memberIcon"
+                                className={styles.memberIcon}
                                 style={{
                                     left: `calc(${320 * m.percent}px - 15px)`,
                                     background: m.isMe ? 'var(--green-dark)' : 'var(--white)',
@@ -449,7 +449,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId, onClose }) => {
                         ))}
                     </div>
                     {/* 本の表示エリア */}
-                    <div className={`bookContainer ${isVerticalText ? 'vertical-text' : ''}`} style={{ position: 'relative' }}>
+                    <div className={`${styles.bookContainer} ${isVerticalText ? styles['vertical-text'] : ''}`} style={{ position: 'relative' }}>
                         <div style={{
                             position: 'absolute',
                             left: '-140px',
@@ -472,16 +472,16 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId, onClose }) => {
                         >
                             {displayPage > (isVerticalText ? 2 : 1) && (isVerticalText ? '進む' : '戻る')}
                         </div>
-                        <div className="leftPage" onClick={handleLeftPageClick}>
-                            <span className={`pageNumber left`}>
+                        <div className={styles.leftPage} onClick={handleLeftPageClick}>
+                            <span className={`${styles.pageNumber} ${styles.left}`}>
                                 {isVerticalText
                                     ? ((displayPage + 1) >= 1 && (displayPage + 1) <= totalPages ? displayPage + 1 : '') // 和書: 左ページが奇数
                                     : (displayPage >= 1 && displayPage <= totalPages ? displayPage : '') // 洋書: 左ページが偶数（小さい番号）
                                 }
                             </span>
                         </div>
-                        <div className="rightPage" onClick={handleRightPageClick}>
-                            <span className={`pageNumber right`}>
+                        <div className={styles.rightPage} onClick={handleRightPageClick}>
+                            <span className={`${styles.pageNumber} ${styles.right}`}>
                                 {isVerticalText
                                     ? (displayPage >= 1 && displayPage <= totalPages ? displayPage : '') // 和書: 右ページが偶数
                                     : ((displayPage + 1) >= 1 && (displayPage + 1) <= totalPages ? displayPage + 1 : '') // 洋書: 右ページが奇数（大きい番号）
@@ -510,26 +510,26 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId, onClose }) => {
                         >
                             {displayPage < totalPages - 1 && (isVerticalText ? '戻る' : '進む')}
                         </div>
-                        <div className="spine"></div>
+                        <div className={styles.spine}></div>
                         {/* 複数のアニメーション要素 */}
                         {activeAnimations.map((animation) => (
                             <div
                                 key={animation.id}
-                                className={`pageFlip${animation.direction === 'toLeft' ? ' animate-left' : ' animate-right'}`}
+                                className={`${styles.pageFlip} ${animation.direction === 'toLeft' ? styles['animate-left'] : styles['animate-right']}`}
                                 onAnimationEnd={() => onAnimationEnd(animation.id)}
                                 style={{ zIndex: 20 + animation.id }}
                             >
                                 {/* 表面のページ番号 */}
                                 {animation.pageNumber && (
-                                    <span className={`pageNumber ${animation.direction === 'toLeft' ? 'right' : 'left'} page-front`}>
+                                    <span className={`${styles.pageNumber} ${animation.direction === 'toLeft' ? styles.right : styles.left} ${styles['page-front']}`}>
                                         {animation.pageNumber}
                                     </span>
                                 )}
 
-                                <div className="back">
+                                <div className={styles.back}>
                                     {/* 裏面のページ番号 */}
                                     {animation.backPageNumber && (
-                                        <span className={`pageNumber ${animation.direction === 'toLeft' ? 'left' : 'right'} page-back`}>
+                                        <span className={`${styles.pageNumber} ${animation.direction === 'toLeft' ? styles.left : styles.right} ${styles['page-back']}`}>
                                             {animation.backPageNumber}
                                         </span>
                                     )}
@@ -539,17 +539,17 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId, onClose }) => {
                     </div>
 
                     {/* 操作エリア */}
-                    <div className="controls">
+                    <div className={styles.controls}>
                         {/* 本の種類切り替えボタン */}
                         <div style={{ display: 'flex', marginRight: 16 }}>
                             <button
-                                className={`viewModeButton ${!isVerticalText ? 'active' : ''}`}
+                                className={`${styles.viewModeButton} ${!isVerticalText ? styles.active : ''}`}
                                 onClick={() => setIsVerticalText(false)}
                             >
                                 洋書
                             </button>
                             <button
-                                className={`viewModeButton ${isVerticalText ? 'active' : ''}`}
+                                className={`${styles.viewModeButton} ${isVerticalText ? styles.active : ''}`}
                                 onClick={() => setIsVerticalText(true)}
                             >
                                 和書
@@ -562,19 +562,19 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId, onClose }) => {
                                 {Math.ceil(countdown / 1000)} 秒
                             </div>
                         ) : null}
-                        <label className="flipIntervalLabel">
+                        <label className={styles.flipIntervalLabel}>
                             <input
                                 type="number"
                                 min="1"
                                 value={flipIntervalMinutes}
                                 onChange={(e) => setFlipIntervalMinutes(Number(e.target.value))}
                                 placeholder="分単位"
-                                className="intervalInput"
+                                className={styles.intervalInput}
                             />
                             <span> 分に一回</span>
                         </label>
                         <button
-                            className="controlButton"
+                            className={styles.controlButton}
                             onClick={() => {
                                 setFlipping((f) => {
                                     if (f) {
@@ -588,7 +588,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId, onClose }) => {
                             {flipping ? "自動めくり停止" : "自動めくり開始"}
                         </button>
                         <button
-                            className="controlButton"
+                            className={styles.controlButton}
                             style={{ padding: '12px 24px', fontSize: 18 }}
                             onClick={async () => {
                                 if (roomId) {
@@ -627,7 +627,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId, onClose }) => {
                     )}
                     {showProgressModal && (
                         <div
-                            className="modalContainer"
+                            className={styles.modalContainer}
                             onClick={(e) => {
                                 if (e.target === e.currentTarget) {
                                     // モーダルを閉じるのみ（チャット画面には戻らない）
@@ -637,11 +637,11 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId, onClose }) => {
                             }}
                         >
                             <div
-                                className="modalContent"
+                                className={styles.modalContent}
                                 onClick={(e) => e.stopPropagation()}
                             >
                                 <h2>ページ数を編集</h2>
-                                <div className="inputGroup">
+                                <div className={styles.inputGroup}>
                                     <label>現在のページ</label>
                                     <input
                                         type="number"
@@ -653,7 +653,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId, onClose }) => {
                                         }}
                                     />
                                 </div>
-                                <div className="inputGroup">
+                                <div className={styles.inputGroup}>
                                     <label>本の最大ページ数</label>
                                     <input
                                         type="number"
@@ -666,9 +666,9 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId, onClose }) => {
                                     />
                                 </div>
                                 {editError && <div style={{ color: 'red', margin: '8px 0' }}>{editError}</div>}
-                                <div className="buttonGroup">
+                                <div className={styles.buttonGroup}>
                                     <button
-                                        className="controlButton"
+                                        className={styles.controlButton}
                                         onClick={async () => {
                                             if (inputTotalPages > 0 && currentPage > 0 && roomId) {
                                                 if (currentPage > inputTotalPages) {
@@ -689,7 +689,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId, onClose }) => {
                                         }}
                                     >保存</button>
                                     <button
-                                        className="controlButton"
+                                        className={styles.controlButton}
                                         onClick={() => {
                                             setInputTotalPages(totalPages)
                                             setCurrentPage(displayPage)
