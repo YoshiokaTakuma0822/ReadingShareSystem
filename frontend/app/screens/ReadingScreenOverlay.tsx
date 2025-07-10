@@ -133,7 +133,7 @@ const ReadingScreenOverlay: React.FC<ReadingScreenOverlayProps> = ({ roomId, ope
             <ChatNotification message={notification || ''} visible={visible} onClose={() => setNotification(null)} />
             <div className={styles.modal} onClick={e => e.stopPropagation()}>
                 <button className={styles.closeButton} onClick={handleClose} aria-label="Close">×</button>
-                <ReadingScreen roomId={roomId} onClose={onClose} />
+                <ReadingScreen roomId={roomId} />
             </div>
         </div>
     )

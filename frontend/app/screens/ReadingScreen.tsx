@@ -46,10 +46,9 @@ type ActiveAnimation = {
 
 interface ReadingScreenProps {
     roomId?: string
-    onClose?: () => void  // モーダルを閉じるためのコールバック関数
 }
 
-const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId, onClose }) => {
+const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
     // persistent WebSocket for progress notifications
     const [showProgressModal, setShowProgressModal] = useState(false)
     const [currentPage, setCurrentPage] = useState<number>(0)
@@ -144,21 +143,6 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId, onClose }) => {
             await readingStateApi.updateUserReadingState(roomId, userId, { userId, currentPage: adjustedPage, comment: '' })
         } catch (e) {
             // 保存失敗時は何もしない
-        }
-    }
-
-    // --- 部屋退出時にローカル進捗を削除 ---
-    const closeReading = () => {
-        if (onClose) {
-            // モーダルとして使用されている場合は、単純にモーダルを閉じる
-            onClose()
-        } else if (roomId) {
-            // 直接アクセスされている場合は、チャット画面に遷移
-            const userId = authStorage.getUserId()
-            if (userId) {
-                // Removed localStorage cleanup
-            }
-            window.location.href = `/rooms/${roomId}/chat`
         }
     }
 
@@ -421,291 +405,287 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId, onClose }) => {
     }, [flipping, hasActiveAnimations, displayPage, flipIntervalMs, isVerticalText])
 
     return (
-        <>
-            <div className={styles.readingOverlay} onClick={closeReading}>
-                <div className={styles.container} onClick={e => e.stopPropagation()}>
-                    {/* 進捗バー＋メンバーアイコン */}
-                    <div className={styles.progressWrapper}>
-                        <div className={styles.progressBar}>
-                            <div
-                                className={styles.progress}
-                                style={{ width: `${(totalPages > 0 ? currentPage / totalPages : 0) * 100}%` }}
-                            ></div>
-                        </div>
-                        {memberProgress.map((m) => (
-                            <div
-                                key={m.name}
-                                className={styles.memberIcon}
-                                style={{
-                                    left: `calc(${320 * m.percent}px - 15px)`,
-                                    background: m.isMe ? 'var(--green-dark)' : 'var(--white)',
-                                    border: m.isMe ? '2px solid var(--green-main)' : '1px solid var(--border)',
-                                    color: m.isMe ? 'var(--white)' : 'var(--green-dark)',
-                                    boxShadow: m.isMe ? '0 0 8px var(--green-light)' : '0 1px 3px rgba(0,0,0,0.08)',
-                                }}
-                            >
-                                {m.name}
-                            </div>
-                        ))}
-                    </div>
-                    {/* 本の表示エリア */}
-                    <div className={`${styles.bookContainer} ${isVerticalText ? styles['vertical-text'] : ''}`} style={{ position: 'relative' }}>
-                        <div style={{
-                            position: 'absolute',
-                            left: '-140px',
-                            top: '50%',
-                            transform: 'translateY(-50%)',
-                            width: 120,
-                            textAlign: 'right',
-                            color: '#388e3c',
-                            fontWeight: 'bold',
-                            fontSize: 16,
-                            pointerEvents: 'auto',
-                            userSelect: 'none',
-                            WebkitUserSelect: 'none',
-                            MozUserSelect: 'none',
-                            msUserSelect: 'none',
-                            zIndex: 100,
-                            cursor: 'pointer'
+        <div className={styles.container}>
+            {/* 進捗バー＋メンバーアイコン */}
+            <div className={styles.progressWrapper}>
+                <div className={styles.progressBar}>
+                    <div
+                        className={styles.progress}
+                        style={{ width: `${(totalPages > 0 ? currentPage / totalPages : 0) * 100}%` }}
+                    ></div>
+                </div>
+                {memberProgress.map((m) => (
+                    <div
+                        key={m.name}
+                        className={styles.memberIcon}
+                        style={{
+                            left: `calc(${320 * m.percent}px - 15px)`,
+                            background: m.isMe ? 'var(--green-dark)' : 'var(--white)',
+                            border: m.isMe ? '2px solid var(--green-main)' : '1px solid var(--border)',
+                            color: m.isMe ? 'var(--white)' : 'var(--green-dark)',
+                            boxShadow: m.isMe ? '0 0 8px var(--green-light)' : '0 1px 3px rgba(0,0,0,0.08)',
                         }}
-                            onClick={handleLeftPageClick}
-                        >
-                            {displayPage > (isVerticalText ? 2 : 1) && (isVerticalText ? '進む' : '戻る')}
-                        </div>
-                        <div className={styles.leftPage} onClick={handleLeftPageClick}>
-                            <span className={`${styles.pageNumber} ${styles.left}`}>
-                                {isVerticalText
-                                    ? ((displayPage + 1) >= 1 && (displayPage + 1) <= totalPages ? displayPage + 1 : '') // 和書: 左ページが奇数
-                                    : (displayPage >= 1 && displayPage <= totalPages ? displayPage : '') // 洋書: 左ページが偶数（小さい番号）
-                                }
-                            </span>
-                        </div>
-                        <div className={styles.rightPage} onClick={handleRightPageClick}>
-                            <span className={`${styles.pageNumber} ${styles.right}`}>
-                                {isVerticalText
-                                    ? (displayPage >= 1 && displayPage <= totalPages ? displayPage : '') // 和書: 右ページが偶数
-                                    : ((displayPage + 1) >= 1 && (displayPage + 1) <= totalPages ? displayPage + 1 : '') // 洋書: 右ページが奇数（大きい番号）
-                                }
-                            </span>
-                        </div>
-                        <div style={{
-                            position: 'absolute',
-                            right: '-140px',
-                            top: '50%',
-                            transform: 'translateY(-50%)',
-                            width: 120,
-                            textAlign: 'left',
-                            color: '#388e3c',
-                            fontWeight: 'bold',
-                            fontSize: 16,
-                            pointerEvents: 'auto',
-                            userSelect: 'none',
-                            WebkitUserSelect: 'none',
-                            MozUserSelect: 'none',
-                            msUserSelect: 'none',
-                            zIndex: 100,
-                            cursor: 'pointer'
-                        }}
-                            onClick={handleRightPageClick}
-                        >
-                            {displayPage < totalPages - 1 && (isVerticalText ? '戻る' : '進む')}
-                        </div>
-                        <div className={styles.spine}></div>
-                        {/* 複数のアニメーション要素 */}
-                        {activeAnimations.map((animation) => (
-                            <div
-                                key={animation.id}
-                                className={`${styles.pageFlip} ${animation.direction === 'toLeft' ? styles['animate-left'] : styles['animate-right']}`}
-                                onAnimationEnd={() => onAnimationEnd(animation.id)}
-                                style={{ zIndex: 20 + animation.id }}
-                            >
-                                {/* 表面のページ番号 */}
-                                {animation.pageNumber && (
-                                    <span className={`${styles.pageNumber} ${animation.direction === 'toLeft' ? styles.right : styles.left} ${styles['page-front']}`}>
-                                        {animation.pageNumber}
-                                    </span>
-                                )}
-
-                                <div className={styles.back}>
-                                    {/* 裏面のページ番号 */}
-                                    {animation.backPageNumber && (
-                                        <span className={`${styles.pageNumber} ${animation.direction === 'toLeft' ? styles.left : styles.right} ${styles['page-back']}`}>
-                                            {animation.backPageNumber}
-                                        </span>
-                                    )}
-                                </div>
-                            </div>
-                        ))}
+                    >
+                        {m.name}
                     </div>
+                ))}
+            </div>
+            {/* 本の表示エリア */}
+            <div className={`${styles.bookContainer} ${isVerticalText ? styles['vertical-text'] : ''}`} style={{ position: 'relative' }}>
+                <div style={{
+                    position: 'absolute',
+                    left: '-140px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    width: 120,
+                    textAlign: 'right',
+                    color: '#388e3c',
+                    fontWeight: 'bold',
+                    fontSize: 16,
+                    pointerEvents: 'auto',
+                    userSelect: 'none',
+                    WebkitUserSelect: 'none',
+                    MozUserSelect: 'none',
+                    msUserSelect: 'none',
+                    zIndex: 100,
+                    cursor: 'pointer'
+                }}
+                    onClick={handleLeftPageClick}
+                >
+                    {displayPage > (isVerticalText ? 2 : 1) && (isVerticalText ? '進む' : '戻る')}
+                </div>
+                <div className={styles.leftPage} onClick={handleLeftPageClick}>
+                    <span className={`${styles.pageNumber} ${styles.left}`}>
+                        {isVerticalText
+                            ? ((displayPage + 1) >= 1 && (displayPage + 1) <= totalPages ? displayPage + 1 : '') // 和書: 左ページが奇数
+                            : (displayPage >= 1 && displayPage <= totalPages ? displayPage : '') // 洋書: 左ページが偶数（小さい番号）
+                        }
+                    </span>
+                </div>
+                <div className={styles.rightPage} onClick={handleRightPageClick}>
+                    <span className={`${styles.pageNumber} ${styles.right}`}>
+                        {isVerticalText
+                            ? (displayPage >= 1 && displayPage <= totalPages ? displayPage : '') // 和書: 右ページが偶数
+                            : ((displayPage + 1) >= 1 && (displayPage + 1) <= totalPages ? displayPage + 1 : '') // 洋書: 右ページが奇数（大きい番号）
+                        }
+                    </span>
+                </div>
+                <div style={{
+                    position: 'absolute',
+                    right: '-140px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    width: 120,
+                    textAlign: 'left',
+                    color: '#388e3c',
+                    fontWeight: 'bold',
+                    fontSize: 16,
+                    pointerEvents: 'auto',
+                    userSelect: 'none',
+                    WebkitUserSelect: 'none',
+                    MozUserSelect: 'none',
+                    msUserSelect: 'none',
+                    zIndex: 100,
+                    cursor: 'pointer'
+                }}
+                    onClick={handleRightPageClick}
+                >
+                    {displayPage < totalPages - 1 && (isVerticalText ? '戻る' : '進む')}
+                </div>
+                <div className={styles.spine}></div>
+                {/* 複数のアニメーション要素 */}
+                {activeAnimations.map((animation) => (
+                    <div
+                        key={animation.id}
+                        className={`${styles.pageFlip} ${animation.direction === 'toLeft' ? styles['animate-left'] : styles['animate-right']}`}
+                        onAnimationEnd={() => onAnimationEnd(animation.id)}
+                        style={{ zIndex: 20 + animation.id }}
+                    >
+                        {/* 表面のページ番号 */}
+                        {animation.pageNumber && (
+                            <span className={`${styles.pageNumber} ${animation.direction === 'toLeft' ? styles.right : styles.left} ${styles['page-front']}`}>
+                                {animation.pageNumber}
+                            </span>
+                        )}
 
-                    {/* 操作エリア */}
-                    <div className={styles.controls}>
-                        {/* 本の種類切り替えボタン */}
-                        <div style={{ display: 'flex', marginRight: 16 }}>
-                            <button
-                                className={`${styles.viewModeButton} ${!isVerticalText ? styles.active : ''}`}
-                                onClick={() => setIsVerticalText(false)}
-                            >
-                                洋書
-                            </button>
-                            <button
-                                className={`${styles.viewModeButton} ${isVerticalText ? styles.active : ''}`}
-                                onClick={() => setIsVerticalText(true)}
-                            >
-                                和書
-                            </button>
+                        <div className={styles.back}>
+                            {/* 裏面のページ番号 */}
+                            {animation.backPageNumber && (
+                                <span className={`${styles.pageNumber} ${animation.direction === 'toLeft' ? styles.left : styles.right} ${styles['page-back']}`}>
+                                    {animation.backPageNumber}
+                                </span>
+                            )}
                         </div>
+                    </div>
+                ))}
+            </div>
 
-                        {/* 残り時間カウントダウン */}
-                        {(flipping && !hasActiveAnimations) ? (
-                            <div style={{ minWidth: 60, textAlign: 'right', fontSize: 22, fontWeight: 'bold', color: '#388e3c', marginRight: 8 }}>
-                                {Math.ceil(countdown / 1000)} 秒
-                            </div>
-                        ) : null}
-                        <label className={styles.flipIntervalLabel}>
+            {/* 操作エリア */}
+            <div className={styles.controls}>
+                {/* 本の種類切り替えボタン */}
+                <div style={{ display: 'flex', marginRight: 16 }}>
+                    <button
+                        className={`${styles.viewModeButton} ${!isVerticalText ? styles.active : ''}`}
+                        onClick={() => setIsVerticalText(false)}
+                    >
+                        洋書
+                    </button>
+                    <button
+                        className={`${styles.viewModeButton} ${isVerticalText ? styles.active : ''}`}
+                        onClick={() => setIsVerticalText(true)}
+                    >
+                        和書
+                    </button>
+                </div>
+
+                {/* 残り時間カウントダウン */}
+                {(flipping && !hasActiveAnimations) ? (
+                    <div style={{ minWidth: 60, textAlign: 'right', fontSize: 22, fontWeight: 'bold', color: '#388e3c', marginRight: 8 }}>
+                        {Math.ceil(countdown / 1000)} 秒
+                    </div>
+                ) : null}
+                <label className={styles.flipIntervalLabel}>
+                    <input
+                        type="number"
+                        min="1"
+                        value={flipIntervalMinutes}
+                        onChange={(e) => setFlipIntervalMinutes(Number(e.target.value))}
+                        placeholder="分単位"
+                        className={styles.intervalInput}
+                    />
+                    <span> 分に一回</span>
+                </label>
+                <button
+                    className={styles.controlButton}
+                    onClick={() => {
+                        setFlipping((f) => {
+                            if (f) {
+                                // 自動めくり停止時は進行中のアニメーションは継続
+                                // アニメーションはそのまま完了させる
+                            }
+                            return !f
+                        })
+                    }}
+                >
+                    {flipping ? "自動めくり停止" : "自動めくり開始"}
+                </button>
+                <button
+                    className={styles.controlButton}
+                    style={{ padding: '12px 24px', fontSize: 18 }}
+                    onClick={async () => {
+                        if (roomId) {
+                            const userId = authStorage.getUserId()
+                            if (userId) {
+                                try {
+                                    const res = await readingStateApi.getRoomReadingState(roomId, userId)
+                                    const myState = res.userStates.find(u => u.userId === userId)
+                                    if (myState) {
+                                        const initPage = myState.currentPage
+                                        setCurrentPage(initPage)
+                                        setDisplayPage(adjustPageNumber(initPage, 'next'))
+                                    }
+                                } catch {
+                                    // ignore
+                                }
+                            }
+                        }
+                        setEditingTotalPages(true)
+                        setShowProgressModal(true)
+                    }}
+                >ページ数を編集</button>
+            </div>
+
+            {showProgressModal && (
+                <ReadingProgressModal
+                    open={showProgressModal}
+                    currentPage={currentPage}
+                    maxPage={totalPages}
+                    onClose={() => setShowProgressModal(false)}
+                    onSubmit={(page) => {
+                        handlePageChange(page)
+                        setShowProgressModal(false)
+                    }}
+                />
+            )}
+            {showProgressModal && (
+                <div
+                    className={styles.modalContainer}
+                    onClick={(e) => {
+                        if (e.target === e.currentTarget) {
+                            // モーダルを閉じるのみ（チャット画面には戻らない）
+                            setShowProgressModal(false)
+                            setEditingTotalPages(false)
+                        }
+                    }}
+                >
+                    <div
+                        className={styles.modalContent}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <h2>ページ数を編集</h2>
+                        <div className={styles.inputGroup}>
+                            <label>現在のページ</label>
                             <input
                                 type="number"
-                                min="1"
-                                value={flipIntervalMinutes}
-                                onChange={(e) => setFlipIntervalMinutes(Number(e.target.value))}
-                                placeholder="分単位"
-                                className={styles.intervalInput}
+                                min={1}
+                                value={currentPage}
+                                onChange={(e) => {
+                                    setCurrentPage(Number(e.target.value))
+                                    setEditError('')
+                                }}
                             />
-                            <span> 分に一回</span>
-                        </label>
-                        <button
-                            className={styles.controlButton}
-                            onClick={() => {
-                                setFlipping((f) => {
-                                    if (f) {
-                                        // 自動めくり停止時は進行中のアニメーションは継続
-                                        // アニメーションはそのまま完了させる
-                                    }
-                                    return !f
-                                })
-                            }}
-                        >
-                            {flipping ? "自動めくり停止" : "自動めくり開始"}
-                        </button>
-                        <button
-                            className={styles.controlButton}
-                            style={{ padding: '12px 24px', fontSize: 18 }}
-                            onClick={async () => {
-                                if (roomId) {
-                                    const userId = authStorage.getUserId()
-                                    if (userId) {
-                                        try {
-                                            const res = await readingStateApi.getRoomReadingState(roomId, userId)
-                                            const myState = res.userStates.find(u => u.userId === userId)
-                                            if (myState) {
-                                                const initPage = myState.currentPage
-                                                setCurrentPage(initPage)
-                                                setDisplayPage(adjustPageNumber(initPage, 'next'))
-                                            }
-                                        } catch {
-                                            // ignore
-                                        }
-                                    }
-                                }
-                                setEditingTotalPages(true)
-                                setShowProgressModal(true)
-                            }}
-                        >ページ数を編集</button>
-                    </div>
-
-                    {showProgressModal && (
-                        <ReadingProgressModal
-                            open={showProgressModal}
-                            currentPage={currentPage}
-                            maxPage={totalPages}
-                            onClose={() => setShowProgressModal(false)}
-                            onSubmit={(page) => {
-                                handlePageChange(page)
-                                setShowProgressModal(false)
-                            }}
-                        />
-                    )}
-                    {showProgressModal && (
-                        <div
-                            className={styles.modalContainer}
-                            onClick={(e) => {
-                                if (e.target === e.currentTarget) {
-                                    // モーダルを閉じるのみ（チャット画面には戻らない）
-                                    setShowProgressModal(false)
-                                    setEditingTotalPages(false)
-                                }
-                            }}
-                        >
-                            <div
-                                className={styles.modalContent}
-                                onClick={(e) => e.stopPropagation()}
-                            >
-                                <h2>ページ数を編集</h2>
-                                <div className={styles.inputGroup}>
-                                    <label>現在のページ</label>
-                                    <input
-                                        type="number"
-                                        min={1}
-                                        value={currentPage}
-                                        onChange={(e) => {
-                                            setCurrentPage(Number(e.target.value))
-                                            setEditError('')
-                                        }}
-                                    />
-                                </div>
-                                <div className={styles.inputGroup}>
-                                    <label>本の最大ページ数</label>
-                                    <input
-                                        type="number"
-                                        min={1}
-                                        value={inputTotalPages}
-                                        onChange={(e) => {
-                                            setInputTotalPages(Number(e.target.value))
-                                            setEditError('')
-                                        }}
-                                    />
-                                </div>
-                                {editError && <div style={{ color: 'red', margin: '8px 0' }}>{editError}</div>}
-                                <div className={styles.buttonGroup}>
-                                    <button
-                                        className={styles.controlButton}
-                                        onClick={async () => {
-                                            if (inputTotalPages > 0 && currentPage > 0 && roomId) {
-                                                if (currentPage > inputTotalPages) {
-                                                    setEditError('進捗ページ数が本の最大ページ数を超えてしまっています')
-                                                    return
-                                                }
-                                                try {
-                                                    const updated = await roomApi.updateTotalPages(roomId, inputTotalPages)
-                                                    setTotalPages(updated.totalPages ?? inputTotalPages)
-                                                    handlePageChange(currentPage)
-                                                } catch (e) {
-                                                    alert("ページ数の更新に失敗しました")
-                                                }
-                                                setEditingTotalPages(false)
-                                                setShowProgressModal(false)
-                                                setEditError('')
-                                            }
-                                        }}
-                                    >保存</button>
-                                    <button
-                                        className={styles.controlButton}
-                                        onClick={() => {
-                                            setInputTotalPages(totalPages)
-                                            setCurrentPage(displayPage)
-                                            setEditingTotalPages(false)
-                                            setShowProgressModal(false)
-                                            setEditError('')
-                                        }}
-                                    >キャンセル</button>
-                                </div>
-                            </div>
                         </div>
-                    )}
-
+                        <div className={styles.inputGroup}>
+                            <label>本の最大ページ数</label>
+                            <input
+                                type="number"
+                                min={1}
+                                value={inputTotalPages}
+                                onChange={(e) => {
+                                    setInputTotalPages(Number(e.target.value))
+                                    setEditError('')
+                                }}
+                            />
+                        </div>
+                        {editError && <div style={{ color: 'red', margin: '8px 0' }}>{editError}</div>}
+                        <div className={styles.buttonGroup}>
+                            <button
+                                className={styles.controlButton}
+                                onClick={async () => {
+                                    if (inputTotalPages > 0 && currentPage > 0 && roomId) {
+                                        if (currentPage > inputTotalPages) {
+                                            setEditError('進捗ページ数が本の最大ページ数を超えてしまっています')
+                                            return
+                                        }
+                                        try {
+                                            const updated = await roomApi.updateTotalPages(roomId, inputTotalPages)
+                                            setTotalPages(updated.totalPages ?? inputTotalPages)
+                                            handlePageChange(currentPage)
+                                        } catch (e) {
+                                            alert("ページ数の更新に失敗しました")
+                                        }
+                                        setEditingTotalPages(false)
+                                        setShowProgressModal(false)
+                                        setEditError('')
+                                    }
+                                }}
+                            >保存</button>
+                            <button
+                                className={styles.controlButton}
+                                onClick={() => {
+                                    setInputTotalPages(totalPages)
+                                    setCurrentPage(displayPage)
+                                    setEditingTotalPages(false)
+                                    setShowProgressModal(false)
+                                    setEditError('')
+                                }}
+                            >キャンセル</button>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </>
+            )}
+
+        </div>
     )
 }
 
