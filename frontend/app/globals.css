@@ -5,10 +5,10 @@
 
 :root {
     /* グリーン＆白基調カラーパレット */
-    --green-main: #4CAF50;
-    --green-dark: #388E3C;
-    --green-light: #A5D6A7;
-    --green-bg: #e0f7ef;
+    --green-main: #4caf50;
+    --green-dark: #388e3c;
+    --green-light: #81c784;
+    --green-bg: #f0f9f4;
     --white: #fff;
 
     --border: oklch(0.922 0 0);
