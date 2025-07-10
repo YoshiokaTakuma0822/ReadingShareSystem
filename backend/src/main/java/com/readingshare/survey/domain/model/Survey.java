@@ -37,10 +37,13 @@ public class Survey {
     @Column(name = "created_at")
     private LocalDateTime createdAt; // アンケート作成日時
 
+    @Column(name = "end_time")
+    private LocalDateTime endTime; // アンケート終了時刻
+
     public Survey() {
     }
 
-    public Survey(UUID roomId, String title, List<Question> questions) {
+    public Survey(UUID roomId, String title, List<Question> questions, LocalDateTime endTime) {
         if (roomId == null) {
             throw new IllegalArgumentException("Room ID cannot be null.");
         }
@@ -54,6 +57,7 @@ public class Survey {
         this.roomId = roomId;
         this.title = title;
         this.questions = questions;
+        this.endTime = endTime;
         this.createdAt = LocalDateTime.now();
     }
 
@@ -79,5 +83,21 @@ public class Survey {
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
+    }
+
+    /**
+     * アンケートが終了しているかどうかをチェックする
+     * @return 終了している場合true、そうでなければfalse
+     */
+    public boolean isExpired() {
+        return endTime != null && LocalDateTime.now().isAfter(endTime);
     }
 }

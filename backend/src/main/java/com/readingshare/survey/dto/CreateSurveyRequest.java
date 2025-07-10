@@ -1,5 +1,6 @@
 package com.readingshare.survey.dto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -9,7 +10,8 @@ import com.readingshare.survey.domain.model.QuestionType;
 public record CreateSurveyRequest(
         UUID roomId,
         String title,
-        List<QuestionDto> questions) {
+        List<QuestionDto> questions,
+        LocalDateTime endTime) {
     public record QuestionDto(
             String questionText,
             List<String> options,

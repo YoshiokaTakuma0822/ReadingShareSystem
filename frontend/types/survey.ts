@@ -19,6 +19,7 @@ export interface Survey {
     title: string
     questions: Question[]
     createdAt: string // 作成時刻 (LocalDateTime)
+    endTime?: string // 終了時刻 (LocalDateTime)
 }
 
 export interface SurveyAnswer {
@@ -40,6 +41,7 @@ export interface CreateSurveyRequest {
     roomId: RoomId
     title: string
     questions: Question[] // バックエンドのエンティティに合わせて変更
+    endTime?: string // 終了時刻 (LocalDateTime)
 }
 
 // New DTO types for survey results
@@ -54,4 +56,6 @@ export interface SurveyResult {
     title: string
     totalRespondents: number
     results: QuestionResult[]
+    endTime?: string // 終了時刻 (LocalDateTime)
+    isExpired?: boolean // 終了しているかどうか
 }

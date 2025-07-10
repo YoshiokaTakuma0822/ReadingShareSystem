@@ -45,7 +45,8 @@ const SurveyCreationModal: React.FC<SurveyCreationModalProps> = ({ open, roomId,
             const request: CreateSurveyRequest = {
                 roomId,
                 title,
-                questions: [question]
+                questions: [question],
+                endTime: endDate
             }
 
             // 新しいアンケートを作成し、IDを取得
@@ -64,6 +65,9 @@ const SurveyCreationModal: React.FC<SurveyCreationModalProps> = ({ open, roomId,
                         break
                     case SurveyErrorCode.ROOM_INACTIVE:
                         setError('部屋の活動時間外のため、アンケートを作成できません')
+                        break
+                    case SurveyErrorCode.SURVEY_EXPIRED:
+                        setError('アンケートの有効期限が切れています')
                         break
                     default:
                         setError(data.message)

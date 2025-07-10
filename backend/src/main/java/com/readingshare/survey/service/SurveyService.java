@@ -77,7 +77,7 @@ public class SurveyService {
                     .map(q -> new Question(q.questionText(), q.options(), q.questionType(),
                             q.allowAnonymous(), q.allowAddOptions()))
                     .collect(Collectors.toList());
-            Survey survey = new Survey(request.roomId(), request.title(), questions);
+            Survey survey = new Survey(request.roomId(), request.title(), questions, request.endTime());
             Survey savedSurvey = surveyRepository.save(survey);
 
             // チャット通知を送信
@@ -95,6 +95,14 @@ public class SurveyService {
         // Load survey to get roomId and validate existence
         Survey survey = surveyRepository.findById(surveyId)
                 .orElseThrow(() -> new ResourceNotFoundException("Survey not found with id: " + surveyId));
+        
+        // アンケートの終了時刻をチェック
+        if (survey.isExpired()) {
+            throw new ApplicationException(
+                    SurveyErrorCode.SURVEY_EXPIRED.name(),
+                    "Survey has expired and no longer accepts responses");
+        }
+        
         SurveyAnswer answer = new SurveyAnswer(surveyId, request.userId(), request.answers());
         surveyRepository.saveAnswer(answer);
         // Notify updated survey results via WebSocket
@@ -123,6 +131,13 @@ public class SurveyService {
         // Load survey and validate existence
         Survey survey = surveyRepository.findById(surveyId)
                 .orElseThrow(() -> new ResourceNotFoundException("Survey not found with id: " + surveyId));
+
+        // アンケートの終了時刻をチェック
+        if (survey.isExpired()) {
+            throw new ApplicationException(
+                    SurveyErrorCode.SURVEY_EXPIRED.name(),
+                    "Survey has expired and no longer accepts new options");
+        }
 
         Question targetQuestion = survey.getQuestions().stream()
                 .filter(q -> q.getQuestionText().equals(questionText))
@@ -163,6 +178,7 @@ public class SurveyService {
             questionResults.add(new SurveyResultResponse.QuestionResultResponse(question.getQuestionText(), votes));
         }
         int totalRespondents = (int) answers.stream().map(SurveyAnswer::getUserId).distinct().count();
-        return new SurveyResultResponse(survey.getId(), survey.getTitle(), totalRespondents, questionResults);
+        return new SurveyResultResponse(survey.getId(), survey.getTitle(), totalRespondents, questionResults, 
+                survey.getEndTime(), survey.isExpired());
     }
 }

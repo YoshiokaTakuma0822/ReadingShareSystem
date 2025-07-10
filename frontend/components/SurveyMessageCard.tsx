@@ -5,6 +5,7 @@ import { MdPoll } from 'react-icons/md'
 import { surveyApi } from '../lib/surveyApi'
 import { Message } from '../types/message'
 import { SubmitSurveyAnswerRequest, Survey, SurveyResult } from '../types/survey'
+import { ApiErrorResponse } from '../types/error'
 
 interface SurveyMessageCardProps {
     msg: Message
@@ -101,6 +102,28 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
         }
     }, [msg.surveyId, currentUserId, handleShowResults])
 
+    // アンケートの終了時刻をチェックして自動的に結果表示に移行
+    useEffect(() => {
+        if (surveyData?.endTime && !showingResults && !hasAnswered) {
+            const endTime = new Date(surveyData.endTime)
+            const now = new Date()
+            
+            if (now > endTime) {
+                // 終了時刻を過ぎている場合は結果表示に移行
+                handleShowResults()
+                return
+            }
+            
+            // 終了時刻まで待機するタイマーを設定
+            const timeUntilEnd = endTime.getTime() - now.getTime()
+            const timer = setTimeout(() => {
+                handleShowResults()
+            }, timeUntilEnd)
+            
+            return () => clearTimeout(timer)
+        }
+    }, [surveyData, showingResults, hasAnswered, handleShowResults])
+
     useEffect(() => {
         handleShowFormat()
         if (showingResults || hasAnswered) {
@@ -158,9 +181,17 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
             if (key) {
                 localStorage.removeItem(key)
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error('回答送信エラー:', error)
-            alert('回答の送信に失敗しました')
+            // エラーコードで分岐して日本語メッセージを表示
+            const data = error.response?.data as ApiErrorResponse | undefined
+            if (data?.code === 'SURVEY_EXPIRED') {
+                alert('アンケートの有効期限が切れています')
+                // 終了している場合は結果表示に移行
+                handleShowResults()
+            } else {
+                alert('回答の送信に失敗しました')
+            }
         } finally {
             setSubmitting(false)
         }
@@ -176,10 +207,19 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
             const updated = await surveyApi.getSurveyFormat(surveyData.id);
             setSurveyData(updated);
             setNewOptionInputs(prev => ({ ...prev, [questionText]: '' }));
-        } catch (e) {
-            alert('選択肢の追加に失敗しました');
+        } catch (e: any) {
+            console.error('選択肢追加エラー:', e)
+            // エラーコードで分岐して日本語メッセージを表示
+            const data = e.response?.data as ApiErrorResponse | undefined
+            if (data?.code === 'SURVEY_EXPIRED') {
+                alert('アンケートの有効期限が切れています')
+                // 終了している場合は結果表示に移行
+                handleShowResults()
+            } else {
+                alert('選択肢の追加に失敗しました')
+            }
         } finally {
-            setSubmitting(false);
+            setSubmitting(false)
         }
     };
 
@@ -216,6 +256,18 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
                                 <strong style={{ color: '#1976d2' }}>タイトル:</strong> {surveyData.title}
                             </div>
 
+                            {/* 終了時刻表示 */}
+                            {surveyData.endTime && (
+                                <div style={{ marginBottom: 12, fontSize: 12, color: '#666' }}>
+                                    終了時刻: {new Date(surveyData.endTime).toLocaleString()}
+                                    {new Date() > new Date(surveyData.endTime) && (
+                                        <span style={{ color: '#d32f2f', fontWeight: 'bold', marginLeft: 8 }}>
+                                            [終了済み]
+                                        </span>
+                                    )}
+                                </div>
+                            )}
+
                             {/* 結果表示モード */}
                             {(showingResults || hasAnswered) && results ? (
                                 <div>
@@ -243,7 +295,7 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
                                             </div>
                                         </div>
                                     ))}
-                                    {!hasAnswered && (
+                                    {!hasAnswered && !(surveyData.endTime && new Date() > new Date(surveyData.endTime)) && (
                                         <button onClick={() => setShowingResults(false)} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: '#666', color: 'white', cursor: 'pointer', fontSize: 14 }}>
                                             質問を表示
                                         </button>
@@ -252,6 +304,16 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
                             ) : hasAnswered ? (
                                 /* 回答済み - 結果取得中 */
                                 <div style={{ color: '#666', fontStyle: 'italic' }}>結果を読み込み中...</div>
+                            ) : surveyData.endTime && new Date() > new Date(surveyData.endTime) ? (
+                                /* アンケート終了済み */
+                                <div style={{ color: '#d32f2f', fontWeight: 'bold', textAlign: 'center', padding: '16px' }}>
+                                    このアンケートは終了しています
+                                    <div style={{ marginTop: 8 }}>
+                                        <button onClick={handleShowResults} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: '#1976d2', color: 'white', cursor: 'pointer', fontSize: 14 }}>
+                                            結果を表示
+                                        </button>
+                                    </div>
+                                </div>
                             ) : (
                                 /* 回答フォーム */
                                 <div>

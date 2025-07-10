@@ -1,5 +1,6 @@
 package com.readingshare.survey.dto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -9,7 +10,9 @@ public record SurveyResultResponse(
         UUID surveyId,
         String title,
         int totalRespondents,
-        List<QuestionResultResponse> results) {
+        List<QuestionResultResponse> results,
+        LocalDateTime endTime,
+        boolean isExpired) {
     public record QuestionResultResponse(
             String questionText,
             // Map<選択肢のテキスト, 票数>
