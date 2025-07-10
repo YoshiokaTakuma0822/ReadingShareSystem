@@ -15,7 +15,12 @@ interface SurveyCreationModalProps {
 const SurveyCreationModal: React.FC<SurveyCreationModalProps> = ({ open, roomId, onClose, onCreated }) => {
     const [title, setTitle] = useState("")
     const [options, setOptions] = useState(["", ""])
-    const [endDate, setEndDate] = useState("2026-01-01T12:00")
+    // 初期値を現在時刻+1時間に設定
+    const [endDate, setEndDate] = useState(() => {
+        const now = new Date()
+        now.setHours(now.getHours() + 1)
+        return now.toISOString().slice(0, 16) // "YYYY-MM-DDTHH:MM" format
+    })
     const [multi, setMulti] = useState(false)
     const [allowAdd, setAllowAdd] = useState(false)
     const [loading, setLoading] = useState(false)
@@ -32,6 +37,15 @@ const SurveyCreationModal: React.FC<SurveyCreationModalProps> = ({ open, roomId,
             setError('選択肢は32文字以内の英字，数字，日本語にしてください．')
             return
         }
+        
+        // 終了時刻の妥当性チェック
+        const endDateTime = new Date(endDate)
+        const now = new Date()
+        if (endDateTime <= now) {
+            setError('終了時刻は現在時刻よりも後に設定してください')
+            return
+        }
+
         setLoading(true)
         setError(null)
         try {
