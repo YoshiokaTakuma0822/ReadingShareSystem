@@ -49,6 +49,13 @@ const ReadingScreenOverlay: React.FC<ReadingScreenOverlayProps> = ({ roomId, ope
             : `ws://localhost:8080/ws/chat/notifications/${roomId}`
 
         const ws = new WebSocket(wsUrl)
+        ws.onopen = () => {
+            setInterval(() => {
+                if (ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({ type: 'ping' }));
+                }
+            }, 45000);
+        }
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data)
             const receivedRoomId = String(data.roomId || '').trim().toLowerCase()

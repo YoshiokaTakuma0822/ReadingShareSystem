@@ -231,6 +231,13 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId, onClose }) => {
             : `ws://localhost:8080/ws/chat/notifications/${roomId}`
 
         const ws = new WebSocket(wsUrl)
+        ws.onopen = () => {
+            setInterval(() => {
+                if (ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({ type: 'ping' }));
+                }
+            }, 45000);
+        }
         ws.onmessage = (event) => {
             try {
                 const msg = JSON.parse(event.data)
