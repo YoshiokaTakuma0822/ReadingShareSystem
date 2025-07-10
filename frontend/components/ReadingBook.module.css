@@ -561,6 +561,34 @@ body,
     color: var(--white);
 }
 
+/* ナビゲーションテキスト（進む・戻る）のスタイル */
+.navigationText {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 120px;
+    color: #388e3c;
+    font-weight: bold;
+    font-size: 16px;
+    pointer-events: auto;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    z-index: 100;
+    cursor: pointer;
+}
+
+.navigationText.left {
+    left: -140px;
+    text-align: right;
+}
+
+.navigationText.right {
+    right: -140px;
+    text-align: left;
+}
+
 /* モバイル全画面対応 */
 @media (max-width: 767px) {
     .container {
@@ -574,6 +602,11 @@ body,
         box-sizing: border-box;
         overflow-x: hidden;
         overflow-y: auto;
+    }
+
+    /* モバイルでナビゲーションテキストを非表示 */
+    .navigationText {
+        display: none !important;
     }
 
     .bookContainer {
