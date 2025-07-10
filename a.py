@@ -31,7 +31,7 @@ TIMEOUT_SECONDS = 15 * 60
 
 # Synchronous helper for deploy logic
 def _deploy_task():
-    run_cmd("docker system prune -f", cwd=COMPOSE_DIR)
+    run_cmd("docker system prune -f")
     fetch_and_extract()
     run_cmd("docker compose down", cwd=COMPOSE_DIR)
     run_cmd("docker compose up -d --build", cwd=COMPOSE_DIR)
