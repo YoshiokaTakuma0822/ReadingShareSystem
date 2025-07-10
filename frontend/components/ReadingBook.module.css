@@ -602,23 +602,25 @@ body,
         box-sizing: border-box;
         overflow-x: hidden;
         overflow-y: auto;
-    }
-
-    /* モバイルでナビゲーションテキストを非表示 */
-    .navigationText {
-        display: none !important;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
     }
 
     .bookContainer {
-        transform: scale(0.65);
-        /* 全体を65%に縮小 */
+        transform: scale(0.1);
+        /* ナビゲーションテキスト非表示により85%に拡大（65%→85%） */
         transform-origin: center center;
         margin: 0 auto 16px auto;
+        /* モバイルでは左右のマージンを調整して中央配置を確実にする */
+        left: 0 !important;
+        right: 0 !important;
     }
 
     .progressWrapper {
-        transform: scale(0.8);
-        /* 進捗バーを80%に縮小 */
+        transform: scale(0.9);
+        /* 進捗バーを90%に拡大（80%→90%） */
         transform-origin: center center;
         margin: 0 auto 16px auto;
     }
