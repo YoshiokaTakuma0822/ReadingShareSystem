@@ -19,14 +19,37 @@ interface RoomCreationModalProps {
 }
 
 const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onClose, onCreated }) => {
+    // 現在時刻を取得するヘルパー関数
+    const getCurrentDateTimeLocal = () => {
+        const now = new Date()
+        const year = now.getFullYear()
+        const month = String(now.getMonth() + 1).padStart(2, '0')
+        const day = String(now.getDate()).padStart(2, '0')
+        const hours = String(now.getHours()).padStart(2, '0')
+        const minutes = String(now.getMinutes()).padStart(2, '0')
+        return `${year}-${month}-${day}T${hours}:${minutes}`
+    }
+
+    // 一週間後の時刻を取得するヘルパー関数
+    const getOneWeekLaterDateTimeLocal = () => {
+        const oneWeekLater = new Date()
+        oneWeekLater.setDate(oneWeekLater.getDate() + 7)
+        const year = oneWeekLater.getFullYear()
+        const month = String(oneWeekLater.getMonth() + 1).padStart(2, '0')
+        const day = String(oneWeekLater.getDate()).padStart(2, '0')
+        const hours = String(oneWeekLater.getHours()).padStart(2, '0')
+        const minutes = String(oneWeekLater.getMinutes()).padStart(2, '0')
+        return `${year}-${month}-${day}T${hours}:${minutes}`
+    }
+
     const [roomName, setRoomName] = useState('')
     const [bookTitle, setBookTitle] = useState('') // 追加: 本のタイトル
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [genre, setGenre] = useState('小説')
-    const [startTime, setStartTime] = useState('')
-    const [endTime, setEndTime] = useState('')
+    const [startTime, setStartTime] = useState(() => getCurrentDateTimeLocal()) // 初期化: 現在時刻
+    const [endTime, setEndTime] = useState(() => getOneWeekLaterDateTimeLocal()) // 初期化: 一週間後
     const [totalPages, setTotalPages] = useState<number>(300) // 追加: 本の全ページ数
     const [passwordType, setPasswordType] = useState<'none' | 'set'>('none')
 
@@ -44,6 +67,26 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
             setError('部屋名は16文字以下にしてください')
             return
         }
+
+        // 時刻バリデーション
+        if (startTime && endTime) {
+            const startDate = new Date(startTime)
+            const endDate = new Date(endTime)
+            const now = new Date()
+
+            // 開始時刻 < 終了時刻 のチェック
+            if (startDate >= endDate) {
+                setError('開始時刻は終了時刻よりも前に設定してください')
+                return
+            }
+
+            // 現在時刻 < 終了時刻 のチェック
+            if (endDate <= now) {
+                setError('終了時刻は現在時刻よりも後に設定してください')
+                return
+            }
+        }
+
         setLoading(true)
         setError(null)
         try {
@@ -72,8 +115,8 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
             setBookTitle('')
             setPassword('')
             setGenre('小説')
-            setStartTime('')
-            setEndTime('')
+            setStartTime(getCurrentDateTimeLocal()) // 初期化: 現在時刻
+            setEndTime(getOneWeekLaterDateTimeLocal()) // 初期化: 一週間後
             setTotalPages(300)
             setPasswordType('none')
             setError(null)
@@ -87,8 +130,8 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
             setBookTitle('')
             setPassword('')
             setGenre('小説')
-            setStartTime('')
-            setEndTime('')
+            setStartTime(getCurrentDateTimeLocal()) // 初期化: 現在時刻
+            setEndTime(getOneWeekLaterDateTimeLocal()) // 初期化: 一週間後
             setTotalPages(300)
             setPasswordType('none')
             setError(null)
