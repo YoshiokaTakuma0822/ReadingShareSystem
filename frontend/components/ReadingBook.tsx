@@ -419,7 +419,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                         key={m.name}
                         className={styles.memberIcon}
                         style={{
-                            left: `calc(${320 * m.percent}px - 15px)`,
+                            left: `calc(${320 * Math.min(1, m.percent)}px - 15px)`,
                             background: m.isMe ? 'var(--green-dark)' : 'var(--white)',
                             border: m.isMe ? '2px solid var(--green-main)' : '1px solid var(--border)',
                             color: m.isMe ? 'var(--white)' : 'var(--green-dark)',
