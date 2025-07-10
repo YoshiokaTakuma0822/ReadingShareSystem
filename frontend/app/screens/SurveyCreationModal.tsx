@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { surveyApi } from '../../lib/surveyApi'
 import { ApiErrorResponse, SurveyErrorCode } from '../../types/error'
 import { CreateSurveyRequest, Question } from '../../types/survey'
@@ -32,18 +32,6 @@ const SurveyCreationModal: React.FC<SurveyCreationModalProps> = ({ open, roomId,
     const [allowAdd, setAllowAdd] = useState(false)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
-
-    // モーダルが開いたときに状態をリセット
-    useEffect(() => {
-        if (open) {
-            setTitle("")
-            setOptions(["", ""])
-            setEndDate(getOneHourLaterDateTimeLocal())
-            setMulti(false)
-            setAllowAdd(false)
-            setError(null)
-        }
-    }, [open])
 
     const handleCreate = async () => {
         // タイトル長チェック: 32文字以内
