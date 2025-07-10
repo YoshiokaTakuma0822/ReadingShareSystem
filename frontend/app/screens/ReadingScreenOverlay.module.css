@@ -33,3 +33,22 @@
     cursor: pointer;
     z-index: 3000;
 }
+
+/* Mobile full-screen overrides moved from ReadingScreen.module.css */
+@media (max-width: 767px) {
+    .overlay {
+        align-items: flex-start;
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+
+    .modal {
+        width: 100vw;
+        max-width: 100vw;
+        min-height: 100vh;
+        padding-top: 0;
+        padding-bottom: 0;
+        border-radius: 0;
+        box-sizing: border-box;
+    }
+}
