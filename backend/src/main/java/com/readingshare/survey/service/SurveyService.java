@@ -46,8 +46,17 @@ public class SurveyService {
     public UUID createSurvey(CreateSurveyRequest request, UUID creatorUserId) {
         try {
             // roomIdが存在するかチェック
-            if (!roomRepository.findById(request.roomId()).isPresent()) {
+            var roomOpt = roomRepository.findById(request.roomId());
+            if (roomOpt.isEmpty()) {
                 throw new ResourceNotFoundException("Room not found with id: " + request.roomId());
+            }
+            var room = roomOpt.get();
+
+            // 部屋の時刻制約をチェック
+            if (!room.isActiveTime()) {
+                throw new ApplicationException(
+                        SurveyErrorCode.ROOM_INACTIVE.name(),
+                        "Surveys cannot be created outside the room's active time period");
             }
 
             // 選択肢のバリデーション（重複と最小数）

@@ -55,6 +55,11 @@ public class SendChatMessageService {
         }
         var room = roomOpt.get();
 
+        // 部屋の時刻制約をチェック
+        if (!room.isActiveTime()) {
+            throw new ApplicationException("Messages cannot be sent outside the room's active time period");
+        }
+
         // ユーザーが部屋に参加しているかチェック
         validateUserInRoom(room, userId);
 
@@ -94,6 +99,11 @@ public class SendChatMessageService {
             throw new ApplicationException("Room not found. Room ID: " + roomId);
         }
         var room = roomOpt.get();
+
+        // 部屋の時刻制約をチェック
+        if (!room.isActiveTime()) {
+            throw new ApplicationException("Messages cannot be sent outside the room's active time period");
+        }
 
         // メッセージ内容の検証
         MessageContent messageContent = validateAndCreateMessageContent(content);

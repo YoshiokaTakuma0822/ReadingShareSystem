@@ -153,6 +153,28 @@ public class Room {
         this.passwordHash = passwordHash;
     }
 
+    // --- 時刻制約チェック ---
+    /**
+     * 現在時刻が部屋の活動可能な時間内かどうかをチェックする。
+     *
+     * @return 活動可能な時間内の場合true、そうでなければfalse
+     */
+    public boolean isActiveTime() {
+        Instant now = Instant.now();
+
+        // 開始時刻が設定されており、まだ開始時刻に達していない場合
+        if (startTime != null && now.isBefore(startTime)) {
+            return false;
+        }
+
+        // 終了時刻が設定されており、すでに終了時刻を過ぎている場合
+        if (endTime != null && now.isAfter(endTime)) {
+            return false;
+        }
+
+        return true;
+    }
+
     // --- その他のメソッド ---
     @Override
     public boolean equals(Object o) {

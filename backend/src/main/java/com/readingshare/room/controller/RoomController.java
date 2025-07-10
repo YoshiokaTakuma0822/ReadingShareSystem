@@ -130,6 +130,25 @@ public class RoomController {
     }
 
     /**
+     * 部屋の活動時間ステータス取得エンドポイント
+     * GET /api/rooms/{roomId}/status
+     */
+    @GetMapping("/{roomId}/status")
+    public ResponseEntity<RoomStatusDto> getRoomStatus(@PathVariable("roomId") String roomId) {
+        return roomService.getRoomById(UUID.fromString(roomId))
+                .map(room -> {
+                    boolean isActive = room.isActiveTime();
+                    RoomStatusDto status = new RoomStatusDto(
+                            room.getId().toString(),
+                            isActive,
+                            room.getStartTime() != null ? room.getStartTime().toString() : null,
+                            room.getEndTime() != null ? room.getEndTime().toString() : null);
+                    return ResponseEntity.ok(status);
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    /**
      * 部屋削除エンドポイント
      * DELETE /api/rooms/{roomId}
      */
@@ -246,6 +265,21 @@ public class RoomController {
             this.userId = userId;
             this.username = username;
             this.joinedAt = joinedAt;
+        }
+    }
+
+    // 部屋活動時間ステータスDTO
+    public static class RoomStatusDto {
+        public String roomId;
+        public boolean isActive;
+        public String startTime;
+        public String endTime;
+
+        public RoomStatusDto(String roomId, boolean isActive, String startTime, String endTime) {
+            this.roomId = roomId;
+            this.isActive = isActive;
+            this.startTime = startTime;
+            this.endTime = endTime;
         }
     }
 

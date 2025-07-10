@@ -32,6 +32,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
     // 追加: ユーザーID→ユーザー名のマッピングを保持
     const [userIdToName, setUserIdToName] = useState<Record<string, string>>({})
     const [scrollTrigger, setScrollTrigger] = useState(0)
+    const [roomStatus, setRoomStatus] = useState<{ isActive: boolean; startTime?: string; endTime?: string } | null>(null)
 
     // input要素のrefを追加
     const inputRef = useRef<HTMLInputElement>(null)
@@ -72,6 +73,25 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
         })
     }, [roomId])
 
+    // 部屋の活動時間ステータスを取得
+    useEffect(() => {
+        if (!roomId) return
+        const fetchRoomStatus = async () => {
+            try {
+                const status = await roomApi.getRoomStatus(roomId)
+                setRoomStatus(status)
+            } catch (error) {
+                console.error('Failed to fetch room status:', error)
+                // エラーの場合は活動可能として扱う（既存機能を壊さないため）
+                setRoomStatus({ isActive: true })
+            }
+        }
+        fetchRoomStatus()
+        // 定期的にステータスを更新（1分おき）
+        const interval = setInterval(fetchRoomStatus, 60000)
+        return () => clearInterval(interval)
+    }, [roomId])
+
     // メッセージ送信ハンドラ
     const handleSendMessage = async () => {
         // メッセージ長チェック: 10000文字以内
@@ -80,6 +100,13 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
             return
         }
         if (!input.trim() || !roomId) return
+
+        // 部屋の活動時間チェック
+        if (roomStatus && !roomStatus.isActive) {
+            setError('部屋の活動時間外のため、メッセージを送信できません')
+            return
+        }
+
         setLoading(true)
         setError(null)
         try {
@@ -127,20 +154,28 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                     読書画面をオーバーレイ表示
                 </button>
                 <button
-                    onClick={() => setShowSurveyModal(true)}
+                    onClick={() => {
+                        if (roomStatus && !roomStatus.isActive) {
+                            setError('部屋の活動時間外のため、アンケートを作成できません')
+                            return
+                        }
+                        setShowSurveyModal(true)
+                    }}
+                    disabled={roomStatus ? !roomStatus.isActive : false}
                     style={{
                         padding: '12px 24px',
                         fontSize: 16,
-                        background: '#2196f3',
+                        background: (roomStatus && !roomStatus.isActive) ? '#ccc' : '#2196f3',
                         color: 'white',
                         border: 'none',
                         borderRadius: 8,
-                        cursor: 'pointer',
+                        cursor: (roomStatus && !roomStatus.isActive) ? 'not-allowed' : 'pointer',
                         fontWeight: 'bold',
                         boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: 8
+                        gap: 8,
+                        opacity: (roomStatus && !roomStatus.isActive) ? 0.6 : 1
                     }}
                 >
                     <MdPoll style={{ fontSize: 25, marginTop: -1.5 }} />
@@ -217,11 +252,12 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                         borderRadius: 8,
                         border: '1px solid #222',
                         fontSize: 18,
-                        background: loading ? '#ccc' : 'white',
-                        cursor: loading ? 'not-allowed' : 'pointer'
+                        background: (loading || (roomStatus && !roomStatus.isActive)) ? '#ccc' : 'white',
+                        cursor: (loading || (roomStatus && !roomStatus.isActive)) ? 'not-allowed' : 'pointer',
+                        opacity: (loading || (roomStatus && !roomStatus.isActive)) ? 0.6 : 1
                     }}
                     onClick={handleSendMessage}
-                    disabled={loading}
+                    disabled={loading || (roomStatus ? !roomStatus.isActive : false)}
                 >送信</button>
             </div>
 

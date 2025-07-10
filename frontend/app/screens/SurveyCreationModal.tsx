@@ -24,13 +24,13 @@ const SurveyCreationModal: React.FC<SurveyCreationModalProps> = ({ open, roomId,
     const handleCreate = async () => {
         // タイトル長チェック: 32文字以内
         if (title.length > 32) {
-            setError('メッセージは32文字以内の英字，数字，日本語にしてください．');
-            return;
+            setError('メッセージは32文字以内の英字，数字，日本語にしてください．')
+            return
         }
         // 選択肢長チェック: 各選択肢は32文字以内
         if (options.some(opt => opt.length > 32)) {
-            setError('選択肢は32文字以内の英字，数字，日本語にしてください．');
-            return;
+            setError('選択肢は32文字以内の英字，数字，日本語にしてください．')
+            return
         }
         setLoading(true)
         setError(null)
@@ -61,6 +61,9 @@ const SurveyCreationModal: React.FC<SurveyCreationModalProps> = ({ open, roomId,
                         break
                     case SurveyErrorCode.DUPLICATE_OPTIONS:
                         setError('同じ選択肢は使えません')
+                        break
+                    case SurveyErrorCode.ROOM_INACTIVE:
+                        setError('部屋の活動時間外のため、アンケートを作成できません')
                         break
                     default:
                         setError(data.message)
