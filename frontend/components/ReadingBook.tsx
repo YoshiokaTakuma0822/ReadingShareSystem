@@ -61,8 +61,28 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
     // --- 追加: 初期化完了フラグ ---
     const [isInitialized, setIsInitialized] = useState(false)
 
+    /**
+     * 入力値から先頭の不要な0を除去する関数
+     * @param value 入力値
+     * @param allowDecimal 小数を許可するかどうか
+     * @returns 先頭の0を除去した値
+     */
+    const removeLeadingZeros = (value: string, allowDecimal: boolean = false): string => {
+        if (!value || value === '0') return value
+
+        // 小数を許可する場合、"0."で始まる値は保護
+        if (allowDecimal && value.startsWith('0.')) return value
+
+        // 先頭の0を除去
+        const cleaned = value.replace(/^0+/, '')
+
+        // 空文字列になった場合は"0"を返す
+        return cleaned || '0'
+    }
+
     // 自動めくり間隔（分単位）をユーザーが自由に入力できる（初期値：3分）
     const [flipIntervalMinutes, setFlipIntervalMinutes] = useState<number>(3)
+    const [flipIntervalInput, setFlipIntervalInput] = useState<string>('3')
     const flipIntervalMs = flipIntervalMinutes * 60 * 1000
 
     // メンバー一覧
@@ -79,6 +99,8 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
 
     // 保存時のバリデーションエラーメッセージ
     const [editError, setEditError] = useState<string>('')
+
+    // 入力フィールドの文字列値を保持（不要になったため削除）
 
     // Removed initial auto-flip effect; replaced below after handlers
 
@@ -204,6 +226,8 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
     useEffect(() => {
         setInputTotalPages(totalPages)
     }, [totalPages])
+
+    // currentPageが変更された時は何もしない（直接数値状態を使用するため）
 
     // --- WebSocketで進捗リアルタイム共有 ---
     useChatWebSocket(roomId, (event) => {
@@ -515,9 +539,32 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                 <label className={styles.flipIntervalLabel}>
                     <input
                         type="number"
-                        min="1"
-                        value={flipIntervalMinutes}
-                        onChange={(e) => setFlipIntervalMinutes(Number(e.target.value))}
+                        min="0"
+                        // step="any"
+                        value={flipIntervalInput}
+                        onChange={(e) => {
+                            const inputValue = e.target.value
+
+                            // if (inputValue === '' || inputValue === '0') {
+                            //     setFlipIntervalMinutes(0)
+                            //     return
+                            // }
+
+                            // 数値のみを受け入れ、先頭ゼロを除去
+                            const cleanedValue = removeLeadingZeros(inputValue, true)
+                            setFlipIntervalInput(cleanedValue)
+
+                            const numValue = parseFloat(cleanedValue)
+                            if (!isNaN(numValue)) {
+                                setFlipIntervalMinutes(numValue)
+                            }
+                        }}
+                        onBlur={() => {
+                            // フォーカスが外れた時に0未満の値を0に修正
+                            const validValue = Math.max(0, flipIntervalMinutes)
+                            setFlipIntervalMinutes(validValue)
+                            setFlipIntervalInput(validValue.toString())
+                        }}
                         placeholder="分単位"
                         className={styles.intervalInput}
                     />
@@ -601,8 +648,23 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                                     min={1}
                                     value={currentPage}
                                     onChange={(e) => {
-                                        setCurrentPage(Number(e.target.value))
+                                        const inputValue = e.target.value
+                                        if (inputValue === '' || inputValue === '0') {
+                                            setCurrentPage(1)
+                                            return
+                                        }
+
+                                        // 数値のみを受け入れ、先頭ゼロを除去
+                                        const cleanedValue = removeLeadingZeros(inputValue, false)
+                                        const numValue = parseInt(cleanedValue)
+                                        if (!isNaN(numValue) && numValue > 0) {
+                                            setCurrentPage(numValue)
+                                        }
                                         setEditError('')
+                                    }}
+                                    onBlur={() => {
+                                        const validValue = Math.max(1, currentPage)
+                                        setCurrentPage(validValue)
                                     }}
                                 />
                             </div>
@@ -613,8 +675,23 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                                     min={1}
                                     value={inputTotalPages}
                                     onChange={(e) => {
-                                        setInputTotalPages(Number(e.target.value))
+                                        const inputValue = e.target.value
+                                        if (inputValue === '' || inputValue === '0') {
+                                            setInputTotalPages(1)
+                                            return
+                                        }
+
+                                        // 数値のみを受け入れ、先頭ゼロを除去
+                                        const cleanedValue = removeLeadingZeros(inputValue, false)
+                                        const numValue = parseInt(cleanedValue)
+                                        if (!isNaN(numValue) && numValue > 0) {
+                                            setInputTotalPages(numValue)
+                                        }
                                         setEditError('')
+                                    }}
+                                    onBlur={() => {
+                                        const validValue = Math.max(1, inputTotalPages)
+                                        setInputTotalPages(validValue)
                                     }}
                                 />
                             </div>
@@ -623,15 +700,19 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                                 <button
                                     className={styles.controlButton}
                                     onClick={async () => {
-                                        if (inputTotalPages > 0 && currentPage > 0 && roomId) {
-                                            if (currentPage > inputTotalPages) {
+                                        const currentPageVal = currentPage
+                                        const totalPagesVal = inputTotalPages
+
+                                        if (totalPagesVal > 0 && currentPageVal > 0 && roomId) {
+                                            if (currentPageVal > totalPagesVal) {
                                                 setEditError('進捗ページ数が本の最大ページ数を超えてしまっています')
                                                 return
                                             }
                                             try {
-                                                const updated = await roomApi.updateTotalPages(roomId, inputTotalPages)
-                                                setTotalPages(updated.totalPages ?? inputTotalPages)
-                                                handlePageChange(currentPage)
+                                                const updated = await roomApi.updateTotalPages(roomId, totalPagesVal)
+                                                setTotalPages(updated.totalPages ?? totalPagesVal)
+                                                setCurrentPage(currentPageVal)
+                                                handlePageChange(currentPageVal)
                                             } catch (e) {
                                                 alert("ページ数の更新に失敗しました")
                                             }
