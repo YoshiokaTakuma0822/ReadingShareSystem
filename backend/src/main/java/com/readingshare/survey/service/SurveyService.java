@@ -83,10 +83,14 @@ public class SurveyService {
     // --- アンケート回答 ---
     @Transactional
     public void submitAnswer(UUID surveyId, SubmitSurveyAnswerRequest request) {
-        surveyRepository.findById(surveyId)
+        // Load survey to get roomId and validate existence
+        Survey survey = surveyRepository.findById(surveyId)
                 .orElseThrow(() -> new ResourceNotFoundException("Survey not found with id: " + surveyId));
         SurveyAnswer answer = new SurveyAnswer(surveyId, request.userId(), request.answers());
         surveyRepository.saveAnswer(answer);
+        // Notify updated survey results via WebSocket
+        SurveyResultResponse result = getSurveyResult(surveyId);
+        surveyNotificationService.sendSurveyResultNotification(survey.getRoomId().toString(), result);
     }
 
     // --- アンケート結果取得 ---
@@ -107,6 +111,7 @@ public class SurveyService {
      */
     @Transactional
     public void addOption(UUID surveyId, String questionText, String newOption) {
+        // Load survey and validate existence
         Survey survey = surveyRepository.findById(surveyId)
                 .orElseThrow(() -> new ResourceNotFoundException("Survey not found with id: " + surveyId));
 
@@ -118,6 +123,9 @@ public class SurveyService {
         try {
             targetQuestion.addOption(newOption);
             surveyRepository.save(survey);
+            // Notify updated survey results due to new option
+            SurveyResultResponse result = getSurveyResult(surveyId);
+            surveyNotificationService.sendSurveyResultNotification(survey.getRoomId().toString(), result);
         } catch (IllegalStateException | IllegalArgumentException e) {
             throw new ApplicationException(e.getMessage(), e);
         }

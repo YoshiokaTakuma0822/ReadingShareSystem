@@ -4,16 +4,19 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.readingshare.chat.dto.ChatMessageDto;
+import com.readingshare.survey.dto.SurveyResultResponse;
 
 /**
  * 通知専用のネイティブWebSocketハンドラー
  */
+@Component
 public class NotificationWebSocketHandler extends TextWebSocketHandler {
     // roomId -> sessions
     private static final ConcurrentHashMap<String, Set<WebSocketSession>> sessionsMap = new ConcurrentHashMap<>();
@@ -110,6 +113,31 @@ public class NotificationWebSocketHandler extends TextWebSocketHandler {
             });
         } catch (Exception ignored) {
             // シリアライゼーションエラーは無視
+        }
+    }
+
+    /**
+     * roomId 宛にアンケート結果更新を通知
+     */
+    public void broadcastSurveyResult(String roomId, SurveyResultResponse result) {
+        Map<String, Object> payloadMap = Map.of(
+                "roomId", roomId,
+                "event", "surveyResultUpdate",
+                "surveyResult", result);
+        Set<WebSocketSession> sessions = sessionsMap.get(roomId);
+        if (sessions == null)
+            return;
+        try {
+            String json = mapper.writeValueAsString(payloadMap);
+            TextMessage msg = new TextMessage(json);
+            sessions.forEach(s -> {
+                try {
+                    s.sendMessage(msg);
+                } catch (Exception ignored) {
+                }
+            });
+        } catch (Exception ignored) {
+            // ignore serialization/send errors
         }
     }
 }

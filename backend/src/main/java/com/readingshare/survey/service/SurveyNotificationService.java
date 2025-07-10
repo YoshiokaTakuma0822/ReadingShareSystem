@@ -9,8 +9,10 @@ import com.readingshare.chat.domain.model.ChatMessage;
 import com.readingshare.chat.domain.model.MessageContent;
 import com.readingshare.chat.domain.repository.IChatMessageRepository;
 import com.readingshare.chat.service.ChatMessageBroadcastService;
+import com.readingshare.chat.websocket.NotificationWebSocketHandler;
 import com.readingshare.room.domain.repository.IRoomRepository;
 import com.readingshare.survey.domain.model.Survey;
+import com.readingshare.survey.dto.SurveyResultResponse;
 
 /**
  * アンケート作成時にチャットメッセージを自動送信するサービス
@@ -21,13 +23,16 @@ public class SurveyNotificationService {
     private final IChatMessageRepository chatMessageRepository;
     private final IRoomRepository roomRepository;
     private final ChatMessageBroadcastService chatMessageBroadcastService;
+    private final NotificationWebSocketHandler notificationHandler;
 
     public SurveyNotificationService(IChatMessageRepository chatMessageRepository,
             IRoomRepository roomRepository,
-            ChatMessageBroadcastService chatMessageBroadcastService) {
+            ChatMessageBroadcastService chatMessageBroadcastService,
+            NotificationWebSocketHandler notificationHandler) {
         this.chatMessageRepository = chatMessageRepository;
         this.roomRepository = roomRepository;
         this.chatMessageBroadcastService = chatMessageBroadcastService;
+        this.notificationHandler = notificationHandler;
     }
 
     /**
@@ -53,5 +58,12 @@ public class SurveyNotificationService {
 
         // WebSocketでブロードキャスト
         chatMessageBroadcastService.broadcastToRoom(survey.getRoomId().toString(), savedMessage);
+    }
+
+    /**
+     * アンケート結果の更新をWebSocketで送信
+     */
+    public void sendSurveyResultNotification(String roomId, SurveyResultResponse result) {
+        notificationHandler.broadcastSurveyResult(roomId, result);
     }
 }
