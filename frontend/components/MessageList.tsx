@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { chatApi } from '../lib/chatApi'
 import { roomApi } from '../lib/roomApi'
+import { useChatWebSocket } from '../lib/useChatWebSocket'
 import { Message } from '../types/message'
 import ChatMessageCard from './ChatMessageCard'
 import SurveyMessageCard from './SurveyMessageCard'
@@ -143,34 +144,11 @@ const MessageList: React.FC<MessageListProps> = ({ roomId, scrollTrigger }) => {
 
     // 初期ロード: currentUserIdとroomIdが揃ったらチャット履歴を取得
     useEffect(() => { if (currentUserId && roomId) loadChatHistory() }, [currentUserId, roomId])
-    // WebSocket通知: currentUserIdも含めて再接続
-    useEffect(() => {
-        if (!roomId || !currentUserId) return
-
-        // WebSocket接続 - 開発時はプロキシ経由、本番時は直接接続
-        const wsUrl = process.env.NODE_ENV === 'production'
-            ? `/ws/chat/notifications/${roomId}`
-            : `ws://localhost:8080/ws/chat/notifications/${roomId}`
-
-        const ws = new WebSocket(wsUrl)
-        ws.onopen = () => {
-            setInterval(() => {
-                if (ws.readyState === WebSocket.OPEN) {
-                    ws.send(JSON.stringify({ type: 'ping' }));
-                }
-            }, 45000);
-        }
-
-        // メッセージ受信時のイベントハンドラ
-        ws.onmessage = () => {
-            loadChatHistory()
-        }
-
-        // クリーンアップ関数
-        return () => {
-            ws.close()
-        }
-    }, [roomId, currentUserId])
+    // WebSocket で通知受信（チャット履歴更新）
+    const wsRoomId = roomId && currentUserId ? roomId : undefined
+    useChatWebSocket(wsRoomId, () => {
+        loadChatHistory()
+    })
 
     useEffect(() => {
         // メッセージ追加時

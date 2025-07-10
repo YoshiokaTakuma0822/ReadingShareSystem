@@ -1,8 +1,9 @@
 "use client"
-import React, { useEffect, useRef, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { authStorage } from '../../lib/authUtils'
 import { readingStateApi } from '../../lib/readingStateApi'
 import { roomApi } from '../../lib/roomApi'
+import { useChatWebSocket } from '../../lib/useChatWebSocket'
 import { RoomMember } from '../../types/room'
 import ReadingProgressModal from "./ReadingProgressModal"
 import './ReadingScreen.css'
@@ -222,38 +223,20 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId, onClose }) => {
     }, [totalPages])
 
     // --- WebSocketで進捗リアルタイム共有 ---
-    useEffect(() => {
-        if (!roomId) return
-
-        // WebSocket接続 - 開発時はプロキシ経由、本番時は直接接続
-        const wsUrl = process.env.NODE_ENV === 'production'
-            ? `/ws/chat/notifications/${roomId}`
-            : `ws://localhost:8080/ws/chat/notifications/${roomId}`
-
-        const ws = new WebSocket(wsUrl)
-        ws.onopen = () => {
-            setInterval(() => {
-                if (ws.readyState === WebSocket.OPEN) {
-                    ws.send(JSON.stringify({ type: 'ping' }));
+    useChatWebSocket(roomId, (event) => {
+        try {
+            const msg = JSON.parse(event.data)
+            if (msg.event === 'progressUpdate' && msg.roomId === roomId) {
+                // update member progress or own page
+                setMembers((prev) => prev.map(m => m.userId === msg.userId ? { ...m, page: Number(msg.currentPage) } : m))
+                if (msg.userId === authStorage.getUserId()) {
+                    const newPage = Number(msg.currentPage)
+                    setCurrentPage(newPage)
+                    setDisplayPage(adjustPageNumber(newPage, 'next'))
                 }
-            }, 45000);
-        }
-        ws.onmessage = (event) => {
-            try {
-                const msg = JSON.parse(event.data)
-                if (msg.event === 'progressUpdate' && msg.roomId === roomId) {
-                    // update member progress or own page
-                    setMembers((prev) => prev.map(m => m.userId === msg.userId ? { ...m, page: Number(msg.currentPage) } : m))
-                    if (msg.userId === authStorage.getUserId()) {
-                        const newPage = Number(msg.currentPage)
-                        setCurrentPage(newPage)
-                        setDisplayPage(adjustPageNumber(newPage, 'next'))
-                    }
-                }
-            } catch { }
-        }
-        return () => ws.close()
-    }, [roomId])
+            }
+        } catch { }
+    })
 
     // --- カウントダウン用 ---
     const [countdown, setCountdown] = useState(flipIntervalMs)
