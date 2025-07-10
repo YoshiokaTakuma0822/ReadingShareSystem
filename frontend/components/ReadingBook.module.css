@@ -577,85 +577,37 @@ body,
     }
 
     .bookContainer {
-        width: 90vw;
-        max-width: 90vw;
-        height: auto;
-        min-height: 200px;
+        transform: scale(0.65);
+        /* 全体を65%に縮小 */
+        transform-origin: center center;
         margin: 0 auto 16px auto;
-    }
-
-    .leftPage,
-    .rightPage {
-        width: 40vw;
-        max-width: 150px;
-        height: auto;
-        min-height: 200px;
-        aspect-ratio: 5/7;
-    }
-
-    .leftPage::after,
-    .rightPage::after {
-        top: 20px;
-        left: 10px;
-        right: 10px;
-        bottom: 20px;
     }
 
     .progressWrapper {
-        width: 80vw;
-        max-width: 280px;
+        transform: scale(0.8);
+        /* 進捗バーを80%に縮小 */
+        transform-origin: center center;
         margin: 0 auto 16px auto;
-    }
-
-    /* 背表紙（茶色のバー）のモバイル調整 */
-    .spine {
-        width: 6px;
-        height: 200px;
-    }
-
-    /* ページめくりアニメーションのモバイル調整 */
-    .pageFlip {
-        width: 40vw;
-        max-width: 150px;
-        height: 200px;
-    }
-
-    .pageFlip::after,
-    .back::after {
-        top: 20px;
-        left: 10px;
-        right: 10px;
-        bottom: 20px;
     }
 
     /* 砂時計アニメーションのモバイル調整 */
     .hourglassWrapper {
+        transform: scale(0.75);
+        /* 砂時計を75%に縮小 */
+        transform-origin: center center;
         height: 80px;
         min-width: 60px;
         margin-right: 12px;
-    }
-
-    .hourglassSVG {
-        width: 48px;
-        height: 72px;
     }
 
     .hourglassText {
         font-size: 13px;
     }
 
-    /* ページ番号のモバイル調整 */
-    .pageNumber {
-        font-size: 12px;
-        bottom: 8px;
-    }
-
-    .pageNumber.left {
-        left: 8px;
-    }
-
-    .pageNumber.right {
-        right: 8px;
+    /* コントロール部分も縮小 */
+    .controls {
+        transform: scale(0.85);
+        transform-origin: center center;
     }
 }
 
