@@ -515,7 +515,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                 <label className={styles.flipIntervalLabel}>
                     <input
                         type="number"
-                        min="1"
+                        min={0}
                         value={flipIntervalMinutes}
                         onChange={(e) => setFlipIntervalMinutes(Number(e.target.value))}
                         placeholder="分単位"
@@ -598,7 +598,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                                 <label>現在のページ</label>
                                 <input
                                     type="number"
-                                    min={1}
+                                    min={0}
                                     value={currentPage}
                                     onChange={(e) => {
                                         setCurrentPage(Number(e.target.value))
@@ -623,7 +623,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                                 <button
                                     className={styles.controlButton}
                                     onClick={async () => {
-                                        if (inputTotalPages > 0 && currentPage > 0 && roomId) {
+                                        if (inputTotalPages > 0 && currentPage >= 0 && roomId) {
                                             if (currentPage > inputTotalPages) {
                                                 setEditError('進捗ページ数が本の最大ページ数を超えてしまっています')
                                                 return
