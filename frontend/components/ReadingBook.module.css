@@ -1,12 +1,4 @@
 :root {
-    --green-bg: #f0f9f4;
-    --green-main: #4caf50;
-    --green-light: #81c784;
-    --green-dark: #388e3c;
-    --accent: #f44336;
-    --border: #ccc;
-    --white: #fff;
-    --black: #000;
     --book-line-spacing: 20px;
     --book-line-color: rgba(76, 175, 80, 0.4);
 }
