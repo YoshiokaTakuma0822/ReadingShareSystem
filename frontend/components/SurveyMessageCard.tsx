@@ -3,9 +3,9 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { MdPoll } from 'react-icons/md'
 import { surveyApi } from '../lib/surveyApi'
+import { ApiErrorResponse, SurveyErrorCode } from '../types/error'
 import { Message } from '../types/message'
 import { SubmitSurveyAnswerRequest, Survey, SurveyResult } from '../types/survey'
-import { ApiErrorResponse } from '../types/error'
 
 interface SurveyMessageCardProps {
     msg: Message
@@ -28,6 +28,12 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
     const [submitting, setSubmitting] = useState(false)
     const [results, setResults] = useState<SurveyResult | null>(null)
     const [newOptionInputs, setNewOptionInputs] = useState<Record<string, string>>({})
+
+    // アンケートが終了しているかどうかをチェックする関数
+    const isExpired = useCallback(() => {
+        if (!surveyData?.endTime) return false
+        return new Date() > new Date(surveyData.endTime)
+    }, [surveyData?.endTime])
 
     // ローカルストレージに回答状態を保存するキーを生成
     const localStorageKey = useCallback(() => {
@@ -93,43 +99,43 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
             surveyApi.hasAnswered(msg.surveyId, currentUserId)
                 .then(answered => {
                     setHasAnswered(answered)
-                    // 回答済みなら自動的に結果を取得
-                    if (answered) {
+                    // 回答済みまたは期限切れなら自動的に結果を取得
+                    if (answered || isExpired()) {
                         handleShowResults()
                     }
                 })
                 .catch(() => setHasAnswered(false))
         }
-    }, [msg.surveyId, currentUserId, handleShowResults])
+    }, [msg.surveyId, currentUserId, handleShowResults, isExpired])
 
     // アンケートの終了時刻をチェックして自動的に結果表示に移行
     useEffect(() => {
         if (surveyData?.endTime && !showingResults && !hasAnswered) {
             const endTime = new Date(surveyData.endTime)
             const now = new Date()
-            
+
             if (now > endTime) {
                 // 終了時刻を過ぎている場合は結果表示に移行
                 handleShowResults()
                 return
             }
-            
+
             // 終了時刻まで待機するタイマーを設定
             const timeUntilEnd = endTime.getTime() - now.getTime()
             const timer = setTimeout(() => {
                 handleShowResults()
             }, timeUntilEnd)
-            
+
             return () => clearTimeout(timer)
         }
     }, [surveyData, showingResults, hasAnswered, handleShowResults])
 
     useEffect(() => {
         handleShowFormat()
-        if (showingResults || hasAnswered) {
+        if (showingResults || hasAnswered || isExpired()) {
             handleShowResults()
         }
-    }, [refreshTrigger, showingResults, hasAnswered, msg.surveyId, handleShowResults])
+    }, [refreshTrigger, showingResults, hasAnswered, msg.surveyId, handleShowResults, isExpired])
 
     const handleAnswerSelect = useCallback((questionText: string, option: string, isMultiple: boolean) => {
         setAnswers(prev => {
@@ -185,7 +191,7 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
             console.error('回答送信エラー:', error)
             // エラーコードで分岐して日本語メッセージを表示
             const data = error.response?.data as ApiErrorResponse | undefined
-            if (data?.code === 'SURVEY_EXPIRED') {
+            if (data?.code === SurveyErrorCode.SURVEY_EXPIRED) {
                 alert('アンケートの有効期限が切れています')
                 // 終了している場合は結果表示に移行
                 handleShowResults()
@@ -198,20 +204,20 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
     }
 
     const handleAddOption = async (questionText: string) => {
-        const val = (newOptionInputs[questionText] || '').trim();
-        if (!val || !surveyData) return;
-        setSubmitting(true);
+        const val = (newOptionInputs[questionText] || '').trim()
+        if (!val || !surveyData) return
+        setSubmitting(true)
         try {
-            await surveyApi.addOption(surveyData.id, questionText, val);
+            await surveyApi.addOption(surveyData.id, questionText, val)
             // 最新のアンケート情報を再取得
-            const updated = await surveyApi.getSurveyFormat(surveyData.id);
-            setSurveyData(updated);
-            setNewOptionInputs(prev => ({ ...prev, [questionText]: '' }));
+            const updated = await surveyApi.getSurveyFormat(surveyData.id)
+            setSurveyData(updated)
+            setNewOptionInputs(prev => ({ ...prev, [questionText]: '' }))
         } catch (e: any) {
             console.error('選択肢追加エラー:', e)
             // エラーコードで分岐して日本語メッセージを表示
             const data = e.response?.data as ApiErrorResponse | undefined
-            if (data?.code === 'SURVEY_EXPIRED') {
+            if (data?.code === SurveyErrorCode.SURVEY_EXPIRED) {
                 alert('アンケートの有効期限が切れています')
                 // 終了している場合は結果表示に移行
                 handleShowResults()
@@ -221,7 +227,7 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
         } finally {
             setSubmitting(false)
         }
-    };
+    }
 
     return (
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, justifyContent: 'flex-start', marginBottom: 12 }}>
@@ -260,7 +266,7 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
                             {surveyData.endTime && (
                                 <div style={{ marginBottom: 12, fontSize: 12, color: '#666' }}>
                                     終了時刻: {new Date(surveyData.endTime).toLocaleString()}
-                                    {new Date() > new Date(surveyData.endTime) && (
+                                    {isExpired() && (
                                         <span style={{ color: '#d32f2f', fontWeight: 'bold', marginLeft: 8 }}>
                                             [終了済み]
                                         </span>
@@ -295,7 +301,7 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
                                             </div>
                                         </div>
                                     ))}
-                                    {!hasAnswered && !(surveyData.endTime && new Date() > new Date(surveyData.endTime)) && (
+                                    {!hasAnswered && !isExpired() && (
                                         <button onClick={() => setShowingResults(false)} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: '#666', color: 'white', cursor: 'pointer', fontSize: 14 }}>
                                             質問を表示
                                         </button>
@@ -304,7 +310,7 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
                             ) : hasAnswered ? (
                                 /* 回答済み - 結果取得中 */
                                 <div style={{ color: '#666', fontStyle: 'italic' }}>結果を読み込み中...</div>
-                            ) : surveyData.endTime && new Date() > new Date(surveyData.endTime) ? (
+                            ) : isExpired() ? (
                                 /* アンケート終了済み */
                                 <div style={{ color: '#d32f2f', fontWeight: 'bold', textAlign: 'center', padding: '16px' }}>
                                     このアンケートは終了しています
