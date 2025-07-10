@@ -15,11 +15,18 @@ interface SurveyCreationModalProps {
 const SurveyCreationModal: React.FC<SurveyCreationModalProps> = ({ open, roomId, onClose, onCreated }) => {
     const [title, setTitle] = useState("")
     const [options, setOptions] = useState(["", ""])
-    // 初期値を現在時刻+1時間に設定
+    // 初期値を現在時刻+1時間に設定（JST時間）
     const [endDate, setEndDate] = useState(() => {
         const now = new Date()
         now.setHours(now.getHours() + 1)
-        return now.toISOString().slice(0, 16) // "YYYY-MM-DDTHH:MM" format
+        
+        // JST時間でdatetime-local形式に変換
+        const year = now.getFullYear()
+        const month = String(now.getMonth() + 1).padStart(2, '0')
+        const day = String(now.getDate()).padStart(2, '0')
+        const hours = String(now.getHours()).padStart(2, '0')
+        const minutes = String(now.getMinutes()).padStart(2, '0')
+        return `${year}-${month}-${day}T${hours}:${minutes}`
     })
     const [multi, setMulti] = useState(false)
     const [allowAdd, setAllowAdd] = useState(false)
@@ -28,10 +35,20 @@ const SurveyCreationModal: React.FC<SurveyCreationModalProps> = ({ open, roomId,
 
     // モーダルが開いたときに終了時刻を現在時刻+1時間にリセット
     useEffect(() => {
+        console.log('SurveyCreationModal opened:', open)
         if (open) {
             const now = new Date()
             now.setHours(now.getHours() + 1)
-            setEndDate(now.toISOString().slice(0, 16))
+            
+            // JST時間でdatetime-local形式に変換
+            const year = now.getFullYear()
+            const month = String(now.getMonth() + 1).padStart(2, '0')
+            const day = String(now.getDate()).padStart(2, '0')
+            const hours = String(now.getHours()).padStart(2, '0')
+            const minutes = String(now.getMinutes()).padStart(2, '0')
+            const jstDateTimeString = `${year}-${month}-${day}T${hours}:${minutes}`
+            
+            setEndDate(jstDateTimeString)
             // その他の状態もリセット
             setTitle("")
             setOptions(["", ""])
