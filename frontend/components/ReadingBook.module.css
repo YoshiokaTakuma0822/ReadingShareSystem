@@ -602,6 +602,11 @@ body,
         box-sizing: border-box;
         overflow-x: hidden;
         overflow-y: auto;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
     }
 
     /* モバイルでナビゲーションテキストを非表示 */
@@ -610,10 +615,17 @@ body,
     }
 
     .bookContainer {
-        transform: scale(0.65);
-        /* 全体を65%に縮小 */
+        transform: scale(0.85);
+        /* ナビゲーションテキスト非表示により85%に拡大 */
         transform-origin: center center;
         margin: 0 auto 16px auto;
+        /* モバイルでは絶対配置で中央に強制配置 */
+        position: absolute !important;
+        left: 50% !important;
+        top: 50% !important;
+        transform: translate(-50%, -50%) scale(0.85) !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
     }
 
     .progressWrapper {
