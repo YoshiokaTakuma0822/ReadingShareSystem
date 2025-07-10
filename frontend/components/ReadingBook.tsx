@@ -563,95 +563,99 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                 >ページ数を編集</button>
             </div>
 
-            {showProgressModal && (
-                <ReadingProgressModal
-                    open={showProgressModal}
-                    currentPage={currentPage}
-                    maxPage={totalPages}
-                    onClose={() => setShowProgressModal(false)}
-                    onSubmit={(page) => {
-                        handlePageChange(page)
-                        setShowProgressModal(false)
-                    }}
-                />
-            )}
-            {showProgressModal && (
-                <div
-                    className={styles.modalContainer}
-                    onClick={(e) => {
-                        if (e.target === e.currentTarget) {
-                            // モーダルを閉じるのみ（チャット画面には戻らない）
+            {
+                showProgressModal && (
+                    <ReadingProgressModal
+                        open={showProgressModal}
+                        currentPage={currentPage}
+                        maxPage={totalPages}
+                        onClose={() => setShowProgressModal(false)}
+                        onSubmit={(page) => {
+                            handlePageChange(page)
                             setShowProgressModal(false)
-                            setEditingTotalPages(false)
-                        }
-                    }}
-                >
+                        }}
+                    />
+                )
+            }
+            {
+                showProgressModal && (
                     <div
-                        className={styles.modalContent}
-                        onClick={(e) => e.stopPropagation()}
+                        className={styles.modalContainer}
+                        onClick={(e) => {
+                            if (e.target === e.currentTarget) {
+                                // モーダルを閉じるのみ（チャット画面には戻らない）
+                                setShowProgressModal(false)
+                                setEditingTotalPages(false)
+                            }
+                        }}
                     >
-                        <h2>ページ数を編集</h2>
-                        <div className={styles.inputGroup}>
-                            <label>現在のページ</label>
-                            <input
-                                type="number"
-                                min={1}
-                                value={currentPage}
-                                onChange={(e) => {
-                                    setCurrentPage(Number(e.target.value))
-                                    setEditError('')
-                                }}
-                            />
-                        </div>
-                        <div className={styles.inputGroup}>
-                            <label>本の最大ページ数</label>
-                            <input
-                                type="number"
-                                min={1}
-                                value={inputTotalPages}
-                                onChange={(e) => {
-                                    setInputTotalPages(Number(e.target.value))
-                                    setEditError('')
-                                }}
-                            />
-                        </div>
-                        {editError && <div style={{ color: 'red', margin: '8px 0' }}>{editError}</div>}
-                        <div className={styles.buttonGroup}>
-                            <button
-                                className={styles.controlButton}
-                                onClick={async () => {
-                                    if (inputTotalPages > 0 && currentPage > 0 && roomId) {
-                                        if (currentPage > inputTotalPages) {
-                                            setEditError('進捗ページ数が本の最大ページ数を超えてしまっています')
-                                            return
+                        <div
+                            className={styles.modalContent}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <h2>ページ数を編集</h2>
+                            <div className={styles.inputGroup}>
+                                <label>現在のページ</label>
+                                <input
+                                    type="number"
+                                    min={1}
+                                    value={currentPage}
+                                    onChange={(e) => {
+                                        setCurrentPage(Number(e.target.value))
+                                        setEditError('')
+                                    }}
+                                />
+                            </div>
+                            <div className={styles.inputGroup}>
+                                <label>本の最大ページ数</label>
+                                <input
+                                    type="number"
+                                    min={1}
+                                    value={inputTotalPages}
+                                    onChange={(e) => {
+                                        setInputTotalPages(Number(e.target.value))
+                                        setEditError('')
+                                    }}
+                                />
+                            </div>
+                            {editError && <div style={{ color: 'red', margin: '8px 0' }}>{editError}</div>}
+                            <div className={styles.buttonGroup}>
+                                <button
+                                    className={styles.controlButton}
+                                    onClick={async () => {
+                                        if (inputTotalPages > 0 && currentPage > 0 && roomId) {
+                                            if (currentPage > inputTotalPages) {
+                                                setEditError('進捗ページ数が本の最大ページ数を超えてしまっています')
+                                                return
+                                            }
+                                            try {
+                                                const updated = await roomApi.updateTotalPages(roomId, inputTotalPages)
+                                                setTotalPages(updated.totalPages ?? inputTotalPages)
+                                                handlePageChange(currentPage)
+                                            } catch (e) {
+                                                alert("ページ数の更新に失敗しました")
+                                            }
+                                            setEditingTotalPages(false)
+                                            setShowProgressModal(false)
+                                            setEditError('')
                                         }
-                                        try {
-                                            const updated = await roomApi.updateTotalPages(roomId, inputTotalPages)
-                                            setTotalPages(updated.totalPages ?? inputTotalPages)
-                                            handlePageChange(currentPage)
-                                        } catch (e) {
-                                            alert("ページ数の更新に失敗しました")
-                                        }
+                                    }}
+                                >保存</button>
+                                <button
+                                    className={styles.controlButton}
+                                    onClick={() => {
+                                        setInputTotalPages(totalPages)
+                                        setCurrentPage(displayPage)
                                         setEditingTotalPages(false)
                                         setShowProgressModal(false)
                                         setEditError('')
-                                    }
-                                }}
-                            >保存</button>
-                            <button
-                                className={styles.controlButton}
-                                onClick={() => {
-                                    setInputTotalPages(totalPages)
-                                    setCurrentPage(displayPage)
-                                    setEditingTotalPages(false)
-                                    setShowProgressModal(false)
-                                    setEditError('')
-                                }}
-                            >キャンセル</button>
+                                    }}
+                                >キャンセル</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
         </div>
     )
