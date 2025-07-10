@@ -379,6 +379,28 @@
     color: #888;
 }
 
+/* Mobile full-screen overrides */
+@media (max-width: 767px) {
+
+    /* Overlay container full screen */
+    .readingOverlay .container {
+        width: 100vw;
+        max-width: 100vw;
+        min-height: 100vh;
+        padding-top: 0;
+        padding-bottom: 0;
+        border-radius: 0;
+        box-sizing: border-box;
+    }
+
+    /* Ensure overlay covers full viewport */
+    .readingOverlay {
+        align-items: flex-start;
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+}
+
 /* 表面と裏面のページ番号表示制御 */
 .page-front {
     opacity: 1;
