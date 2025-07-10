@@ -80,23 +80,6 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
     // 保存時のバリデーションエラーメッセージ
     const [editError, setEditError] = useState<string>('')
 
-    // モバイル判定用の状態
-    const [isMobile, setIsMobile] = useState<boolean>(false)
-
-    // モバイル判定のuseEffect
-    useEffect(() => {
-        const checkMobile = () => {
-            setIsMobile(window.innerWidth <= 767)
-        }
-
-        // 初期チェック
-        checkMobile()
-
-        // リサイズイベントリスナー
-        window.addEventListener('resize', checkMobile)
-        return () => window.removeEventListener('resize', checkMobile)
-    }, [])
-
     // Removed initial auto-flip effect; replaced below after handlers
 
     // 部屋情報取得（hostUserIdを保存）
@@ -449,14 +432,12 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
             </div>
             {/* 本の表示エリア */}
             <div className={`${styles.bookContainer} ${isVerticalText ? styles['vertical-text'] : ''}`} style={{ position: 'relative' }}>
-                {!isMobile && (
-                    <div
-                        className={`${styles.navigationText} ${styles.left}`}
-                        onClick={handleLeftPageClick}
-                    >
-                        {displayPage > (isVerticalText ? 2 : 1) && (isVerticalText ? '進む' : '戻る')}
-                    </div>
-                )}
+                <div
+                    className={`${styles.navigationText} ${styles.left}`}
+                    onClick={handleLeftPageClick}
+                >
+                    {displayPage > (isVerticalText ? 2 : 1) && (isVerticalText ? '進む' : '戻る')}
+                </div>
                 <div className={styles.leftPage} onClick={handleLeftPageClick}>
                     <span className={`${styles.pageNumber} ${styles.left}`}>
                         {isVerticalText
@@ -473,14 +454,12 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                         }
                     </span>
                 </div>
-                {!isMobile && (
-                    <div
-                        className={`${styles.navigationText} ${styles.right}`}
-                        onClick={handleRightPageClick}
-                    >
-                        {displayPage < totalPages - 1 && (isVerticalText ? '戻る' : '進む')}
-                    </div>
-                )}
+                <div
+                    className={`${styles.navigationText} ${styles.right}`}
+                    onClick={handleRightPageClick}
+                >
+                    {displayPage < totalPages - 1 && (isVerticalText ? '戻る' : '進む')}
+                </div>
                 <div className={styles.spine}></div>
                 {/* 複数のアニメーション要素 */}
                 {activeAnimations.map((animation) => (
