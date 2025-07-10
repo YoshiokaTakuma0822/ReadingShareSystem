@@ -593,9 +593,9 @@ body,
 @media (max-width: 767px) {
     .container {
         width: 100vw;
-        max-width: 100vw;
+        max-width: 95vw;
         height: 100vh;
-        min-height: 100vh;
+        max-height: 95vh;
         padding: 4px;
         padding-top: 8px;
         padding-bottom: 8px;
@@ -610,7 +610,7 @@ body,
     }
 
     .bookContainer {
-        transform: scale(0.65);
+        transform: scale(0.85);
         /* 全体を65%に縮小 */
         transform-origin: center center;
         margin: 0 auto 16px auto;
