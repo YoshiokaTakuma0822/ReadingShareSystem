@@ -611,8 +611,9 @@ body,
 
     .bookContainer {
         transform: scale(0.85);
-        /* 全体を65%に縮小 */
+        /* ナビゲーションテキスト非表示により85%に拡大 */
         transform-origin: center center;
+        width: 100%;
         margin: 0 auto 16px auto;
     }
 
