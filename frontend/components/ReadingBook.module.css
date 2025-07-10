@@ -243,7 +243,7 @@
     font-size: 18px;
     width: 120px;
     background: var(--green-bg);
-    color: var(--accent);
+    color: var(--green-dark);
 }
 
 .controlButton {
@@ -254,7 +254,7 @@
     cursor: pointer;
     font-weight: bold;
     background: var(--green-bg);
-    color: var(--accent);
+    color: var(--green-dark);
     transition: all 0.2s ease;
 }
 
@@ -321,7 +321,7 @@
     font-size: 18px;
     width: 100%;
     background: var(--green-bg);
-    color: var(--accent);
+    color: var(--green-dark);
 }
 
 .buttonGroup {
@@ -338,7 +338,7 @@
     cursor: pointer;
     font-weight: bold;
     background: var(--green-bg);
-    color: var(--accent);
+    color: var(--green-dark);
 }
 
 
