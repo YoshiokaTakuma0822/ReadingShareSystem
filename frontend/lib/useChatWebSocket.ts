@@ -26,7 +26,7 @@ export function useChatWebSocket(
                 ? `/ws/chat/notifications/${roomId}`
                 : `ws://localhost:8080/ws/chat/notifications/${roomId}`
 
-        // 新規接続または切断済みなら再接続
+        // 初回接続または切断済みなら再接続
         if (!ws || ws.readyState === WebSocket.CLOSED) {
             ws = new WebSocket(wsUrl)
             sockets[roomId] = ws
@@ -44,8 +44,24 @@ export function useChatWebSocket(
         }
         ws.addEventListener('message', listener)
 
+        // ページが再度表示されたときに接続を保証
+        const handleVisibility = () => {
+            if (document.visibilityState === 'visible') {
+                const current = sockets[roomId]
+                if (!current || current.readyState === WebSocket.CLOSED) {
+                    const newWs = new WebSocket(wsUrl)
+                    sockets[roomId] = newWs
+                    newWs.onopen = ws.onopen
+                    newWs.addEventListener('message', listener)
+                    ws = newWs
+                }
+            }
+        }
+        document.addEventListener('visibilitychange', handleVisibility)
+
         return () => {
             ws.removeEventListener('message', listener)
+            document.removeEventListener('visibilitychange', handleVisibility)
         }
     }, [roomId])
 }
