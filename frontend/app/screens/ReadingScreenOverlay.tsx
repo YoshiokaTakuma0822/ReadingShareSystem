@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react'
+import ReadingScreen from '../../components/ReadingBook'
 import { chatApi } from '../../lib/chatApi'
 import { useChatWebSocket } from '../../lib/useChatWebSocket'
 import ChatNotification from './ChatNotification'
-import ReadingScreen from './ReadingScreen'
 import styles from './ReadingScreenOverlay.module.css'
 
 interface ReadingScreenOverlayProps {

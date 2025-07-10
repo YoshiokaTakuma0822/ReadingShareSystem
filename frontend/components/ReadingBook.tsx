@@ -1,12 +1,12 @@
 "use client"
 import React, { useEffect, useState } from "react"
-import { authStorage } from '../../lib/authUtils'
-import { readingStateApi } from '../../lib/readingStateApi'
-import { roomApi } from '../../lib/roomApi'
-import { useChatWebSocket } from '../../lib/useChatWebSocket'
-import { RoomMember } from '../../types/room'
-import ReadingProgressModal from "./ReadingProgressModal"
-import styles from './ReadingScreen.module.css'
+import ReadingProgressModal from "../app/screens/ReadingProgressModal"
+import { authStorage } from '../lib/authUtils'
+import { readingStateApi } from '../lib/readingStateApi'
+import { roomApi } from '../lib/roomApi'
+import { useChatWebSocket } from '../lib/useChatWebSocket'
+import { RoomMember } from '../types/room'
+import styles from './ReadingBook.module.css'
 
 // 本の進行方向を表す型
 type ReadingDirection = 'next' | 'prev'

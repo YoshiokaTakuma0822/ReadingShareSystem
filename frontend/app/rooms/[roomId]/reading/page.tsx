@@ -1,5 +1,5 @@
 import React from 'react'
-import ReadingScreen from '../../../screens/ReadingScreen'
+import ReadingScreen from '../../../../components/ReadingBook'
 
 interface ReadingPageProps {
     params: Promise<{
