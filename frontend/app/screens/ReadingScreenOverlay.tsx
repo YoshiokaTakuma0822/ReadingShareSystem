@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
 import ReadingScreen from '../../components/ReadingBook'
-import { chatApi } from '../../lib/chatApi'
 import { useChatWebSocket } from '../../lib/useChatWebSocket'
 import ChatNotification from './ChatNotification'
 import styles from './ReadingScreenOverlay.module.css'
@@ -55,19 +54,6 @@ const ReadingScreenOverlay: React.FC<ReadingScreenOverlayProps> = ({ roomId, ope
             }))
         }
     })
-
-    // ユーザー情報取得
-    const userId = userIdRef.current || ""
-    const userName = (typeof window !== 'undefined' && localStorage.getItem("reading-share-user-name")) || ""
-    // メッセージ送信: REST API で実行
-    const sendMessage = async (content: string) => {
-        if (!roomId) return
-        try {
-            await chatApi.sendMessage(roomId, { messageContent: content })
-        } catch (err) {
-            console.error('メッセージ送信失敗:', err)
-        }
-    }
 
     // オーバーレイを閉じる時にバッジと送信者リストをリセット
     const handleClose = () => {
