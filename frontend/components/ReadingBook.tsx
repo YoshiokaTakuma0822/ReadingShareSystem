@@ -80,23 +80,6 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
     // 保存時のバリデーションエラーメッセージ
     const [editError, setEditError] = useState<string>('')
 
-    // モバイル判定用の状態
-    const [isMobile, setIsMobile] = useState<boolean>(false)
-
-    // モバイル判定のuseEffect
-    useEffect(() => {
-        const checkMobile = () => {
-            setIsMobile(window.innerWidth <= 767)
-        }
-        
-        // 初期チェック
-        checkMobile()
-        
-        // リサイズイベントリスナー
-        window.addEventListener('resize', checkMobile)
-        return () => window.removeEventListener('resize', checkMobile)
-    }, [])
-
     // Removed initial auto-flip effect; replaced below after handlers
 
     // 部屋情報取得（hostUserIdを保存）
@@ -448,10 +431,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
                 ))}
             </div>
             {/* 本の表示エリア */}
-            <div 
-                className={`${styles.bookContainer} ${isVerticalText ? styles['vertical-text'] : ''}`} 
-                style={isMobile ? {} : { position: 'relative' }}
-            >
+            <div className={`${styles.bookContainer} ${isVerticalText ? styles['vertical-text'] : ''}`} style={{ position: 'relative' }}>
                 <div
                     className={`${styles.navigationText} ${styles.left}`}
                     onClick={handleLeftPageClick}
