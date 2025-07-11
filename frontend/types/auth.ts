@@ -27,5 +27,5 @@ export interface RegisterUserResponse {
 export interface RegisterUserRequest {
     username: Username
     password: Password
-    email?: Email // オプショナルに変更（バックエンドで使われていない）
+    email: Email // 必須に変更（フロントエンドでバリデーション実装）
 }
