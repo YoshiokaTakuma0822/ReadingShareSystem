@@ -32,6 +32,11 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
     const [totalPages, setTotalPages] = useState<number>(300) // 追加: 本の全ページ数
     const [passwordType, setPasswordType] = useState<'none' | 'set'>('none')
 
+    const formatLocalDatetime = (date: Date) =>
+        new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+            .toISOString()
+            .slice(0, 16)
+
     const handleCreate = async () => {
         // パスワード設定時のバリデーション: 8～16文字の半角英字＋数字
         if (passwordType === 'set') {
@@ -273,7 +278,7 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
                             <label>開始時刻</label>
                             <input
                                 type="datetime-local"
-                                value={startTime.toISOString().slice(0, 16)}
+                                value={formatLocalDatetime(startTime)}
                                 onChange={e => setStartTime(new Date(e.target.value))}
                                 style={{ width: '100%', padding: 8, marginTop: 4 }}
                                 tabIndex={7}
@@ -283,7 +288,7 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
                             <label>終了時刻</label>
                             <input
                                 type="datetime-local"
-                                value={endTime.toISOString().slice(0, 16)}
+                                value={formatLocalDatetime(endTime)}
                                 onChange={e => setEndTime(new Date(e.target.value))}
                                 style={{ width: '100%', padding: 8, marginTop: 4 }}
                                 tabIndex={8}

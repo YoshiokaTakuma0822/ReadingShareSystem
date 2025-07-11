@@ -22,6 +22,12 @@ const SurveyCreationModal: React.FC<SurveyCreationModalProps> = ({ open, roomId,
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
+    // input[type=datetime-local] 用にローカルタイムでフォーマット
+    const formatLocalDatetime = (date: Date) =>
+        new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+            .toISOString()
+            .slice(0, 16)
+
     const handleCreate = async () => {
         // タイトル長チェック: 32文字以内
         if (title.length > 32) {
@@ -174,7 +180,7 @@ const SurveyCreationModal: React.FC<SurveyCreationModalProps> = ({ open, roomId,
                     <span style={{ width: 90, color: "#388e3c", fontWeight: 500 }}>・投票終了日時</span>
                     <input
                         type="datetime-local"
-                        value={endDate.toISOString().slice(0, 16)}
+                        value={formatLocalDatetime(endDate)}
                         onChange={e => setEndDate(new Date(e.target.value))}
                         style={{ flex: 1, padding: 6, fontSize: 18, border: "1px solid #ccc", marginLeft: 8, color: '#222' }}
                     />
