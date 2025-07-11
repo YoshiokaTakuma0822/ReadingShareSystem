@@ -151,7 +151,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                     }}
                 >
                     <MdMenuBook style={{ fontSize: 25, marginTop: -3.5 }} />
-                    読書画面をオーバーレイ表示
+                    本を読む
                 </button>
                 <button
                     onClick={() => {
@@ -179,7 +179,7 @@ const GroupChatScreen: React.FC<GroupChatScreenProps> = ({ roomTitle = "チャ�
                     }}
                 >
                     <MdPoll style={{ fontSize: 25, marginTop: -1.5 }} />
-                    アンケート作成
+                    アンケートを作る
                 </button>
                 <button
                     onClick={() => window.location.href = '/'}
