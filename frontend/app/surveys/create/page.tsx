@@ -1,7 +1,8 @@
 "use client"
-import React, { useState } from 'react'
+import { surveyApi } from '@/lib/surveyApi'
+import { CreateSurveyRequest, Question } from '@/types/survey'
 import { useRouter } from 'next/navigation'
-import apiClient from '@/lib/apiClient'
+import { useState } from 'react'
 
 export default function CreateSurveyPage() {
   const router = useRouter()
@@ -25,20 +26,20 @@ export default function CreateSurveyPage() {
 
   const handleSubmit = async () => {
     try {
-      const questions = [{
+      const questions: Question[] = [{
         questionText: title,
         options,
         questionType: isMultiple ? 'MULTIPLE_CHOICE' : 'SINGLE_CHOICE',
         allowAnonymous: isAnonymous,
         allowAddOptions
       }]
-      const requestBody = {
+      const requestBody: CreateSurveyRequest = {
         roomId,
         title,
-        questions
+        questions,
+        endTime: endDateTime ? new Date(endDateTime).toISOString() : undefined
       }
-      const response = await apiClient.post('/surveys', requestBody)
-      const surveyId = response.data
+      const surveyId = await surveyApi.createSurvey(requestBody)
       router.push(`/surveys/${surveyId}/answer`)
     } catch (err) {
       console.error(err)

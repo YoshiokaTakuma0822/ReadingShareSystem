@@ -67,7 +67,7 @@ const SurveyCreationModal: React.FC<SurveyCreationModalProps> = ({ open, roomId,
                 roomId,
                 title,
                 questions: [question],
-                endTime: endDate
+                endTime: endDate ? new Date(endDate).toISOString() : undefined
             }
 
             // 新しいアンケートを作成し、IDを取得

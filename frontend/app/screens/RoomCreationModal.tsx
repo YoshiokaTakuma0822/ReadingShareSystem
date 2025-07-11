@@ -96,8 +96,8 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
                 hostUserId: userId,
                 password: passwordType === 'set' ? password : undefined,
                 genre,
-                startTime: startTime || undefined,
-                endTime: endTime || undefined,
+                startTime: startTime ? new Date(startTime).toISOString() : undefined,
+                endTime: endTime ? new Date(endTime).toISOString() : undefined,
                 totalPages: totalPages || undefined, // 追加
             }
             const createdRoom: Room = await roomApi.createRoom(req)
