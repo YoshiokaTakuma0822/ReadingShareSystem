@@ -107,21 +107,6 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
         }
     }, [open])
 
-    // 部屋作成完了時にもリセット
-    React.useEffect(() => {
-        if (!loading && !open) {
-            setRoomName('')
-            setBookTitle('')
-            setPassword('')
-            setGenre('小説')
-            setStartTime(new Date()) // 初期化: 現在時刻
-            setEndTime(new Date(Date.now() + 7 * 24 * 3600 * 1000)) // 初期化: 一週間後
-            setTotalPages(300)
-            setPasswordType('none')
-            setError(null)
-        }
-    }, [loading, open])
-
     if (!open) return null
 
     const handleBackgroundClick = (e: React.MouseEvent<HTMLDivElement>) => {
