@@ -38,14 +38,19 @@ const HomeScreen: React.FC = () => {
 
     const [roomType, setRoomType] = useState<string>('all') // 部屋タイプ: all, open, closed
 
-    // ジャンル、ページ数範囲、開始/終了時刻範囲
+    // ジャンル、ページ数範囲、開始/終了時刻範囲（Date型管理）
     const [genre, setGenre] = useState<string>('all')
     const [minPages, setMinPages] = useState<string>('')
     const [maxPages, setMaxPages] = useState<string>('')
-    const [startTimeFrom, setStartTimeFrom] = useState<string>('')
-    const [startTimeTo, setStartTimeTo] = useState<string>('')
-    const [endTimeFrom, setEndTimeFrom] = useState<string>('')
-    const [endTimeTo, setEndTimeTo] = useState<string>('')
+    const [startTimeFrom, setStartTimeFrom] = useState<Date | null>(null)
+    const [startTimeTo, setStartTimeTo] = useState<Date | null>(null)
+    const [endTimeFrom, setEndTimeFrom] = useState<Date | null>(null)
+    const [endTimeTo, setEndTimeTo] = useState<Date | null>(null)
+    // datetime-local 用ローカルISOフォーマット
+    const formatLocalDatetime = (date: Date) =>
+        new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+            .toISOString()
+            .slice(0, 16)
 
     // 部屋一覧取得（作成タブ用）
     const handleGetRooms = async () => {
@@ -82,10 +87,10 @@ const HomeScreen: React.FC = () => {
             const result = await roomApi.searchRooms(
                 searchText,
                 genre === 'all' ? '' : genre,
-                startTimeFrom,
-                startTimeTo,
-                endTimeFrom,
-                endTimeTo,
+                startTimeFrom ? startTimeFrom.toISOString() : undefined,
+                startTimeTo ? startTimeTo.toISOString() : undefined,
+                endTimeFrom ? endTimeFrom.toISOString() : undefined,
+                endTimeTo ? endTimeTo.toISOString() : undefined,
                 minPages,
                 maxPages,
                 roomType === 'open',
@@ -459,15 +464,15 @@ const HomeScreen: React.FC = () => {
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                                     <input
                                         type="datetime-local"
-                                        value={startTimeFrom}
-                                        onChange={e => setStartTimeFrom(e.target.value)}
+                                        value={startTimeFrom ? formatLocalDatetime(startTimeFrom) : ''}
+                                        onChange={e => setStartTimeFrom(e.target.value ? new Date(e.target.value) : null)}
                                         style={{ padding: 8, borderRadius: 8, border: '1px solid #ccc', fontSize: 14, minWidth: 90 }}
                                     />
                                     <span style={{ color: '#888' }}>～</span>
                                     <input
                                         type="datetime-local"
-                                        value={startTimeTo}
-                                        onChange={e => setStartTimeTo(e.target.value)}
+                                        value={startTimeTo ? formatLocalDatetime(startTimeTo) : ''}
+                                        onChange={e => setStartTimeTo(e.target.value ? new Date(e.target.value) : null)}
                                         style={{ padding: 8, borderRadius: 8, border: '1px solid #ccc', fontSize: 14, minWidth: 90 }}
                                     />
                                 </div>
@@ -477,15 +482,15 @@ const HomeScreen: React.FC = () => {
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                                     <input
                                         type="datetime-local"
-                                        value={endTimeFrom}
-                                        onChange={e => setEndTimeFrom(e.target.value)}
+                                        value={endTimeFrom ? formatLocalDatetime(endTimeFrom) : ''}
+                                        onChange={e => setEndTimeFrom(e.target.value ? new Date(e.target.value) : null)}
                                         style={{ padding: 8, borderRadius: 8, border: '1px solid #ccc', fontSize: 14, minWidth: 90 }}
                                     />
                                     <span style={{ color: '#888' }}>～</span>
                                     <input
                                         type="datetime-local"
-                                        value={endTimeTo}
-                                        onChange={e => setEndTimeTo(e.target.value)}
+                                        value={endTimeTo ? formatLocalDatetime(endTimeTo) : ''}
+                                        onChange={e => setEndTimeTo(e.target.value ? new Date(e.target.value) : null)}
                                         style={{ padding: 8, borderRadius: 8, border: '1px solid #ccc', fontSize: 14, minWidth: 90 }}
                                     />
                                 </div>
