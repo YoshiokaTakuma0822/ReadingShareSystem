@@ -16,6 +16,7 @@ import type { RoomHistoryDto } from '../../types/room'
 import { Room } from '../../types/room'
 import RoomCreationModal from './RoomCreationModal'
 import RoomJoinModal from './RoomJoinModal'
+import { MdLock, MdLockOpen } from 'react-icons/md'
 
 const HomeScreen: React.FC = () => {
     const [tab, setTab] = useState<'create' | 'search'>('create') // デフォルトを部屋作成に変更
@@ -602,7 +603,7 @@ const HomeScreen: React.FC = () => {
                                         </div>
                                         <div style={{ fontSize: 12, color: '#666', display: 'flex', justifyContent: 'space-between' }}>
                                             <span>作成日: {new Date(room.createdAt).toLocaleDateString()}</span>
-                                            <span>{room.hasPassword ? '🔒 パスワード有' : '🔓 オープン'}</span>
+                                            <span>{room.hasPassword ? <MdLock /> : <MdLockOpen />} {room.hasPassword ? 'パスワード有' : 'オープン'}</span>
                                         </div>
                                         {currentUserId && room.hostUserId && currentUserId.replace(/-/g, '').toLowerCase() === room.hostUserId.replace(/-/g, '').toLowerCase() && (
                                             <button
@@ -701,7 +702,7 @@ const HomeScreen: React.FC = () => {
                                             </div>
                                             <div style={{ fontSize: 12, color: '#999', display: 'flex', justifyContent: 'space-between' }}>
                                                 <span>参加: {new Date(h.joinedAt).toLocaleDateString()}</span>
-                                                <span>{h.room!.hasPassword ? '🔒' : '🔓'}</span>
+                                                <span>{h.room!.hasPassword ? <MdLock /> : <MdLockOpen />}</span>
                                             </div>
                                         </>
                                     )}
