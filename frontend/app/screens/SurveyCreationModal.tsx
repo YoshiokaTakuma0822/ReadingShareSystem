@@ -13,17 +13,10 @@ interface SurveyCreationModalProps {
 }
 
 const SurveyCreationModal: React.FC<SurveyCreationModalProps> = ({ open, roomId, onClose, onCreated }) => {
-    // 日付を 'YYYY-MM-DDTHH:mm' 形式のローカル日時文字列に変換
-    const toDatetimeLocal = (date: Date) => {
-        const tzOffset = date.getTimezoneOffset() * 60000
-        return new Date(date.getTime() - tzOffset).toISOString().slice(0, 16)
-    }
-    // 現在時刻から1時間後のローカル日時文字列を取得
-    const getOneHourLaterDateTimeLocal = () => toDatetimeLocal(new Date(Date.now() + 3600 * 1000))
-
+    // 投票終了日時は Date で管理し、バックエンドには ISO8601 Zulu 形式で送る
     const [title, setTitle] = useState("")
     const [options, setOptions] = useState(["", ""])
-    const [endDate, setEndDate] = useState(() => getOneHourLaterDateTimeLocal())
+    const [endDate, setEndDate] = useState<Date>(() => new Date(Date.now() + 3600 * 1000))
     const [multi, setMulti] = useState(false)
     const [allowAdd, setAllowAdd] = useState(false)
     const [loading, setLoading] = useState(false)
@@ -181,9 +174,8 @@ const SurveyCreationModal: React.FC<SurveyCreationModalProps> = ({ open, roomId,
                     <span style={{ width: 90, color: "#388e3c", fontWeight: 500 }}>・投票終了日時</span>
                     <input
                         type="datetime-local"
-                        value={endDate}
-                        onChange={e => setEndDate(e.target.value)}
-                        placeholder="投票終了日時を選択してください"
+                        value={endDate.toISOString().slice(0, 16)}
+                        onChange={e => setEndDate(new Date(e.target.value))}
                         style={{ flex: 1, padding: 6, fontSize: 18, border: "1px solid #ccc", marginLeft: 8, color: '#222' }}
                     />
                 </div>
