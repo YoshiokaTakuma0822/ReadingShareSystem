@@ -1,6 +1,6 @@
 package com.readingshare.survey.domain.model;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,15 +35,15 @@ public class Survey {
     private List<Question> questions; // 質問のリスト（JSONB形式）
 
     @Column(name = "created_at")
-    private LocalDateTime createdAt; // アンケート作成日時
+    private Instant createdAt; // アンケート作成日時
 
     @Column(name = "end_time")
-    private LocalDateTime endTime; // アンケート終了時刻
+    private Instant endTime; // アンケート終了時刻
 
     public Survey() {
     }
 
-    public Survey(UUID roomId, String title, List<Question> questions, LocalDateTime endTime) {
+    public Survey(UUID roomId, String title, List<Question> questions, Instant endTime) {
         if (roomId == null) {
             throw new IllegalArgumentException("Room ID cannot be null.");
         }
@@ -58,7 +58,7 @@ public class Survey {
         this.title = title;
         this.questions = questions;
         this.endTime = endTime;
-        this.createdAt = LocalDateTime.now();
+        this.createdAt = Instant.now();
     }
 
     public void setQuestions(List<Question> questions) {
@@ -81,15 +81,15 @@ public class Survey {
         return title;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public LocalDateTime getEndTime() {
+    public Instant getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(LocalDateTime endTime) {
+    public void setEndTime(Instant endTime) {
         this.endTime = endTime;
     }
 
@@ -99,6 +99,6 @@ public class Survey {
      * @return 終了している場合true、そうでなければfalse
      */
     public boolean isExpired() {
-        return endTime != null && LocalDateTime.now().isAfter(endTime);
+        return endTime != null && Instant.now().isAfter(endTime);
     }
 }

@@ -1,8 +1,7 @@
 package com.readingshare.room.service;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -101,10 +100,10 @@ public class RoomService {
         Room newRoom = new Room(request.roomName(), request.bookTitle(), request.hostUserId(), pages);
         newRoom.setGenre(request.genre());
         if (request.startTime() != null) {
-            newRoom.setStartTime(request.startTime().atZone(ZoneId.systemDefault()).toInstant());
+            newRoom.setStartTime(request.startTime().toInstant());
         }
         if (request.endTime() != null) {
-            newRoom.setEndTime(request.endTime().atZone(ZoneId.systemDefault()).toInstant());
+            newRoom.setEndTime(request.endTime().toInstant());
         }
         String password = request.password();
         return roomDomainService.createRoom(newRoom, password);
@@ -137,17 +136,17 @@ public class RoomService {
     public List<Room> searchRooms(
             String keyword,
             String genre,
-            LocalDateTime startFrom,
-            LocalDateTime startTo,
-            LocalDateTime endFrom,
-            LocalDateTime endTo,
+            OffsetDateTime startFrom,
+            OffsetDateTime startTo,
+            OffsetDateTime endFrom,
+            OffsetDateTime endTo,
             Integer pagesMin,
             Integer pagesMax) {
         // パラメータをInstantに変換
-        Instant startFromI = (startFrom != null) ? startFrom.atZone(ZoneId.systemDefault()).toInstant() : null;
-        Instant startToI = (startTo != null) ? startTo.atZone(ZoneId.systemDefault()).toInstant() : null;
-        Instant endFromI = (endFrom != null) ? endFrom.atZone(ZoneId.systemDefault()).toInstant() : null;
-        Instant endToI = (endTo != null) ? endTo.atZone(ZoneId.systemDefault()).toInstant() : null;
+        Instant startFromI = (startFrom != null) ? startFrom.toInstant() : null;
+        Instant startToI = (startTo != null) ? startTo.toInstant() : null;
+        Instant endFromI = (endFrom != null) ? endFrom.toInstant() : null;
+        Instant endToI = (endTo != null) ? endTo.toInstant() : null;
         // DBレベルで条件検索
         List<Room> rooms = roomRepository.findByConditions(
                 keyword, genre, startFromI, startToI, endFromI, endToI, pagesMin, pagesMax);
@@ -275,10 +274,10 @@ public class RoomService {
             room.setGenre(request.genre());
         }
         if (request.startTime() != null) {
-            room.setStartTime(request.startTime().atZone(ZoneId.systemDefault()).toInstant());
+            room.setStartTime(request.startTime().toInstant());
         }
         if (request.endTime() != null) {
-            room.setEndTime(request.endTime().atZone(ZoneId.systemDefault()).toInstant());
+            room.setEndTime(request.endTime().toInstant());
         }
         return roomRepository.save(room);
     }
@@ -311,10 +310,10 @@ public class RoomService {
     public List<Room> searchRooms(
             String keyword,
             String genre,
-            LocalDateTime startFrom,
-            LocalDateTime startTo,
-            LocalDateTime endFrom,
-            LocalDateTime endTo,
+            OffsetDateTime startFrom,
+            OffsetDateTime startTo,
+            OffsetDateTime endFrom,
+            OffsetDateTime endTo,
             Integer pagesMin,
             Integer pagesMax,
             boolean openOnly,

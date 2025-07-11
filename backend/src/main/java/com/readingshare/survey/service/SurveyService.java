@@ -1,5 +1,6 @@
 package com.readingshare.survey.service;
 
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -77,7 +78,7 @@ public class SurveyService {
                     .map(q -> new Question(q.questionText(), q.options(), q.questionType(),
                             q.allowAnonymous(), q.allowAddOptions()))
                     .collect(Collectors.toList());
-            Survey survey = new Survey(request.roomId(), request.title(), questions, request.endTime());
+            Survey survey = new Survey(request.roomId(), request.title(), questions, request.endTime().toInstant());
             Survey savedSurvey = surveyRepository.save(survey);
 
             // チャット通知を送信
@@ -179,6 +180,6 @@ public class SurveyService {
         }
         int totalRespondents = (int) answers.stream().map(SurveyAnswer::getUserId).distinct().count();
         return new SurveyResultResponse(survey.getId(), survey.getTitle(), totalRespondents, questionResults,
-                survey.getEndTime(), survey.isExpired());
+                survey.getEndTime().atOffset(ZoneOffset.UTC), survey.isExpired());
     }
 }

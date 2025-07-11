@@ -1,8 +1,7 @@
 package com.readingshare.room.dto;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -11,6 +10,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public record UpdateRoomRequest(
         @JsonProperty("totalPages") Integer totalPages,
         @JsonProperty("genre") String genre,
-        @JsonProperty("startTime") @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime startTime,
-        @JsonProperty("endTime") @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime endTime) {
+        @JsonProperty("startTime") OffsetDateTime startTime,
+        @JsonProperty("endTime") OffsetDateTime endTime) {
 }

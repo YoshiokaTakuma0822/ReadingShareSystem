@@ -1,6 +1,6 @@
 package com.readingshare.survey.domain.model;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -39,7 +39,7 @@ public class SurveyAnswer {
     private boolean isAnonymous; // 匿名回答かどうか
 
     @Column(name = "answered_at")
-    private LocalDateTime answeredAt;
+    private Instant answeredAt;
 
     public SurveyAnswer() {
     }
@@ -57,7 +57,7 @@ public class SurveyAnswer {
         this.userId = userId;
         this.answers = answers;
         this.isAnonymous = isAnonymous;
-        this.answeredAt = LocalDateTime.now();
+        this.answeredAt = Instant.now();
     }
 
     public void setAnswers(Map<String, List<String>> answers) {
@@ -81,7 +81,7 @@ public class SurveyAnswer {
         return userId;
     }
 
-    public LocalDateTime getAnsweredAt() {
+    public Instant getAnsweredAt() {
         return answeredAt;
     }
 

@@ -1,6 +1,6 @@
 package com.readingshare.survey.dto;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -11,7 +11,7 @@ public record CreateSurveyRequest(
         UUID roomId,
         String title,
         List<QuestionDto> questions,
-        LocalDateTime endTime) {
+        OffsetDateTime endTime) {
     public record QuestionDto(
             String questionText,
             List<String> options,
