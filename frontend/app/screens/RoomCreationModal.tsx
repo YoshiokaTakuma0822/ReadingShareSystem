@@ -20,10 +20,11 @@ interface RoomCreationModalProps {
 
 const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onClose, onCreated }) => {
     // 日付を 'YYYY-MM-DDTHH:mm' 形式のローカル日時文字列に変換
-    const toDatetimeLocal = (date: Date) => {
-        const tzOffset = date.getTimezoneOffset() * 60000
-        return new Date(date.getTime() - tzOffset).toISOString().slice(0, 16)
-    }
+    const toDatetimeLocal = (date: Date) =>
+        date.toLocaleString('sv-SE', { hour12: false })
+            .slice(0, 16)
+            .replace(' ', 'T')
+
     // 現在時刻のローカル日時文字列を取得
     const getCurrentDateTimeLocal = () => toDatetimeLocal(new Date())
     // 一週間後のローカル日時文字列を取得
