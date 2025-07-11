@@ -19,28 +19,15 @@ interface RoomCreationModalProps {
 }
 
 const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onClose, onCreated }) => {
-    // 現在時刻を取得するヘルパー関数
-    const getCurrentDateTimeLocal = () => {
-        const now = new Date()
-        const year = now.getFullYear()
-        const month = String(now.getMonth() + 1).padStart(2, '0')
-        const day = String(now.getDate()).padStart(2, '0')
-        const hours = String(now.getHours()).padStart(2, '0')
-        const minutes = String(now.getMinutes()).padStart(2, '0')
-        return `${year}-${month}-${day}T${hours}:${minutes}`
+    // 日付を 'YYYY-MM-DDTHH:mm' 形式のローカル日時文字列に変換
+    const toDatetimeLocal = (date: Date) => {
+        const tzOffset = date.getTimezoneOffset() * 60000
+        return new Date(date.getTime() - tzOffset).toISOString().slice(0, 16)
     }
-
-    // 一週間後の時刻を取得するヘルパー関数
-    const getOneWeekLaterDateTimeLocal = () => {
-        const oneWeekLater = new Date()
-        oneWeekLater.setDate(oneWeekLater.getDate() + 7)
-        const year = oneWeekLater.getFullYear()
-        const month = String(oneWeekLater.getMonth() + 1).padStart(2, '0')
-        const day = String(oneWeekLater.getDate()).padStart(2, '0')
-        const hours = String(oneWeekLater.getHours()).padStart(2, '0')
-        const minutes = String(oneWeekLater.getMinutes()).padStart(2, '0')
-        return `${year}-${month}-${day}T${hours}:${minutes}`
-    }
+    // 現在時刻のローカル日時文字列を取得
+    const getCurrentDateTimeLocal = () => toDatetimeLocal(new Date())
+    // 一週間後のローカル日時文字列を取得
+    const getOneWeekLaterDateTimeLocal = () => toDatetimeLocal(new Date(Date.now() + 7 * 24 * 3600 * 1000))
 
     const [roomName, setRoomName] = useState('')
     const [bookTitle, setBookTitle] = useState('') // 追加: 本のタイトル

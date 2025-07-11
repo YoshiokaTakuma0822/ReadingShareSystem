@@ -13,17 +13,13 @@ interface SurveyCreationModalProps {
 }
 
 const SurveyCreationModal: React.FC<SurveyCreationModalProps> = ({ open, roomId, onClose, onCreated }) => {
-    // 現在時刻+1時間を取得するヘルパー関数
-    const getOneHourLaterDateTimeLocal = () => {
-        const oneHourLater = new Date()
-        oneHourLater.setHours(oneHourLater.getHours() + 1)
-        const year = oneHourLater.getFullYear()
-        const month = String(oneHourLater.getMonth() + 1).padStart(2, '0')
-        const day = String(oneHourLater.getDate()).padStart(2, '0')
-        const hours = String(oneHourLater.getHours()).padStart(2, '0')
-        const minutes = String(oneHourLater.getMinutes()).padStart(2, '0')
-        return `${year}-${month}-${day}T${hours}:${minutes}`
+    // 日付を 'YYYY-MM-DDTHH:mm' 形式のローカル日時文字列に変換
+    const toDatetimeLocal = (date: Date) => {
+        const tzOffset = date.getTimezoneOffset() * 60000
+        return new Date(date.getTime() - tzOffset).toISOString().slice(0, 16)
     }
+    // 現在時刻から1時間後のローカル日時文字列を取得
+    const getOneHourLaterDateTimeLocal = () => toDatetimeLocal(new Date(Date.now() + 3600 * 1000))
 
     const [title, setTitle] = useState("")
     const [options, setOptions] = useState(["", ""])
