@@ -444,6 +444,7 @@ const HomeScreen: React.FC = () => {
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                                     <input
                                         type="number"
+                                        min={0}
                                         value={minPages}
                                         onChange={e => setMinPages(e.target.value)}
                                         placeholder="最小"
@@ -452,6 +453,7 @@ const HomeScreen: React.FC = () => {
                                     <span style={{ color: '#888' }}>～</span>
                                     <input
                                         type="number"
+                                        min={0}
                                         value={maxPages}
                                         onChange={e => setMaxPages(e.target.value)}
                                         placeholder="最大"
