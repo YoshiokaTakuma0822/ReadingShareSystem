@@ -19,16 +19,9 @@ interface RoomCreationModalProps {
 }
 
 const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onClose, onCreated }) => {
-    // 日付を 'YYYY-MM-DDTHH:mm' 形式のローカル日時文字列に変換
-    const toDatetimeLocal = (date: Date) =>
-        date.toLocaleString('sv-SE', { hour12: false })
-            .slice(0, 16)
-            .replace(' ', 'T')
-
-    // 現在時刻のローカル日時文字列を取得
-    const getCurrentDateTimeLocal = () => toDatetimeLocal(new Date())
-    // 一週間後のローカル日時文字列を取得
-    const getOneWeekLaterDateTimeLocal = () => toDatetimeLocal(new Date(Date.now() + 7 * 24 * 3600 * 1000))
+    // 開始/終了時刻は Date で管理し、バックエンドへは ISO8601 Zulu を送信
+    const [startTime, setStartTime] = useState<Date>(new Date())
+    const [endTime, setEndTime] = useState<Date>(() => new Date(Date.now() + 7 * 24 * 3600 * 1000))
 
     const [roomName, setRoomName] = useState('')
     const [bookTitle, setBookTitle] = useState('') // 追加: 本のタイトル
@@ -36,8 +29,6 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [genre, setGenre] = useState('小説')
-    const [startTime, setStartTime] = useState(() => getCurrentDateTimeLocal()) // 初期化: 現在時刻
-    const [endTime, setEndTime] = useState(() => getOneWeekLaterDateTimeLocal()) // 初期化: 一週間後
     const [totalPages, setTotalPages] = useState<number>(300) // 追加: 本の全ページ数
     const [passwordType, setPasswordType] = useState<'none' | 'set'>('none')
 
@@ -103,8 +94,8 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
             setBookTitle('')
             setPassword('')
             setGenre('小説')
-            setStartTime(getCurrentDateTimeLocal()) // 初期化: 現在時刻
-            setEndTime(getOneWeekLaterDateTimeLocal()) // 初期化: 一週間後
+            setStartTime(new Date()) // 初期化: 現在時刻
+            setEndTime(new Date(Date.now() + 7 * 24 * 3600 * 1000)) // 初期化: 一週間後
             setTotalPages(300)
             setPasswordType('none')
             setError(null)
@@ -118,8 +109,8 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
             setBookTitle('')
             setPassword('')
             setGenre('小説')
-            setStartTime(getCurrentDateTimeLocal()) // 初期化: 現在時刻
-            setEndTime(getOneWeekLaterDateTimeLocal()) // 初期化: 一週間後
+            setStartTime(new Date()) // 初期化: 現在時刻
+            setEndTime(new Date(Date.now() + 7 * 24 * 3600 * 1000)) // 初期化: 一週間後
             setTotalPages(300)
             setPasswordType('none')
             setError(null)
@@ -282,8 +273,8 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
                             <label>開始時刻</label>
                             <input
                                 type="datetime-local"
-                                value={startTime}
-                                onChange={e => setStartTime(e.target.value)}
+                                value={startTime.toISOString().slice(0, 16)}
+                                onChange={e => setStartTime(new Date(e.target.value))}
                                 style={{ width: '100%', padding: 8, marginTop: 4 }}
                                 tabIndex={7}
                             />
@@ -292,8 +283,8 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
                             <label>終了時刻</label>
                             <input
                                 type="datetime-local"
-                                value={endTime}
-                                onChange={e => setEndTime(e.target.value)}
+                                value={endTime.toISOString().slice(0, 16)}
+                                onChange={e => setEndTime(new Date(e.target.value))}
                                 style={{ width: '100%', padding: 8, marginTop: 4 }}
                                 tabIndex={8}
                             />
