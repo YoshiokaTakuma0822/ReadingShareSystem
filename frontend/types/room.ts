@@ -1,4 +1,4 @@
-import { UserId, Username, User } from './auth'
+import { UserId } from './auth'
 
 export type RoomId = string // 部屋ID (UUID)
 
@@ -7,11 +7,11 @@ export interface Room {
     roomName: string
     bookTitle: string // バックエンドのエンティティから追加
     hostUserId: UserId // バックエンドのエンティティに合わせてhostUserからhostUserIdに変更
-    createdAt: string // 部屋作成時刻 (Instant)
+    createdAt: string // 作成時刻 (ISO 8601 オフセット付き日時)
     hasPassword: boolean // パスワード保護されているかどうか
     genre?: string // ジャンル
-    startTime?: string // ISO8601形式
-    endTime?: string // ISO8601形式
+    startTime?: string // 開始時刻 (ISO 8601 オフセット付き日時)
+    endTime?: string // 終了時刻 (ISO 8601 オフセット付き日時)
     totalPages?: number // 追加: 本の全ページ数
 }
 
@@ -40,7 +40,7 @@ export interface RoomMember {
     id: string // UUID
     roomId: RoomId
     userId: UserId
-    joinedAt: string // Instant
+    joinedAt: string // 参加時刻 (ISO 8601 オフセット付き日時)
     username: string // ユーザー名を追加
 }
 
