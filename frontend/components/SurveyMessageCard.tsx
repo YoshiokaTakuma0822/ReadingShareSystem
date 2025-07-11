@@ -267,7 +267,7 @@ const SurveyMessageCard: React.FC<SurveyMessageCardProps> = ({ msg, isMine, curr
                                 <div style={{ marginBottom: 12, fontSize: 12, color: '#666' }}>
                                     終了時刻: {new Date(surveyData.endTime).toLocaleString()}
                                     {isExpired() && (
-                                        <span style={{ color: '#d32f2f', fontWeight: 'bold', marginLeft: 8 }}>
+                                        <span style={{ fontWeight: 'bold', marginLeft: 8 }}>
                                             [終了済み]
                                         </span>
                                     )}
