@@ -18,8 +18,8 @@ export interface Survey {
     roomId: RoomId
     title: string
     questions: Question[]
-    createdAt: string // 作成時刻 (LocalDateTime)
-    endTime?: string // 終了時刻 (LocalDateTime)
+    createdAt: string // 作成時刻 (ISO 8601 オフセット付き日時)
+    endTime?: string // 終了時刻 (ISO 8601 オフセット付き日時)
 }
 
 export interface SurveyAnswer {
@@ -28,7 +28,7 @@ export interface SurveyAnswer {
     userId: UserId
     answers: Map<string, string[]> // バックエンドのエンティティに合わせて変更
     isAnonymous: boolean // 匿名回答かどうか (バックエンドから追加)
-    answeredAt: string // 回答時刻 (LocalDateTime)
+    answeredAt: string // 回答時刻 (ISO 8601 オフセット付き日時)
 }
 
 export interface SubmitSurveyAnswerRequest {
@@ -41,7 +41,7 @@ export interface CreateSurveyRequest {
     roomId: RoomId
     title: string
     questions: Question[] // バックエンドのエンティティに合わせて変更
-    endTime?: string // 終了時刻 (LocalDateTime)
+    endTime?: string // 終了時刻 (ISO 8601 オフセット付き日時)
 }
 
 // New DTO types for survey results
@@ -56,6 +56,6 @@ export interface SurveyResult {
     title: string
     totalRespondents: number
     results: QuestionResult[]
-    endTime?: string // 終了時刻 (LocalDateTime)
+    endTime?: string // 終了時刻 (ISO 8601 オフセット付き日時)
     isExpired?: boolean // 終了しているかどうか
 }
