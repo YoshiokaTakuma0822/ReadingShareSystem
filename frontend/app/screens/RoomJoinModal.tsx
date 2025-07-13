@@ -161,12 +161,12 @@ const RoomJoinModal: React.FC<RoomJoinModalProps> = ({ open, room, userId, onClo
 
                 {/* 参加時刻前または終了時のメッセージ表示 */}
                 {beforeStart && (
-                    <div style={{ color: '#f57c00', marginBottom: 12, textAlign: 'right' }}>
+                    <div style={{ color: '#e17101ff', marginBottom: 12, textAlign: 'right' }}>
                         開始時刻前ですが、参加しますか？
                     </div>
                 )}
                 {afterEnd && (
-                    <div style={{ color: '#f57c00', marginBottom: 12, textAlign: 'right' }}>
+                    <div style={{ color: '#e17101ff', marginBottom: 12, textAlign: 'right' }}>
                         終了時刻後ですが、参加しますか？
                     </div>
                 )}
