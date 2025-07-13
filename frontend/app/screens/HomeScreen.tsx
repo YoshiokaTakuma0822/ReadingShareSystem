@@ -261,6 +261,8 @@ const HomeScreen: React.FC = () => {
         }
     }
 
+    // 現在時刻判定用
+    const now = new Date()
     return (
         <AuthGuard>
             <div style={{ padding: 32, background: 'var(--green-bg)', minHeight: '100vh' }}>
@@ -593,7 +595,17 @@ const HomeScreen: React.FC = () => {
                                         }}
                                     >
                                         <div>
-                                            <h3 style={{ color: 'var(--green-dark)', fontSize: 18, fontWeight: 'bold', marginBottom: 8, overflowWrap: 'break-word', wordBreak: 'break-word' }}>
+                                            <h3 style={{
+                                                color: (
+                                                    (room.startTime && now < new Date(room.startTime)) ||
+                                                    (room.endTime && now > new Date(room.endTime))
+                                                ) ? '#b0b8c9' : 'var(--green-dark)',
+                                                fontSize: 18,
+                                                fontWeight: 'bold',
+                                                marginBottom: 8,
+                                                overflowWrap: 'break-word',
+                                                wordBreak: 'break-word'
+                                            }}>
                                                 {room.roomName}
                                             </h3>
                                             <p style={{ color: 'var(--text-main)', fontSize: 14, marginBottom: 8, overflowWrap: 'break-word', wordBreak: 'break-word' }}>
