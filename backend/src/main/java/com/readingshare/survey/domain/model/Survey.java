@@ -47,9 +47,6 @@ public class Survey {
         if (roomId == null) {
             throw new IllegalArgumentException("Room ID cannot be null.");
         }
-        if (title == null || title.isBlank()) {
-            throw new IllegalArgumentException("Title cannot be null or empty.");
-        }
         if (questions == null || questions.isEmpty()) {
             throw new IllegalArgumentException("Questions cannot be null or empty.");
         }
@@ -95,7 +92,7 @@ public class Survey {
 
     /**
      * アンケートが終了しているかどうかをチェックする
-     * 
+     *
      * @return 終了している場合true、そうでなければfalse
      */
     public boolean isExpired() {

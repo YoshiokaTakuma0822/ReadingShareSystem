@@ -85,6 +85,9 @@ const SurveyCreationModal: React.FC<SurveyCreationModalProps> = ({ open, roomId,
                     case SurveyErrorCode.SURVEY_EXPIRED:
                         setError('アンケートの有効期限が切れています')
                         break
+                    case SurveyErrorCode.EMPTY_TITLE:
+                        setError('タイトルを入力してください')
+                        break
                     default:
                         setError(data.message)
                 }

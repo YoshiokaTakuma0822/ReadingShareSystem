@@ -46,6 +46,13 @@ public class SurveyService {
     @Transactional
     public UUID createSurvey(CreateSurveyRequest request, UUID creatorUserId) {
         try {
+            // タイトルのバリデーション
+            if (request.title() == null || request.title().isBlank()) {
+                throw new ApplicationException(
+                        SurveyErrorCode.EMPTY_TITLE.name(),
+                        "Title cannot be null or empty");
+            }
+
             // roomIdが存在するかチェック
             var roomOpt = roomRepository.findById(request.roomId());
             if (roomOpt.isEmpty()) {

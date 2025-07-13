@@ -10,4 +10,5 @@ export enum SurveyErrorCode {
     DUPLICATE_OPTIONS = 'DUPLICATE_OPTIONS', // 重複選択肢
     ROOM_INACTIVE = 'ROOM_INACTIVE', // 部屋が活動時間外
     SURVEY_EXPIRED = 'SURVEY_EXPIRED', // アンケート終了時刻過ぎ
+    EMPTY_TITLE = 'EMPTY_TITLE', // タイトルが空
 }
