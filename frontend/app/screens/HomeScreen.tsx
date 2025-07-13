@@ -599,7 +599,7 @@ const HomeScreen: React.FC = () => {
                                                 color: (
                                                     (room.startTime && now < new Date(room.startTime)) ||
                                                     (room.endTime && now > new Date(room.endTime))
-                                                ) ? '#b0b8c9' : 'var(--green-dark)',
+                                                ) ? '#949bacff' : 'var(--green-dark)',
                                                 fontSize: 18,
                                                 fontWeight: 'bold',
                                                 marginBottom: 8,
