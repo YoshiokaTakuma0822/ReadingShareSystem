@@ -60,6 +60,13 @@ const RoomJoinModal: React.FC<RoomJoinModalProps> = ({ open, room, userId, onClo
         }
     }
 
+    // 参加開始・終了ステータスの判定
+    const now = new Date()
+    const startTimeDate = room.startTime ? new Date(room.startTime) : null
+    const endTimeDate = room.endTime ? new Date(room.endTime) : null
+    const beforeStart = startTimeDate && now < startTimeDate
+    const afterEnd = endTimeDate && now > endTimeDate
+
     if (!open) return null
 
     const handleBackgroundClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -98,7 +105,7 @@ const RoomJoinModal: React.FC<RoomJoinModalProps> = ({ open, room, userId, onClo
                 onClick={(e) => e.stopPropagation()}
                 onKeyDown={e => {
                     if (e.key === 'Enter' && !loading && (!room.hasPassword || password.trim())) {
-                        handleJoin();
+                        handleJoin()
                     }
                 }}
                 tabIndex={0}
@@ -149,6 +156,18 @@ const RoomJoinModal: React.FC<RoomJoinModalProps> = ({ open, room, userId, onClo
                 {!room.hasPassword && (
                     <div style={{ marginBottom: 16, color: '#388e3c', fontSize: 14 }}>
                         ✓ この部屋はパスワード保護されていません
+                    </div>
+                )}
+
+                {/* 参加時刻前または終了時のメッセージ表示 */}
+                {beforeStart && (
+                    <div style={{ color: '#f57c00', marginBottom: 12, textAlign: 'right' }}>
+                        開始時刻前ですが、参加しますか？
+                    </div>
+                )}
+                {afterEnd && (
+                    <div style={{ color: '#f57c00', marginBottom: 12, textAlign: 'right' }}>
+                        終了時刻後ですが、参加しますか？
                     </div>
                 )}
 
