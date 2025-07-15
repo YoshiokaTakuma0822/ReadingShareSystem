@@ -51,6 +51,11 @@ const RoomCreationModal: React.FC<RoomCreationModalProps> = ({ open, userId, onC
             setError('部屋名は16文字以下にしてください')
             return
         }
+        // 入力バリデーション: 本のタイトルは100文字以下
+        if (bookTitle.length > 100) {
+            setError('本のタイトルは100文字以下にしてください')
+            return
+        }
 
         // 時刻バリデーション
         if (startTime && endTime) {
