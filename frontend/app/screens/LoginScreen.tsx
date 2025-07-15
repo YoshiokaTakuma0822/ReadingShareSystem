@@ -22,10 +22,10 @@ const LoginScreen: React.FC = () => {
 
     const handleLogin = async () => {
         // 入力バリデーション: IDとパスワードは16文字以内の半角英字，数字
-        const pattern = /^[A-Za-z0-9]{1,16}$/;
+        const pattern = /^[A-Za-z0-9]{1,16}$/
         if (!pattern.test(username) || !pattern.test(password)) {
-            setError('ID・パスワードは16文字以内の半角英字，数字です．');
-            return;
+            setError('ID・パスワードは16文字以内の半角英字，数字です')
+            return
         }
         setLoading(true)
         setError(null)
@@ -52,7 +52,7 @@ const LoginScreen: React.FC = () => {
     return (
         <div style={{ maxWidth: 900, minWidth: 520, width: '60vw', height: 540, position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', border: '2px solid #388e3c', padding: 48, borderRadius: 20, background: 'linear-gradient(135deg, #e0f7ef 0%, #f1fdf6 100%)', boxShadow: '0 4px 24px #a5d6a7', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
             onKeyDown={e => {
-                if (e.key === 'Enter') handleLogin();
+                if (e.key === 'Enter') handleLogin()
             }}
         >
             <h1 style={{ textAlign: 'center', fontSize: 36, marginBottom: 32, color: '#388e3c' }}>読書共有システム</h1>
