@@ -31,12 +31,12 @@ const SurveyCreationModal: React.FC<SurveyCreationModalProps> = ({ open, roomId,
     const handleCreate = async () => {
         // タイトル長チェック: 32文字以内
         if (title.length > 32) {
-            setError('メッセージは32文字以内の英字，数字，日本語にしてください．')
+            setError('タイトルは32文字以内にしてください')
             return
         }
         // 選択肢長チェック: 各選択肢は32文字以内
         if (options.some(opt => opt.length > 32)) {
-            setError('選択肢は32文字以内の英字，数字，日本語にしてください．')
+            setError('選択肢は32文字以内にしてください')
             return
         }
 
