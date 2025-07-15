@@ -143,21 +143,30 @@ public class SendChatMessageService {
         // 現在はユーザーの存在チェックのみ
     }
 
+    // 最大メッセージ長（コードポイント単位、サロゲートペアや絵文字を考慮）
+    private static final int MAX_MESSAGE_LENGTH = 1000;
+
     /**
      * メッセージ内容を検証し、MessageContentオブジェクトを作成する。
      */
     private MessageContent validateAndCreateMessageContent(String content) {
-        if (content == null || content.trim().isEmpty()) {
+        if (content == null) {
+            throw new ApplicationException("Message content cannot be empty");
+        }
+        String trimmed = content.trim();
+        if (trimmed.isEmpty()) {
             throw new ApplicationException("Message content cannot be empty");
         }
 
-        // メッセージの長さ制限チェック
-        if (content.length() > 1000) {
-            throw new ApplicationException("Message content is too long. Maximum length is 1000 characters");
+        // メッセージの長さ制限チェック（コードポイント数）
+        int length = trimmed.codePointCount(0, trimmed.length());
+        if (length > MAX_MESSAGE_LENGTH) {
+            throw new ApplicationException(
+                    "Message content is too long. Maximum length is " + MAX_MESSAGE_LENGTH + " characters");
         }
 
         // 不適切な内容のフィルタリング（基本的なもの）
-        String filteredContent = filterInappropriateContent(content.trim());
+        String filteredContent = filterInappropriateContent(trimmed);
 
         return new MessageContent(filteredContent);
     }
