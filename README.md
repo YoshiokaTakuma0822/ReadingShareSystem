@@ -28,29 +28,12 @@ ReadingShareSystem/
 ## セットアップと実行方法
 ローカル開発環境では Docker Compose を使用します。
 
-1. リポジトリをクローン
+1. Docker イメージのビルドとコンテナ起動
    ```bash
-   git clone https://github.com/YoshiokaTakuma0822/ReadingShareSystem.git
-   cd ReadingShareSystem
+   docker compose up --build
    ```
-2. Docker イメージのビルドとコンテナ起動
-   ```bash
-   docker-compose up --build
-   ```
-3. ブラウザで http://localhost を開く
-
-## 環境変数
-- `.env` ファイルに以下を設定してください
-  ```
-  SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/reading
-  SPRING_DATASOURCE_USERNAME=postgres
-  SPRING_DATASOURCE_PASSWORD=your_password
-  NEXT_PUBLIC_API_BASE_URL=http://localhost:8080/api
-  ```
+2. ブラウザで http://localhost を開く
 
 ## 開発
 - フロントエンド: `cd frontend && npm install && npm run dev`
 - バックエンド: `cd backend && ./mvnw spring-boot:run`
-
-## ライセンス
-MIT License
