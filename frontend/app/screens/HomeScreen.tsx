@@ -170,6 +170,16 @@ const HomeScreen: React.FC = () => {
         }
     }, [])
 
+    // ユーザー名からイニシャル（頭文字1文字）を取得
+    const getInitial = (name: string) => {
+        if (!name) return ''
+        // スペース区切りなら最初の文字、なければ1文字目
+        const trimmed = name.trim()
+        if (trimmed.length === 0) return ''
+        // 日本語・英語対応: 先頭の1文字
+        return trimmed.charAt(0)
+    }
+
     // 経過時間を計算
     const [elapsed, setElapsed] = useState('')
     React.useEffect(() => {
@@ -314,13 +324,13 @@ const HomeScreen: React.FC = () => {
                                     alignItems: 'center',
                                     justifyContent: 'center',
                                     fontWeight: 'bold',
-                                    fontSize: 16,
+                                    fontSize: 22,
                                     cursor: 'pointer',
                                     position: 'relative',
                                     marginRight: 16
                                 }}
                             >
-                                {userName}
+                                {getInitial(userName)}
                             </div>
                         </HoverPopover>
                     </div>
