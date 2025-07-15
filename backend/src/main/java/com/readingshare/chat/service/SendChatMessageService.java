@@ -152,24 +152,13 @@ public class SendChatMessageService {
         }
 
         // メッセージの長さ制限チェック
-        if (content.length() > 1000) {
+        if (content.trim().length() > 1000) {
             throw new ApplicationException("Message content is too long. Maximum length is 1000 characters");
         }
 
         // 不適切な内容のフィルタリング（基本的なもの）
-        String filteredContent = filterInappropriateContent(content.trim());
+        String filteredContent = content.trim();
 
         return new MessageContent(filteredContent);
-    }
-
-    /**
-     * 不適切な内容の基本的なフィルタリングを行う。
-     */
-    private String filterInappropriateContent(String content) {
-        // TODO: より高度なコンテンツフィルタリングを実装
-        // 現在は基本的なHTML/スクリプトタグの除去のみ
-        return content.replaceAll("<[^>]*>", "")
-                .replaceAll("script", "")
-                .replaceAll("javascript:", "");
     }
 }
