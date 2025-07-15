@@ -11,11 +11,6 @@ spring:
         hibernate:
             ddl-auto: update
         open-in-view: false
-        # properties:
-        #     "javax.persistence.schema-generation.scripts.action": "create"
-        #     "javax.persistence.schema-generation.scripts.create-source": "metadata"
-        #     "javax.persistence.schema-generation.scripts.create-target": "target/generated-schema.sql"
-        #     "javax.persistence.schema-generation.scripts.drop-target": "target/drop-schema.sql"
 
     devtools:
         restart:
