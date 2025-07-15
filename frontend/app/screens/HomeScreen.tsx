@@ -314,7 +314,7 @@ const HomeScreen: React.FC = () => {
                                     alignItems: 'center',
                                     justifyContent: 'center',
                                     fontWeight: 'bold',
-                                    fontSize: 16,
+                                    fontSize: 20,
                                     cursor: 'pointer',
                                     position: 'relative',
                                     marginRight: 16
