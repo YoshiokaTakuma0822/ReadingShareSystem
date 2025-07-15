@@ -99,7 +99,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ roomId }) => {
         roomApi.getRoomMembers(roomId)
             .then((memberList: RoomMember[]) => {
                 setMembers(memberList.map(m => ({
-                    name: m.username ? m.username.charAt(0) : '？',
+                    name: m.username ? m.username.charAt(0) : '?',
                     page: 1,
                     color: '#222',
                     userId: m.userId
