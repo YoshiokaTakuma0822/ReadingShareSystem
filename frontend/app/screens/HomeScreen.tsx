@@ -320,7 +320,7 @@ const HomeScreen: React.FC = () => {
                                     marginRight: 16
                                 }}
                             >
-                                {userName}
+                                {userName ? userName.charAt(0) : '?'}
                             </div>
                         </HoverPopover>
                     </div>
